@@ -39,6 +39,7 @@ $ReportHelp = 0;
 $Stow = undef;
 $Target = undef;
 $Restow = 0;
+$Force = 0;
 @Subdirs = ();
 
 
@@ -55,6 +56,11 @@ while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
     } elsif ($opt =~ /^c(o(n(f(l(i(c(ts?)?)?)?)?)?)?)?$/i) {
       $Conflicts = 1;
       $NotReally = 1;
+    } elsif ($opt =~ /^i(g(n(o(r(e?)?)?)?)?)$/i) {
+      $Conflicts = 1;
+    } elsif ($opt =~ /^f(o(r(c(e?)?)?)?)$/i) {
+      $Force = 1;
+      $Conflicts = 1;
     } elsif ($opt =~ /^dir?/i) {
       $remainder = $';
       if ($remainder =~ /^=/) {
@@ -103,6 +109,11 @@ while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
       } elsif ($_ eq 'c') {
 	$Conflicts = 1;
 	$NotReally = 1;
+      } elsif ($_ eq 'i') {
+	$Conflicts = 1;
+      } elsif ($_ eq 'f') {
+	$Force = 1;
+	$Conflicts = 1;
       } elsif ($_ eq 'd') {
 	$Stow = (join('', @opts) || shift);
 	@opts = ();
@@ -434,23 +445,27 @@ sub StowNondir {
 		     $linktarget))
       || (&Conflict($file, $subfile), return);
     if (-e &JoinPaths($Stow, $stowsubfile)) {
-      (&Conflict($file, $subfile), return)
-	unless ($stowsubfile eq $file);
-      warn sprintf("%s already points to %s\n",
-		   &JoinPaths($Target, $subfile),
-		   &JoinPaths($Stow, $file))
-	if ($Verbose > 2);
-    } else {
-      &DoUnlink(&JoinPaths($Target, $subfile));
-      &DoLink(&JoinPaths($stow, $file),
-	      &JoinPaths($Target, $subfile));
+      if ($stowsubfile eq $file) {
+	warn sprintf("%s already points to %s\n",
+		     &JoinPaths($Target, $subfile),
+		     &JoinPaths($Stow, $file))
+	    if ($Verbose > 2);
+	return;
+      } else {
+	&Conflict($file, $subfile);
+	return unless $Force;
+	warn "OVERRIDING link to ". &JoinPaths($Stow, $stowsubfile) . "\n"
+	    if $Verbose;
+      }
     }
+    &DoUnlink(&JoinPaths($Target, $subfile));
   } elsif (-e &JoinPaths($Target, $subfile)) {
     &Conflict($file, $subfile);
-  } else {
-    &DoLink(&JoinPaths($stow, $file),
-	    &JoinPaths($Target, $subfile));
+    return;
   }
+
+  &DoLink(&JoinPaths($stow, $file),
+	  &JoinPaths($Target, $subfile));
 }
 
 sub DoUnlink {
@@ -544,6 +559,8 @@ sub usage {
   print <<EOT;
   -n, --no              Do not actually make changes
   -c, --conflicts       Scan for conflicts, implies -n
+  -i, --ignore          Ignore conflicts.
+  -f, --force           Try to override conflicts.
   -d DIR, --dir=DIR     Set stow dir to DIR (default is current dir)
   -t DIR, --target=DIR  Set target to DIR (default is parent of stow dir)
   -s DIR:DIR,

@@ -4,11 +4,6 @@
 
 * Fix empty-dir problem (see "Known bugs" in the manual)
 
-* Continue after conflicts.
-
-When detecting a conflict, affected subparts of the Stow traversal can
-be skipped while continuing with other subparts.
-
 * Traverse links in the target tree?
 
 From e-mail with meyering@na-net.ornl.gov:

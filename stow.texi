@@ -241,6 +241,18 @@ implies @samp{-n}, and is used to search for all conflicts that might
 arise from an actual Stow operation.  As with @samp{-n}, however,
 false conflicts might be reported (@pxref{Conflicts}).
 
+@item -i
+@itemx --ignore
+Do not exit immediatly when a conflict is encountered, but continue
+processing the package.
+
+@item -f
+@itemx --force
+Try to override conflicts by removing conflicting links.  This will
+only remove links to other packages in the stow directory.  Other
+links or files will not be removed (it will be similar to @samp{-i} in
+that case).
+
 @item -d @var{dir}
 @itemx --dir=@var{dir}
 Set the stow directory to @var{dir} instead of the current directory.
@@ -697,8 +709,8 @@ where Stow needs it to, then no conflict has occurred.  (Thus it
 is harmless to install a package that has already been installed.)
 
 A conflict causes Stow to exit immediately and print a warning
-(unless @samp{-c} is given), even if that means aborting an installation
-in mid-package.
+(unless @samp{-c}, @samp{-i} or @samp{-f} are given), even if that means
+aborting an installation in mid-package.
 
 @cindex false conflict
 When running Stow with the @samp{-n} or @samp{-c} options, no actual

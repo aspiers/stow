@@ -181,6 +181,20 @@ option implies `-n', and is used to search for all conflicts that
 might arise from an actual Stow operation. As with `-n', however,
 false conflicts might be reported (see ``Conflicts'' in the info manual).
 .TP
+.I -i
+.TP
+.I --ignore
+Do not exit immediatly when a conflict is encountered, but continue
+processing the package.
+.TP
+.I -f
+.TP
+.I --force
+Try to override conflicts by removing conflicting links.  This will
+only remove links to other packages in the stow directory.  Other
+links or files will not be removed (it will be similar to `-i' in
+that case).
+.TP
 .I "-d DIR"
 .TP
 .I --dir=DIR
