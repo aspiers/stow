@@ -5,3 +5,5 @@ Contributions from Gord Matzigkeit <gord@enci.ucalgary.ca>.
 
 John Bazik wrote `fastcwd', the Perl subroutine for computing the
 current working directory.
+
+Stow is currently maintained by Guillaume Morin <gmorin@gnu.org>.
