@@ -40,6 +40,8 @@ $Stow = undef;
 $Target = undef;
 $Restow = 0;
 
+
+# FIXME: use Getopt::Long
 while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
   $opt = $';
   shift;
@@ -114,10 +116,13 @@ while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
 
 &usage("No packages named") unless @ARGV;
 
+# Changing dirs helps a lot when soft links are used
 $current_dir = &getcwd;
 if ($Stow) {
   chdir($Stow) || die "Cannot chdir to target tree $Stow ($!)\n";
 }
+
+# This prevents problems if $Target was supplied as a relative path
 $Stow = &getcwd;
 
 chdir($current_dir) || die "Your directory does not seem to exist anymore ($!)\n";
@@ -159,6 +164,9 @@ sub CommonParent {
   $result;
 }
 
+# Find the relative patch between
+# two paths given as arguments.
+
 sub RelativePath {
   local($a, $b) = @_;
   local($c) = &CommonParent($a, $b);
@@ -176,6 +184,9 @@ sub RelativePath {
   unshift(@b, (('..') x (@a + 0)));
   &JoinPaths(@b);
 }
+
+# Basically concatenates the paths given
+# as arguments
 
 sub JoinPaths {
   local(@paths, @parts);
@@ -265,6 +276,8 @@ sub Unstow {
       $pure = 0;
     }
   }
+  # This directory was an initially empty directory therefore
+  # We do not remove it.
   $pure = 0 if $empty;
   if ((!$pure || !$targetdir) && @puresubdirs) {
     &CoalesceTrees($targetdir, $stow, @puresubdirs);
