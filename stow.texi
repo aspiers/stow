@@ -148,7 +148,7 @@ directory (e.g., @file{/usr/local/stow/emacs}), so it's always possible
 to rebuild the target tree (e.g., @file{/usr/local}).
 
 For information about the latest version of Stow, you can refer to
-http://www.gnu.ai.mit.edu/software/stow/stow.html.
+http://www.gnu.org/software/stow/.
 
 @node Terminology, Invoking Stow, Introduction, Top
 @chapter Terminology
