@@ -1,3 +1,8 @@
+Sun Jan 20 12:41:39 2002  Guillaume Morin  <gmorin@gnu.org>
+
+    * stow.in: fixed a bug if the stow directory is /foo.
+      Bug spotted and fixed by Jim Radford <radford@blackbean.org>.
+
 Wed Jan  9 02:20:15 2002  Gaël Roualland  <gael.roualland@iname.com>
 
     * stow.in: added the '--ignore' and '--force' options.

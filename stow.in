@@ -545,7 +545,9 @@ sub parent {
   local($path) = join('/', @_);
   local(@elts) = split(/\/+/, $path);
   pop(@elts);
-  join('/', @elts);
+  # if @_ = ('/foo')
+  # join('/',@elts) would be ''
+  join('/', @elts) || '/';
 }
 
 sub usage {
