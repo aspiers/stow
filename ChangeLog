@@ -1,3 +1,9 @@
+Sun Dec 30 21:58:25 2001  Guillaume Morin  <gmorin@gnu.org>
+
+    * stow.in: fixed a bug introduced by previous changes when
+	  Target argument was relative. (thanks to Luca Filipozzi
+	  <lfilipoz@debian.org> for pointing this out)
+	   
 Sun Dec 30 18:23:25 2001  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: now requires Perl 5. Use POSIX getcwd instead of broken

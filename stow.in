@@ -109,10 +109,13 @@ while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
 
 &usage("No packages named") unless @ARGV;
 
+$current_dir = &getcwd;
 if ($Stow) {
   chdir($Stow) || die "Cannot chdir to target tree $Stow ($!)\n";
 }
 $Stow = &getcwd;
+
+chdir($current_dir) || die "Your directory does not seem to exist anymore ($!)\n";
 
 $Target = &parent($Stow) unless $Target;
 
