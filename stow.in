@@ -42,101 +42,23 @@ $Restow = 0;
 $Force = 0;
 @Subdirs = ();
 
+use Getopt::Long;
+Getopt::Long::Configure ("gnu_getopt");
 
-# FIXME: use Getopt::Long
-while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
-  $opt = $';
-  shift;
-  last if /^--$/;
-
-  if ($opt =~ /^-/) {
-    $opt = $';
-    if ($opt =~ /^no?$/i) {
-      $NotReally = 1;
-    } elsif ($opt =~ /^c(o(n(f(l(i(c(ts?)?)?)?)?)?)?)?$/i) {
-      $Conflicts = 1;
-      $NotReally = 1;
-    } elsif ($opt =~ /^i(g(n(o(r(e?)?)?)?)?)$/i) {
-      $Conflicts = 1;
-    } elsif ($opt =~ /^f(o(r(c(e?)?)?)?)$/i) {
-      $Force = 1;
-      $Conflicts = 1;
-    } elsif ($opt =~ /^dir?/i) {
-      $remainder = $';
-      if ($remainder =~ /^=/) {
-	$Stow = $';		# the stuff after the =
-      } else {
-	$Stow = shift;
-      }
-    } elsif ($opt =~ /^t(a(r(g(et?)?)?)?)?/i) {
-      $remainder = $';
-      if ($remainder =~ /^=/) {
-	$Target = $';		# the stuff after the =
-      } else {
-	$Target = shift;
-      }
-    } elsif ($opt =~ /^s(u(b(d(i(rs?)?)?)?)?)?/i) {
-      $remainder = $';
-      if ($remainder =~ /^=/) {
-        $remainder = $'; # the stuff after the =
-      } else {
-        $remainder = shift; # the following argument
-      }
-      @Subdirs = split(/:/, $remainder);
-      warn "remainder='$remainder' Subdirs = (@Subdirs)\n" if ($Verbose > 1);
-    } elsif ($opt =~ /^verb(o(se?)?)?/i) {
-      $remainder = $';
-      if ($remainder =~ /^=(\d+)/) {
-	$Verbose = $1;
-      } else {
-	++$Verbose;
-      }
-    } elsif ($opt =~ /^de(l(e(te?)?)?)?$/i) {
-      $Delete = 1;
-    } elsif ($opt =~ /^r(e(s(t(o(w?)?)?)?)?)?$/i) {
-      $Restow = 1;
-    } elsif ($opt =~ /^vers(i(on?)?)?$/i) {
-      &version();
-    } else {
-      &usage(($opt =~ /^h(e(lp?)?)?$/) ? undef :
-	     "unknown or ambiguous option: $opt");
-    }
-  } else {
-    @opts = split(//, $opt);
-    while ($_ = shift(@opts)) {
-      if ($_ eq 'n') {
-	$NotReally = 1;
-      } elsif ($_ eq 'c') {
-	$Conflicts = 1;
-	$NotReally = 1;
-      } elsif ($_ eq 'i') {
-	$Conflicts = 1;
-      } elsif ($_ eq 'f') {
-	$Force = 1;
-	$Conflicts = 1;
-      } elsif ($_ eq 'd') {
-	$Stow = (join('', @opts) || shift);
-	@opts = ();
-      } elsif ($_ eq 't') {
-	$Target = (join('', @opts) || shift);
-	@opts = ();
-      } elsif ($_ eq 'v') {
-	++$Verbose;
-      } elsif ($_ eq 'D') {
-	$Delete = 1;
-      } elsif ($_ eq 'R') {
-	$Restow = 1;
-      } elsif ($_ eq 's') { 
-        @Subdirs = split(/:/, (join('', @opts) || shift));
-        @opts = ();
-      } elsif ($_ eq 'V') {
-	&version();
-      } else {
-	&usage(($_ eq 'h') ? undef : "unknown option: $_");
-      }
-    }
-  }
-}
+GetOptions(
+  'n|no' => \$NotReally,
+  'c|conflicts' => sub { $Conflicts = 1; $NotReally = 1; },
+  'i|ignore' => \$Conflicts,
+  'f|force' => sub { $Force = 1; $Conflicts = 1; },
+  'd|dir=s' => \$Stow,
+  't|target=s' => \$Target,
+  's|subdirs=s' => sub { my($arg, $val) = @_; @Subdirs = split( /:/, $val ); },
+  'v|verbose:i' => sub { my($arg, $val) = @_; $Verbose = $val ? $val : $Verbose + 1; },
+  'D|delete' => \$Delete,
+  'R|restow' => \$Restow,
+  'V|version' => sub { my($arg, $val) = @_; &version() if ( $val ); },
+  'h|help' => sub { my($arg, $val) = @_; &usage(undef) if ($val); },
+) or usage(undef);
 
 &usage("No packages named") unless @ARGV;
 
