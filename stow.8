@@ -1,4 +1,4 @@
-.TH STOW 8 "28 March 1998"
+.TH STOW 8 "24 January 2002"
 .SH NAME
 stow \- software package installation manager
 .SH SYNOPSIS
@@ -403,27 +403,9 @@ The info manual ``Stow 1.3.4:
 Managing the installation of software packages''
 by Bob Glickstein, Zanshin Software, Inc.
 .SH BUGS
-Please report bugs in Stow using the Debian bug tracking system.
+Please report bugs in Stow to <bug-stow@gnu.org>.
 .PP
 Currently known bugs include:
-.IP *
-The empty-directory problem. If package FOO includes an empty
-directory--say, FOO/BAR--then:
-.IP
-1.
-if no other package has a BAR subdirectory, everything's fine.
-.IP
-2.
-if another stowed package, QUUX, has a BAR subdirectory, then
-when stowing, TARGETDIR/BAR will be ``split open'' and the
-contents of QUUX/BAR will be individually stowed. So far, so
-good. But when unstowing QUUX, TARGETDIR/BAR will be
-removed, even though FOO/BAR needs it to remain. A
-workaround for this problem is to create a file in FOO/BAR as
-a placeholder. If you name that file
-.IR .placeholder ,
-it will
-be easy to find and remove such files when this bug is fixed.
 .IP *
 When using multiple stow directories (see ``Multiple stow
 directories'' in the info manual), Stow fails to ``split open'' tree-folding symlinks
@@ -451,6 +433,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA, 02111-1307, USA.
 .IP
 Software and documentation Copyright (C) 1993, 1994, 1995, 1996 by
 Bob Glickstein <bobg+stow@zanshin.com>.
+Copyright (C) 2000, 2001, 2002 Guillaume Morin
 .IP
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
