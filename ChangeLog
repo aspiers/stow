@@ -1,3 +1,8 @@
+Wed Jan 02 21:33:41 2002  Guillaume Morin  <gmorin@gnu.org>
+
+    * stow.in: Stow now only warns the user if a subdirectory
+      is unreadable during unstowing.
+
 Wed Jan 02 20:58:05 2002  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: fixed JoinPaths so that subdir called "0" are

@@ -202,8 +202,9 @@ sub Unstow {
   return (0, '') if (-e &JoinPaths($Target, $targetdir, '.stow'));
   warn sprintf("Unstowing in %s\n", &JoinPaths($Target, $targetdir))
     if ($Verbose > 1);
-  opendir(DIR, &JoinPaths($Target, $targetdir)) ||
-    die "$ProgramName: Cannot read directory \"$dir\" ($!)\n";
+  if (!opendir(DIR, &JoinPaths($Target, $targetdir))) {
+    warn "Warning: $ProgramName: Cannot read directory \"$dir\" ($!). Stow might leave some links. If you think, it does. Rerun Stow with appropriate rights.\n";
+  }	
   @contents = readdir(DIR);
   closedir(DIR);
   foreach $content (@contents) {
