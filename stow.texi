@@ -247,6 +247,13 @@ Set the stow directory to @var{dir} instead of the current directory.
 This also has the effect of making the default target directory be the
 parent of @var{dir}.
 
+@item -s @var{dirs}
+@itemx --subdirs=@var{dirs}
+Set the subdirectories of the package directory that are to be installed 
+to a colon delimited list of directories
+(e.g. @samp{bin:man} or @samp{bin:lib:man}).
+The default is to install all the subdirectories.
+
 @item -t @var{dir}
 @itemx --target=@var{dir}
 Set the target directory to @var{dir} instead of the parent of the stow

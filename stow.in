@@ -39,6 +39,7 @@ $ReportHelp = 0;
 $Stow = undef;
 $Target = undef;
 $Restow = 0;
+@Subdirs = ();
 
 
 # FIXME: use Getopt::Long
@@ -68,6 +69,15 @@ while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
       } else {
 	$Target = shift;
       }
+    } elsif ($opt =~ /^s(u(b(d(i(rs?)?)?)?)?)?/i) {
+      $remainder = $';
+      if ($remainder =~ /^=/) {
+        $remainder = $'; # the stuff after the =
+      } else {
+        $remainder = shift; # the following argument
+      }
+      @Subdirs = split(/:/, $remainder);
+      warn "remainder='$remainder' Subdirs = (@Subdirs)\n" if ($Verbose > 1);
     } elsif ($opt =~ /^verb(o(se?)?)?/i) {
       $remainder = $';
       if ($remainder =~ /^=(\d+)/) {
@@ -105,6 +115,9 @@ while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
 	$Delete = 1;
       } elsif ($_ eq 'R') {
 	$Restow = 1;
+      } elsif ($_ eq 's') { 
+        @Subdirs = split(/:/, (join('', @opts) || shift));
+        @opts = ();
       } elsif ($_ eq 'V') {
 	&version();
       } else {
@@ -147,7 +160,7 @@ if ($Delete || $Restow) {
 if (!$Delete || $Restow) {
   foreach $Collection (@ARGV) {
     warn "Stowing package $Collection...\n" if $Verbose;
-    &StowContents($Collection, &RelativePath($Target, $Stow));
+    &StowContents($Collection, &RelativePath($Target, $Stow), @Subdirs);
   }
 }
 
@@ -323,17 +336,25 @@ sub EmptyTree {
 }
 
 sub StowContents {
-  local($dir, $stow) = @_;
+  local($dir, $stow, @subdirs) = @_;
   local(@contents);
   local($content);
 
-  warn "Stowing contents of $dir\n" if ($Verbose > 1);
+  local $text_subdirs = scalar(@subdirs) ? "/{".join(',',@subdirs)."} " : " ";
+  
+  warn "Stowing contents of $dir in $stow".$text_subdirs."\n" if ($Verbose > 1);
   opendir(DIR, &JoinPaths($Stow, $dir))
     || die "$ProgramName: Cannot read directory \"$dir\" ($!)\n";
   @contents = readdir(DIR);
   closedir(DIR);
   foreach $content (@contents) {
     next if (($content eq '.') || ($content eq '..'));
+
+    if (scalar(@subdirs)) {
+    	warn "Checking $content against (".join(",",@subdirs).")\n" if ($Verbose > 2);
+    	next if (!grep($_ eq $content, @subdirs));
+    }
+
     if (-d &JoinPaths($Stow, $dir, $content)) {
       &StowDir(&JoinPaths($dir, $content), $stow);
     } else {
@@ -525,6 +546,8 @@ sub usage {
   -c, --conflicts       Scan for conflicts, implies -n
   -d DIR, --dir=DIR     Set stow dir to DIR (default is current dir)
   -t DIR, --target=DIR  Set target to DIR (default is parent of stow dir)
+  -s DIR:DIR,
+     --subdirs=DIR:DIR  Set subdirs to recurse to DIR:DIR (default is all subdirs)
   -v, --verbose[=N]     Increase verboseness (levels are 0,1,2,3;
                           -v or --verbose adds 1; --verbose=N sets level)
   -D, --delete          Unstow instead of stow

@@ -6,7 +6,7 @@ stow \- software package installation manager
 .RI [ options ]
 .IR package ...
 .SH DESCRIPTION
-This manual page describes GNU Stow 1.3.3, a program for managing the
+This manual page describes GNU Stow 1.3.4, a program for managing the
 installation of software packages. This is not the definitive
 documentation for stow; for that, see the info manual.
 .PP
@@ -187,6 +187,13 @@ false conflicts might be reported (see ``Conflicts'' in the info manual).
 Set the stow directory to DIR instead of the current directory.
 This also has the effect of making the default target directory be
 the parent of DIR.
+.TP
+.I "-s DIRS"
+.TP
+.I --subdirs=DIRS
+Set the subdirectories of the package directory that are to be installed to a
+colon delimited list of directories (e.g. bin:man or bin:lib:man).  The default
+is to install all the subdirectories.
 .TP
 .I "-t DIR"
 .TP

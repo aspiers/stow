@@ -1,3 +1,8 @@
+Tue Jan 08 23:00:29 2002  Guillaume Morin  <gmorin@gnu.org>
+
+    * stow.in: added the '--subdir' option.
+    * stow.texi,stow.8: documented '--subdir'
+
 Sun Jan 06 12:18:50 2002  Guillaume Morin  <gmorin@gnu.org>
 
     * Makefile.am: use EXTRA_DIST to include manpage in distribution
