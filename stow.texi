@@ -771,25 +771,6 @@ something that doesn't need reporting, such as a ``false conflict''
 
 @itemize @bullet
 @item
-The empty-directory problem.  If package @var{foo} includes an empty
-directory---say, @var{foo}/@var{bar}---then:
-
-@enumerate
-@item
-if no other package has a @var{bar} subdirectory, everything's fine.
-
-@item
-if another stowed package, @var{quux}, has a @var{bar} subdirectory,
-then when stowing, @var{targetdir}/@var{bar} will be ``split open'' and
-the contents of @var{quux}/@var{bar} will be individually stowed.  So
-far, so good.  But when unstowing @var{quux}, @var{targetdir}/@var{bar}
-will be removed, even though @var{foo}/@var{bar} needs it to remain.  A
-workaround for this problem is to create a file in @var{foo}/@var{bar}
-as a placeholder.  If you name that file @file{.placeholder}, it will be
-easy to find and remove such files when this bug is fixed.
-@end enumerate
-
-@item
 When using multiple stow directories (@pxref{Multiple stow
 directories}), Stow fails to ``split open'' tree-folding symlinks
 (@pxref{Installing packages}) that point into a stow directory which is
