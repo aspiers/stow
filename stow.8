@@ -146,7 +146,8 @@ The target of a relative symlink is
 computed starting from the symlink's own directory. Stow only creates
 relative symlinks.
 .SH OPTIONS
-The stow directory is assumed to be the current directory, and the
+The stow directory is assumed to be the value of the 'STOW_DIR' environment 
+variable or if unset the current directory, and the
 target directory is assumed to be the parent of the current directory
 (so it is typical to execute
 .I stow

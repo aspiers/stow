@@ -215,7 +215,8 @@ The syntax of the @code{stow} command is:
 stow @var{[options]} @var{package @dots{}}
 @end example
 
-The stow directory is assumed to be the current directory, and the
+The stow directory is assumed to be the value of the 'STOW_DIR' environment
+variable, or if unset the current directory, and the
 target directory is assumed to be the parent of the current directory
 (so it is typical to execute @code{stow} from the directory
 @file{/usr/local/stow}).  Each @var{package} is the name of a package in
