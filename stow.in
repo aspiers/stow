@@ -526,9 +526,9 @@ sub FindStowMember {
   while (@path) {
     $x = shift(@path);
     if ($x eq '..') {
-      pop(@x);
-      return '' unless @x;
-    } elsif ($x) {
+      # ignore if /, since /.. is /
+      pop(@x) if scalar(@x) > 1;
+    } elsif ($x ne '.') {
       push(@x, $x);
     }
   }

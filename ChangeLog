@@ -1,3 +1,8 @@
+Sat Feb  9 00:48:38 2002  Gaël Roualland  <gael.roualland@iname.com>
+
+    * stow.in: be more flexible on '..' and '.' in existing symlinks
+      when trying to find if they point to the stow directory.
+
 Sat Jan 26 16:15:21 2002  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: if $ENV{'STOW_DIR'} is set, this becomes the default
