@@ -6,4 +6,7 @@ Contributions from Gord Matzigkeit <gord@enci.ucalgary.ca>.
 John Bazik wrote `fastcwd', the Perl subroutine for computing the
 current working directory.
 
+Charles Briscoe-Smith <cpbs@debian.org> wrote the fix to prevent 
+stow -D / stow -R removing initially-empty directories.
+
 Stow is currently maintained by Guillaume Morin <gmorin@gnu.org>.

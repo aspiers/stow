@@ -4,6 +4,7 @@ AUTOMAKE_OPTIONS = dist-shar
 
 bin_SCRIPTS = stow
 info_TEXINFOS = stow.texi
+man8_MANS = stow.8
 
 CLEANFILES = stow manual.html manual.texi
 

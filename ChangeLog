@@ -1,3 +1,9 @@
+Sun Dec 30 18:23:25 2001  Guillaume Morin  <gmorin@gnu.org>
+
+    * stow.in: now requires Perl 5. Use POSIX getcwd instead of broken
+	  fastcwd. Fixed bug when CommonParent is /. Stow does not remover
+	  initially empty directories anymore.
+	
 Sun Dec 30 18:07:51 2001  Guillaume Morin  <gmorin@gnu.org>
 
     * configure.in: automake fixes (fp_ -> AC, +AC_INIT_AUTOMAKE)

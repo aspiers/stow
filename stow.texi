@@ -7,6 +7,10 @@
 @c @setchapternewpage odd
 @c @footnotestyle separate
 @c %**end of header
+@dircategory Administration
+@direntry
+* Stow: (stow).           GNU Stow.
+@end direntry
 
 @include version.texi
 
@@ -16,6 +20,7 @@ managing the installation of software packages.
 
 Software and documentation Copyright @copyright{} 1993, 1994, 1995, 1996
 by Bob Glickstein <bobg+stow@@zanshin.com>.
+Copyright @copyright{} 2000,2001 Guillaume Morin <gmorin@@gnu.org>
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
