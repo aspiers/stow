@@ -15,4 +15,7 @@ the generation of wrong links if there are links in the stow directory.
 Anthony R Iano-Fletcher <Anthony.Iano-Fletcher@cbel.cit.nih.gov> 
 contributed the '--subdirs' option.
 
+Gaël Roualland <gael.roualland@dial.oleane.com> wrote the code for 
+the '-i' and '-f' option and improved Conflicts handling.
+
 Stow is currently maintained by Guillaume Morin <gmorin@gnu.org>.
