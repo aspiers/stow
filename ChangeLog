@@ -1,3 +1,7 @@
+Sun Jan 06 12:18:50 2002  Guillaume Morin  <gmorin@gnu.org>
+
+    * Makefile.am: use EXTRA_DIST to include manpage in distribution
+
 Wed Jan 02 21:33:41 2002  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: Stow now only warns the user if a subdirectory
