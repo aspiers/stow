@@ -1,3 +1,9 @@
+Tue Dec 10 12:22:49 2002  Guillaume Morin  <gmorin@gnu.org>
+
+    * stow.in: applied patch for GetOpt::Long support
+      Patch by Jason C Griego <jcgriego@umbc.edu> and
+      Jason Heiss <jheiss@ofb.net>
+
 Sat Feb  9 00:48:38 2002  Gaël Roualland  <gael.roualland@iname.com>
 
     * stow.in: be more flexible on '..' and '.' in existing symlinks
