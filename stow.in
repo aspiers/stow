@@ -181,7 +181,7 @@ sub JoinPaths {
   foreach $x (@_) {
     @parts = split(/\/+/, $x);
     foreach $y (@parts) {
-      push(@paths, $y) if $y;
+      push(@paths, $y) if ($y ne "");
     }
   }
   $result .= join('/', @paths);
