@@ -1,0 +1,28 @@
+This is GNU Stow, a program for managing the installation of software
+packages, keeping them separate (/usr/local/stow/emacs
+vs. /usr/local/stow/perl, for example) while making them appear to be
+installed in the same place (/usr/local).
+
+Stow is a Perl script which should run correctly under Perl 4 and Perl
+5.  You must install Perl before running Stow.  For more information
+about Perl, see http://www.perl.com/perl/.
+
+You can get the latest information about Stow from
+http://www.gnu.ai.mit.edu/software/stow/stow.html.
+
+Stow was inspired by Carnegie Mellon's "Depot" program, but is
+substantially simpler.  Whereas Depot requires database files to keep
+things in sync, Stow stores no extra state between runs, so there's no
+danger (as there is in Depot) of mangling directories when file
+hierarchies don't match the database.  Also unlike Depot, Stow will
+never delete any files, directories, or links that appear in a Stow
+directory (e.g., /usr/local/stow/emacs), so it's always possible to
+rebuild the target tree (e.g., /usr/local).
+
+Stow is free software, licensed under the GNU General Public License,
+which can be found in the file COPYING.
+
+See INSTALL for installation instructions.
+
+Please mail comments, questions, and criticisms to the author, Bob
+Glickstein, <bobg+stow@zanshin.com>.

@@ -1,0 +1,7 @@
+Stow was written by Bob Glickstein <bobg+stow@zanshin.com>, Zanshin
+Software, Inc.
+
+Contributions from Gord Matzigkeit <gord@enci.ucalgary.ca>.
+
+John Bazik wrote `fastcwd', the Perl subroutine for computing the
+current working directory.

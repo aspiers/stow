@@ -1,0 +1,21 @@
+dnl Process this file with Autoconf to produce configure
+
+AC_INIT(stow.in)
+
+PACKAGE=stow
+VERSION=1.3.2
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+
+AC_ARG_PROGRAM
+
+fp_PROG_INSTALL
+
+AC_PATH_PROGS(PERL, perl perl5 perl4, false)
+
+if test "x$PERL" = xfalse
+then
+  echo 'WARNING: Perl not found; you must edit line 1 of `stow'"'"
+fi
+
+AC_OUTPUT(Makefile stow)
