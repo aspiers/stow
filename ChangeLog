@@ -7,20 +7,20 @@ Wed Jan 02 20:58:05 2002  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: fixed JoinPaths so that subdir called "0" are
       correctly pushed. Thanks a lot to Gergely Nagy
-	  <algernon@bonehunter.rulez.org> who patiently helped me to chase 
-	  this bug.
+      <algernon@bonehunter.rulez.org> who patiently helped me to chase 
+      this bug.
 
 Sun Dec 30 21:58:25 2001  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: fixed a bug introduced by previous changes when
-	  Target argument was relative. (thanks to Luca Filipozzi
-	  <lfilipoz@debian.org> for pointing this out)
+      Target argument was relative. (thanks to Luca Filipozzi
+      <lfilipoz@debian.org> for pointing this out)
 	   
 Sun Dec 30 18:23:25 2001  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: now requires Perl 5. Use POSIX getcwd instead of broken
-	  fastcwd. Fixed bug when CommonParent is /. Stow does not remover
-	  initially empty directories anymore.
+      fastcwd. Fixed bug when CommonParent is /. Stow does not remover
+      initially empty directories anymore.
 	
 Sun Dec 30 18:07:51 2001  Guillaume Morin  <gmorin@gnu.org>
 
