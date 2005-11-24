@@ -23,6 +23,11 @@
 # $Date$
 # $Author$
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Wed Nov 23 2005 Adam Spiers
+# This version is hacked to ignore CVS/ directories.
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 require 5.005;
 use POSIX;
 
@@ -333,7 +338,9 @@ sub StowContents {
   @contents = readdir(DIR);
   closedir(DIR);
   foreach $content (@contents) {
-    next if (($content eq '.') || ($content eq '..'));
+    # Wed Nov 23 2005 Adam Spiers
+    # hack to 
+    next if $content eq '.' or $content eq '..' or $content eq 'CVS';
     if (-d &JoinPaths($Stow, $dir, $content)) {
       &StowDir(&JoinPaths($dir, $content), $stow);
     } else {
