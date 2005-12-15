@@ -23,10 +23,18 @@
 # $Date$
 # $Author$
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Wed Nov 23 2005 Adam Spiers
-# This version is hacked to ignore CVS/ directories.
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# This version is hacked to ignore anything listed in ~/.cvsignore
+use File::Spec;
+use FindBin qw($RealBin);
+use Getopt::Long;
+
+use lib "$RealBin/../lib/perl5";
+use Sh 'glob_to_re';
+my $ignore_file = File::Spec->join($ENV{HOME}, ".cvsignore");
+my $ignore_re = get_ignore_re_from_file($ignore_file);
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 require 5.005;
 use POSIX;
@@ -333,14 +341,20 @@ sub StowContents {
   local($content);
 
   warn "Stowing contents of $dir\n" if ($Verbose > 1);
-  opendir(DIR, &JoinPaths($Stow, $dir))
+  my $joined = &JoinPaths($Stow, $dir);
+  opendir(DIR, $joined)
     || die "$ProgramName: Cannot read directory \"$dir\" ($!)\n";
   @contents = readdir(DIR);
   closedir(DIR);
   foreach $content (@contents) {
     # Wed Nov 23 2005 Adam Spiers
-    # hack to 
-    next if $content eq '.' or $content eq '..' or $content eq 'CVS';
+    # hack to ignore stuff in ~/.cvsignore
+    next if $content eq '.' or $content eq '..';
+    if ($content =~ $ignore_re) {
+      warn "Ignoring $joined/$content via $ignore_file\n"
+        if $Verbose > 2;
+      next;
+    }
     if (-d &JoinPaths($Stow, $dir, $content)) {
       &StowDir(&JoinPaths($dir, $content), $stow);
     } else {
@@ -545,6 +559,22 @@ EOT
 sub version {
   print "$ProgramName (GNU Stow) version $Version\n";
   exit(0);
+}
+
+sub get_ignore_re_from_file {
+  my ($file) = @_;
+  my @regexps;
+  # Bootstrap issue - first time we stow, we will be stowing
+  # .cvsignore so it won't exist in ~ yet.  At that time, use
+  # a sensible default instead.
+  open(REGEXPS, $file) or return qr!^(CVS)$!;
+  while (<REGEXPS>) {
+    chomp;
+    push @regexps, glob_to_re($_);
+  }
+  close(REGEXPS);
+  my $re = join '|', @regexps;
+  return qr/$re/;
 }
 
 # Local variables:
