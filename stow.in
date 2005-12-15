@@ -381,7 +381,7 @@ sub StowDir {
      &FindStowMember(sprintf('%s/%s', $Target,
 			     join('/', @dir[0..($#dir - 1)])),
 		     $linktarget))
-      || (&Conflict($dir, $subdir), return);
+      || (&Conflict($dir, $subdir, 1), return);
     if (-e &JoinPaths($Stow, $stowsubdir)) {
       if ($stowsubdir eq $dir) {
 	warn sprintf("%s already points to %s\n",
@@ -396,7 +396,7 @@ sub StowDir {
 	&StowContents($stowsubdir, &JoinPaths('..', $stow));
 	&StowContents($dir, &JoinPaths('..', $stow));
       } else {
-	(&Conflict($dir, $subdir), return);
+	(&Conflict($dir, $subdir, 2), return);
       }
     } else {
       &DoUnlink(&JoinPaths($Target, $subdir));
@@ -407,7 +407,7 @@ sub StowDir {
     if (-d &JoinPaths($Target, $subdir)) {
       &StowContents($dir, &JoinPaths('..', $stow));
     } else {
-      &Conflict($dir, $subdir);
+      &Conflict($dir, $subdir, 3);
     }
   } else {
     &DoLink(&JoinPaths($stow, $dir),
@@ -432,9 +432,9 @@ sub StowNondir {
      &FindStowMember(sprintf('%s/%s', $Target,
 			     join('/', @file[0..($#file - 1)])),
 		     $linktarget))
-      || (&Conflict($file, $subfile), return);
+      || (&Conflict($file, $subfile, 4), return);
     if (-e &JoinPaths($Stow, $stowsubfile)) {
-      (&Conflict($file, $subfile), return)
+      (&Conflict($file, $subfile, 5), return)
 	unless ($stowsubfile eq $file);
       warn sprintf("%s already points to %s\n",
 		   &JoinPaths($Target, $subfile),
@@ -446,7 +446,7 @@ sub StowNondir {
 	      &JoinPaths($Target, $subfile));
     }
   } elsif (-e &JoinPaths($Target, $subfile)) {
-    &Conflict($file, $subfile);
+    &Conflict($file, $subfile, 6);
   } else {
     &DoLink(&JoinPaths($stow, $file),
 	    &JoinPaths($Target, $subfile));
@@ -488,16 +488,16 @@ sub DoMkdir {
 }
 
 sub Conflict {
-  local($a, $b) = @_;
+  local($a, $b, $type) = @_;
 
   my $src = &JoinPaths($Stow, $a);
   my $dst = &JoinPaths($Target, $b);
 
   if ($Conflicts) {
-    warn "CONFLICT: $src vs. $dst\n";
+    warn "CONFLICT: $src vs. $dst", ($type ? " ($type)" : ''), "\n";
     #system "ls -l $src $dst";
   } else {
-    die "$ProgramName: CONFLICT: $src vs. $dst\n";
+    die "$ProgramName: CONFLICT: $src vs. $dst", ($type ? " ($type)" : ''), "\n";
   }
 }
 
