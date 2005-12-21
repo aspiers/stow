@@ -352,7 +352,9 @@ sub StowContents {
     # hack to ignore stuff in ~/.cvsignore
     next if $content eq '.' or $content eq '..';
     if ($content =~ $ignore_re) {
-      # We assume -r implies the open succeeded - lazy
+      # FIXME: We assume -r implies the open succeeded but this is not
+      # true if we're stowing cvs as .cvsignore only gets created
+      # halfway through.
       warn "Ignoring $joined/$content", (-r $ignore_file ? " via $ignore_file" : ""), "\n"
         if $Verbose > 2;
       next;
