@@ -231,7 +231,8 @@ sub Unstow {
   return (0, '') if (-e &JoinPaths($Target, $targetdir, '.stow'));
   warn sprintf("Unstowing in %s\n", &JoinPaths($Target, $targetdir))
     if ($Verbose > 1);
-  if (!opendir(DIR, &JoinPaths($Target, $targetdir))) {
+  my $dir = &JoinPaths($Target, $targetdir);
+  if (!opendir(DIR, $dir)) {
     warn "Warning: $ProgramName: Cannot read directory \"$dir\" ($!). Stow might leave some links. If you think, it does. Rerun Stow with appropriate rights.\n";
   }	
   @contents = readdir(DIR);
@@ -351,7 +352,10 @@ sub StowContents {
     # hack to ignore stuff in ~/.cvsignore
     next if $content eq '.' or $content eq '..';
     if ($content =~ $ignore_re) {
-      warn "Ignoring $joined/$content via $ignore_file\n"
+      # FIXME: We assume -r implies the open succeeded but this is not
+      # true if we're stowing cvs as .cvsignore only gets created
+      # halfway through.
+      warn "Ignoring $joined/$content", (-r $ignore_file ? " via $ignore_file" : ""), "\n"
         if $Verbose > 2;
       next;
     }
@@ -563,17 +567,18 @@ sub version {
 
 sub get_ignore_re_from_file {
   my ($file) = @_;
-  my @regexps;
   # Bootstrap issue - first time we stow, we will be stowing
   # .cvsignore so it won't exist in ~ yet.  At that time, use
   # a sensible default instead.
-  open(REGEXPS, $file) or return qr!^(CVS)$!;
+  open(REGEXPS, $file) or return qr!\.cfgsave\.|^(CVS)$!;
+  my @regexps;
   while (<REGEXPS>) {
     chomp;
     push @regexps, glob_to_re($_);
   }
   close(REGEXPS);
   my $re = join '|', @regexps;
+  warn "#% ignore regexp is $re\n" if $Verbose;
   return qr/$re/;
 }
 
