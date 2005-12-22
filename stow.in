@@ -578,7 +578,7 @@ sub get_ignore_re_from_file {
   }
   close(REGEXPS);
   my $re = join '|', @regexps;
-  debug("#% ignore regexp is $re\n");
+  warn "#% ignore regexp is $re\n" if $Verbose;
   return qr/$re/;
 }
 
