@@ -32,12 +32,15 @@
 # Hacked into a Perl module
 #####################################################################
 
+package Stow;
+
 use strict;
 use warnings;
 
 use File::Spec;
 use FindBin qw($RealBin $RealScript);
 use Getopt::Long;
+use POSIX;
 
 use lib "$RealBin/../lib/perl5";
 use Sh 'glob_to_re';
@@ -74,7 +77,7 @@ sub CheckCollections {
   foreach my $package (@_) {
     $package =~ s,/+$,,;		# delete trailing slashes
     if ($package =~ m,/,) {
-      die "$RealScript: slashes not permitted in package names\n";
+      die "$RealScript: slashes not permitted in package names ($package)\n";
     }
   }
 }
@@ -113,83 +116,111 @@ sub RelativePath {
   &JoinPaths(@b);
 }
 
-# Basically concatenates the paths given
-# as arguments
-
+# Concatenates the paths given as arguments, removing double slashes.
 sub JoinPaths {
-  my(@paths, @parts);
-  my ($x, $y);
-  my($result) = '';
-
-  $result = '/' if ($_[0] =~ /^\//);
-  foreach $x (@_) {
-    @parts = split(/\/+/, $x);
-    foreach $y (@parts) {
-      push(@paths, $y) if ($y ne "");
-    }
-  }
-  $result .= join('/', @paths);
-  return $result;
+  # The code that was previously here from 1.3.3 was strangely complex
+  # for no obvious reason.  I (Adam) wrote a test suite and found this
+  # drop-in replacement to behave identically.
+#   my $result = join '/', @_;
+#   $result =~ s!//!/!g;
+#   return $result;
+  # So does this, but is also portable.
+  return File::Spec->join(@_);
 }
 
-sub Unstow {
-  my($targetdir, $stow, $Collections) = @_;
-  my($pure, $othercollection) = (1, '');
-  my($subpure, $subother);
-  my($empty) = (1);
-  my(@puresubdirs);
+# This removes stow-controlled symlinks from $targetdir for the
+# packages in the %$to_unstow hash, and is called recursively to
+# process subdirectories.  It returns XXX FIXME
 
-  return (0, '') if (&JoinPaths($opts{target}, $targetdir) eq $opts{stow});
-  return (0, '') if (-e &JoinPaths($opts{target}, $targetdir, '.stow'));
-  warn sprintf("Unstowing in %s\n", &JoinPaths($opts{target}, $targetdir))
-    if ($opts{verbose} > 1);
-  my $dir = &JoinPaths($opts{target}, $targetdir);
-  if (!opendir(DIR, $dir)) {
-    warn "Warning: $RealScript: Cannot read directory \"$dir\" ($!). Stow might leave some links. If you think, it does. Rerun Stow with appropriate rights.\n";
+sub Unstow {
+  my($targetdir, $stow, $to_unstow) = @_;
+  # Note $targetdir is relative to the top of the target hierarchy,
+  # i.e. $opts{target}.
+  #
+  # $stow is the stow directory (the one containing the source
+  # packages), and is always relative to $targetdir.  So as we
+  # recursively descend into $opts{target}, $stow gets longer because
+  # we have to move up out of that hierarchy and back into the stow
+  # directory.
+
+  # Does this directory only contain symlinks to the packages we are
+  # removing?  We assume so and scan the directory until we find out
+  # otherwise.
+  my $pure = 1;
+
+  # FIXME what is this?
+  my $othercollection = '';
+
+  # We assume $targetdir is empty until we find something.
+  my $empty = 1;
+
+  my $targetdirPath = &JoinPaths($opts{target}, $targetdir);
+
+  return (0, '') if    $targetdirPath eq $opts{stow};
+  return (0, '') if -e &JoinPaths($targetdirPath, '.stow');
+
+  warn "Unstowing in $targetdirPath\n"
+    if $opts{verbose} > 1;
+
+  if (!opendir(DIR, $targetdirPath)) {
+    warn "Warning: $RealScript: Cannot read directory \"$targetdirPath\" ($!). Stow might leave some links. If you think, it does. Rerun Stow with appropriate rights.\n";
   }	
   my @contents = readdir(DIR);
   closedir(DIR);
+
+  my @puresubdirs;
   foreach my $content (@contents) {
-    next if (($content eq '.') || ($content eq '..'));
+    next if ($content eq '.') || ($content eq '..');
     $empty = 0;
-    if (-l &JoinPaths($opts{target}, $targetdir, $content)) {
-      (my $linktarget = readlink(&JoinPaths($opts{target},
-					 $targetdir,
-					 $content)))
-	|| die sprintf("%s: Cannot read link %s (%s)\n",
-		       $RealScript,
-		       &JoinPaths($opts{target}, $targetdir, $content),
-		       $!);
-      if (my $stowmember = &FindStowMember(&JoinPaths($opts{target},
-						   $targetdir),
-					$linktarget)) {
+    my $contentPath = &JoinPaths($targetdirPath, $content);
+    if (-l $contentPath) {
+      # We found a link; now let's see if we should remove it.
+      my $linktarget = readlink $contentPath;
+      $linktarget or die "$RealScript: Cannot read link $contentPath ($!)\n";
+
+      # Does the link point to somewhere within the stow directory?
+      my $stowmember = &FindStowMember(
+        $targetdirPath,
+        $linktarget,
+      );
+      
+      if ($stowmember) {
+        # Yes it does, but does it point within one of the package
+        # collections we are unstowing?
 	my @stowmember = split(/\/+/, $stowmember);
 	my $collection = shift(@stowmember);
-	if (grep(($collection eq $_), @$Collections)) {
-	  &DoUnlink(&JoinPaths($opts{target}, $targetdir, $content));
-	} elsif ($pure) {
-	  if ($othercollection) {
-	    $pure = 0 if ($collection ne $othercollection);
-	  } else {
-	    $othercollection = $collection;
-	  }
-	}
+	if ($to_unstow->{$collection}) {
+          # Yep, so get rid of it.
+	  &DoUnlink($contentPath);
+	} else {
+          # No, it points to another package collection.
+          if ($pure) {
+            if ($othercollection) {
+              $pure = 0 if $collection ne $othercollection;
+            } else {
+              $othercollection = $collection;
+            }
+          }
+        }
       } else {
 	$pure = 0;
       }
-    } elsif (-d &JoinPaths($opts{target}, $targetdir, $content)) {
-      ($subpure, $subother) = &Unstow(&JoinPaths($targetdir, $content),
-				      &JoinPaths('..', $stow));
+    }
+    elsif (-d $contentPath) {
+      # recurse
+      my ($subpure, $subother) = &Unstow(
+        &JoinPaths($targetdir, $content),
+        &JoinPaths('..', $stow),
+        $to_unstow,
+      );
       if ($subpure) {
 	push(@puresubdirs, "$content/$subother");
       }
       if ($pure) {
 	if ($subpure) {
 	  if ($othercollection) {
-	    if ($subother) {
-	      if ($othercollection ne $subother) {
-		$pure = 0;
-	      }
+	    if ($subother and $othercollection ne $subother) {
+              $pure = 0;
 	    }
 	  } elsif ($subother) {
 	    $othercollection = $subother;
@@ -203,12 +234,12 @@ sub Unstow {
     }
   }
   # This directory was an initially empty directory therefore
-  # We do not remove it.
+  # we do not remove it.
   $pure = 0 if $empty;
   if ((!$pure || !$targetdir) && @puresubdirs) {
     &CoalesceTrees($targetdir, $stow, @puresubdirs);
   }
-  ($pure, $othercollection);
+  return ($pure, $othercollection);
 }
 
 sub CoalesceTrees {
@@ -248,7 +279,7 @@ sub EmptyTree {
 sub StowContents {
   my($dir, $stow) = @_;
 
-  warn "Stowing contents of $dir\n" if ($opts{verbose} > 1);
+  warn "Stowing contents of $dir\n" if $opts{verbose} > 1;
   my $joined = &JoinPaths($opts{stow}, $dir);
   opendir(DIR, $joined)
     || die "$RealScript: Cannot read directory \"$dir\" ($!)\n";
@@ -278,51 +309,53 @@ sub StowDir {
   my($dir, $stow) = @_;
   my(@dir) = split(/\/+/, $dir);
   my($collection) = shift(@dir);
-  my($subdir) = join('/', @dir);
+  my($subdir) = &JoinPaths('/', @dir);
   my($linktarget, $stowsubdir);
 
   warn "Stowing directory $dir\n" if ($opts{verbose} > 1);
-  if (-l &JoinPaths($opts{target}, $subdir)) {
-    ($linktarget = readlink(&JoinPaths($opts{target}, $subdir)))
-      || die sprintf("%s: Could not read link %s (%s)\n",
-		     $RealScript,
-		     &JoinPaths($opts{target}, $subdir),
-		     $!);
-    ($stowsubdir =
-     &FindStowMember(sprintf('%s/%s', $opts{target},
-			     join('/', @dir[0..($#dir - 1)])),
-		     $linktarget))
-      || (&Conflict($dir, $subdir, 1), return);
+
+  my $subdirPath = &JoinPaths($opts{target}, $subdir);
+  if (-l $subdirPath) {
+    ($linktarget = readlink($subdirPath))
+      || die "$RealScript: Could not read link $subdirPath ($!)\n";
+    my $stowsubdir = &FindStowMember(
+      &JoinPaths($opts{target}, @dir[0..($#dir - 1)]),
+      $linktarget
+    );
+    unless ($stowsubdir) {
+      &Conflict($dir, $subdir, 1);
+      return;
+    }
     if (-e &JoinPaths($opts{stow}, $stowsubdir)) {
       if ($stowsubdir eq $dir) {
 	warn sprintf("%s already points to %s\n",
-		     &JoinPaths($opts{target}, $subdir),
+		     $subdirPath,
 		     &JoinPaths($opts{stow}, $dir))
 	  if ($opts{verbose} > 2);
 	return;
       }
       if (-d &JoinPaths($opts{stow}, $stowsubdir)) {
-	&DoUnlink(&JoinPaths($opts{target}, $subdir));
-	&DoMkdir(&JoinPaths($opts{target}, $subdir));
+	&DoUnlink($subdirPath);
+	&DoMkdir($subdirPath);
 	&StowContents($stowsubdir, &JoinPaths('..', $stow));
 	&StowContents($dir, &JoinPaths('..', $stow));
       } else {
 	(&Conflict($dir, $subdir, 2), return);
       }
     } else {
-      &DoUnlink(&JoinPaths($opts{target}, $subdir));
+      &DoUnlink($subdirPath);
       &DoLink(&JoinPaths($stow, $dir),
-	      &JoinPaths($opts{target}, $subdir));
+	      $subdirPath);
     }
-  } elsif (-e &JoinPaths($opts{target}, $subdir)) {
-    if (-d &JoinPaths($opts{target}, $subdir)) {
+  } elsif (-e $subdirPath) {
+    if (-d $subdirPath) {
       &StowContents($dir, &JoinPaths('..', $stow));
     } else {
       &Conflict($dir, $subdir, 3);
     }
   } else {
     &DoLink(&JoinPaths($stow, $dir),
-	    &JoinPaths($opts{target}, $subdir));
+	    $subdirPath);
   }
 }
 
@@ -330,37 +363,36 @@ sub StowNondir {
   my($file, $stow) = @_;
   my(@file) = split(/\/+/, $file);
   my($collection) = shift(@file);
-  my($subfile) = join('/', @file);
+  my($subfile) = &JoinPaths(@file);
   my($linktarget, $stowsubfile);
 
-  if (-l &JoinPaths($opts{target}, $subfile)) {
-    ($linktarget = readlink(&JoinPaths($opts{target}, $subfile)))
-      || die sprintf("%s: Could not read link %s (%s)\n",
-		     $RealScript,
-		     &JoinPaths($opts{target}, $subfile),
-		     $!);
-    ($stowsubfile =
-     &FindStowMember(sprintf('%s/%s', $opts{target},
-			     join('/', @file[0..($#file - 1)])),
-		     $linktarget))
-      || (&Conflict($file, $subfile, 4), return);
+  my $subfilePath = &JoinPaths($opts{target}, $subfile);
+  if (-l $subfilePath) {
+    my $linktarget = readlink($subfilePath);
+    $linktarget or die "$RealScript: Could not read link $subfilePath ($!)\n";
+    my $stowsubfile = &FindStowMember(
+      &JoinPaths($opts{target}, @file[0..($#file - 1)]),
+      $linktarget
+    );
+    if (! $stowsubfile) {
+      &Conflict($file, $subfile, 4);
+      return;
+    }
     if (-e &JoinPaths($opts{stow}, $stowsubfile)) {
       (&Conflict($file, $subfile, 5), return)
 	unless ($stowsubfile eq $file);
       warn sprintf("%s already points to %s\n",
-		   &JoinPaths($opts{target}, $subfile),
+		   $subfilePath,
 		   &JoinPaths($opts{stow}, $file))
 	if ($opts{verbose} > 2);
     } else {
-      &DoUnlink(&JoinPaths($opts{target}, $subfile));
-      &DoLink(&JoinPaths($stow, $file),
-	      &JoinPaths($opts{target}, $subfile));
+      &DoUnlink($subfilePath);
+      &DoLink(&JoinPaths($stow, $file), $subfilePath);
     }
-  } elsif (-e &JoinPaths($opts{target}, $subfile)) {
+  } elsif (-e $subfilePath) {
     &Conflict($file, $subfile, 6);
   } else {
-    &DoLink(&JoinPaths($stow, $file),
-	    &JoinPaths($opts{target}, $subfile));
+    &DoLink(&JoinPaths($stow, $file), $subfilePath);
   }
 }
 
@@ -412,29 +444,40 @@ sub Conflict {
   }
 }
 
+# Given an absolute starting directory and a relative path obtained by
+# calling readlink() on a symlink in that starting directory,
+# FindStowMember() figures out whether the symlink points to somewhere
+# within the stow directory.  If so, it returns the target of the
+# symlink relative to the stow directory, otherwise it returns ''.
 sub FindStowMember {
-  my($start, $path) = @_;
-  my(@x) = split(/\/+/, $start);
-  my(@path) = split(/\/+/, $path);
-  my($x);
-  my(@d) = split(/\/+/, $opts{stow});
+  my($startDir, $targetPath) = @_;
+  my @startDirSegments = split(/\/+/, $startDir);
+  my @targetSegments   = split(/\/+/, $targetPath);
+  my @stowDirSegments  = split(/\/+/, $opts{stow});
 
-  while (@path) {
-    $x = shift(@path);
+  # Start in $startDir and navigate to target, one path segment at a time.
+  my @current = @startDirSegments;
+  while (@targetSegments) {
+    my $x = shift(@targetSegments);
     if ($x eq '..') {
-      pop(@x);
-      return '' unless @x;
+      pop(@current);
+      return '' unless @current; # We can't go higher than /, must be
+                                 # an invalid symlink.
     } elsif ($x) {
-      push(@x, $x);
+      push(@current, $x);
     }
   }
-  while (@x && @d) {
-    if (($x = shift(@x)) ne shift(@d)) {
+
+  # Now @current describes the absolute path to the symlink's target,
+  # so if @current and @stowDirSegments have a common prefix, the
+  # symlink points within the stow directory.
+  while (@current && @stowDirSegments) {
+    if (shift(@current) ne shift(@stowDirSegments)) {
       return '';
     }
   }
-  return '' if @d;
-  return join('/', @x);
+  return '' if @stowDirSegments;
+  return join('/', @current);
 }
 
 sub parent {
