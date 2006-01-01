@@ -143,9 +143,11 @@ sub Unstow {
   # we have to move up out of that hierarchy and back into the stow
   # directory.
 
-  # Does this directory only contain symlinks to the packages we are
-  # removing?  We assume so and scan the directory until we find out
-  # otherwise.
+  # Does this directory only contain symlinks to a *single* package
+  # collection *other* than one we are removing?  We assume so and
+  # scan the directory until we find out otherwise.  We have to track
+  # this because if a subtree is found to be pure, we can fold it into
+  # a single symlink.
   my $pure = 1;
 
   # FIXME what is this?
@@ -193,16 +195,26 @@ sub Unstow {
           # Yep, so get rid of it.
 	  &DoUnlink($contentPath);
 	} else {
-          # No, it points to another package collection.
+          # No, it points to another package collection.  Is there
+          # still a chance this directory is pure and can be folded?
           if ($pure) {
+            # Yes, so keep track of whether symlinks in the directory
+            # point to more than one collection.
             if ($othercollection) {
+              # More than one collection means impure => no folding possible.
               $pure = 0 if $collection ne $othercollection;
             } else {
+              # This is the first reference to another collection
+              # we've seen, so remember it for future comparison with
+              # other symlink targets.
               $othercollection = $collection;
             }
           }
         }
       } else {
+        # Link points outside the stow directory, therefore is not
+        # managed by stow and cannot be touched.  So tree folding will
+        # not be possible.
 	$pure = 0;
       }
     }
@@ -226,10 +238,13 @@ sub Unstow {
 	    $othercollection = $subother;
 	  }
 	} else {
+          # Subtree is impure therefore this directory is impure.
 	  $pure = 0;
 	}
       }
     } else {
+      # Current directory contains something other than a symlink or a
+      # directory, therefore folding is not going to be possible.
       $pure = 0;
     }
   }
@@ -242,6 +257,7 @@ sub Unstow {
   return ($pure, $othercollection);
 }
 
+# This is the tree folding which the stow manual refers to.
 sub CoalesceTrees {
   my($parent, $stow, @trees) = @_;
 
