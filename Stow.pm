@@ -53,6 +53,7 @@ our %opts;
 
 sub SetOptions {
   %opts = @_;
+  $opts{not_really} = 1 if $opts{conflicts};
 }
 
 sub Init {
