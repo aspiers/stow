@@ -116,16 +116,23 @@ sub RelativePath {
   &JoinPaths(@b);
 }
 
-# Concatenates the paths given as arguments, removing double slashes.
+# Concatenates the paths given as arguments, removing double and
+# trailing slashes.  Is subtlely different from File::Spec::join
+# in other aspects, e.g. args ('', '/foo') yields 'foo' not '/foo'.
 sub JoinPaths {
-  # The code that was previously here from 1.3.3 was strangely complex
-  # for no obvious reason.  I (Adam) wrote a test suite and found this
-  # drop-in replacement to behave identically.
-#   my $result = join '/', @_;
-#   $result =~ s!//!/!g;
-#   return $result;
-  # So does this, but is also portable.
-  return File::Spec->join(@_);
+  my(@paths, @parts);
+  my ($x, $y);
+  my($result) = '';
+
+  $result = '/' if ($_[0] =~ /^\//);
+  foreach $x (@_) {
+    @parts = split(/\/+/, $x);
+    foreach $y (@parts) {
+      push(@paths, $y) if ($y ne "");
+    }
+  }
+  $result .= join('/', @paths);
+  return $result;
 }
 
 # This removes stow-controlled symlinks from $targetdir for the
