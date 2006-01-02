@@ -141,8 +141,8 @@ sub JoinPaths {
 
 sub Unstow {
   my($targetdir, $stow, $PkgsToUnstow) = @_;
-  # Note $targetdir is relative to the top of the target hierarchy,
-  # i.e. $opts{target}.
+  # $targetdir is the directory we're unstowing in, relative to the
+  # top of the target hierarchy, i.e. $opts{target}.
   #
   # $stow is the stow directory (the one containing the source
   # packages), and is always relative to $targetdir.  So as we
@@ -227,7 +227,7 @@ sub Unstow {
 	$pure = 0;
       }
     }
-    elsif (-d $contentPath) {
+    elsif (-d $contentPath && ! &PruneTree($targetdir, $content, $PkgsToUnstow)) {
       # recurse
       my ($subpure, $subother) = &Unstow(
         &JoinPaths($targetdir, $content),
@@ -270,6 +270,23 @@ sub Unstow {
     &CoalesceTrees($targetdir, $stow, @puresubdirs);
   }
   return ($pure, $othercollection);
+}
+
+sub PruneTree {
+  my ($targetdir, $subdir, $PkgsToUnstow) = @_;
+
+  return 0 unless $opts{prune};
+  my $relpath = &JoinPaths($targetdir, $subdir);
+
+  foreach my $pkg (keys %$PkgsToUnstow) {
+    my $abspath = &JoinPaths($opts{stow}, $pkg, $relpath);
+    if (-d $abspath) {
+      warn "# Not pruning $relpath since -d $abspath\n" if $opts{verbose} > 4;
+      return 0;
+    }
+  }
+  warn "# Pruning $relpath\n" if $opts{verbose} > 2;
+  return 1;
 }
 
 # This is the tree folding which the stow manual refers to.
