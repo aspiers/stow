@@ -129,11 +129,11 @@ sub JoinPaths {
 }
 
 # This removes stow-controlled symlinks from $targetdir for the
-# packages in the %$to_unstow hash, and is called recursively to
+# packages in the %$PkgsToUnstow hash, and is called recursively to
 # process subdirectories.
 
 sub Unstow {
-  my($targetdir, $stow, $to_unstow) = @_;
+  my($targetdir, $stow, $PkgsToUnstow) = @_;
   # Note $targetdir is relative to the top of the target hierarchy,
   # i.e. $opts{target}.
   #
@@ -193,7 +193,7 @@ sub Unstow {
         # collections we are unstowing?
 	my @stowmember = split(/\/+/, $stowmember);
 	my $collection = shift(@stowmember);
-	if ($to_unstow->{$collection}) {
+	if ($PkgsToUnstow->{$collection}) {
           # Yep, so get rid of it.
 	  &DoUnlink($contentPath);
 	} else {
@@ -225,7 +225,7 @@ sub Unstow {
       my ($subpure, $subother) = &Unstow(
         &JoinPaths($targetdir, $content),
         &JoinPaths('..', $stow),
-        $to_unstow,
+        $PkgsToUnstow,
       );
       if ($subpure) {
 	push @puresubdirs, "$content/$subother";
