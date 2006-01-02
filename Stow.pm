@@ -130,7 +130,7 @@ sub JoinPaths {
 
 # This removes stow-controlled symlinks from $targetdir for the
 # packages in the %$to_unstow hash, and is called recursively to
-# process subdirectories.  It returns XXX FIXME
+# process subdirectories.
 
 sub Unstow {
   my($targetdir, $stow, $to_unstow) = @_;
@@ -143,14 +143,16 @@ sub Unstow {
   # we have to move up out of that hierarchy and back into the stow
   # directory.
 
-  # Does this directory only contain symlinks to a *single* package
-  # collection *other* than one we are removing?  We assume so and
-  # scan the directory until we find out otherwise.  We have to track
-  # this because if a subtree is found to be pure, we can fold it into
-  # a single symlink.
+  # Does this whole subtree only contain symlinks to a *single*
+  # package collection *other* than one we are removing?  We assume so
+  # and scan the tree recursively until we find out otherwise.  We
+  # have to track this because if a subtree is found to be pure, we
+  # can fold it into a single symlink.
   my $pure = 1;
 
-  # FIXME what is this?
+  # If the directory is pure, we need to know which single other
+  # package collection the contained symlinks point to, so we know how
+  # to do our tree folding.
   my $othercollection = '';
 
   # We assume $targetdir is empty until we find something.
@@ -226,21 +228,27 @@ sub Unstow {
         $to_unstow,
       );
       if ($subpure) {
-	push(@puresubdirs, "$content/$subother");
+	push @puresubdirs, "$content/$subother";
       }
-      if ($pure) {
-	if ($subpure) {
-	  if ($othercollection) {
-	    if ($subother and $othercollection ne $subother) {
-              $pure = 0;
-	    }
-	  } elsif ($subother) {
-	    $othercollection = $subother;
-	  }
-	} else {
-          # Subtree is impure therefore this directory is impure.
-	  $pure = 0;
-	}
+      else {
+        # Subtree is impure therefore this directory is impure.
+        $pure = 0;
+      }
+      if ($pure && $subpure) {
+        if ($othercollection) {
+          # We already found a single other package collection
+          # somewhere in this subtree but outside $contentPath.
+          if ($subother and $othercollection ne $subother) {
+            # Two collections pointed to from within one subtree,
+            # so no tree folding will be possible.
+            $pure = 0;
+          }
+        } elsif ($subother) {
+          # This is the first other package collection we've found;
+          # remember it as before for future comparison with other
+          # symlinks.
+          $othercollection = $subother;
+        }
       }
     } else {
       # Current directory contains something other than a symlink or a
@@ -351,6 +359,8 @@ sub StowDir {
 	return;
       }
       if (-d &JoinPaths($opts{stow}, $stowsubdir)) {
+        # This is the splitting open of a folded tree which the stow
+        # manual refers to.
 	&DoUnlink($subdirPath);
 	&DoMkdir($subdirPath);
 	&StowContents($stowsubdir, &JoinPaths('..', $stow));
