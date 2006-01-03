@@ -541,16 +541,20 @@ sub parent {
 sub get_ignore_re_from_file {
   my ($file) = @_;
   # Bootstrap issue - first time we stow, we will be stowing
-  # .cvsignore so it won't exist in ~ yet.  At that time, use
-  # a sensible default instead.
-  open(REGEXPS, $file) or return qr!\.cfgsave\.|^(CVS)$!;
-  my @regexps;
-  while (<REGEXPS>) {
-    chomp;
-    push @regexps, glob_to_re($_);
+  # .cvsignore so it might not exist in ~ yet, or if it does, it could
+  # be an old version missing the entries we need.  So we make sure
+  # they are there.
+  my %globs;
+  if (open(GLOBS, $file)) {
+    while (<GLOBS>) {
+      chomp;
+      $globs{$_}++;
+    }
+    close(GLOBS);
   }
-  close(REGEXPS);
-  my $re = join '|', @regexps;
+  $globs{$_}++ foreach '*.cfgsave.*', 'CVS';
+
+  my $re = join '|', map glob_to_re($_), keys %globs;
   warn "#% ignore regexp is $re\n" if $opts{verbose};
   return qr/$re/;
 }
