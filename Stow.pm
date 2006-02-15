@@ -356,25 +356,30 @@ sub StowContents {
 
 sub StowDir {
   my($dir, $stow) = @_;
-  my(@dir) = split(/\/+/, $dir);
-  my($collection) = shift(@dir);
-  my($subdir) = &JoinPaths('/', @dir);
-  my($linktarget, $stowsubdir);
+  my @dir = split(/\/+/, $dir);
+  my $collection = shift(@dir);
+  my $subdir = &JoinPaths('/', @dir);
 
   warn "Stowing directory $dir\n" if ($opts{verbose} > 1);
 
   my $subdirPath = &JoinPaths($opts{target}, $subdir);
   if (-l $subdirPath) {
-    ($linktarget = readlink($subdirPath))
-      || die "$RealScript: Could not read link $subdirPath ($!)\n";
+    # We found a link; now let's see if we should remove it.
+    my $linktarget = readlink($subdirPath);
+    $linktarget or die "$RealScript: Could not read link $subdirPath ($!)\n";
+
+    # Does the link point to somewhere within the stow directory?
     my $stowsubdir = &FindStowMember(
       &JoinPaths($opts{target}, @dir[0..($#dir - 1)]),
-      $linktarget
+      $linktarget,
     );
     unless ($stowsubdir) {
+      # No, so we can't touch it.
       &Conflict($dir, $subdir, 1);
       return;
     }
+
+    # Yes it does.
     if (-e &JoinPaths($opts{stow}, $stowsubdir)) {
       if ($stowsubdir eq $dir) {
 	warn sprintf("%s already points to %s\n",
@@ -415,7 +420,6 @@ sub StowNondir {
   my(@file) = split(/\/+/, $file);
   my($collection) = shift(@file);
   my($subfile) = &JoinPaths(@file);
-  my($linktarget, $stowsubfile);
 
   my $subfilePath = &JoinPaths($opts{target}, $subfile);
   if (-l $subfilePath) {
