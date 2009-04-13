@@ -1,0 +1,35 @@
+Stow was written by Bob Glickstein <bobg+stow@zanshin.com>, Zanshin
+Software, Inc.
+
+Contributions from Gord Matzigkeit <gord@enci.ucalgary.ca>.
+
+John Bazik wrote `fastcwd', the Perl subroutine for computing the
+current working directory.
+
+Charles Briscoe-Smith <cpbs@debian.org> wrote the fix to prevent 
+stow -D / stow -R removing initially-empty directories.
+
+Adam Lackorzynski <al10@inf.tu-dresden.de> wrote the fix to prevente
+the generation of wrong links if there are links in the stow directory.
+
+Stow was maintained by Guillaume Morin <gmorin@gnu.org> up to November 2007.
+
+Kahlil (Kal) Hodgson <kahlil@internode.on.net> performed a major rewrite
+inorder to implement:
+
+    1. defered operations,
+    2. option parsing via Getopt::Long,
+    3. options to support shared files, 
+    4. support for multiple operations per invocation,
+    5. default command line arguments via '.stowrc' and '~/.stowrc' files, 
+    6. better cooperation between multiple stow directories,
+    7. a test suite (and support code) to ensure that everything still works.  
+
+As these changes required a dramatic reorganisation of the code, very little
+was left untouched, and so stows major version was bumped up to version 2.
+
+Austin Wood <austin.wood@rmit.edu.au> and Chris Hoobin
+<christopher.hoobin@rmit.edu.au> helped clean up the documentation for 
+version 2 and created the texi2man script.
+
+Stow is currently maintained by Kahlil (Kal) Hodgson <kahlil@internode.on.net>.

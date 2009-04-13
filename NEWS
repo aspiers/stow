@@ -1,0 +1,159 @@
+News file for Stow.
+
+*  Changes in version 2.0.1:
+** Defer operations until all potential conflicts have been assessed.
+
+We do this by traversing the installation image(s) and recording the
+actions that need to be performed.  Redundant actions are factored out,
+e.g., we don't want to create a link that we will later remove in order to
+create a directory.  Benefits of this approach
+
+    1. Get to see _all_ the conflicts that are blocking an installation: 
+       you don't have to deal with them one at a time.
+    2. No operations are be performed if _any_ conflicts are detected:
+       a failed stow will not leave you with a partially installed 
+       package.
+    3. Minimises the set of operations that need to be performed.
+    4. Operations are executed as a batch which is much faster
+       This can be an advantage when upgrading packages on a live system
+       where you want to minimise the amount of time when the package is
+       unavailable.
+
+** The above fixes the false conflict problem mentioned in the info file. 
+
+** It also fixes the two bugs mentioned in the man page.
+
+** Multiple stow directories will now cooperate in folding/unfolding.
+
+** Conflict messages are more uniform and informative. 
+
+** Verbosity and tracing is more extensive and uniform.
+
+** Implemented option parsing via Getopt::Long.
+
+** Default command line arguments set via '.stowrc' and '~/.stowrc' files.
+
+Contents of these files are parsed as though they occurred first on the
+command line.
+
+** Support multiple actions per invocation.
+
+In order for this to work, we had to add a new (optional) command line arg
+(-S) to specify packages to stow.  For example, to update an installation
+of emacs you can now do
+
+        stow -D emacs-21.3 -S emacs-21.4a
+
+which will replace emacs-21.3 with emacs-21.4a.
+You can mix and match any number of actions, e.g.,
+
+        stow -S p1 p2 -D p3 p4 -S p5 -R p6
+
+will unstow p3, p4 and p6, then stow p1, p2, p5 and p6.
+
+* New (repeatable) command line arg: --ignore='<regex>'
+
+This suppresses operating on a file matching the regex (suffix), e.g.,
+
+        --ignore='~' --ignore='\.#.*'
+
+will ignore emacs and CVS backup files (suitable for ~/.stowrc file).
+
+(I opted for Perl regular expressions because they are more powerful and
+easier to implement).
+
+** New (repeatable) command line arg: --defer='<regex>'
+
+This defers stowing a file matching the regex (prefix) if that file is
+already stowed to a different package, e.g.,
+
+        --defer='man' --defer='info'
+
+will cause stow to skip over pre-existing man and info pages.
+
+Equivalently, you could use --defer='man|info' since the argument is just
+a Perl regex.
+
+** New (repeatable) command line arg: --override='<regex>'
+
+This forces a file matching the regex (prefix) to be stowed even if the
+file is already stowed to a different package, e.g.,
+
+        --override='man' --override='info'
+
+will unstow any pre-existing man and info pages that would conflict with
+the file we are trying to stow.
+
+Equivalently, you could use --override='man|info' since the argument is
+just a Perl regex.
+
+** The above gives the ability to manage packages with common content.
+
+For example, man pages that are shared by a number of CPAN packages.
+Using multiple stow directories and .stowrc files can also simplify
+things.  In our setup we use the standard /usr/local/stow directory for
+packages to be installed in /usr/local.  Since we install a large number
+of extra Perl packages (currently about 300) we use an additional stow
+directory: /usr/local/stow/perl-5.8.8-extras.  Both stow directories
+contain a '.stow' file so that they collaborate appropriately.  I then use
+the following .stowrc file in /usr/local/stow/perl-5.8.8-extras
+  
+        --dir=/usr/local/stow/perl-5.8.8-extras
+        --target=/usr/local
+        --override=bin
+        --override=man
+        --ignore='perllocal\.pod'
+        --ignore='\.packlist'
+        --ignore='\.bs'
+
+When I stow packages from there, they automatically override any man pages
+and binaries that may already have been stowed by another package or by
+the core perl-5.8.8 installation.  For example, if you want to upgrade the
+Test-Simple package, you need to override all the man pages that would
+have been installed by the core package.  If you are upgrading CPAN, you
+will also have to override the pre-existing cpan executable.
+
+** By default, search less aggressively for invalid symlinks when unstowing.
+
+That is, we only search for bad symlinks in the directories explicitly
+mentioned in the installation image, and do not dig down into other
+subdirs.  Digging down into other directories can be very time consuming
+if you have a really big tree (like with a couple of Oracle installations
+lying around). In general the old behaviour is only necessary when you
+have really stuffed up your installation by deleting a directory that has
+already been stowed.  Doing that on a live system is somewhat crazy and
+hopefully rare.  We provide an option '-p|--compat' to enable the old
+behaviour for those needing to patch up mistakes.
+
+** Implement a test suite and support code.  
+
+This was built before implementing any of the extra features so I could
+more easily check for equivalent functionality.  The initial code base had
+to be refactored substantially to allow for testing.  The test suite is
+not exhaustive, but it should provide enough to check for regressions.
+
+
+*  Changes in version 1.3.3:
+**     Now requires Perl 5.005 or later
+**     Initially empty directories are not removed anymore
+**     Removed buggy fastcwd (we use POSIX::getcwd instead)
+**     Fixed bug when the common Parent of Target dir and Stow dir was "/"
+**     Fixed bug when handling directories named "0"
+**     Stow now only warns the user if a directory is unreadable during unstowing.
+
+*   Changes in version 1.3:
+**     Added --restow option.
+**     Fixed handling of slashes in package names.
+**     Expanded configure-time search for Perl binary.
+
+*   Changes in version 1.2:
+**     Dependency on `pwd' removed.
+**     Perl 4 compatibility fixes.
+**     Manual expanded even more.
+
+*   Changes in version 1.1:
+**     Long and short options now accepted.
+**     Manual expanded.
+**     `make clean' removes stow (which is generated from stow.in).
+
+*   Initial public release (v1.0) of Stow.

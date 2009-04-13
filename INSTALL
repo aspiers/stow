@@ -1,0 +1,108 @@
+Basic Installation
+==================
+
+Stow is a Perl script.  You must have Perl 5.005 or later in order for 
+it to run.
+
+The steps in building stow are:
+
+1.  `cd' to the directory containing the source code (and this file)
+    and type `./configure' to configure stow for your system.  This
+    step will attempt to locate your copy of perl and set its location
+    `Makefile.in'.
+
+2.  Type `make' to create `stow' and `'stow.info'. If perl could not
+    be found by `./configure', you'll have to edit line 1 of `stow' 
+    from `#!false' to `#!/path/to/perl' (where /path/to/perl is wherever
+    perl will be found when stow runs).
+
+3.  Type `make install' to install `stow' and `stow.info'.
+
+4.  You can remove the generated files from the source code directory
+    by typing `make clean'.  To also remove the files that `configure'
+    created (so you can compile the package for a different computer),
+    type `make distclean'.  There is also a `make maintainer-clean'
+    target, but that is intended mainly for stow's developers.  If you
+    use it, you may have to get all sorts of other programs in order
+    to regenerate files that came with the distribution.
+
+Installation Names
+==================
+
+By default, `make install' will install the package's files in
+`/usr/local/bin' and `/usr/local/info'.  You can specify an
+installation prefix other than `/usr/local' by giving `configure' the
+option `--prefix=PATH'.
+
+If the package supports it, you can cause programs to be installed
+with an extra prefix or suffix on their names by giving `configure'
+the option `--program-prefix=PREFIX' or `--program-suffix=SUFFIX'.
+
+Since `stow' is concerned with separating a package's installation
+tree from its run-time tree, you might want to install `stow' into a
+directory such as `/usr/local/stow/stow' but have it run out of
+`/usr/local'.  Do this by giving the run-time prefix (e.g.,
+/usr/local) to configure as described above; then run `make'; then run
+`make install prefix=/usr/local/stow/stow'.  For more information on
+this technique, see the Stow manual.
+
+The configuration system
+========================
+
+The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation.  It uses
+those values to create a `Makefile' and to create the `stow' script
+itself, using Makefile.in and stow.in as templates.  Finally, it
+creates a shell script `config.status' that you can run in the future
+to recreate the current configuration, a file `config.cache' that
+saves the results of its tests to speed up reconfiguring, and a file
+`config.log' containing other output.
+
+The file `configure.ac' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.ac' if you want to change
+it or regenerate `configure' using a newer version of `autoconf'.
+
+The file `Makefile.am' is used to create `Makefile.in' by a program
+called `automake'.  You only need `Makefile.am' if you want to change
+it or regenerate `Makefile.in' using a newer version of `automake'.
+
+Sharing Defaults
+================
+
+If you want to set default values for `configure' scripts to share,
+you can create a site shell script called `config.site' that gives
+default values for variables like `CC', `cache_file', and `prefix'.
+`configure' looks for `PREFIX/share/config.site' if it exists, then
+`PREFIX/etc/config.site' if it exists.  Or, you can set the
+`CONFIG_SITE' environment variable to the location of the site script.
+A warning: not all `configure' scripts look for a site script.
+
+Operation Controls
+==================
+
+   `configure' recognizes the following options to control how it
+operates.
+
+`--cache-file=FILE'
+     Use and save the results of the tests in FILE instead of
+     `./config.cache'.  Set FILE to `/dev/null' to disable caching, for
+     debugging `configure'.
+
+`--help'
+     Print a summary of the options to `configure', and exit.
+
+`--quiet'
+`--silent'
+`-q'
+     Do not print messages saying which checks are being made.
+
+`--srcdir=DIR'
+     Look for the package's source code in directory DIR.  Usually
+     `configure' can determine that directory automatically.
+
+`--version'
+     Print the version of Autoconf used to generate the `configure'
+     script, and exit.
+
+`configure' also accepts some other, not widely useful, options.
+
