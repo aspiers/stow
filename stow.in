@@ -176,7 +176,7 @@ sub process_options {
     Getopt::Long::config('no_ignore_case', 'bundling', 'permute');
     GetOptions(
         'v'              => sub { $Option{'verbose'}++            },
-        'verbose=s'      => sub { $Option{'verbose'}      = $_[1] },
+        'verbose:i'      => sub { $Option{'verbose'}+= $_[1] || 1 },
         'h|help'         => sub { $Option{'help'}         = '1'   },
         'n|no|simulate'  => sub { $Option{'simulate'}     = '1'   },
         'c|conflicts'    => sub { $Option{'conflicts'}    = '1'   },
