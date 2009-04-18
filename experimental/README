@@ -2,3 +2,14 @@ Plan:
 1. Write a Perl program with _very_ simple dependency checking.
 2. Make notes on ldconfig
 3. Make notes on various packages, e.g. OpenSSL
+
+##############################################################################
+Note about /sbin/ldconfig:
+The ldconfig man page (ldconfig(8) states that "ldconfig ignores symbolic links
+when scanning for libraries." What does this mean?
+
+Stowing OpenSSL
+I ( Troy Will April 2009 ) did a ./config --prefix=/usr/local shared && make &&
+  make install of OpenSSL. With Stow could not find the shared libraries with
+  ldconfig -v. Installing directly without Stow, I was able to find the shared
+  libraries with ldconfig -v.
