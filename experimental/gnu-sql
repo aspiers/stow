@@ -104,6 +104,8 @@ sub populate_gnu_software {
     my $sth_gs = $dbh->prepare("INSERT INTO gnu_software VALUES (?, ?, ?, ?, ?)");
     $sth_gs->execute(4,'gcc','GNU Compiler Collection', '4.3.3', '2009-04-20');
     $sth_gs->execute(5,'gmp','GNU Multiple Precision Arithmetic Library', '4.3.0', '2009-04-20');
+    $sth_gs->execute(6,'ncurses','Ncurses',                               '5.7', '2009-04-20');
+
 
 #  http://www.alliedquotes.com/mirrors/gnu/gnu/gcc/gcc-4.3.3/gcc-4.3.3.tar.bz2
     #################### Populate table latest_tarball ####################
@@ -115,6 +117,7 @@ sub populate_gnu_software {
     my $sth_lt = $dbh->prepare("INSERT INTO latest_tarball VALUES (?, ?, ?, ?, ?)");
     $sth_lt->execute(4, 4, 'gcc/gcc-4.3.3', 'gcc-4.3.3.tar.bz2', '2009-04-20');
     $sth_lt->execute(5, 5, 'gmp', 'gmp-4.3.0.tar.bz2', '2009-04-20');
+    $sth_lt->execute(6, 6, 'ncurses', 'ncurses-5.7.tar.gz', '2009-04-20');
 }
 
 sub populate_gnu_mirrors {
