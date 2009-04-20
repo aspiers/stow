@@ -21,9 +21,11 @@ my $dbh = DBI->connect("dbi:SQLite:$database", "", "", {RaiseError => 1, AutoCom
 &populate_gnu_software($dbh);
 &print_mirrors;
 &print_software;
+exit if $ARGV[0] eq 'print';
+
 #&stow_gnu_software('make');
 #&stow_gnu_software('mdk');
-&stow_gnu_software('gmp');
+#&stow_gnu_software('gmp');
 #&stow_gnu_software('gcc');
 
 ################################################ Subroutines only below this line ############################
