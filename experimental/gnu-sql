@@ -3,6 +3,9 @@
 use strict;
 use warnings;
 use DBI;
+
+# http://directory.fsf.org/GNU/ Directory of GNU software
+
 # http://sql-info.de/mysql/examples/Perl-DBI-examples.html
 
 # http://mailliststock.wordpress.com/2007/03/01/sqlite-examples-with-bash-perl-and-python/
