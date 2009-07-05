@@ -29,41 +29,6 @@ my $dbh = DBI->connect("dbi:SQLite:$database", "", "", {RaiseError => 1, AutoCom
 
 #&populate_gnu_contributors($dbh);
 
-sub stow_gnu_software {
-    my ( $software ) = @_;
-    print "\t$software\n";
-#        $dbh->do("CREATE TABLE gnu_software (id INTEGER PRIMARY KEY, short_name TEXT UNIQUE, name TEXT, latest_version TEXT, date_checked DATE )");
-    my $sth_id = $dbh->prepare("SELECT id, latest_version FROM gnu_software WHERE short_name = \'$software\'");
-    $sth_id->execute();
-    my ($software_id, $version) = $sth_id->fetchrow_array();
-    print "$software => $version\n";
-    # Given software short name, get id
-    # Given id, get version
-    my $all = $dbh->selectall_arrayref("SELECT * FROM mirror_url");
-    foreach my $row (@$all) {
-	my ($software_id, $country_id, $region_id, $url, $date_checked ) = @$row;
-    }
-    my $sth = $dbh->prepare('SELECT url FROM mirror_url WHERE id = ?');
-    $sth->execute(1);
-    my $url = $sth->fetchrow_array();
-    my $sth2 = $dbh->prepare('SELECT directory, latest_tarball FROM latest_tarball WHERE gnu_software_id = ?');
-    $sth2->execute($software_id);
-    my ( $directory, $tarball ) = $sth2->fetchrow_array;
-    my $download_command = "wget --no-clobber ${url}${directory}/$tarball";
-    system ("$download_command");
-    system ("$tar_command $tarball");
-    chdir ("$software-$version");
-    open(OUT, ">stow-$software-$version");
-    print OUT "#!/bin/bash\n";
-    print OUT "set -o errexit # exit on error\n";
-    print OUT "./configure --prefix=/usr/local\n";
-    print OUT "make\n";
-    print OUT "$su_command make DESTDIR=$stow_dir/$software-$version install\n";
-    print OUT "$su_command stow $software-$version\n";
-    print OUT "$su_command /sbin/ldconfig -v\n";
-    close(OUT);
-}
-
 sub print_software {
     print "=================================== Table gnu_software =================================\n";
     # $dbh->do("CREATE TABLE gnu_software (id INTEGER PRIMARY KEY, short_name TEXT UNIQUE, name TEXT, latest_version TEXT, date_checked DATE )");
