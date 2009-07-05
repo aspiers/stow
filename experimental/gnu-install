@@ -15,7 +15,6 @@ my $target_dir =
 my $su_command = 'sudo';
 my $tar_command = 'tar --verbose --extract --file';
 my $database = 'gnu.db';
-unlink($database);
 
 my $dbh = DBI->connect("dbi:SQLite:$database", "", "", {RaiseError => 1, AutoCommit => 1});
 # su -c 'aptitude install libdbd-sqlite3-perl' on a Debian system TDW 2009-04-19
