@@ -20,7 +20,9 @@ my $dbh = DBI->connect("dbi:SQLite:$database", "", "", {RaiseError => 1, AutoCom
 # su -c 'aptitude install libdbd-sqlite3-perl' on a Debian system TDW 2009-04-19
 
 &print_software;
-&stow_gnu_software($ARGV[0]);
+if ( defined($ARGV[0])) {
+    &stow_gnu_software($ARGV[0]);
+}
 
 ################################################ Subroutines only below this line ############################
 
