@@ -35,7 +35,7 @@ sub print_software {
     my $all = $dbh->selectall_arrayref("SELECT * FROM gnu_software ORDER BY short_name");
     foreach my $row (@$all) {
 	my ($id, $short_name, $name, $latest_version, $date_checked ) = @$row;
-	print "$short_name\t$latest_version v.$latest_version\t$name\n";
+	print "$short_name-$latest_version ($name)\n";
     }
 }
 
