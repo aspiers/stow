@@ -62,7 +62,7 @@ sub populate_gnu_software {
     $dbh->do("INSERT INTO gnu_software VALUES (3, 'mdk', 'GNU MIX Development Kit', '1.2.4', '2009-04-19')");
     my $sth_gs = $dbh->prepare("INSERT INTO gnu_software VALUES (?, ?, ?, ?, ?)");
     $sth_gs->execute(4,'gcc','GNU Compiler Collection', '4.3.3', '2009-04-20');
-    $sth_gs->execute(5,'gmp','GNU Multiple Precision Arithmetic Library', '4.3.0', '2009-04-20');
+    $sth_gs->execute(5,'gmp','GNU Multiple Precision Arithmetic Library', '4.3.1', '2009-07-05');
     $sth_gs->execute(6,'ncurses','Ncurses',                               '5.7', '2009-04-20');
     $sth_gs->execute(7,'readline','GNU readline',                         '6.0', '2009-07-05');
     $sth_gs->execute(8,'texinfo','Texinfo',                               '4.13', '2009-04-20');
@@ -76,7 +76,7 @@ sub populate_gnu_software {
     $dbh->do("INSERT INTO latest_tarball VALUES (3, 3, 'mdk/v1.2.4', 'mdk-1.2.4.tar.gz', '2009-04-19')");
     my $sth_lt = $dbh->prepare("INSERT INTO latest_tarball VALUES (?, ?, ?, ?, ?)");
     $sth_lt->execute(4, 4, 'gcc/gcc-4.3.3', 'gcc-4.3.3.tar.bz2', '2009-04-20');
-    $sth_lt->execute(5, 5, 'gmp', 'gmp-4.3.0.tar.bz2', '2009-04-20');
+    $sth_lt->execute(5, 5, 'gmp', 'gmp-4.3.1.tar.bz2', '2009-07-05');
     $sth_lt->execute(6, 6, 'ncurses', 'ncurses-5.7.tar.gz', '2009-04-20');
     $sth_lt->execute(7, 7, 'readline','readline-6.0.tar.gz','2009-04-20');
     $sth_lt->execute(8, 8, 'texinfo','texinfo-4.13.tar.gz','2009-04-20');
