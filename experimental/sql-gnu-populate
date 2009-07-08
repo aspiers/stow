@@ -58,7 +58,7 @@ sub populate_gnu_software {
 
     #################### Populate table gnu_software ####################
     $dbh->do("INSERT INTO gnu_software VALUES (1, 'make', 'GNU Make', '3.81', '2009-04-19')");
-    $dbh->do("INSERT INTO gnu_software VALUES (2, 'emacs', 'GNU Emacs', '0.00', '1971-01-01')");
+    $dbh->do("INSERT INTO gnu_software VALUES (2, 'emacs', 'GNU Emacs', '22.3', '2009-07-07')");
     $dbh->do("INSERT INTO gnu_software VALUES (3, 'mdk', 'GNU MIX Development Kit', '1.2.4', '2009-04-19')");
     my $sth_gs = $dbh->prepare("INSERT INTO gnu_software VALUES (?, ?, ?, ?, ?)");
     $sth_gs->execute(4,'gcc','GNU Compiler Collection', '4.3.3', '2009-04-20');
