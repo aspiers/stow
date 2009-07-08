@@ -72,10 +72,10 @@ sub populate_gnu_software {
     #################### Populate table latest_tarball ####################
     # Populate latest_tarball
     # latest_tarball (id INTEGER PRIMARY KEY, gnu_software_id INTEGER, directory TEXT, latest_tarball TEXT, date_checked )
-    $dbh->do("INSERT INTO latest_tarball VALUES (1, 1, 'make', 'make-3.81.tar.bz2', '2009-04-19')");
-    # Emacs here id 2
-    $dbh->do("INSERT INTO latest_tarball VALUES (3, 3, 'mdk/v1.2.4', 'mdk-1.2.4.tar.gz', '2009-04-19')");
     my $sth_lt = $dbh->prepare("INSERT INTO latest_tarball VALUES (?, ?, ?, ?, ?)");
+    $sth_lt->execute(1, 1, 'make', 'make-3.81.tar.bz2', '2009-04-19');
+    $sth_lt->execute(2, 2, 'emacs', 'emacs-22.3', '2009-07-07');
+    $sth_lt->execute(3, 3, 'mdk/v1.2.4', 'mdk-1.2.4.tar.gz', '2009-04-19');
     $sth_lt->execute(4, 4, 'gcc/gcc-4.3.3', 'gcc-4.3.3.tar.bz2', '2009-04-20');
     $sth_lt->execute(5, 5, 'gmp', 'gmp-4.3.1.tar.bz2', '2009-07-05');
     $sth_lt->execute(6, 6, 'ncurses', 'ncurses-5.7.tar.gz', '2009-04-20');
