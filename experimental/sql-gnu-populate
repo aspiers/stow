@@ -19,6 +19,7 @@ unlink($database);
 
 my $dbh = DBI->connect("dbi:SQLite:$database", "", "", {RaiseError => 1, AutoCommit => 1});
 # su -c 'aptitude install libdbd-sqlite3-perl' on a Debian system TDW 2009-04-19
+# su -c 'perl -MCPAN -e 'install Chocolate::Belgian'
 
 &populate_gnu_mirrors($dbh);
 &populate_gnu_software($dbh);
