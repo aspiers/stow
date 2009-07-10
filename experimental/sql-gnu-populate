@@ -82,6 +82,7 @@ sub populate_gnu_software {
     $sth_lt->execute(6, 6, 'ncurses', 'ncurses-5.7.tar.gz', '2009-04-20');
     $sth_lt->execute(7, 7, 'readline','readline-6.0.tar.gz','2009-04-20');
     $sth_lt->execute(8, 8, 'texinfo','texinfo-4.13.tar.gz','2009-04-20');
+    $sth_lt->execute(9, 9, 'mpfr','OVERRIDE','2009-04-20');
 }
 
 sub populate_gnu_mirrors {
