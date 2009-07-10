@@ -1,1 +1,2 @@
-./config --with-gmp=/usr/local
+./configure --with-gmp=/usr/local
+
