@@ -46,16 +46,20 @@ sub stow_gnu_software {
     my $sth2 = $dbh->prepare('SELECT directory, latest_tarball FROM latest_tarball WHERE gnu_software_id = ?');
     $sth2->execute($software_id);
     my ( $directory, $tarball ) = $sth2->fetchrow_array;
+    &download_tarball( $directory, $tarball, $url );
     sub download_tarball {
-      my ( $directory, $tarball ) = @_;
+      my ( $directory, $tarball, $url ) = @_;
+      my $download_command = '';
       if ( $tarball ne 'OVERRIDE' ) {
-	my $download_command = "wget --no-clobber ${url}${directory}/$tarball";
+	$download_command = "wget --no-clobber ${url}${directory}/$tarball";
       } else {
-	my $download_command = "wget --no-clobber http://www.mpfr.org/mpfr-current/mpfr-2.4.1.tar.bz2";
+	$download_command = "wget --no-clobber http://www.mpfr.org/mpfr-current/mpfr-2.4.1.tar.bz2";
       }
+      print "==== $download_command ====\n";
       system ("$download_command");
+      system ("$tar_command $tarball");
     }
-    system ("$tar_command $tarball");
+
     chdir ("$software-$version");
     open(OUT, ">stow-$software-$version");
     print OUT "#!/bin/bash\n";
