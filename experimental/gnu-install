@@ -53,11 +53,12 @@ sub stow_gnu_software {
     open(OUT, ">stow-$software-$version");
     print OUT "#!/bin/bash\n";
     print OUT "set -o errexit # exit on error\n";
-    print OUT "./configure --prefix=/usr/local\n";
-    print OUT "make\n";
+    print OUT "# ./configure --prefix=/usr/local\n";
+    print OUT "# make\n";
     print OUT "$su_command make DESTDIR=$stow_dir/$software-$version install\n";
     print OUT "$su_command stow $software-$version\n";
-    print OUT "$su_command /sbin/ldconfig -v\n";
+    print OUT "$su_command /sbin/ldconfig\n";
+    # To-do Check /etc/ldconfig
     close(OUT);
 }
 
