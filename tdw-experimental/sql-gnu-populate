@@ -69,6 +69,7 @@ sub populate_gnu_software {
     $sth_gs->execute(7,'readline','GNU readline',                         '6.0', '2009-07-05');
     $sth_gs->execute(8,'texinfo','Texinfo',                               '4.13', '2009-04-20');
     $sth_gs->execute(9, 'mpfr', 'GNU Multiple-precision Floating-point library with correct rounding', '2.4.1', '2009-07-05');
+    $sth_gs->execute(10, 'glibc', 'GNU C Library', '2.10.1', '2009-07-16');
 
 #  http://www.alliedquotes.com/mirrors/gnu/gnu/gcc/gcc-4.3.3/gcc-4.3.3.tar.bz2
     #################### Populate table latest_tarball ####################
@@ -84,6 +85,7 @@ sub populate_gnu_software {
     $sth_lt->execute(7, 7, 'readline','readline-6.0.tar.gz','2009-04-20');
     $sth_lt->execute(8, 8, 'texinfo','texinfo-4.13.tar.gz','2009-04-20');
     $sth_lt->execute(9, 9, 'mpfr','OVERRIDE','2009-07-09');
+    $sth_lt->execute(10, 10, 'glibc','glibc-2.10.1.tar.bz2','2009-07-16');
 }
 
 sub populate_gnu_mirrors {
