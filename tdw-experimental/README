@@ -1,3 +1,6 @@
+# su -c 'perl -MCPAN -e "install DBI"'
+# su -c 'perl -MCPAN -e "install DBD::SQLite"'
+
 Plan:
 1. Write a Perl program with _very_ simple dependency checking.
 2. Make notes on ldconfig
