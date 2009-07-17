@@ -9,14 +9,10 @@ use DBI;
 # http://mailliststock.wordpress.com/2007/03/01/sqlite-examples-with-bash-perl-and-python/
 #### End Section: Useful webpages
 
-my $repository = '/tmp/';
-my $stow_dir = '/stow';
-my $target_dir = 
-my $su_command = 'sudo';
-my $tar_command = 'tar --verbose --extract --file';
-my $database = 'gnu.db';
+my $TAR_COMMAND = 'tar --verbose --extract --file';
+my $DATABASE = 'gnu.db';
 
-my $dbh = DBI->connect("dbi:SQLite:$database", "", "", {RaiseError => 1, AutoCommit => 1});
+my $dbh = DBI->connect("dbi:SQLite:$DATABASE", "", "", {RaiseError => 1, AutoCommit => 1});
 # su -c 'aptitude install libdbd-sqlite3-perl' on a Debian system TDW 2009-04-19
 
 &print_software;
@@ -57,19 +53,39 @@ sub stow_gnu_software {
       }
       print "==== $download_command ====\n";
       system ("$download_command");
-      system ("$tar_command $tarball");
+      system ("$TAR_COMMAND $tarball");
     }
 
     chdir ("$software-$version");
-    open(OUT, ">stow-$software-$version");
-    print OUT "#!/bin/bash\n";
-    print OUT "set -o errexit # exit on error\n";
-    print OUT "# ./configure --prefix=/usr/local\n";
-    print OUT "# make\n";
-    print OUT "$su_command make DESTDIR=$stow_dir/$software-$version install\n";
-    print OUT "$su_command stow $software-$version\n";
-    print OUT "$su_command /sbin/ldconfig\n";
-    # To-do Check /etc/ldconfig
+    open(OUT, ">stow-$software-$version.sh");
+    system("./configure --help=short > stow.$software-$version.help.short");
+    print OUT <<"END";
+#!/bin/bash
+set -o errexit
+VERSION=\'$version\'
+
+do_configure () {
+    ./configure --prefix=/usr/local
+}
+
+do_build () {
+    make
+    sudo make DESTDIR=/stow/$software-\$\{VERSION\} install
+}
+
+do_package () {
+    cd /stow
+    sudo tar -cjvf $software-\$\{VERSION\}.stow.tar.bz2 $software-\$\{VERSION\}
+    sudo mkdir --parent STOWBALLS
+    sudo mv --verbose $software-\$\{VERSION\}.stow.tar.bz2 STOWBALLS
+    echo "Remember to stow and /sbin/ldconfig"
+}
+
+do_configure
+do_build
+do_package
+
+END
     close(OUT);
 }
 
