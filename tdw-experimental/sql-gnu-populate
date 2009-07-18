@@ -56,7 +56,7 @@ sub print_mirrors {
 sub populate_gnu_software {
     my $dbh = shift;
     $dbh->do("CREATE TABLE gnu_software (id INTEGER PRIMARY KEY, short_name TEXT UNIQUE, name TEXT, latest_version TEXT, date_checked DATE )");
-    $dbh->do("CREATE TABLE latest_tarball (id INTEGER PRIMARY KEY, gnu_software_id INTEGER, directory TEXT, latest_tarball TEXT, date_checked )");
+    $dbh->do("CREATE TABLE latest_tarball (id INTEGER PRIMARY KEY, gnu_software_id INTEGER UNIQUE, directory TEXT, latest_tarball TEXT, date_checked )");
 
     #################### Populate table gnu_software ####################
     $dbh->do("INSERT INTO gnu_software VALUES (1, 'make', 'GNU Make', '3.81', '2009-04-19')");
@@ -70,6 +70,8 @@ sub populate_gnu_software {
     $sth_gs->execute(8,'texinfo','Texinfo',                               '4.13', '2009-04-20');
     $sth_gs->execute(9, 'mpfr', 'GNU Multiple-precision Floating-point library with correct rounding', '2.4.1', '2009-07-05');
     $sth_gs->execute(10, 'glibc', 'GNU C Library', '2.10.1', '2009-07-16');
+    $sth_gs->execute(11, 'autoconf', 'Autoconf', '2.63', '2009-07-18');
+    $sth_gs->execute(12, 'automake', 'Automake', '1.11', '2009-07-18');
 
 #  http://www.alliedquotes.com/mirrors/gnu/gnu/gcc/gcc-4.3.3/gcc-4.3.3.tar.bz2
     #################### Populate table latest_tarball ####################
@@ -86,6 +88,8 @@ sub populate_gnu_software {
     $sth_lt->execute(8, 8, 'texinfo','texinfo-4.13.tar.gz','2009-04-20');
     $sth_lt->execute(9, 9, 'mpfr','OVERRIDE','2009-07-09');
     $sth_lt->execute(10, 10, 'glibc','glibc-2.10.1.tar.bz2','2009-07-16');
+    $sth_lt->execute(11, 11, 'autoconf','autoconf-2.63.tar.bz2','2009-07-18');
+    $sth_lt->execute(12, 12, 'automake', 'automake-1.11.tar.bz2', '2009-07-18');
 }
 
 sub populate_gnu_mirrors {
