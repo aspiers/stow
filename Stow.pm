@@ -85,36 +85,54 @@ sub CheckCollections {
 
 sub CommonParent {
   my($dir1, $dir2) = @_;
-  my($result, $x);
+  my $result = '';
   my(@d1) = split(/\/+/, $dir1);
   my(@d2) = split(/\/+/, $dir2);
 
-  while (@d1 && @d2 && (($x = shift(@d1)) eq shift(@d2))) {
+  while (@d1 && @d2 && ((my $x = shift(@d1)) eq shift(@d2))) {
     $result .= "$x/";
   }
+  return '/' if ! $result and $dir1 =~ m!^/! and $dir2 =~ m!^/!;
   chop($result);
   return $result;
 }
 
-# Find the relative patch between
-# two paths given as arguments.
-
+# Find the relative path to $b from $a
 sub RelativePath {
   my($a, $b) = @_;
+
+  die "Both paths must be relative or absolute"
+    if substr($a, 0, 1) ne '/' and substr($b, 0, 1) eq '/';
+
+  return '.' if $a eq $b;
+
   my($c) = &CommonParent($a, $b);
   my(@a) = split(/\/+/, $a);
   my(@b) = split(/\/+/, $b);
   my(@c) = split(/\/+/, $c);
 
-  # if $c == "/something", scalar(@c) >= 2
-  # but if $c == "/", scalar(@c) == 0
-  # but we want 1
-  my $length = scalar(@c) ? scalar(@c) : 1;
-  splice(@a, 0, $length);
-  splice(@b, 0, $length);
+  # get rid of any empty 1st element due to absolute paths
+  shift @a if substr($a, 0, 1) eq '/';
+  shift @b if substr($b, 0, 1) eq '/';
+  shift @c if substr($c, 0, 1) eq '/';
 
-  unshift(@b, (('..') x (@a + 0)));
-  &JoinPaths(@b);
+  # Trim common path segments from @c off @a and @b
+  #
+  # If $c == "/something", scalar(@c) == 1 after shift @c
+  # If $c == "/something/else", scalar(@c) == 2 after shift @c
+  # So in general, trim scalar(@c) segments off @a and @b
+  my $length = @c;
+  # but if $c eq "/", scalar(@c) == 0 but we want to remove the first undef:
+  #$length = 1 if $c eq "/";
+  # otherwise if $c eq "" we must have been dealing with at least one relative path:
+  #$length = 1 if $c eq "";
+  # and if $a eq $b, we want to keep the last element:
+  $length-- if $a eq $b;
+  splice @a, 0, $length;
+  splice @b, 0, $length;
+
+  unshift @b, (('..') x scalar(@a));
+  return &JoinPaths(@b);
 }
 
 # Concatenates the paths given as arguments, removing double and
@@ -124,6 +142,8 @@ sub JoinPaths {
   my(@paths, @parts);
   my ($x, $y);
   my($result) = '';
+  use Carp qw(carp cluck croak confess);
+  confess "nothing to join" unless defined $_[0];
 
   $result = '/' if ($_[0] =~ /^\//);
   foreach $x (@_) {
