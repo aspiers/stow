@@ -525,7 +525,7 @@ sub Conflict {
   my $src = &AbbrevHome(&JoinPaths($opts{stow},   $a));
   my $dst = &AbbrevHome(&JoinPaths($opts{target}, $b));
 
-  my $msg = "CONFLICT:\n  $src\nvs.\n  $dst" . ($type ? "\n  ($type)" : '') . "\n\n";
+  my $msg = "CONFLICT: $src vs. $dst" . ($type ? " ($type)" : '') . "\n";
   if ($opts{conflicts}) {
     warn $msg;
     #system "ls -l $src $dst";
