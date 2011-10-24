@@ -395,7 +395,9 @@ sub StowDir {
     );
     unless ($stowsubdir) {
       # No, so we can't touch it.
-      &Conflict($dir, $subdir, "link doesn't point within stow dir; cannot split open");
+      &Conflict($dir, $subdir,
+                &AbbrevHome($targetSubdirPath)
+                . " link doesn't point within stow dir; cannot split open");
       return;
     }
 
@@ -415,7 +417,9 @@ sub StowDir {
 	&StowContents($stowsubdir, &JoinPaths('..', $stow));
 	&StowContents($dir, &JoinPaths('..', $stow));
       } else {
-	&Conflict($dir, $subdir, "$stowSubdirPath exists but not a directory");
+	&Conflict($dir, $subdir,
+                  &AbbrevHome($stowSubdirPath)
+                  . " exists but not a directory");
         return;
       }
     } else {
@@ -427,7 +431,9 @@ sub StowDir {
     if (-d $targetSubdirPath) {
       &StowContents($dir, &JoinPaths('..', $stow));
     } else {
-      &Conflict($dir, $subdir, "$targetSubdirPath exists but not a directory");
+      &Conflict($dir, $subdir,
+                &AbbrevHome($targetSubdirPath)
+                . " exists but not a directory");
     }
   } else {
     &DoLink(&JoinPaths($stow, $dir),
@@ -450,12 +456,16 @@ sub StowNondir {
       $linktarget
     );
     if (! $stowsubfile) {
-      &Conflict($file, $subfile, "$subfilePath symlink did not point within stow dir");
+      &Conflict($file, $subfile,
+                &AbbrevHome($subfilePath)
+                . " symlink did not point within stow dir");
       return;
     }
     if (-e &JoinPaths($opts{stow}, $stowsubfile)) {
       if ($stowsubfile ne $file) {
-        &Conflict($file, $subfile, "$subfilePath pointed to something else within stow dir");
+        &Conflict($file, $subfile,
+                  &AbbrevHome($subfilePath)
+                  . " pointed to something else within stow dir");
         return;
       }
       warn sprintf("%s already points to %s\n",
@@ -467,7 +477,9 @@ sub StowNondir {
       &DoLink(&JoinPaths($stow, $file), $subfilePath);
     }
   } elsif (-e $subfilePath) {
-    &Conflict($file, $subfile, "$subfilePath exists but is not a symlink");
+    &Conflict($file, $subfile,
+              &AbbrevHome($subfilePath)
+              . " exists but is not a symlink");
   } else {
     &DoLink(&JoinPaths($stow, $file), $subfilePath);
   }
@@ -510,15 +522,22 @@ sub DoMkdir {
 sub Conflict {
   my($a, $b, $type) = @_;
 
-  my $src = &JoinPaths($opts{stow}, $a);
-  my $dst = &JoinPaths($opts{target}, $b);
+  my $src = &AbbrevHome(&JoinPaths($opts{stow},   $a));
+  my $dst = &AbbrevHome(&JoinPaths($opts{target}, $b));
 
+  my $msg = "CONFLICT:\n  $src\nvs.\n  $dst" . ($type ? "\n  ($type)" : '') . "\n\n";
   if ($opts{conflicts}) {
-    warn "CONFLICT: $src vs. $dst", ($type ? " ($type)" : ''), "\n";
+    warn $msg;
     #system "ls -l $src $dst";
   } else {
-    die "$RealScript: CONFLICT: $src vs. $dst", ($type ? " ($type)" : ''), "\n";
+    die "$RealScript: $msg";
   }
+}
+
+sub AbbrevHome {
+  my($path) = @_;
+  $path =~ s!^$ENV{HOME}/!~/!;
+  return $path;
 }
 
 # Given an absolute starting directory and a relative path obtained by
