@@ -382,11 +382,11 @@ sub StowDir {
 
   warn "Stowing directory $dir\n" if ($opts{verbose} > 1);
 
-  my $subdirPath = &JoinPaths($opts{target}, $subdir);
-  if (-l $subdirPath) {
+  my $targetSubdirPath = &JoinPaths($opts{target}, $subdir);
+  if (-l $targetSubdirPath) {
     # We found a link; now let's see if we should remove it.
-    my $linktarget = readlink($subdirPath);
-    $linktarget or die "$RealScript: Could not read link $subdirPath ($!)\n";
+    my $linktarget = readlink($targetSubdirPath);
+    $linktarget or die "$RealScript: Could not read link $targetSubdirPath ($!)\n";
 
     # Does the link point to somewhere within the stow directory?
     my $stowsubdir = &FindStowMember(
@@ -395,43 +395,43 @@ sub StowDir {
     );
     unless ($stowsubdir) {
       # No, so we can't touch it.
-      &Conflict($dir, $subdir, 1);
+      &Conflict($dir, $subdir, "link doesn't point within stow dir; cannot split open");
       return;
     }
 
     # Yes it does.
-    if (-e &JoinPaths($opts{stow}, $stowsubdir)) {
+    my $stowSubdirPath = &JoinPaths($opts{stow}, $stowsubdir);
+    if (-e $stowSubdirPath) {
       if ($stowsubdir eq $dir) {
-	warn sprintf("%s already points to %s\n",
-		     $subdirPath,
-		     &JoinPaths($opts{stow}, $dir))
-	  if ($opts{verbose} > 2);
+	warn "$targetSubdirPath already points to $stowSubdirPath\n"
+	  if $opts{verbose} > 2;
 	return;
       }
-      if (-d &JoinPaths($opts{stow}, $stowsubdir)) {
+      if (-d $stowSubdirPath) {
         # This is the splitting open of a folded tree which the stow
         # manual refers to.
-	&DoUnlink($subdirPath);
-	&DoMkdir($subdirPath);
+	&DoUnlink($targetSubdirPath);
+	&DoMkdir($targetSubdirPath);
 	&StowContents($stowsubdir, &JoinPaths('..', $stow));
 	&StowContents($dir, &JoinPaths('..', $stow));
       } else {
-	(&Conflict($dir, $subdir, 2), return);
+	&Conflict($dir, $subdir, "$stowSubdirPath exists but not a directory");
+        return;
       }
     } else {
-      &DoUnlink($subdirPath);
+      &DoUnlink($targetSubdirPath);
       &DoLink(&JoinPaths($stow, $dir),
-	      $subdirPath);
+	      $targetSubdirPath);
     }
-  } elsif (-e $subdirPath) {
-    if (-d $subdirPath) {
+  } elsif (-e $targetSubdirPath) {
+    if (-d $targetSubdirPath) {
       &StowContents($dir, &JoinPaths('..', $stow));
     } else {
-      &Conflict($dir, $subdir, 3);
+      &Conflict($dir, $subdir, "$targetSubdirPath exists but not a directory");
     }
   } else {
     &DoLink(&JoinPaths($stow, $dir),
-	    $subdirPath);
+	    $targetSubdirPath);
   }
 }
 
@@ -450,12 +450,14 @@ sub StowNondir {
       $linktarget
     );
     if (! $stowsubfile) {
-      &Conflict($file, $subfile, 4);
+      &Conflict($file, $subfile, "$subfilePath symlink did not point within stow dir");
       return;
     }
     if (-e &JoinPaths($opts{stow}, $stowsubfile)) {
-      (&Conflict($file, $subfile, 5), return)
-	unless ($stowsubfile eq $file);
+      if ($stowsubfile ne $file) {
+        &Conflict($file, $subfile, "$subfilePath pointed to something else within stow dir");
+        return;
+      }
       warn sprintf("%s already points to %s\n",
 		   $subfilePath,
 		   &JoinPaths($opts{stow}, $file))
@@ -465,7 +467,7 @@ sub StowNondir {
       &DoLink(&JoinPaths($stow, $file), $subfilePath);
     }
   } elsif (-e $subfilePath) {
-    &Conflict($file, $subfile, 6);
+    &Conflict($file, $subfile, "$subfilePath exists but is not a symlink");
   } else {
     &DoLink(&JoinPaths($stow, $file), $subfilePath);
   }
