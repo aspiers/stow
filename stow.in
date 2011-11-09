@@ -18,10 +18,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: stow.in,v 1.8 2002/01/05 11:27:01 gmorin Exp $
-# $Source: /cvsroot/stow/stow/stow.in,v $
-# $Date: 2002/01/05 11:27:01 $
-# $Author: gmorin $
+# $Id$
+# $Source$
+# $Date$
+# $Author$
 
 require 5.005;
 use POSIX;
