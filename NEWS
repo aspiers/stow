@@ -1,0 +1,22 @@
+News file for Stow.
+
+*   Changes in version 1.3:
+**     Added --restow option.
+**     Fixed handling of slashes in package names.
+**     Expanded configure-time search for Perl binary.
+
+*   Changes in version 1.2:
+**     Dependency on `pwd' removed.
+**     Perl 4 compatibility fixes.
+**     Manual expanded even more.
+
+*   Changes in version 1.1:
+**     Long and short options now accepted.
+**     Manual expanded.
+**     `make clean' removes stow (which is generated from stow.in).
+
+*   Initial public release (v1.0) of Stow.
+   
+Local variables:
+mode: outline
+End:

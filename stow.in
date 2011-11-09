@@ -1,0 +1,542 @@
+#!@PERL@
+
+# GNU Stow - manage the installation of multiple software packages
+# Copyright 1993, 1994, 1995, 1996 by Bob Glickstein
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+$ProgramName = $0;
+$ProgramName =~ s,.*/,,;
+
+$Version = '@VERSION@';
+
+$Conflicts = 0;
+$Delete = 0;
+$NotReally = 0;
+$Verbose = 0;
+$ReportHelp = 0;
+$Stow = &fastcwd;
+$Target = undef;
+$Restow = 0;
+
+while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
+  $opt = $';
+  shift;
+  last if /^--$/;
+
+  if ($opt =~ /^-/) {
+    $opt = $';
+    if ($opt =~ /^no?$/i) {
+      $NotReally = 1;
+    } elsif ($opt =~ /^c(o(n(f(l(i(c(ts?)?)?)?)?)?)?)?$/i) {
+      $Conflicts = 1;
+      $NotReally = 1;
+    } elsif ($opt =~ /^dir?/i) {
+      $remainder = $';
+      if ($remainder =~ /^=/) {
+	$Stow = $';		# the stuff after the =
+      } else {
+	$Stow = shift;
+      }
+    } elsif ($opt =~ /^t(a(r(g(et?)?)?)?)?/i) {
+      $remainder = $';
+      if ($remainder =~ /^=/) {
+	$Target = $';		# the stuff after the =
+      } else {
+	$Target = shift;
+      }
+    } elsif ($opt =~ /^verb(o(se?)?)?/i) {
+      $remainder = $';
+      if ($remainder =~ /^=(\d+)/) {
+	$Verbose = $1;
+      } else {
+	++$Verbose;
+      }
+    } elsif ($opt =~ /^de(l(e(te?)?)?)?$/i) {
+      $Delete = 1;
+    } elsif ($opt =~ /^r(e(s(t(o(w?)?)?)?)?)?$/i) {
+      $Restow = 1;
+    } elsif ($opt =~ /^vers(i(on?)?)?$/i) {
+      &version();
+    } else {
+      &usage(($opt =~ /^h(e(lp?)?)?$/) ? undef :
+	     "unknown or ambiguous option: $opt");
+    }
+  } else {
+    @opts = split(//, $opt);
+    while ($_ = shift(@opts)) {
+      if ($_ eq 'n') {
+	$NotReally = 1;
+      } elsif ($_ eq 'c') {
+	$Conflicts = 1;
+	$NotReally = 1;
+      } elsif ($_ eq 'd') {
+	$Stow = (join('', @opts) || shift);
+	@opts = ();
+      } elsif ($_ eq 't') {
+	$Target = (join('', @opts) || shift);
+	@opts = ();
+      } elsif ($_ eq 'v') {
+	++$Verbose;
+      } elsif ($_ eq 'D') {
+	$Delete = 1;
+      } elsif ($_ eq 'R') {
+	$Restow = 1;
+      } elsif ($_ eq 'V') {
+	&version();
+      } else {
+	&usage(($_ eq 'h') ? undef : "unknown option: $_");
+      }
+    }
+  }
+}
+
+&usage("No packages named") unless @ARGV;
+
+$Target = &parent($Stow) unless $Target;
+
+chdir($Target) || die "Cannot chdir to target tree $Target ($!)\n";
+$Target = &fastcwd;
+
+foreach $package (@ARGV) {
+  $package =~ s,/+$,,;		# delete trailing slashes
+  if ($package =~ m,/,) {
+    die "$ProgramName: slashes not permitted in package names\n";
+  }
+}
+
+if ($Delete || $Restow) {
+  @Collections = @ARGV;
+  &Unstow('', &RelativePath($Target, $Stow));
+}
+
+if (!$Delete || $Restow) {
+  foreach $Collection (@ARGV) {
+    warn "Stowing package $Collection...\n" if $Verbose;
+    &StowContents($Collection, &RelativePath($Target, $Stow));
+  }
+}
+
+sub CommonParent {
+  local($dir1, $dir2) = @_;
+  local($result, $x);
+  local(@d1) = split(/\/+/, $dir1);
+  local(@d2) = split(/\/+/, $dir2);
+
+  while (@d1 && @d2 && (($x = shift(@d1)) eq shift(@d2))) {
+    $result .= "$x/";
+  }
+  chop($result);
+  $result;
+}
+
+sub RelativePath {
+  local($a, $b) = @_;
+  local($c) = &CommonParent($a, $b);
+  local(@a) = split(/\/+/, $a);
+  local(@b) = split(/\/+/, $b);
+  local(@c) = split(/\/+/, $c);
+
+  splice(@a, 0, @c + 0);
+  splice(@b, 0, @c + 0);
+  unshift(@b, (('..') x (@a + 0)));
+  &JoinPaths(@b);
+}
+
+sub JoinPaths {
+  local(@paths, @parts);
+  local ($x, $y);
+  local($result) = '';
+
+  $result = '/' if ($_[0] =~ /^\//);
+  foreach $x (@_) {
+    @parts = split(/\/+/, $x);
+    foreach $y (@parts) {
+      push(@paths, $y) if $y;
+    }
+  }
+  $result .= join('/', @paths);
+}
+
+sub Unstow {
+  local($targetdir, $stow) = @_;
+  local(@contents);
+  local($content);
+  local($linktarget, $stowmember, $collection);
+  local(@stowmember);
+  local($pure, $othercollection) = (1, '');
+  local($subpure, $subother);
+  local(@puresubdirs);
+
+  return (0, '') if (&JoinPaths($Target, $targetdir) eq $Stow);
+  return (0, '') if (-e &JoinPaths($Target, $targetdir, '.stow'));
+  warn sprintf("Unstowing in %s\n", &JoinPaths($Target, $targetdir))
+    if ($Verbose > 1);
+  opendir(DIR, &JoinPaths($Target, $targetdir)) ||
+    die "$ProgramName: Cannot read directory \"$dir\" ($!)\n";
+  @contents = readdir(DIR);
+  closedir(DIR);
+  foreach $content (@contents) {
+    next if (($content eq '.') || ($content eq '..'));
+    if (-l &JoinPaths($Target, $targetdir, $content)) {
+      ($linktarget = readlink(&JoinPaths($Target,
+					 $targetdir,
+					 $content)))
+	|| die sprintf("%s: Cannot read link %s (%s)\n",
+		       $ProgramName,
+		       &JoinPaths($Target, $targetdir, $content),
+		       $!);
+      if ($stowmember = &FindStowMember(&JoinPaths($Target,
+						   $targetdir),
+					$linktarget)) {
+	@stowmember = split(/\/+/, $stowmember);
+	$collection = shift(@stowmember);
+	if (grep(($collection eq $_), @Collections)) {
+	  &DoUnlink(&JoinPaths($Target, $targetdir, $content));
+	} elsif ($pure) {
+	  if ($othercollection) {
+	    $pure = 0 if ($collection ne $othercollection);
+	  } else {
+	    $othercollection = $collection;
+	  }
+	}
+      } else {
+	$pure = 0;
+      }
+    } elsif (-d &JoinPaths($Target, $targetdir, $content)) {
+      ($subpure, $subother) = &Unstow(&JoinPaths($targetdir, $content),
+				      &JoinPaths('..', $stow));
+      if ($subpure) {
+	push(@puresubdirs, "$content/$subother");
+      }
+      if ($pure) {
+	if ($subpure) {
+	  if ($othercollection) {
+	    if ($subother) {
+	      if ($othercollection ne $subother) {
+		$pure = 0;
+	      }
+	    }
+	  } elsif ($subother) {
+	    $othercollection = $subother;
+	  }
+	} else {
+	  $pure = 0;
+	}
+      }
+    } else {
+      $pure = 0;
+    }
+  }
+  if ((!$pure || !$targetdir) && @puresubdirs) {
+    &CoalesceTrees($targetdir, $stow, @puresubdirs);
+  }
+  ($pure, $othercollection);
+}
+
+sub CoalesceTrees {
+  local($parent, $stow, @trees) = @_;
+  local($tree, $collection, $x);
+
+  foreach $x (@trees) {
+    ($tree, $collection) = ($x =~ /^(.*)\/(.*)/);
+    &EmptyTree(&JoinPaths($Target, $parent, $tree));
+    &DoRmdir(&JoinPaths($Target, $parent, $tree));
+    if ($collection) {
+      &DoLink(&JoinPaths($stow, $collection, $parent, $tree),
+	      &JoinPaths($Target, $parent, $tree));
+    }
+  }
+}
+
+sub EmptyTree {
+  local($dir) = @_;
+  local(@contents);
+  local($content);
+
+  opendir(DIR, $dir)
+    || die "$ProgramName: Cannot read directory \"$dir\" ($!)\n";
+  @contents = readdir(DIR);
+  closedir(DIR);
+  foreach $content (@contents) {
+    next if (($content eq '.') || ($content eq '..'));
+    if (-l &JoinPaths($dir, $content)) {
+      &DoUnlink(&JoinPaths($dir, $content));
+    } elsif (-d &JoinPaths($dir, $content)) {
+      &EmptyTree(&JoinPaths($dir, $content));
+      &DoRmdir(&JoinPaths($dir, $content));
+    } else {
+      &DoUnlink(&JoinPaths($dir, $content));
+    }
+  }
+}
+
+sub StowContents {
+  local($dir, $stow) = @_;
+  local(@contents);
+  local($content);
+
+  warn "Stowing contents of $dir\n" if ($Verbose > 1);
+  opendir(DIR, &JoinPaths($Stow, $dir))
+    || die "$ProgramName: Cannot read directory \"$dir\" ($!)\n";
+  @contents = readdir(DIR);
+  closedir(DIR);
+  foreach $content (@contents) {
+    next if (($content eq '.') || ($content eq '..'));
+    if (-d &JoinPaths($Stow, $dir, $content)) {
+      &StowDir(&JoinPaths($dir, $content), $stow);
+    } else {
+      &StowNondir(&JoinPaths($dir, $content), $stow);
+    }
+  }
+}
+
+sub StowDir {
+  local($dir, $stow) = @_;
+  local(@dir) = split(/\/+/, $dir);
+  local($collection) = shift(@dir);
+  local($subdir) = join('/', @dir);
+  local($linktarget, $stowsubdir);
+
+  warn "Stowing directory $dir\n" if ($Verbose > 1);
+  if (-l &JoinPaths($Target, $subdir)) {
+    ($linktarget = readlink(&JoinPaths($Target, $subdir)))
+      || die sprintf("%s: Could not read link %s (%s)\n",
+		     $ProgramName,
+		     &JoinPaths($Target, $subdir),
+		     $!);
+    ($stowsubdir =
+     &FindStowMember(sprintf('%s/%s', $Target,
+			     join('/', @dir[0..($#dir - 1)])),
+		     $linktarget))
+      || (&Conflict($dir, $subdir), return);
+    if (-e &JoinPaths($Stow, $stowsubdir)) {
+      if ($stowsubdir eq $dir) {
+	warn sprintf("%s already points to %s\n",
+		     &JoinPaths($Target, $subdir),
+		     &JoinPaths($Stow, $dir))
+	  if ($Verbose > 2);
+	return;
+      }
+      if (-d &JoinPaths($Stow, $stowsubdir)) {
+	&DoUnlink(&JoinPaths($Target, $subdir));
+	&DoMkdir(&JoinPaths($Target, $subdir));
+	&StowContents($stowsubdir, &JoinPaths('..', $stow));
+	&StowContents($dir, &JoinPaths('..', $stow));
+      } else {
+	(&Conflict($dir, $subdir), return);
+      }
+    } else {
+      &DoUnlink(&JoinPaths($Target, $subdir));
+      &DoLink(&JoinPaths($stow, $dir),
+	      &JoinPaths($Target, $subdir));
+    }
+  } elsif (-e &JoinPaths($Target, $subdir)) {
+    if (-d &JoinPaths($Target, $subdir)) {
+      &StowContents($dir, &JoinPaths('..', $stow));
+    } else {
+      &Conflict($dir, $subdir);
+    }
+  } else {
+    &DoLink(&JoinPaths($stow, $dir),
+	    &JoinPaths($Target, $subdir));
+  }
+}
+
+sub StowNondir {
+  local($file, $stow) = @_;
+  local(@file) = split(/\/+/, $file);
+  local($collection) = shift(@file);
+  local($subfile) = join('/', @file);
+  local($linktarget, $stowsubfile);
+
+  if (-l &JoinPaths($Target, $subfile)) {
+    ($linktarget = readlink(&JoinPaths($Target, $subfile)))
+      || die sprintf("%s: Could not read link %s (%s)\n",
+		     $ProgramName,
+		     &JoinPaths($Target, $subfile),
+		     $!);
+    ($stowsubfile =
+     &FindStowMember(sprintf('%s/%s', $Target,
+			     join('/', @file[0..($#file - 1)])),
+		     $linktarget))
+      || (&Conflict($file, $subfile), return);
+    if (-e &JoinPaths($Stow, $stowsubfile)) {
+      (&Conflict($file, $subfile), return)
+	unless ($stowsubfile eq $file);
+      warn sprintf("%s already points to %s\n",
+		   &JoinPaths($Target, $subfile),
+		   &JoinPaths($Stow, $file))
+	if ($Verbose > 2);
+    } else {
+      &DoUnlink(&JoinPaths($Target, $subfile));
+      &DoLink(&JoinPaths($stow, $file),
+	      &JoinPaths($Target, $subfile));
+    }
+  } elsif (-e &JoinPaths($Target, $subfile)) {
+    &Conflict($file, $subfile);
+  } else {
+    &DoLink(&JoinPaths($stow, $file),
+	    &JoinPaths($Target, $subfile));
+  }
+}
+
+sub DoUnlink {
+  local($file) = @_;
+
+  warn "UNLINK $file\n" if $Verbose;
+  (unlink($file) || die "$ProgramName: Could not unlink $file ($!)\n")
+    unless $NotReally;
+}
+
+sub DoRmdir {
+  local($dir) = @_;
+
+  warn "RMDIR $dir\n" if $Verbose;
+  (rmdir($dir) || die "$ProgramName: Could not rmdir $dir ($!)\n")
+    unless $NotReally;
+}
+
+sub DoLink {
+  local($target, $name) = @_;
+
+  warn "LINK $name to $target\n" if $Verbose;
+  (symlink($target, $name) ||
+   die "$ProgramName: Could not symlink $name to $target ($!)\n")
+    unless $NotReally;
+}
+
+sub DoMkdir {
+  local($dir) = @_;
+
+  warn "MKDIR $dir\n" if $Verbose;
+  (mkdir($dir, 0777)
+   || die "$ProgramName: Could not make directory $dir ($!)\n")
+    unless $NotReally;
+}
+
+sub Conflict {
+  local($a, $b) = @_;
+
+  if ($Conflicts) {
+    warn sprintf("CONFLICT: %s vs. %s\n", &JoinPaths($Stow, $a),
+		 &JoinPaths($Target, $b));
+  } else {
+    die sprintf("%s: CONFLICT: %s vs. %s\n",
+		$ProgramName,
+		&JoinPaths($Stow, $a),
+		&JoinPaths($Target, $b));
+  }
+}
+
+sub FindStowMember {
+  local($start, $path) = @_;
+  local(@x) = split(/\/+/, $start);
+  local(@path) = split(/\/+/, $path);
+  local($x);
+  local(@d) = split(/\/+/, $Stow);
+
+  while (@path) {
+    $x = shift(@path);
+    if ($x eq '..') {
+      pop(@x);
+      return '' unless @x;
+    } elsif ($x) {
+      push(@x, $x);
+    }
+  }
+  while (@x && @d) {
+    if (($x = shift(@x)) ne shift(@d)) {
+      return '';
+    }
+  }
+  return '' if @d;
+  join('/', @x);
+}
+
+sub parent {
+  local($path) = join('/', @_);
+  local(@elts) = split(/\/+/, $path);
+  pop(@elts);
+  join('/', @elts);
+}
+
+sub usage {
+  local($msg) = shift;
+
+  if ($msg) {
+    print "$ProgramName: $msg\n";
+  }
+  print "$ProgramName (GNU Stow) version $Version\n\n";
+  print "Usage: $ProgramName [OPTION ...] PACKAGE ...\n";
+  print <<EOT;
+  -n, --no              Do not actually make changes
+  -c, --conflicts       Scan for conflicts, implies -n
+  -d DIR, --dir=DIR     Set stow dir to DIR (default is current dir)
+  -t DIR, --target=DIR  Set target to DIR (default is parent of stow dir)
+  -v, --verbose[=N]     Increase verboseness (levels are 0,1,2,3;
+                          -v or --verbose adds 1; --verbose=N sets level)
+  -D, --delete          Unstow instead of stow
+  -R, --restow          Restow (like stow -D followed by stow)
+  -V, --version         Show Stow version number
+  -h, --help            Show this help
+EOT
+  exit($msg ? 1 : 0);
+}
+
+sub version {
+  print "$ProgramName (GNU Stow) version $Version\n";
+  exit(0);
+}
+
+# This is from Perl 4's fastcwd.pl, by John Bazik.
+#
+# Usage: $cwd = &fastcwd;
+#
+# This is a faster version of getcwd.  It's also more dangerous
+# because you might chdir out of a directory that you can't chdir back
+# into.
+
+sub fastcwd {
+  local($odev, $oino, $cdev, $cino, $tdev, $tino);
+  local(@path, $path);
+  local(*DIR);
+
+  ($cdev, $cino) = stat('.');
+  for (;;) {
+    ($odev, $oino) = ($cdev, $cino);
+    chdir('..');
+    ($cdev, $cino) = stat('.');
+    last if $odev == $cdev && $oino == $cino;
+    opendir(DIR, '.');
+    for (;;) {
+      $_ = readdir(DIR);
+      next if $_ eq '.';
+      next if $_ eq '..';
+
+      last unless $_;
+      ($tdev, $tino) = lstat($_);
+      last unless $tdev != $odev || $tino != $oino;
+    }
+    closedir(DIR);
+    unshift(@path, $_);
+  }
+  chdir($path = '/' . join('/', @path));
+  $path;
+}
+
+# Local variables:
+# mode: perl
+# End:

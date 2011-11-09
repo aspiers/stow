@@ -1,0 +1,47 @@
+-*- outline -*-
+
+* Autodetect "foreign" stow directories
+
+* Fix empty-dir problem (see "Known bugs" in the manual)
+
+* Continue after conflicts.
+
+When detecting a conflict, affected subparts of the Stow traversal can
+be skipped while continuing with other subparts.
+
+* Traverse links in the target tree?
+
+From e-mail with meyering@na-net.ornl.gov:
+
+    > My /usr/local/info equivalent is a symlink to /share/info
+    > because I want installs on all systems to put info files in that
+    > directory.  With that set-up, stow chokes on fact that
+    > /usr/local/info is a symlink.
+
+    [...] Stow is designed to be paranoid about modifying anything it
+    doesn't "own."  If it finds a symlink in the target tree (e.g.,
+    /usr/local/info) which doesn't point into the stow tree, its
+    paranoid response is to leave it the hell alone.  But I can see in
+    this case how traversing the link and populating the directory on
+    the far end would be OK.  Question: is that a special
+    circumstance, or would it always be OK to populate the far end of
+    a symlink in the target tree (when the symlink points to a
+    directory in a context where a directory is needed)?  And: if it's
+    a special circumstance requiring a command-line option, should the
+    option be a mere boolean (such as, "--traverse-target-links") or
+    should it be an enumeration of which links are OK to traverse
+    (such as, "--traversable='info man doc'")?
+
+* Develop a mechanism for sharing files between packages.
+
+This would solve the problem of maintaining N platform-specific copies
+of a package, all of which have many platform-*independent* files
+which could be shared, such as man pages, info files, etc.
+
+* Option to ignore certain files in the stow tree.
+
+For example, --ignore='*~ .#*' (skip Emacs and CVS backup files).
+
+* Option to ignore links in the stow tree to certain places.
+
+For example, --ignore-link='/*' (skip absolute links).
