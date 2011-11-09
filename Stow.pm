@@ -19,10 +19,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id$
-# $Source$
-# $Date$
-# $Author$
 
 #####################################################################
 # Wed Nov 23 2005 Adam Spiers <stow@adamspiers.org>
