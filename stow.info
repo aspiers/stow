@@ -1,11 +1,17 @@
-This is Info file ./stow.info, produced by Makeinfo version 1.67 from
-the input file stow.texi.
+Ceci est le fichier Info stow.info, produit par Makeinfo version 4.0b à
+partir stow.texi.
 
-   This file describes GNU Stow version 1.3.2, a program for managing
+INFO-DIR-SECTION Administration
+START-INFO-DIR-ENTRY
+* Stow: (stow).           GNU Stow.
+END-INFO-DIR-ENTRY
+
+   This file describes GNU Stow version 1.3.3, a program for managing
 the installation of software packages.
 
    Software and documentation Copyright (C) 1993, 1994, 1995, 1996 by
-Bob Glickstein <bobg+stow@zanshin.com>.
+Bob Glickstein <bobg+stow@zanshin.com>.  Copyright (C) 2000,2001
+Guillaume Morin <gmorin@gnu.org>
 
    Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -26,7 +32,7 @@ translation approved by the Free Software Foundation.
 
 File: stow.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
 
-   This manual describes GNU Stow 1.3.2, a program for managing the
+   This manual describes GNU Stow 1.3.3, a program for managing the
 installation of software packages.
 
 * Menu:
@@ -43,7 +49,7 @@ installation of software packages.
 * GNU General Public License::  Copying terms.
 * Index::                       Index of concepts.
 
- -- The Detailed Node Listing --
+ --- The Detailed Node Listing ---
 
 Caveats
 
@@ -97,11 +103,11 @@ directory (e.g., `/usr/local/stow/emacs'), so it's always possible to
 rebuild the target tree (e.g., `/usr/local').
 
    For information about the latest version of Stow, you can refer to
-http://www.gnu.ai.mit.edu/software/stow/stow.html.
+http://www.gnu.org/software/stow/.
 
    ---------- Footnotes ----------
 
-   (1)  As of Perl 4.036 and Emacs 19.22.
+   (1) As of Perl 4.036 and Emacs 19.22.
 
 
 File: stow.info,  Node: Terminology,  Next: Invoking Stow,  Prev: Introduction,  Up: Top
@@ -115,7 +121,7 @@ to be installed in a particular directory structure--e.g., with `bin',
 `lib', and `man' subdirectories.
 
    A "target directory" is the root of a tree in which one or more
-packages wish to *appear* to be installed.  A common, but by no means
+packages wish to _appear_ to be installed.  A common, but by no means
 the only such location is `/usr/local'.  The examples in this manual
 will use `/usr/local' as the target directory.
 
@@ -177,15 +183,15 @@ target directory (but they can be deleted instead using `-D').
      Do not perform any operations that modify the filesystem; merely
      show what would happen.  Since no actual operations are performed,
      `stow -n' could report conflicts when none would actually take
-     place (*note Conflicts::.); but it won't fail to report conflicts
-     that *would* take place.
+     place (*note Conflicts::); but it won't fail to report conflicts
+     that _would_ take place.
 
 `-c'
 `--conflicts'
      Do not exit immediately when a conflict is encountered.  This
      option implies `-n', and is used to search for all conflicts that
      might arise from an actual Stow operation.  As with `-n', however,
-     false conflicts might be reported (*note Conflicts::.).
+     false conflicts might be reported (*note Conflicts::).
 
 `-d DIR'
 `--dir=DIR'
@@ -273,7 +279,7 @@ because another package uses one or more of the folded subdirectories in
 its installation image.  This operation is called "splitting open" a
 folded tree.  It involves removing the original symlink from the target
 tree, creating a true directory in its place, and then populating the
-new directory with symlinks to the newly-installed package *and* to the
+new directory with symlinks to the newly-installed package _and_ to the
 old package that used the old symlink.  For example, suppose that after
 installing Perl into an empty `/usr/local', we wish to install Emacs.
 Emacs's installation image includes a `bin' directory containing the
@@ -288,10 +294,10 @@ directory `/usr/local/bin' is created; links are made from
 
    When splitting open a folded tree, Stow makes sure that the symlink
 it is about to remove points inside a valid package in the current stow
-directory.  *Stow will never delete anything that it doesn't own*.
+directory.  _Stow will never delete anything that it doesn't own_.
 Stow "owns" everything living in the target tree that points into a
 package in the stow directory.  Anything Stow owns, it can recompute if
-lost.  Note that by this definition, Stow doesn't "own" anything *in*
+lost.  Note that by this definition, Stow doesn't "own" anything _in_
 the stow directory or in any of the packages.
 
    If Stow needs to create a directory or a symlink in the target tree
@@ -306,13 +312,13 @@ Deleting packages
 
    When the `-D' option is given, the action of Stow is to delete a
 package from the target tree.  Note that Stow will not delete anything
-it doesn't "own".  Deleting a package does *not* mean removing it from
+it doesn't "own".  Deleting a package does _not_ mean removing it from
 the stow directory or discarding the package tree.
 
    To delete a package, Stow recursively scans the target tree,
 skipping over the stow directory (since that is usually a subdirectory
 of the target tree) and any other stow directories it encounters (*note
-Multiple stow directories::.).  Any symlink it finds that points into
+Multiple stow directories::).  Any symlink it finds that points into
 the package being deleted is removed.  Any directory that contained
 only symlinks to the package being deleted is removed.  Any directory
 that, after removing symlinks and empty subdirectories, contains only
@@ -421,7 +427,7 @@ GNU Emacs
 
    Although the Free Software Foundation has many enlightened practices
 regarding Makefiles and software installation (see *note Other FSF
-software::.), Emacs, its flagship program, doesn't quite follow the
+software::), Emacs, its flagship program, doesn't quite follow the
 rules.  In particular, most GNU software allows you to write:
 
      make
@@ -442,7 +448,7 @@ the way to work around this problem is:
 
    ---------- Footnotes ----------
 
-   (1)  As I write this, the current version of Emacs is 19.31.
+   (1) As I write this, the current version of Emacs is 19.31.
 
 
 File: stow.info,  Node: Other FSF software,  Next: Cygnus software,  Prev: GNU Emacs,  Up: Compile-time and install-time
@@ -479,7 +485,7 @@ are `gdb', `gnats', and `dejagnu'.
 
    Cygnus packages have the peculiarity that each one unpacks into a
 directory tree with a generic top-level Makefile, which is set up to
-compile *all* of Cygnus' packages, any number of which may reside under
+compile _all_ of Cygnus' packages, any number of which may reside under
 the top-level directory.  In other words, even if you're only building
 `gnats', the top-level Makefile will look for, and try to build, `gdb'
 and `dejagnu' subdirectories, among many others.
@@ -518,7 +524,7 @@ Depot, not from AFS.
 
    The result of this confusion is that Perl 5's configuration script
 doesn't even offer the option of separating install-time and run-time
-trees *unless* you're running AFS.  Fortunately, after you've entered
+trees _unless_ you're running AFS.  Fortunately, after you've entered
 all the configuration settings, Perl's setup script gives you the
 opportunity to edit those settings in a file called `config.sh'.  When
 prompted, you should edit this file and replace occurrences of
@@ -572,7 +578,7 @@ Perl 5 extensions.  This way, it's easy to tell at a glance which of
 the subdirectories of `/usr/local/stow' are Perl 5 extensions.
 
    When you stow separate Perl 5 modules separately, you are likely to
-encounter conflicts (*note Conflicts::.) with files named `.exists' and
+encounter conflicts (*note Conflicts::) with files named `.exists' and
 `perllocal.pod'.  One way to work around this is to remove those files
 before stowing the module.  If you use the `cpan.MODULE' naming
 convention, you can simply do this:
@@ -592,10 +598,10 @@ software separately, or if there is any other reason to want two or more
 stow directories, it can be done by creating a file named `.stow' in
 each stow directory.  The presence of `/usr/local/foo/.stow' informs
 Stow that, though `foo' is not the current stow directory, and though
-it is a subdirectory of the target directory, nevertheless it is *a*
+it is a subdirectory of the target directory, nevertheless it is _a_
 stow directory and as such Stow doesn't "own" anything in it (*note
-Installing packages::.).  This will protect the contents of `foo' from
-a `stow -D', for instance.
+Installing packages::).  This will protect the contents of `foo' from a
+`stow -D', for instance.
 
    When multiple stow directories share a target tree, the effectiveness
 of Stow is reduced.  If a tree-folding symlink is encountered and needs
@@ -682,7 +688,7 @@ mail.  The address to use is `<bobg+stow@zanshin.com>'.  Please include:
    Before reporting a bug, please read the manual carefully, especially
 *Note Known bugs::, and *Note Caveats::, to see whether you're
 encountering something that doesn't need reporting, such as a "false
-conflict" (*note Conflicts::.).
+conflict" (*note Conflicts::).
 
 
 File: stow.info,  Node: Known bugs,  Next: GNU General Public License,  Prev: Reporting bugs,  Up: Top
@@ -690,23 +696,9 @@ File: stow.info,  Node: Known bugs,  Next: GNU General Public License,  Prev: Re
 Known bugs
 **********
 
-   * The empty-directory problem.  If package FOO includes an empty
-     directory--say, FOO/BAR--then:
-
-       1. if no other package has a BAR subdirectory, everything's fine.
-
-       2. if another stowed package, QUUX, has a BAR subdirectory, then
-          when stowing, TARGETDIR/BAR will be "split open" and the
-          contents of QUUX/BAR will be individually stowed.  So far, so
-          good.  But when unstowing QUUX, TARGETDIR/BAR will be
-          removed, even though FOO/BAR needs it to remain.  A
-          workaround for this problem is to create a file in FOO/BAR as
-          a placeholder.  If you name that file `.placeholder', it will
-          be easy to find and remove such files when this bug is fixed.
-
    * When using multiple stow directories (*note Multiple stow
-     directories::.), Stow fails to "split open" tree-folding symlinks
-     (*note Installing packages::.) that point into a stow directory
+     directories::), Stow fails to "split open" tree-folding symlinks
+     (*note Installing packages::) that point into a stow directory
      which is not the one in use by the current Stow command.  Before
      failing, it should search the target of the link to see whether
      any element of the path contains a `.stow' file.  If it finds one,
@@ -721,7 +713,6 @@ GNU General Public License
 **************************
 
                          Version 2, June 1991
-
      Copyright (C) 1989, 1991 Free Software Foundation, Inc.
      675 Mass Ave, Cambridge, MA 02139, USA
      
@@ -780,7 +771,6 @@ patent must be licensed for everyone's free use or not licensed at all.
 modification follow.
 
     TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
   0. This License applies to any program or other work which contains a
      notice placed by the copyright holder saying it may be distributed
      under the terms of this General Public License.  The "Program",
@@ -1108,24 +1098,26 @@ Index
 
 
 Tag Table:
-Node: Top1103
-Node: Introduction2273
-Node: Terminology4480
-Node: Invoking Stow6830
-Node: Installing packages9026
-Node: Deleting packages13143
-Node: Caveats14294
-Node: Compile-time and install-time14661
-Node: GNU Emacs17963
-Node: Other FSF software19013
-Node: Cygnus software19769
-Node: Perl and Perl 5 modules21242
-Node: Multiple stow directories24792
-Node: Conflicts25941
-Node: Bootstrapping27099
-Node: Reporting bugs27856
-Node: Known bugs28737
-Node: GNU General Public License30169
-Node: Index49343
+Node: Top1264
+Node: Introduction2436
+Ref: Introduction-Footnote-14584
+Node: Terminology4626
+Node: Invoking Stow6976
+Node: Installing packages9170
+Node: Deleting packages13287
+Node: Caveats14437
+Node: Compile-time and install-time14804
+Node: GNU Emacs18106
+Ref: GNU Emacs-Footnote-119090
+Node: Other FSF software19154
+Node: Cygnus software19910
+Node: Perl and Perl 5 modules21383
+Node: Multiple stow directories24932
+Node: Conflicts26080
+Node: Bootstrapping27238
+Node: Reporting bugs27995
+Node: Known bugs28875
+Node: GNU General Public License29572
+Node: Index48744
 
 End Tag Table

@@ -7,6 +7,10 @@
 @c @setchapternewpage odd
 @c @footnotestyle separate
 @c %**end of header
+@dircategory Administration
+@direntry
+* Stow: (stow).           GNU Stow.
+@end direntry
 
 @include version.texi
 
@@ -16,6 +20,7 @@ managing the installation of software packages.
 
 Software and documentation Copyright @copyright{} 1993, 1994, 1995, 1996
 by Bob Glickstein <bobg+stow@@zanshin.com>.
+Copyright @copyright{} 2000,2001 Guillaume Morin <gmorin@@gnu.org>
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -143,7 +148,7 @@ directory (e.g., @file{/usr/local/stow/emacs}), so it's always possible
 to rebuild the target tree (e.g., @file{/usr/local}).
 
 For information about the latest version of Stow, you can refer to
-http://www.gnu.ai.mit.edu/software/stow/stow.html.
+http://www.gnu.org/software/stow/.
 
 @node Terminology, Invoking Stow, Introduction, Top
 @chapter Terminology
@@ -765,25 +770,6 @@ something that doesn't need reporting, such as a ``false conflict''
 @chapter Known bugs
 
 @itemize @bullet
-@item
-The empty-directory problem.  If package @var{foo} includes an empty
-directory---say, @var{foo}/@var{bar}---then:
-
-@enumerate
-@item
-if no other package has a @var{bar} subdirectory, everything's fine.
-
-@item
-if another stowed package, @var{quux}, has a @var{bar} subdirectory,
-then when stowing, @var{targetdir}/@var{bar} will be ``split open'' and
-the contents of @var{quux}/@var{bar} will be individually stowed.  So
-far, so good.  But when unstowing @var{quux}, @var{targetdir}/@var{bar}
-will be removed, even though @var{foo}/@var{bar} needs it to remain.  A
-workaround for this problem is to create a file in @var{foo}/@var{bar}
-as a placeholder.  If you name that file @file{.placeholder}, it will be
-easy to find and remove such files when this bug is fixed.
-@end enumerate
-
 @item
 When using multiple stow directories (@pxref{Multiple stow
 directories}), Stow fails to ``split open'' tree-folding symlinks

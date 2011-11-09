@@ -1,8 +1,8 @@
 Basic Installation
 ==================
 
-Stow is a Perl script.  You must have Perl 4 or Perl 5 in order for it
-to run.
+Stow is a Perl script.  You must have Perl 5.005 or later in order for 
+it to run.
 
 The steps in building stow are:
 

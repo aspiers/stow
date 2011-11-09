@@ -1,8 +1,9 @@
 #!@PERL@
 
 # GNU Stow - manage the installation of multiple software packages
-# Copyright 1993, 1994, 1995, 1996 by Bob Glickstein
-#
+# Copyright (C) 1993, 1994, 1995, 1996 by Bob Glickstein
+# Copyright (C) 2000,2001 Guillaume Morin
+# 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+# $Id: stow.in,v 1.8 2002/01/05 11:27:01 gmorin Exp $
+# $Source: /cvsroot/stow/stow/stow.in,v $
+# $Date: 2002/01/05 11:27:01 $
+# $Author: gmorin $
+
+require 5.005;
+use POSIX;
 
 $ProgramName = $0;
 $ProgramName =~ s,.*/,,;
@@ -27,10 +36,12 @@ $Delete = 0;
 $NotReally = 0;
 $Verbose = 0;
 $ReportHelp = 0;
-$Stow = &fastcwd;
+$Stow = undef;
 $Target = undef;
 $Restow = 0;
 
+
+# FIXME: use Getopt::Long
 while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
   $opt = $';
   shift;
@@ -105,10 +116,21 @@ while (@ARGV && ($_ = $ARGV[0]) && /^-/) {
 
 &usage("No packages named") unless @ARGV;
 
+# Changing dirs helps a lot when soft links are used
+$current_dir = &getcwd;
+if ($Stow) {
+  chdir($Stow) || die "Cannot chdir to target tree $Stow ($!)\n";
+}
+
+# This prevents problems if $Target was supplied as a relative path
+$Stow = &getcwd;
+
+chdir($current_dir) || die "Your directory does not seem to exist anymore ($!)\n";
+
 $Target = &parent($Stow) unless $Target;
 
 chdir($Target) || die "Cannot chdir to target tree $Target ($!)\n";
-$Target = &fastcwd;
+$Target = &getcwd;
 
 foreach $package (@ARGV) {
   $package =~ s,/+$,,;		# delete trailing slashes
@@ -142,6 +164,9 @@ sub CommonParent {
   $result;
 }
 
+# Find the relative patch between
+# two paths given as arguments.
+
 sub RelativePath {
   local($a, $b) = @_;
   local($c) = &CommonParent($a, $b);
@@ -149,11 +174,19 @@ sub RelativePath {
   local(@b) = split(/\/+/, $b);
   local(@c) = split(/\/+/, $c);
 
-  splice(@a, 0, @c + 0);
-  splice(@b, 0, @c + 0);
+  # if $c == "/something", scalar(@c) >= 2
+  # but if $c == "/", scalar(@c) == 0
+  # but we want 1
+  my $length = scalar(@c) ? scalar(@c) : 1;
+  splice(@a, 0, $length);
+  splice(@b, 0, $length);
+
   unshift(@b, (('..') x (@a + 0)));
   &JoinPaths(@b);
 }
+
+# Basically concatenates the paths given
+# as arguments
 
 sub JoinPaths {
   local(@paths, @parts);
@@ -164,7 +197,7 @@ sub JoinPaths {
   foreach $x (@_) {
     @parts = split(/\/+/, $x);
     foreach $y (@parts) {
-      push(@paths, $y) if $y;
+      push(@paths, $y) if ($y ne "");
     }
   }
   $result .= join('/', @paths);
@@ -178,18 +211,21 @@ sub Unstow {
   local(@stowmember);
   local($pure, $othercollection) = (1, '');
   local($subpure, $subother);
+  local($empty) = (1);
   local(@puresubdirs);
 
   return (0, '') if (&JoinPaths($Target, $targetdir) eq $Stow);
   return (0, '') if (-e &JoinPaths($Target, $targetdir, '.stow'));
   warn sprintf("Unstowing in %s\n", &JoinPaths($Target, $targetdir))
     if ($Verbose > 1);
-  opendir(DIR, &JoinPaths($Target, $targetdir)) ||
-    die "$ProgramName: Cannot read directory \"$dir\" ($!)\n";
+  if (!opendir(DIR, &JoinPaths($Target, $targetdir))) {
+    warn "Warning: $ProgramName: Cannot read directory \"$dir\" ($!). Stow might leave some links. If you think, it does. Rerun Stow with appropriate rights.\n";
+  }	
   @contents = readdir(DIR);
   closedir(DIR);
   foreach $content (@contents) {
     next if (($content eq '.') || ($content eq '..'));
+    $empty = 0;
     if (-l &JoinPaths($Target, $targetdir, $content)) {
       ($linktarget = readlink(&JoinPaths($Target,
 					 $targetdir,
@@ -240,6 +276,9 @@ sub Unstow {
       $pure = 0;
     }
   }
+  # This directory was an initially empty directory therefore
+  # We do not remove it.
+  $pure = 0 if $empty;
   if ((!$pure || !$targetdir) && @puresubdirs) {
     &CoalesceTrees($targetdir, $stow, @puresubdirs);
   }
@@ -499,42 +538,6 @@ EOT
 sub version {
   print "$ProgramName (GNU Stow) version $Version\n";
   exit(0);
-}
-
-# This is from Perl 4's fastcwd.pl, by John Bazik.
-#
-# Usage: $cwd = &fastcwd;
-#
-# This is a faster version of getcwd.  It's also more dangerous
-# because you might chdir out of a directory that you can't chdir back
-# into.
-
-sub fastcwd {
-  local($odev, $oino, $cdev, $cino, $tdev, $tino);
-  local(@path, $path);
-  local(*DIR);
-
-  ($cdev, $cino) = stat('.');
-  for (;;) {
-    ($odev, $oino) = ($cdev, $cino);
-    chdir('..');
-    ($cdev, $cino) = stat('.');
-    last if $odev == $cdev && $oino == $cino;
-    opendir(DIR, '.');
-    for (;;) {
-      $_ = readdir(DIR);
-      next if $_ eq '.';
-      next if $_ eq '..';
-
-      last unless $_;
-      ($tdev, $tino) = lstat($_);
-      last unless $tdev != $odev || $tino != $oino;
-    }
-    closedir(DIR);
-    unshift(@path, $_);
-  }
-  chdir($path = '/' . join('/', @path));
-  $path;
 }
 
 # Local variables:

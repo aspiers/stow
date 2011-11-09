@@ -1,0 +1,448 @@
+.TH STOW 8 "28 March 1998"
+.SH NAME
+stow \- software package installation manager
+.SH SYNOPSIS
+.B stow
+.RI [ options ]
+.IR package ...
+.SH DESCRIPTION
+This manual page describes GNU Stow 1.3.3, a program for managing the
+installation of software packages. This is not the definitive
+documentation for stow; for that, see the info manual.
+.PP
+Stow is a tool for managing the installation of multiple software
+packages in the same run-time directory tree. One historical difficulty
+of this task has been the need to administer, upgrade, install, and
+remove files in independent packages without confusing them with other
+files sharing the same filesystem space. For instance, it is common to
+install Perl and Emacs in
+.IR /usr/local .
+When one does so, one winds up
+(as of Perl 4.036 and Emacs 19.22)
+with the following files in
+.IR /usr/local/man/man1 :
+.IR a2p.1 ;
+.IR ctags.1 ;
+.IR emacs.1 ;
+.IR etags.1 ;
+.IR h2ph.1 ;
+.IR perl.1 ;
+and
+.IR s2p.1 .
+Now
+suppose it's time to uninstall Perl. Which man pages get removed?
+Obviously
+.I perl.1
+is one of them, but it should not be the
+administrator's responsibility to memorize the ownership of individual
+files by separate packages.
+.PP
+The approach used by Stow is to install each package into its own
+tree, then use symbolic links to make it appear as though the files are
+installed in the common tree. Administration can be performed in the
+package's private tree in isolation from clutter from other packages.
+Stow can then be used to update the symbolic links. The structure of
+each private tree should reflect the desired structure in the common
+tree; i.e. (in the typical case) there should be a
+.I bin
+directory
+containing executables, a
+.I man/man1
+directory containing section 1 man
+pages, and so on.
+.PP
+Stow was inspired by Carnegie Mellon's Depot program, but is
+substantially simpler and safer. Whereas Depot required database files
+to keep things in sync, Stow stores no extra state between runs, so
+there's no danger (as there was in Depot) of mangling directories when
+file hierarchies don't match the database. Also unlike Depot, Stow will
+never delete any files, directories, or links that appear in a Stow
+directory (e.g.,
+.IR /usr/local/stow/emacs ),
+so it's always possible to
+rebuild the target tree (e.g.,
+.IR /usr/local ).
+.SH TERMINOLOGY
+A ``package'' is a related collection of files and directories that
+you wish to administer as a unit--e.g., Perl or Emacs--and that needs
+to be installed in a particular directory structure--e.g., with
+.IR bin ,
+.IR lib ,
+and
+.I man
+subdirectories.
+.PP
+A ``target directory'' is the root of a tree in which one or more
+packages wish to
+.B appear
+to be installed. A common, but by no means
+the only such location is
+.IR /usr/local .
+The examples in this manual page
+will use
+.I /usr/local
+as the target directory.
+.PP
+A ``stow directory'' is the root of a tree containing separate
+packages in private subtrees. When Stow runs, it uses the current
+directory as the default stow directory. The examples in this manual
+page will use
+.I /usr/local/stow
+as the stow directory, so that individual
+packages will be, for example,
+.I /usr/local/stow/perl
+and
+.IR /usr/local/stow/emacs .
+.PP
+An ``installation image'' is the layout of files and directories
+required by a package, relative to the target directory. Thus, the
+installation image for Perl includes: a
+.I bin
+directory containing
+.I perl
+and
+.I a2p
+(among others); an
+.I info
+directory containing Texinfo
+documentation; a
+.I lib/perl
+directory containing Perl libraries; and a
+.I man/man1
+directory containing man pages.
+.PP
+A ``package directory'' is the root of a tree containing the
+installation image for a particular package. Each package directory
+must reside in a stow directory--e.g., the package directory
+.I /usr/local/stow/perl
+must reside in the stow directory
+.IR /usr/local/stow .
+The ``name'' of a package is the name of its
+directory within the stow directory--e.g.,
+.IR perl .
+.PP
+Thus, the Perl executable might reside in
+.IR /usr/local/stow/perl/bin/perl ,
+where
+.I /usr/local
+is the target
+directory,
+.I /usr/local/stow
+is the stow directory,
+.I /usr/local/stow/perl
+is the package directory, and
+.I bin/perl
+within
+is part of the installation image.
+.PP
+A ``symlink'' is a symbolic link. A symlink can be ``relative'' or
+``absolute''. An absolute symlink names a full path; that is, one
+starting from
+.IR / .
+A relative symlink names a relative path; that is,
+one not starting from
+.IR / .
+The target of a relative symlink is
+computed starting from the symlink's own directory. Stow only creates
+relative symlinks.
+.SH OPTIONS
+The stow directory is assumed to be the current directory, and the
+target directory is assumed to be the parent of the current directory
+(so it is typical to execute
+.I stow
+from the directory
+.IR /usr/local/stow ).
+Each
+.I package
+given on the command line is the name of a package in the stow
+directory (e.g.,
+.IR perl ).
+By default, they are installed into the
+target directory (but they can be deleted instead using `-D').
+.TP
+.I -n
+.TP
+.I --no
+Do not perform any operations that modify the filesystem; merely
+show what would happen. Since no actual operations are performed,
+.I stow -n
+could report conflicts when none would actually take
+place (see ``Conflicts'' in the info manual);
+but it won't fail to report conflicts
+that
+.B would
+take place.
+.TP
+.I -c
+.TP
+.I --conflicts
+Do not exit immediately when a conflict is encountered. This
+option implies `-n', and is used to search for all conflicts that
+might arise from an actual Stow operation. As with `-n', however,
+false conflicts might be reported (see ``Conflicts'' in the info manual).
+.TP
+.I "-d DIR"
+.TP
+.I --dir=DIR
+Set the stow directory to DIR instead of the current directory.
+This also has the effect of making the default target directory be
+the parent of DIR.
+.TP
+.I "-t DIR"
+.TP
+.I --target=DIR
+Set the target directory to DIR instead of the parent of the stow
+directory.
+.TP
+.I -v
+.TP
+.I --verbose[=N]
+Send verbose output to standard error describing what Stow is
+doing. Verbosity levels are 0, 1, 2, and 3; 0 is the default.
+Using `-v' or `--verbose' increases the verbosity by one; using
+`--verbose=N' sets it to N.
+.TP
+.I -D
+.TP
+.I --delete
+Delete packages from the target directory rather than installing
+them.
+.TP
+.I -R
+.TP
+.I --restow
+Restow packages (first unstow, then stow again). This is useful
+for pruning obsolete symlinks from the target tree after updating
+the software in a package.
+.TP
+.I -V
+.TP
+.I --version
+Show Stow version number, and exit.
+.TP
+.I -h
+.TP
+.I --help
+Show Stow command syntax, and exit.
+.SH "INSTALLING PACKAGES"
+The default action of Stow is to install a package. This means
+creating symlinks in the target tree that point into the package tree.
+Stow attempts to do this with as few symlinks as possible; in other
+words, if Stow can create a single symlink that points to an entire
+subtree within the package tree, it will choose to do that rather than
+create a directory in the target tree and populate it with symlinks.
+.PP
+For example, suppose that no packages have yet been installed in
+.IR /usr/local ;
+it's completely empty (except for the
+.I stow
+subdirectory, of course). Now suppose the Perl package is installed.
+Recall that it includes the following directories in its installation
+image:
+.IR bin ;
+.IR info ;
+.IR lib/perl ;
+.IR man/man1 .
+Rather than creating
+the directory
+.I /usr/local/bin
+and populating it with symlinks to
+.I ../stow/perl/bin/perl
+and
+.I ../stow/perl/bin/a2p
+(and so on), Stow
+will create a single symlink,
+.IR /usr/local/bin ,
+which points to
+.IR stow/perl/bin .
+In this way, it still works to refer to
+.I /usr/local/bin/perl
+and
+.IR /usr/local/bin/a2p ,
+and fewer symlinks have
+been created. This is called ``tree folding'', since an entire subtree
+is ``folded'' into a single symlink.
+.PP
+To complete this example, Stow will also create the symlink
+.I /usr/local/info
+pointing to
+.IR stow/perl/info ;
+the symlink
+.I /usr/local/lib
+pointing to
+.IR stow/perl/lib ;
+and the symlink
+.I /usr/local/man
+pointing to
+.IR stow/perl/man .
+.PP
+Now suppose that instead of installing the Perl package into an empty
+target tree, the target tree is not empty to begin with. Instead, it
+contains several files and directories installed under a different
+system-administration philosophy. In particular,
+.I /usr/local/bin
+already exists and is a directory, as are
+.I /usr/local/lib
+and
+.IR /usr/local/man/man1 .
+In this case, Stow will descend into
+.I /usr/local/bin
+and create symlinks to
+.I ../stow/perl/bin/perl
+and
+.I ../stow/perl/bin/a2p
+(etc.), and it will descend into
+.I /usr/local/lib
+and create the tree-folding symlink
+.I perl
+pointing to
+.IR ../stow/perl/lib/perl ,
+and so on. As a rule, Stow only descends as
+far as necessary into the target tree when it can create a tree-folding
+symlink.
+.PP
+The time often comes when a tree-folding symlink has to be undone
+because another package uses one or more of the folded subdirectories in
+its installation image. This operation is called ``splitting open'' a
+folded tree. It involves removing the original symlink from the target
+tree, creating a true directory in its place, and then populating the
+new directory with symlinks to the newly-installed package
+.B and
+to the
+old package that used the old symlink. For example, suppose that after
+installing Perl into an empty
+.IR /usr/local ,
+we wish to install Emacs.
+Emacs's installation image includes a
+.I bin
+directory containing the
+.I emacs
+and
+.I etags
+executables, among others. Stow must make these
+files appear to be installed in
+.IR /usr/local/bin ,
+but presently
+.I /usr/local/bin
+is a symlink to
+.IR stow/perl/bin .
+Stow therefore takes
+the following steps: the symlink
+.I /usr/local/bin
+is deleted; the
+directory
+.I /usr/local/bin
+is created; links are made from
+.I /usr/local/bin
+to
+.I ../stow/emacs/bin/emacs
+and
+.IR ../stow/emacs/bin/etags ;
+and links are made from
+.I /usr/local/bin
+to
+.I ../stow/perl/bin/perl
+and
+.IR ../stow/perl/bin/a2p .
+.PP
+When splitting open a folded tree, Stow makes sure that the symlink
+it is about to remove points inside a valid package in the current stow
+directory.
+.BR "Stow will never delete anything that it doesn't own" .
+Stow ``owns'' everything living in the target tree that points into a
+package in the stow directory. Anything Stow owns, it can recompute if
+lost. Note that by this definition, Stow doesn't ``own'' anything
+.B in
+the stow directory or in any of the packages.
+.PP
+If Stow needs to create a directory or a symlink in the target tree
+and it cannot because that name is already in use and is not owned by
+Stow, then a conflict has arisen. See ``Conflicts'' in the info manual.
+.SH "DELETING PACKAGES"
+When the `-D' option is given, the action of Stow is to delete a
+package from the target tree. Note that Stow will not delete anything
+it doesn't ``own''. Deleting a package does
+.B not
+mean removing it from
+the stow directory or discarding the package tree.
+.PP
+To delete a package, Stow recursively scans the target tree,
+skipping over the stow directory (since that is usually a subdirectory
+of the target tree) and any other stow directories it encounters (see
+``Multiple stow directories'' in the info manual). Any symlink it finds that points into
+the package being deleted is removed. Any directory that contained
+only symlinks to the package being deleted is removed. Any directory
+that, after removing symlinks and empty subdirectories, contains only
+symlinks to a single other package, is considered to be a previously
+``folded'' tree that was ``split open.'' Stow will re-fold the tree by
+removing the symlinks to the surviving package, removing the directory,
+then linking the directory back to the surviving package.
+.SH "SEE ALSO"
+The info manual ``Stow 1.3.3:
+Managing the installation of software packages''
+by Bob Glickstein, Zanshin Software, Inc.
+.SH BUGS
+Please report bugs in Stow using the Debian bug tracking system.
+.PP
+Currently known bugs include:
+.IP *
+The empty-directory problem. If package FOO includes an empty
+directory--say, FOO/BAR--then:
+.IP
+1.
+if no other package has a BAR subdirectory, everything's fine.
+.IP
+2.
+if another stowed package, QUUX, has a BAR subdirectory, then
+when stowing, TARGETDIR/BAR will be ``split open'' and the
+contents of QUUX/BAR will be individually stowed. So far, so
+good. But when unstowing QUUX, TARGETDIR/BAR will be
+removed, even though FOO/BAR needs it to remain. A
+workaround for this problem is to create a file in FOO/BAR as
+a placeholder. If you name that file
+.IR .placeholder ,
+it will
+be easy to find and remove such files when this bug is fixed.
+.IP *
+When using multiple stow directories (see ``Multiple stow
+directories'' in the info manual), Stow fails to ``split open'' tree-folding symlinks
+(see ``Installing packages'' in the info manual) that point into a stow directory
+which is not the one in use by the current Stow command. Before
+failing, it should search the target of the link to see whether
+any element of the path contains a
+.I .stow
+file. If it finds one,
+it can ``learn'' about the cooperating stow directory to
+short-circuit the
+.I .stow
+search the next time it encounters a
+tree-folding symlink.
+.SH AUTHOR
+This man page was constructed by Charles Briscoe-Smith from
+parts of Stow's info manual. That manual contained the following
+notice, which, as it says, applied to this manual page, too. The text
+of the section entitled ``GNU General Public License'' can be found in
+the file
+.I /usr/share/common-licenses/GPL
+on any Debian GNU/Linux system. If you don't have access to a Debian
+system, or the GPL is not there, write to the Free Software Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA, 02111-1307, USA.
+.IP
+Software and documentation Copyright (C) 1993, 1994, 1995, 1996 by
+Bob Glickstein <bobg+stow@zanshin.com>.
+.IP
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+.IP
+Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the section entitled ``GNU General Public License'' is included with
+the modified manual, and provided that the entire resulting derived
+work is distributed under the terms of a permission notice identical to
+this one.
+.IP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by the Free Software Foundation.
