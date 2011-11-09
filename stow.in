@@ -469,14 +469,14 @@ sub DoMkdir {
 sub Conflict {
   local($a, $b) = @_;
 
+  my $src = &JoinPaths($Stow, $a);
+  my $dst = &JoinPaths($Target, $b);
+
   if ($Conflicts) {
-    warn sprintf("CONFLICT: %s vs. %s\n", &JoinPaths($Stow, $a),
-		 &JoinPaths($Target, $b));
+    warn "CONFLICT: $src vs. $dst\n";
+    #system "ls -l $src $dst";
   } else {
-    die sprintf("%s: CONFLICT: %s vs. %s\n",
-		$ProgramName,
-		&JoinPaths($Stow, $a),
-		&JoinPaths($Target, $b));
+    die "$ProgramName: CONFLICT: $src vs. $dst\n";
   }
 }
 
