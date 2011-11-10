@@ -1,5 +1,24 @@
 -*- outline -*-
 
+* Add documentation about ignore lists.
+
+*** Justification for having stow ignore lists independently of VCS ignore lists
+***** If a file is in the VCS ignore list for its containing repo
+******* generated during development
+      probably shouldn't be stowed
+******* generated during compilation / install
+********* could be an intermediary file
+        again, probably shouldn't be stowed
+********* but most likely a file to install
+        e.g. compiled binary/library/docs - should be stowed
+***** If a file is not in the VCS ignore list for its containing repo
+******* it's probably tracked by the VCS - part of the repo
+******* could intended for end use
+********* e.g. script/config file requiring no modifications, docs
+      should be stowed
+******* or intended only to be used during compilation / build phase
+      shouldn't be stowed
+
 * Autodetect "foreign" stow directories
 
 * Fix empty-dir problem (see "Known bugs" in the manual)
