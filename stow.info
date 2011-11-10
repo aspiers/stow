@@ -6,7 +6,7 @@ START-INFO-DIR-ENTRY
 * Stow: (stow).           GNU Stow.
 END-INFO-DIR-ENTRY
 
-   This file describes GNU Stow version 1.3.3, a program for managing
+   This file describes GNU Stow version 1.4.0, a program for managing
 the installation of software packages.
 
    Software and documentation Copyright (C) 1993, 1994, 1995, 1996 by
@@ -32,7 +32,7 @@ translation approved by the Free Software Foundation.
 
 File: stow.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
 
-   This manual describes GNU Stow 1.3.3, a program for managing the
+   This manual describes GNU Stow 1.4.0, a program for managing the
 installation of software packages.
 
 * Menu:
