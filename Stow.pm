@@ -43,7 +43,6 @@ use Getopt::Long;
 use POSIX;
 
 use lib "$RealBin/../lib/perl5";
-use Sh 'glob_to_re';
 
 require 5.6.0;
 
@@ -608,6 +607,10 @@ sub GetIgnoreGlobsFromFH {
   my %globs;
   while (<$fh>) {
     chomp;
+    s/^\s+//;
+    s/\s+$//;
+    next if /^#/ or length($_) == 0;
+    s/^\\#/#/;
     $globs{$_}++;
   }
   return %globs;
@@ -620,6 +623,23 @@ sub GetIgnoreRegexpFromFile {
   return $regexp;
 }
 
+sub globToRegexp {
+  local $_ = shift;
+
+  # Escape special regexp meta-characters
+  s/([.+{}^\$])/\\$1/g;
+
+  # Convert glob meta-characters to regexp
+  s/\*/.*/g;
+  s/\?/./g;
+
+  # Anchor start and end
+  s/^/^/;
+  s/$/\$/;
+
+  return $_;
+}
+
 sub GlobsToRegexp {
   my (%globs) = @_;
 
@@ -627,7 +647,7 @@ sub GlobsToRegexp {
   # because this is the only place stow looks for them.
   $globs{$LOCAL_IGNORE_FILE}++;
 
-  my $re = join '|', map glob_to_re($_), keys %globs;
+  my $re = join '|', map globToRegexp($_), keys %globs;
   warn "#% ignore regexp is $re\n" if $verbosity;
   return qr/$re/;
 }

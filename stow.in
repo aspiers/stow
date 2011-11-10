@@ -36,7 +36,6 @@ use Getopt::Long;
 use POSIX;
 
 use lib "$RealBin/../lib/perl5";
-use Sh 'glob_to_re';
 use Stow;
 
 sub parseOptions {
