@@ -43,4 +43,4 @@ dnl     [  --with-pmdir=DIR        perl modules are in DIR [[LIBDIR/perl5]]],
 dnl     [PMDIR=${withval}], [PMDIR=${libdir}/perl5]
 dnl )
 
-AC_OUTPUT(Makefile stow)
+AC_OUTPUT(Makefile stow, chmod +x stow)
