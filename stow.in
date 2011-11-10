@@ -157,3 +157,7 @@ sub version {
 }
 
 main();
+
+# Local variables:
+# mode: cperl
+# End:
