@@ -55,25 +55,6 @@ our %opts;
 
 sub SetOptions {
   %opts = @_;
-  $opts{not_really} = 1 if $opts{conflicts};
-}
-
-sub Init {
-  # Changing dirs helps a lot when soft links are used
-  my $current_dir = &getcwd;
-  if ($opts{stow}) {
-    chdir($opts{stow}) || die "Cannot chdir to target tree $opts{stow} ($!)\n";
-  }
-
-  # This prevents problems if $opts{target} was supplied as a relative path
-  $opts{stow} = &getcwd;
-
-  chdir($current_dir) || die "Your directory does not seem to exist anymore ($!)\n";
-
-  $opts{target} = Stow::parent($opts{stow}) unless $opts{target};
-
-  chdir($opts{target}) || die "Cannot chdir to target tree $opts{target} ($!)\n";
-  $opts{target} = &getcwd;
 }
 
 sub CheckCollections {

@@ -4,7 +4,7 @@
 # Copyright (C) 1993, 1994, 1995, 1996 by Bob Glickstein
 # Copyright (C) 2000,2001 Guillaume Morin
 # Copyright (C) 2005 Adam Spiers
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -39,61 +39,68 @@ use lib "$RealBin/../lib/perl5";
 use Sh 'glob_to_re';
 use Stow;
 
-my %opts = (
-  conflicts  => 0, 
-  delete     => 0, 
-  prune      => 0, 
-  not_really => 0, 
-  verbose    => 0, 
-  stow       => undef, 
-  target     => undef, 
-  restow     => 0, 
-);
-
-Getopt::Long::Configure('noignorecase', 'bundling');
-GetOptions(
-  \%opts,
-  'delete|D', 'prune|p', 'restow|R',
-  'conflicts|c', 'not_really|n',
-  'stow|dir|d=s', 'target|t=s',
-  'verbose|v:+', 'version|V', 'help|h',
-)
-or usage();
-
-version() if $opts{version};
-usage()   if $opts{help};
-
-usage("Pruning only makes sense when deleting or restowing")
-  if $opts{prune} and ! ($opts{delete} || $opts{restow});
-usage("No packages named") unless @ARGV;
-
-Stow::SetOptions(%opts);
-Stow::Init();
-
-my @Collections = @ARGV;
-Stow::CheckCollections(@Collections);
-
-if ($opts{delete} || $opts{restow}) {
-  # These are the packages we are unstowing.
-  my %to_unstow = map { $_ => 1 } @Collections;
-
-  Stow::Unstow(
-    '',
-    Stow::RelativePath($opts{target}, $opts{stow}),
-    \%to_unstow,
+sub parseOptions {
+  my %opts = (
+    conflicts  => 0,
+    delete     => 0,
+    prune      => 0,
+    not_really => 0,
+    verbose    => 0,
+    stow       => undef,
+    target     => undef,
+    restow     => 0,
   );
+
+  Getopt::Long::Configure('noignorecase', 'bundling');
+  GetOptions(
+    \%opts,
+    'delete|D', 'prune|p', 'restow|R',
+    'conflicts|c', 'not_really|n',
+    'stow|dir|d=s', 'target|t=s',
+    'verbose|v:+', 'version|V', 'help|h',
+  )
+  or usage();
+
+  version() if $opts{version};
+  usage()   if $opts{help};
+
+  usage("Pruning only makes sense when deleting or restowing")
+    if $opts{prune} and ! ($opts{delete} || $opts{restow});
+  usage("No packages named") unless @ARGV;
+
+  %opts = initOptionDefaults(%opts);
+
+  return %opts;
 }
 
-if (! $opts{delete} || $opts{restow}) {
-  foreach my $Collection (@ARGV) {
-    warn "Stowing package $Collection...\n" if $opts{verbose};
-    Stow::StowContents(
-      $Collection,
+sub main {
+  my %opts = parseOptions();
+  Stow::SetOptions(%opts);
+
+  my @Collections = @ARGV;
+  Stow::CheckCollections(@Collections);
+
+  if ($opts{delete} || $opts{restow}) {
+    # These are the packages we are unstowing.
+    my %to_unstow = map { $_ => 1 } @Collections;
+
+    Stow::Unstow(
+      '',
       Stow::RelativePath($opts{target}, $opts{stow}),
+      \%to_unstow,
     );
   }
-}
 
+  if (! $opts{delete} || $opts{restow}) {
+    foreach my $Collection (@ARGV) {
+      warn "Stowing package $Collection...\n" if $opts{verbose};
+      Stow::StowContents(
+        $Collection,
+        Stow::RelativePath($opts{target}, $opts{stow}),
+      );
+    }
+  }
+}
 
 sub usage {
   my($msg) = shift;
@@ -120,8 +127,33 @@ EOT
   exit($msg ? 1 : 0);
 }
 
+sub initOptionDefaults {
+  my %opts = @_;
+
+  $opts{not_really} = 1 if $opts{conflicts};
+
+  # Changing dirs helps a lot when soft links are used
+  my $current_dir = getcwd();
+  if ($opts{stow}) {
+    chdir($opts{stow}) || die "Cannot chdir to target tree $opts{stow} ($!)\n";
+  }
+
+  # This prevents problems if $opts{target} was supplied as a relative path
+  $opts{stow} = getcwd();
+
+  chdir($current_dir) || die "Your directory does not seem to exist anymore ($!)\n";
+
+  $opts{target} = Stow::parent($opts{stow}) unless $opts{target};
+
+  chdir($opts{target}) || die "Cannot chdir to target tree $opts{target} ($!)\n";
+  $opts{target} = getcwd();
+
+  return %opts;
+}
+
 sub version {
   print "$RealScript (GNU Stow) version $Version\n";
   exit(0);
 }
 
+main();
