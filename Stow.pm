@@ -663,7 +663,14 @@ sub GetDefaultGlobalIgnoreRegexp {
 
 1;
 __DATA__
+RCS
 CVS
 .cvsignore
+.svn
+_darcs
+.hg
 .git
 .gitignore
+*~
+.#*
+#*#
