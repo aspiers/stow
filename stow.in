@@ -73,35 +73,6 @@ sub parseOptions {
   return %opts;
 }
 
-sub main {
-  my %opts = parseOptions();
-  Stow::SetOptions(%opts);
-
-  my @Collections = @ARGV;
-  Stow::CheckCollections(@Collections);
-
-  if ($opts{delete} || $opts{restow}) {
-    # These are the packages we are unstowing.
-    my %to_unstow = map { $_ => 1 } @Collections;
-
-    Stow::Unstow(
-      '',
-      Stow::RelativePath($opts{target}, $opts{stow}),
-      \%to_unstow,
-    );
-  }
-
-  if (! $opts{delete} || $opts{restow}) {
-    foreach my $Collection (@ARGV) {
-      warn "Stowing package $Collection...\n" if $opts{verbose};
-      Stow::StowContents(
-        $Collection,
-        Stow::RelativePath($opts{target}, $opts{stow}),
-      );
-    }
-  }
-}
-
 sub usage {
   my($msg) = shift;
 
@@ -154,6 +125,35 @@ sub initOptionDefaults {
 sub version {
   print "$RealScript (GNU Stow) version $Version\n";
   exit(0);
+}
+
+sub main {
+  my %opts = parseOptions();
+  Stow::SetOptions(%opts);
+
+  my @Collections = @ARGV;
+  Stow::CheckCollections(@Collections);
+
+  if ($opts{delete} || $opts{restow}) {
+    # These are the packages we are unstowing.
+    my %to_unstow = map { $_ => 1 } @Collections;
+
+    Stow::Unstow(
+      '',
+      Stow::RelativePath($opts{target}, $opts{stow}),
+      \%to_unstow,
+    );
+  }
+
+  if (! $opts{delete} || $opts{restow}) {
+    foreach my $Collection (@ARGV) {
+      warn "Stowing package $Collection...\n" if $opts{verbose};
+      Stow::StowContents(
+        $Collection,
+        Stow::RelativePath($opts{target}, $opts{stow}),
+      );
+    }
+  }
 }
 
 main();
