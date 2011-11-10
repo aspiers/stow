@@ -2240,6 +2240,7 @@ then
   echo 'WARNING: Perl not found; you must edit line 1 of `stow'"'"
 fi
 
+
 ac_config_files="$ac_config_files Makefile stow"
 
 cat >confcache <<\_ACEOF
