@@ -1,5 +1,4 @@
-Ceci est le fichier Info stow.info, produit par Makeinfo version 4.0b à
-partir stow.texi.
+This is stow.info, produced by makeinfo version 4.13 from stow.texi.
 
 INFO-DIR-SECTION Administration
 START-INFO-DIR-ENTRY
@@ -67,10 +66,10 @@ Compile-time and install-time
 
 File: stow.info,  Node: Introduction,  Next: Terminology,  Prev: Top,  Up: Top
 
-Introduction
-************
+1 Introduction
+**************
 
-   Stow is a tool for managing the installation of multiple software
+Stow is a tool for managing the installation of multiple software
 packages in the same run-time directory tree.  One historical difficulty
 of this task has been the need to administer, upgrade, install, and
 remove files in independent packages without confusing them with other
@@ -112,13 +111,13 @@ http://www.gnu.org/software/stow/.
 
 File: stow.info,  Node: Terminology,  Next: Invoking Stow,  Prev: Introduction,  Up: Top
 
-Terminology
-***********
+2 Terminology
+*************
 
-   A "package" is a related collection of files and directories that
-you wish to administer as a unit--e.g., Perl or Emacs--and that needs
-to be installed in a particular directory structure--e.g., with `bin',
-`lib', and `man' subdirectories.
+A "package" is a related collection of files and directories that you
+wish to administer as a unit--e.g., Perl or Emacs--and that needs to be
+installed in a particular directory structure--e.g., with `bin', `lib',
+and `man' subdirectories.
 
    A "target directory" is the root of a tree in which one or more
 packages wish to _appear_ to be installed.  A common, but by no means
@@ -162,10 +161,10 @@ relative symlinks.
 
 File: stow.info,  Node: Invoking Stow,  Next: Installing packages,  Prev: Terminology,  Up: Top
 
-Invoking Stow
-*************
+3 Invoking Stow
+***************
 
-   The syntax of the `stow' command is:
+The syntax of the `stow' command is:
 
      stow [OPTIONS] PACKAGE ...
 
@@ -233,15 +232,15 @@ target directory (but they can be deleted instead using `-D').
 
 File: stow.info,  Node: Installing packages,  Next: Deleting packages,  Prev: Invoking Stow,  Up: Top
 
-Installing packages
-*******************
+4 Installing packages
+*********************
 
-   The default action of Stow is to install a package.  This means
-creating symlinks in the target tree that point into the package tree.
-Stow attempts to do this with as few symlinks as possible; in other
-words, if Stow can create a single symlink that points to an entire
-subtree within the package tree, it will choose to do that rather than
-create a directory in the target tree and populate it with symlinks.
+The default action of Stow is to install a package.  This means creating
+symlinks in the target tree that point into the package tree.  Stow
+attempts to do this with as few symlinks as possible; in other words, if
+Stow can create a single symlink that points to an entire subtree within
+the package tree, it will choose to do that rather than create a
+directory in the target tree and populate it with symlinks.
 
    For example, suppose that no packages have yet been installed in
 `/usr/local'; it's completely empty (except for the `stow'
@@ -307,10 +306,10 @@ Stow, then a conflict has arisen.  *Note Conflicts::.
 
 File: stow.info,  Node: Deleting packages,  Next: Caveats,  Prev: Installing packages,  Up: Top
 
-Deleting packages
-*****************
+5 Deleting packages
+*******************
 
-   When the `-D' option is given, the action of Stow is to delete a
+When the `-D' option is given, the action of Stow is to delete a
 package from the target tree.  Note that Stow will not delete anything
 it doesn't "own".  Deleting a package does _not_ mean removing it from
 the stow directory or discarding the package tree.
@@ -330,10 +329,10 @@ then linking the directory back to the surviving package.
 
 File: stow.info,  Node: Caveats,  Next: Bootstrapping,  Prev: Deleting packages,  Up: Top
 
-Caveats
-*******
+6 Caveats
+*********
 
-   This chapter describes the common problems that arise with Stow.
+This chapter describes the common problems that arise with Stow.
 
 * Menu:
 
@@ -344,15 +343,15 @@ Caveats
 
 File: stow.info,  Node: Compile-time and install-time,  Next: Multiple stow directories,  Prev: Caveats,  Up: Caveats
 
-Compile-time and install-time
-=============================
+6.1 Compile-time and install-time
+=================================
 
-   Software whose installation is managed with Stow needs to be
-installed in one place (the package directory, e.g.
-`/usr/local/stow/perl') but needs to appear to run in another place
-(the target tree, e.g., `/usr/local').  Why is this important?  What's
-wrong with Perl, for instance, looking for its files in
-`/usr/local/stow/perl' instead of in `/usr/local'?
+Software whose installation is managed with Stow needs to be installed
+in one place (the package directory, e.g. `/usr/local/stow/perl') but
+needs to appear to run in another place (the target tree, e.g.,
+`/usr/local').  Why is this important?  What's wrong with Perl, for
+instance, looking for its files in `/usr/local/stow/perl' instead of in
+`/usr/local'?
 
    The answer is that there may be another package, e.g.,
 `/usr/local/stow/perl-extras', stowed under `/usr/local'.  If Perl is
@@ -368,11 +367,11 @@ must place it in the stow tree.
 
    Some software packages allow you to specify, at compile-time,
 separate locations for installation and for run-time.  Perl is one such
-package; see *Note Perl and Perl 5 modules::.  Others allow you to
+package; see *note Perl and Perl 5 modules::.  Others allow you to
 compile the package, then give a different destination in the `make
 install' step without causing the binaries or other files to get
 rebuilt.  Most GNU software falls into this category; Emacs is a
-notable exception.  See *Note GNU Emacs::, and *Note Other FSF
+notable exception.  See *note GNU Emacs::, and *note Other FSF
 software::.
 
    Still other software packages cannot abide the idea of separate
@@ -422,10 +421,10 @@ following sections.
 
 File: stow.info,  Node: GNU Emacs,  Next: Other FSF software,  Prev: Compile-time and install-time,  Up: Compile-time and install-time
 
-GNU Emacs
----------
+6.1.1 GNU Emacs
+---------------
 
-   Although the Free Software Foundation has many enlightened practices
+Although the Free Software Foundation has many enlightened practices
 regarding Makefiles and software installation (see *note Other FSF
 software::), Emacs, its flagship program, doesn't quite follow the
 rules.  In particular, most GNU software allows you to write:
@@ -453,12 +452,12 @@ the way to work around this problem is:
 
 File: stow.info,  Node: Other FSF software,  Next: Cygnus software,  Prev: GNU Emacs,  Up: Compile-time and install-time
 
-Other FSF software
-------------------
+6.1.2 Other FSF software
+------------------------
 
-   The Free Software Foundation, the organization behind the GNU
-project, has been unifying the build procedure for its tools for some
-time.  Thanks to its tools `autoconf' and `automake', most packages now
+The Free Software Foundation, the organization behind the GNU project,
+has been unifying the build procedure for its tools for some time.
+Thanks to its tools `autoconf' and `automake', most packages now
 respond well to these simple steps, with no other intervention
 necessary:
 
@@ -474,14 +473,14 @@ the build process.
 
 File: stow.info,  Node: Cygnus software,  Next: Perl and Perl 5 modules,  Prev: Other FSF software,  Up: Compile-time and install-time
 
-Cygnus software
----------------
+6.1.3 Cygnus software
+---------------------
 
-   Cygnus is a commercial supplier and supporter of GNU software.  It
-has also written several of its own packages, released under the terms
-of the GNU General Public License; and it has taken over the
-maintenance of other packages.  Among the packages released by Cygnus
-are `gdb', `gnats', and `dejagnu'.
+Cygnus is a commercial supplier and supporter of GNU software.  It has
+also written several of its own packages, released under the terms of
+the GNU General Public License; and it has taken over the maintenance of
+other packages.  Among the packages released by Cygnus are `gdb',
+`gnats', and `dejagnu'.
 
    Cygnus packages have the peculiarity that each one unpacks into a
 directory tree with a generic top-level Makefile, which is set up to
@@ -505,10 +504,10 @@ manually.
 
 File: stow.info,  Node: Perl and Perl 5 modules,  Prev: Cygnus software,  Up: Compile-time and install-time
 
-Perl and Perl 5 modules
------------------------
+6.1.4 Perl and Perl 5 modules
+-----------------------------
 
-   Perl 4.036 allows you to specify different locations for installation
+Perl 4.036 allows you to specify different locations for installation
 and for run-time.  It is the only widely-used package in this author's
 experience that allows this, though hopefully more packages will adopt
 this model.
@@ -590,10 +589,10 @@ convention, you can simply do this:
 
 File: stow.info,  Node: Multiple stow directories,  Next: Conflicts,  Prev: Compile-time and install-time,  Up: Caveats
 
-Multiple stow directories
-=========================
+6.2 Multiple stow directories
+=============================
 
-   If there are two or more system administrators who wish to maintain
+If there are two or more system administrators who wish to maintain
 software separately, or if there is any other reason to want two or more
 stow directories, it can be done by creating a file named `.stow' in
 each stow directory.  The presence of `/usr/local/foo/.stow' informs
@@ -613,11 +612,11 @@ and thus cannot remove it).
 
 File: stow.info,  Node: Conflicts,  Prev: Multiple stow directories,  Up: Caveats
 
-Conflicts
-=========
+6.3 Conflicts
+=============
 
-   If, during installation, a file or symlink exists in the target tree
-and has the same name as something Stow needs to create, and if the
+If, during installation, a file or symlink exists in the target tree and
+has the same name as something Stow needs to create, and if the
 existing name is not a folded tree that can be split open, then a
 "conflict" has arisen.  A conflict also occurs if a directory exists
 where Stow needs to place a symlink to a non-directory.  On the other
@@ -639,10 +638,10 @@ unpopulatable symlink.
 
 File: stow.info,  Node: Bootstrapping,  Next: Reporting bugs,  Prev: Caveats,  Up: Top
 
-Bootstrapping
-*************
+7 Bootstrapping
+***************
 
-   Suppose you have a stow directory all set up and ready to go:
+Suppose you have a stow directory all set up and ready to go:
 `/usr/local/stow/perl' contains the Perl installation,
 `/usr/local/stow/stow' contains Stow itself, and perhaps you have other
 packages waiting to be stowed.  You'd like to be able to do this:
@@ -665,10 +664,10 @@ solution you must use is:
 
 File: stow.info,  Node: Reporting bugs,  Next: Known bugs,  Prev: Bootstrapping,  Up: Top
 
-Reporting bugs
-**************
+8 Reporting bugs
+****************
 
-   Please send bug reports to the author, Bob Glickstein, by electronic
+Please send bug reports to the author, Bob Glickstein, by electronic
 mail.  The address to use is `<bobg+stow@zanshin.com>'.  Please include:
 
    * the version number of Stow (`stow --version');
@@ -686,15 +685,15 @@ mail.  The address to use is `<bobg+stow@zanshin.com>'.  Please include:
      adding `--verbose=3' to the Stow command line).
 
    Before reporting a bug, please read the manual carefully, especially
-*Note Known bugs::, and *Note Caveats::, to see whether you're
+*note Known bugs::, and *note Caveats::, to see whether you're
 encountering something that doesn't need reporting, such as a "false
 conflict" (*note Conflicts::).
 
 
 File: stow.info,  Node: Known bugs,  Next: GNU General Public License,  Prev: Reporting bugs,  Up: Top
 
-Known bugs
-**********
+9 Known bugs
+************
 
    * When using multiple stow directories (*note Multiple stow
      directories::), Stow fails to "split open" tree-folding symlinks
@@ -713,18 +712,19 @@ GNU General Public License
 **************************
 
                          Version 2, June 1991
+
      Copyright (C) 1989, 1991 Free Software Foundation, Inc.
      675 Mass Ave, Cambridge, MA 02139, USA
-     
+
      Everyone is permitted to copy and distribute verbatim copies
      of this license document, but changing it is not allowed.
 
 Preamble
 ========
 
-   The licenses for most software are designed to take away your
-freedom to share and change it.  By contrast, the GNU General Public
-License is intended to guarantee your freedom to share and change free
+The licenses for most software are designed to take away your freedom
+to share and change it.  By contrast, the GNU General Public License is
+intended to guarantee your freedom to share and change free
 software--to make sure the software is free for all its users.  This
 General Public License applies to most of the Free Software
 Foundation's software and to any other program whose authors commit to
@@ -977,7 +977,6 @@ modification follow.
      and reuse of software generally.
 
                                 NO WARRANTY
-
  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO
      WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE
      LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
@@ -1001,11 +1000,10 @@ modification follow.
      ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
                       END OF TERMS AND CONDITIONS
-
 How to Apply These Terms to Your New Programs
 =============================================
 
-   If you develop a new program, and you want it to be of the greatest
+If you develop a new program, and you want it to be of the greatest
 possible use to the public, the best way to achieve this is to make it
 free software which everyone can redistribute and change under these
 terms.
@@ -1017,17 +1015,17 @@ the "copyright" line and a pointer to where the full notice is found.
 
      ONE LINE TO GIVE THE PROGRAM'S NAME AND AN IDEA OF WHAT IT DOES.
      Copyright (C) 19YY  NAME OF AUTHOR
-     
+
      This program is free software; you can redistribute it and/or
      modify it under the terms of the GNU General Public License
      as published by the Free Software Foundation; either version 2
      of the License, or (at your option) any later version.
-     
+
      This program is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
      GNU General Public License for more details.
-     
+
      You should have received a copy of the GNU General Public License
      along with this program; if not, write to the Free Software
      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -1058,7 +1056,7 @@ if necessary.  Here is a sample; alter the names:
      interest in the program `Gnomovision'
      (which makes passes at compilers) written
      by James Hacker.
-     
+
      SIGNATURE OF TY COON, 1 April 1989
      Ty Coon, President of Vice
 
@@ -1074,50 +1072,51 @@ File: stow.info,  Node: Index,  Prev: GNU General Public License,  Up: Top
 Index
 *****
 
+ [index ]
 * Menu:
 
-* absolute symlink:                      Terminology.
-* conflict:                              Installing packages.
-* deletion:                              Deleting packages.
-* directory folding:                     Installing packages.
-* false conflict:                        Conflicts.
-* folding trees:                         Installing packages.
-* installation:                          Installing packages.
-* installation image:                    Terminology.
-* ownership:                             Installing packages.
-* package:                               Terminology.
-* package directory:                     Terminology.
-* package name:                          Terminology.
-* relative symlink:                      Terminology.
-* splitting open folded trees:           Installing packages.
-* stow directory:                        Terminology.
-* symlink:                               Terminology.
-* target directory:                      Terminology.
-* tree folding:                          Installing packages.
+* absolute symlink:                      Terminology.          (line 43)
+* conflict:                              Installing packages.  (line 70)
+* deletion:                              Deleting packages.    (line  6)
+* directory folding:                     Installing packages.  (line 13)
+* false conflict:                        Conflicts.            (line 19)
+* folding trees:                         Installing packages.  (line 13)
+* installation:                          Installing packages.  (line  6)
+* installation image:                    Terminology.          (line 23)
+* ownership:                             Installing packages.  (line 62)
+* package:                               Terminology.          (line  6)
+* package directory:                     Terminology.          (line 30)
+* package name:                          Terminology.          (line 30)
+* relative symlink:                      Terminology.          (line 43)
+* splitting open folded trees:           Installing packages.  (line 44)
+* stow directory:                        Terminology.          (line 16)
+* symlink:                               Terminology.          (line 43)
+* target directory:                      Terminology.          (line 11)
+* tree folding:                          Installing packages.  (line 13)
 
 
 
 Tag Table:
-Node: Top1264
-Node: Introduction2436
-Ref: Introduction-Footnote-14584
-Node: Terminology4626
-Node: Invoking Stow6976
-Node: Installing packages9170
-Node: Deleting packages13287
-Node: Caveats14437
-Node: Compile-time and install-time14804
-Node: GNU Emacs18106
+Node: Top1243
+Node: Introduction2415
+Ref: Introduction-Footnote-14564
+Node: Terminology4606
+Node: Invoking Stow6957
+Node: Installing packages9152
+Node: Deleting packages13271
+Node: Caveats14422
+Node: Compile-time and install-time14790
+Node: GNU Emacs18097
 Ref: GNU Emacs-Footnote-119090
 Node: Other FSF software19154
-Node: Cygnus software19910
-Node: Perl and Perl 5 modules21383
-Node: Multiple stow directories24932
-Node: Conflicts26080
-Node: Bootstrapping27238
-Node: Reporting bugs27995
-Node: Known bugs28875
-Node: GNU General Public License29572
-Node: Index48744
+Node: Cygnus software19918
+Node: Perl and Perl 5 modules21400
+Node: Multiple stow directories24958
+Node: Conflicts26111
+Node: Bootstrapping27274
+Node: Reporting bugs28032
+Node: Known bugs28913
+Node: GNU General Public License29614
+Node: Index48754
 
 End Tag Table
