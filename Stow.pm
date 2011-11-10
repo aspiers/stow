@@ -51,10 +51,21 @@ my $LOCAL_IGNORE_FILE         = '.stow-local-ignore';
 my $GLOBAL_IGNORE_FILE        = '.stow-global-ignore';
 my $defaultGlobalIgnoreRegexp = &GetDefaultGlobalIgnoreRegexp();
 
-our %opts;
+my $verbosity = 0;
+my $dry_run   = 0;
+my $prune     = 0;
+my $conflicts = 0;
+my $target_dir;
+my $stow_dir;
 
 sub SetOptions {
-  %opts = @_;
+  my %opts = @_;
+  $verbosity  = $opts{verbose};
+  $target_dir = $opts{target};
+  $stow_dir   = $opts{stow};
+  $dry_run    = $opts{not_really};
+  $prune      = $opts{prune};
+  $conflicts  = $opts{conflicts};
 }
 
 sub CheckCollections {
@@ -146,11 +157,11 @@ sub JoinPaths {
 sub Unstow {
   my($targetdir, $stow, $PkgsToUnstow) = @_;
   # $targetdir is the directory we're unstowing in, relative to the
-  # top of the target hierarchy, i.e. $opts{target}.
+  # top of the target hierarchy, i.e. $target_dir.
   #
   # $stow is the stow directory (the one containing the source
   # packages), and is always relative to $targetdir.  So as we
-  # recursively descend into $opts{target}, $stow gets longer because
+  # recursively descend into $target_dir, $stow gets longer because
   # we have to move up out of that hierarchy and back into the stow
   # directory.
 
@@ -169,13 +180,13 @@ sub Unstow {
   # We assume $targetdir is empty until we find something.
   my $empty = 1;
 
-  my $targetdirPath = &JoinPaths($opts{target}, $targetdir);
+  my $targetdirPath = &JoinPaths($target_dir, $targetdir);
 
-  return (0, '') if    $targetdirPath eq $opts{stow};
+  return (0, '') if    $targetdirPath eq $stow_dir;
   return (0, '') if -e &JoinPaths($targetdirPath, '.stow');
 
   warn "Unstowing in $targetdirPath\n"
-    if $opts{verbose} > 1;
+    if $verbosity > 1;
 
   if (!opendir(DIR, $targetdirPath)) {
     warn "Warning: $RealScript: Cannot read directory \"$targetdirPath\" ($!). Stow might leave some links. If you think, it does. Rerun Stow with appropriate rights.\n";
@@ -279,17 +290,17 @@ sub Unstow {
 sub PruneTree {
   my ($targetdir, $subdir, $PkgsToUnstow) = @_;
 
-  return 0 unless $opts{prune};
+  return 0 unless $prune;
   my $relpath = &JoinPaths($targetdir, $subdir);
 
   foreach my $pkg (keys %$PkgsToUnstow) {
-    my $abspath = &JoinPaths($opts{stow}, $pkg, $relpath);
+    my $abspath = &JoinPaths($stow_dir, $pkg, $relpath);
     if (-d $abspath) {
-      warn "# Not pruning $relpath since -d $abspath\n" if $opts{verbose} > 4;
+      warn "# Not pruning $relpath since -d $abspath\n" if $verbosity > 4;
       return 0;
     }
   }
-  warn "# Pruning $relpath\n" if $opts{verbose} > 2;
+  warn "# Pruning $relpath\n" if $verbosity > 2;
   return 1;
 }
 
@@ -299,11 +310,11 @@ sub CoalesceTrees {
 
   foreach my $x (@trees) {
     my ($tree, $collection) = ($x =~ /^(.*)\/(.*)/);
-    &EmptyTree(&JoinPaths($opts{target}, $parent, $tree));
-    &DoRmdir(&JoinPaths($opts{target}, $parent, $tree));
+    &EmptyTree(&JoinPaths($target_dir, $parent, $tree));
+    &DoRmdir(&JoinPaths($target_dir, $parent, $tree));
     if ($collection) {
       &DoLink(&JoinPaths($stow, $collection, $parent, $tree),
-	      &JoinPaths($opts{target}, $parent, $tree));
+	      &JoinPaths($target_dir, $parent, $tree));
     }
   }
 }
@@ -331,8 +342,8 @@ sub EmptyTree {
 sub StowContents {
   my($dir, $stow) = @_;
 
-  warn "Stowing contents of $dir\n" if $opts{verbose} > 1;
-  my $joined = &JoinPaths($opts{stow}, $dir);
+  warn "Stowing contents of $dir\n" if $verbosity > 1;
+  my $joined = &JoinPaths($stow_dir, $dir);
   opendir(DIR, $joined)
     || die "$RealScript: Cannot read directory \"$dir\" ($!)\n";
   my @contents = readdir(DIR);
@@ -342,10 +353,10 @@ sub StowContents {
   foreach my $content (@contents) {
     next if $content eq '.' or $content eq '..';
     if ($content =~ $ignoreRegexp) {
-      warn "Ignoring $joined/$content\n" if $opts{verbose} > 2;
+      warn "Ignoring $joined/$content\n" if $verbosity > 2;
       next;
     }
-    if (-d &JoinPaths($opts{stow}, $dir, $content)) {
+    if (-d &JoinPaths($stow_dir, $dir, $content)) {
       &StowDir(&JoinPaths($dir, $content), $stow);
     } else {
       &StowNondir(&JoinPaths($dir, $content), $stow);
@@ -363,7 +374,7 @@ sub GetIgnoreRegexp {
   #   2. the local ones can be ignored via hardcoded logic in
   #      GlobsToRegexp(), so that they always stay within their stow packages.
   
-  my $local_stow_ignore  = &JoinPaths($opts{stow}, $dir, $LOCAL_IGNORE_FILE);
+  my $local_stow_ignore  = &JoinPaths($stow_dir, $dir, $LOCAL_IGNORE_FILE);
   my $global_stow_ignore = &JoinPaths($ENV{HOME}, $GLOBAL_IGNORE_FILE);
   my $cvs_ignore         = &JoinPaths($ENV{HOME}, ".cvsignore");
 
@@ -379,9 +390,9 @@ sub StowDir {
   my $collection = shift(@dir);
   my $subdir = &JoinPaths('/', @dir);
 
-  warn "Stowing directory $dir\n" if ($opts{verbose} > 1);
+  warn "Stowing directory $dir\n" if ($verbosity > 1);
 
-  my $targetSubdirPath = &JoinPaths($opts{target}, $subdir);
+  my $targetSubdirPath = &JoinPaths($target_dir, $subdir);
   if (-l $targetSubdirPath) {
     # We found a link; now let's see if we should remove it.
     my $linktarget = readlink($targetSubdirPath);
@@ -389,7 +400,7 @@ sub StowDir {
 
     # Does the link point to somewhere within the stow directory?
     my $stowsubdir = &FindStowMember(
-      &JoinPaths($opts{target}, @dir[0..($#dir - 1)]),
+      &JoinPaths($target_dir, @dir[0..($#dir - 1)]),
       $linktarget,
     );
     unless ($stowsubdir) {
@@ -401,11 +412,11 @@ sub StowDir {
     }
 
     # Yes it does.
-    my $stowSubdirPath = &JoinPaths($opts{stow}, $stowsubdir);
+    my $stowSubdirPath = &JoinPaths($stow_dir, $stowsubdir);
     if (-e $stowSubdirPath) {
       if ($stowsubdir eq $dir) {
 	warn "$targetSubdirPath already points to $stowSubdirPath\n"
-	  if $opts{verbose} > 2;
+	  if $verbosity > 2;
 	return;
       }
       if (-d $stowSubdirPath) {
@@ -446,12 +457,12 @@ sub StowNondir {
   my($collection) = shift(@file);
   my($subfile) = &JoinPaths(@file);
 
-  my $subfilePath = &JoinPaths($opts{target}, $subfile);
+  my $subfilePath = &JoinPaths($target_dir, $subfile);
   if (-l $subfilePath) {
     my $linktarget = readlink($subfilePath);
     $linktarget or die "$RealScript: Could not read link $subfilePath ($!)\n";
     my $stowsubfile = &FindStowMember(
-      &JoinPaths($opts{target}, @file[0..($#file - 1)]),
+      &JoinPaths($target_dir, @file[0..($#file - 1)]),
       $linktarget
     );
     if (! $stowsubfile) {
@@ -460,7 +471,7 @@ sub StowNondir {
                 . " symlink did not point within stow dir");
       return;
     }
-    if (-e &JoinPaths($opts{stow}, $stowsubfile)) {
+    if (-e &JoinPaths($stow_dir, $stowsubfile)) {
       if ($stowsubfile ne $file) {
         &Conflict($file, $subfile,
                   &AbbrevHome($subfilePath)
@@ -469,8 +480,8 @@ sub StowNondir {
       }
       warn sprintf("%s already points to %s\n",
 		   $subfilePath,
-		   &JoinPaths($opts{stow}, $file))
-	if ($opts{verbose} > 2);
+		   &JoinPaths($stow_dir, $file))
+	if ($verbosity > 2);
     } else {
       &DoUnlink($subfilePath);
       &DoLink(&JoinPaths($stow, $file), $subfilePath);
@@ -487,45 +498,45 @@ sub StowNondir {
 sub DoUnlink {
   my($file) = @_;
 
-  warn "UNLINK $file\n" if $opts{verbose};
+  warn "UNLINK $file\n" if $verbosity;
   (unlink($file) || die "$RealScript: Could not unlink $file ($!)\n")
-    unless $opts{not_really};
+    unless $dry_run;
 }
 
 sub DoRmdir {
   my($dir) = @_;
 
-  warn "RMDIR $dir\n" if $opts{verbose};
+  warn "RMDIR $dir\n" if $verbosity;
   (rmdir($dir) || die "$RealScript: Could not rmdir $dir ($!)\n")
-    unless $opts{not_really};
+    unless $dry_run;
 }
 
 sub DoLink {
   my($target, $name) = @_;
 
-  warn "LINK $name to $target\n" if $opts{verbose};
+  warn "LINK $name to $target\n" if $verbosity;
   (symlink($target, $name) ||
    die "$RealScript: Could not symlink $name to $target ($!)\n")
-    unless $opts{not_really};
+    unless $dry_run;
 }
 
 sub DoMkdir {
   my($dir) = @_;
 
-  warn "MKDIR $dir\n" if $opts{verbose};
+  warn "MKDIR $dir\n" if $verbosity;
   (mkdir($dir, 0777)
    || die "$RealScript: Could not make directory $dir ($!)\n")
-    unless $opts{not_really};
+    unless $dry_run;
 }
 
 sub Conflict {
   my($a, $b, $type) = @_;
 
-  my $src = &AbbrevHome(&JoinPaths($opts{stow},   $a));
-  my $dst = &AbbrevHome(&JoinPaths($opts{target}, $b));
+  my $src = &AbbrevHome(&JoinPaths($stow_dir,   $a));
+  my $dst = &AbbrevHome(&JoinPaths($target_dir, $b));
 
   my $msg = "CONFLICT: $src vs. $dst" . ($type ? " ($type)" : '') . "\n";
-  if ($opts{conflicts}) {
+  if ($conflicts) {
     warn $msg;
     #system "ls -l $src $dst";
   } else {
@@ -548,7 +559,7 @@ sub FindStowMember {
   my($startDir, $targetPath) = @_;
   my @startDirSegments = split(/\/+/, $startDir);
   my @targetSegments   = split(/\/+/, $targetPath);
-  my @stowDirSegments  = split(/\/+/, $opts{stow});
+  my @stowDirSegments  = split(/\/+/, $stow_dir);
 
   # Start in $startDir and navigate to target, one path segment at a time.
   my @current = @startDirSegments;
@@ -605,7 +616,7 @@ sub GetIgnoreGlobsFromFH {
 sub GetIgnoreRegexpFromFile {
   my ($file) = @_;
   my $regexp = &GlobsToRegexp(&GetIgnoreGlobsFromFile($file));
-  warn "#% ignore regexp from $file is $regexp\n";# if $opts{verbose};
+  warn "#% ignore regexp from $file is $regexp\n";# if $verbosity;
   return $regexp;
 }
 
@@ -617,7 +628,7 @@ sub GlobsToRegexp {
   $globs{$LOCAL_IGNORE_FILE}++;
 
   my $re = join '|', map glob_to_re($_), keys %globs;
-  warn "#% ignore regexp is $re\n" if $opts{verbose};
+  warn "#% ignore regexp is $re\n" if $verbosity;
   return qr/$re/;
 }
 
