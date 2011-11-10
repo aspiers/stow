@@ -348,11 +348,11 @@ sub StowContents {
   my @contents = readdir(DIR);
   closedir(DIR);
   my $ignoreRegexp = &GetIgnoreRegexp($joined);
-  die "ignore: $ignoreRegexp";
+  warn "   ignore regexp: $ignoreRegexp\n" if $verbosity > 3;
   foreach my $content (@contents) {
     next if $content eq '.' or $content eq '..';
     if ($content =~ $ignoreRegexp) {
-      warn "Ignoring $joined/$content\n" if $verbosity > 2;
+      warn "      ignoring $joined/$content\n" if $verbosity > 2;
       next;
     }
     if (-d &JoinPaths($stow_dir, $dir, $content)) {
@@ -373,12 +373,18 @@ sub GetIgnoreRegexp {
   #   2. the local ones can be ignored via hardcoded logic in
   #      GlobsToRegexp(), so that they always stay within their stow packages.
   
-  my $local_stow_ignore  = &JoinPaths($stow_dir, $dir, $LOCAL_IGNORE_FILE);
+  my $local_stow_ignore  = &JoinPaths($dir, $LOCAL_IGNORE_FILE);
   my $global_stow_ignore = &JoinPaths($ENV{HOME}, $GLOBAL_IGNORE_FILE);
   my $cvs_ignore         = &JoinPaths($ENV{HOME}, ".cvsignore");
 
   for my $file ($local_stow_ignore, $global_stow_ignore, $cvs_ignore) {
-    return &GetIgnoreRegexpFromFile($file) if -e $file;
+    if (-e $file) {
+      warn "Using ignore file: $file\n" if $verbosity > 2;
+      return &GetIgnoreRegexpFromFile($file);
+    }
+    else {
+      warn "$file didn't exist\n" if $verbosity > 4;
+    }
   }
   return $defaultGlobalIgnoreRegexp;
 }
@@ -619,7 +625,7 @@ sub GetIgnoreGlobsFromFH {
 sub GetIgnoreRegexpFromFile {
   my ($file) = @_;
   my $regexp = &GlobsToRegexp(&GetIgnoreGlobsFromFile($file));
-  warn "#% ignore regexp from $file is $regexp\n";# if $verbosity;
+  warn "ignore regexp from $file is $regexp\n" if $verbosity > 4;
   return $regexp;
 }
 
@@ -648,7 +654,6 @@ sub GlobsToRegexp {
   $globs{$LOCAL_IGNORE_FILE}++;
 
   my $re = join '|', map globToRegexp($_), keys %globs;
-  warn "#% ignore regexp is $re\n" if $verbosity;
   return qr/$re/;
 }
 
