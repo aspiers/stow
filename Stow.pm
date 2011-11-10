@@ -21,6 +21,10 @@
 # 
 
 #####################################################################
+# Wed Nov  9 2011 Adam Spiers <stow@adamspiers.org>
+# Added support for stow local/global ignore files rather
+# than depending on .cvsignore.
+#
 # Wed Nov 23 2005 Adam Spiers <stow@adamspiers.org>
 # Hacked to ignore anything listed in ~/.cvsignore
 #
@@ -40,10 +44,12 @@ use POSIX;
 
 use lib "$RealBin/../lib/perl5";
 use Sh 'glob_to_re';
-my $ignore_file = File::Spec->join($ENV{HOME}, ".cvsignore");
-my $ignore_re = get_ignore_re_from_file($ignore_file);
 
-require 5.005;
+require 5.6.0;
+
+my $LOCAL_IGNORE_FILE         = '.stow-local-ignore';
+my $GLOBAL_IGNORE_FILE        = '.stow-global-ignore';
+my $defaultGlobalIgnoreRegexp = &GetDefaultGlobalIgnoreRegexp();
 
 our %opts;
 
@@ -350,16 +356,12 @@ sub StowContents {
     || die "$RealScript: Cannot read directory \"$dir\" ($!)\n";
   my @contents = readdir(DIR);
   closedir(DIR);
+  my $ignoreRegexp = &GetIgnoreRegexp($joined);
+  die "ignore: $ignoreRegexp";
   foreach my $content (@contents) {
-    # Wed Nov 23 2005 Adam Spiers
-    # hack to ignore stuff in ~/.cvsignore
     next if $content eq '.' or $content eq '..';
-    if ($content =~ $ignore_re) {
-      # FIXME: We assume -r implies the open succeeded but this is not
-      # true if we're stowing cvs as .cvsignore only gets created
-      # halfway through.
-      warn "Ignoring $joined/$content", (-r $ignore_file ? " via $ignore_file" : ""), "\n"
-        if $opts{verbose} > 2;
+    if ($content =~ $ignoreRegexp) {
+      warn "Ignoring $joined/$content\n" if $opts{verbose} > 2;
       next;
     }
     if (-d &JoinPaths($opts{stow}, $dir, $content)) {
@@ -368,6 +370,26 @@ sub StowContents {
       &StowNondir(&JoinPaths($dir, $content), $stow);
     }
   }
+}
+
+sub GetIgnoreRegexp {
+  my($dir) = @_;
+
+  # N.B. the local and global stow ignore files have to have different
+  # names so that:
+  #   1. the global one can be a symlink to within a stow
+  #      package, managed by stow itself, and
+  #   2. the local ones can be ignored via hardcoded logic in
+  #      GlobsToRegexp(), so that they always stay within their stow packages.
+  
+  my $local_stow_ignore  = &JoinPaths($opts{stow}, $dir, $LOCAL_IGNORE_FILE);
+  my $global_stow_ignore = &JoinPaths($ENV{HOME}, $GLOBAL_IGNORE_FILE);
+  my $cvs_ignore         = &JoinPaths($ENV{HOME}, ".cvsignore");
+
+  for my $file ($local_stow_ignore, $global_stow_ignore, $cvs_ignore) {
+    return &GetIgnoreRegexpFromFile($file) if -e $file;
+  }
+  return $defaultGlobalIgnoreRegexp;
 }
 
 sub StowDir {
@@ -579,25 +601,57 @@ sub parent {
   return join('/', @elts);
 }
 
-sub get_ignore_re_from_file {
+sub GetIgnoreGlobsFromFile {
   my ($file) = @_;
-  # Bootstrap issue - first time we stow, we will be stowing
-  # .cvsignore so it might not exist in ~ yet, or if it does, it could
-  # be an old version missing the entries we need.  So we make sure
-  # they are there.
   my %globs;
   if (open(GLOBS, $file)) {
-    while (<GLOBS>) {
-      chomp;
-      $globs{$_}++;
-    }
+    %globs = &GetIgnoreGlobsFromFH(\*GLOBS);
     close(GLOBS);
   }
-  $globs{$_}++ foreach '*.cfgsave.*', 'CVS';
+  return %globs;
+}
+
+sub GetIgnoreGlobsFromFH {
+  my ($fh) = @_;
+  my %globs;
+  while (<$fh>) {
+    chomp;
+    $globs{$_}++;
+  }
+  return %globs;
+}
+
+sub GetIgnoreRegexpFromFile {
+  my ($file) = @_;
+  my $regexp = &GlobsToRegexp(&GetIgnoreGlobsFromFile($file));
+  warn "#% ignore regexp from $file is $regexp\n";# if $opts{verbose};
+  return $regexp;
+}
+
+sub GlobsToRegexp {
+  my (%globs) = @_;
+
+  # Local ignore lists should *always* stay within the stow directory,
+  # because this is the only place stow looks for them.
+  $globs{$LOCAL_IGNORE_FILE}++;
 
   my $re = join '|', map glob_to_re($_), keys %globs;
   warn "#% ignore regexp is $re\n" if $opts{verbose};
   return qr/$re/;
 }
 
+sub GetDefaultGlobalIgnoreRegexp {
+  # Bootstrap issue - first time we stow, we will be stowing
+  # .cvsignore so it might not exist in ~ yet, or if it does, it could
+  # be an old version missing the entries we need.  So we make sure
+  # they are there by hardcoding some crucial entries.
+  my $regexp = &GlobsToRegexp(&GetIgnoreGlobsFromFH(\*DATA));
+  return $regexp;
+}
+
 1;
+__DATA__
+CVS
+.cvsignore
+.git
+.gitignore

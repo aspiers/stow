@@ -39,9 +39,6 @@ use lib "$RealBin/../lib/perl5";
 use Sh 'glob_to_re';
 use Stow;
 
-my $ignore_file = File::Spec->join($ENV{HOME}, ".cvsignore");
-my $ignore_re = Stow::get_ignore_re_from_file($ignore_file);
-
 my %opts = (
   conflicts  => 0, 
   delete     => 0, 
