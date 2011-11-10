@@ -15,6 +15,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -69,7 +70,7 @@ am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(infodir)" \
-	"$(DESTDIR)$(man8dir)"
+	"$(DESTDIR)$(man8dir)" "$(DESTDIR)$(libperldir)"
 SCRIPTS = $(bin_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
@@ -88,6 +89,7 @@ DVIPS = dvips
 man8dir = $(mandir)/man8
 NROFF = nroff
 MANS = $(man_MANS)
+DATA = $(libperl_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -176,6 +178,8 @@ AUTOMAKE_OPTIONS = dist-shar
 bin_SCRIPTS = stow
 info_TEXINFOS = stow.texi
 man_MANS = stow.8
+libperldir = $(libdir)/perl5
+libperl_DATA = Stow.pm
 EXTRA_DIST = $(man_MANS)
 CLEANFILES = stow manual.html manual.texi
 all: all-am
@@ -456,6 +460,26 @@ uninstall-man8:
 	test -z "$$files" || { \
 	  echo " ( cd '$(DESTDIR)$(man8dir)' && rm -f" $$files ")"; \
 	  cd "$(DESTDIR)$(man8dir)" && rm -f $$files; }
+install-libperlDATA: $(libperl_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(libperldir)" || $(MKDIR_P) "$(DESTDIR)$(libperldir)"
+	@list='$(libperl_DATA)'; test -n "$(libperldir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(libperldir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(libperldir)" || exit $$?; \
+	done
+
+uninstall-libperlDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(libperl_DATA)'; test -n "$(libperldir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(libperldir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(libperldir)" && rm -f $$files
 tags: TAGS
 TAGS:
 
@@ -628,9 +652,9 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(INFO_DEPS) $(SCRIPTS) $(MANS)
+all-am: Makefile $(INFO_DEPS) $(SCRIPTS) $(MANS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man8dir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man8dir)" "$(DESTDIR)$(libperldir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -680,7 +704,7 @@ info: info-am
 
 info-am: $(INFO_DEPS)
 
-install-data-am: install-info-am install-man
+install-data-am: install-info-am install-libperlDATA install-man
 
 install-dvi: install-dvi-am
 
@@ -804,8 +828,8 @@ ps: ps-am
 ps-am: $(PSS)
 
 uninstall-am: uninstall-binSCRIPTS uninstall-dvi-am uninstall-html-am \
-	uninstall-info-am uninstall-man uninstall-pdf-am \
-	uninstall-ps-am
+	uninstall-info-am uninstall-libperlDATA uninstall-man \
+	uninstall-pdf-am uninstall-ps-am
 
 uninstall-man: uninstall-man8
 
@@ -819,15 +843,16 @@ uninstall-man: uninstall-man8
 	install install-am install-binSCRIPTS install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-man8 install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-aminfo maintainer-clean-generic \
-	maintainer-clean-vti mostlyclean mostlyclean-aminfo \
-	mostlyclean-generic mostlyclean-vti pdf pdf-am ps ps-am \
-	uninstall uninstall-am uninstall-binSCRIPTS uninstall-dvi-am \
-	uninstall-html-am uninstall-info-am uninstall-man \
-	uninstall-man8 uninstall-pdf-am uninstall-ps-am
+	install-info-am install-libperlDATA install-man install-man8 \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-aminfo \
+	maintainer-clean-generic maintainer-clean-vti mostlyclean \
+	mostlyclean-aminfo mostlyclean-generic mostlyclean-vti pdf \
+	pdf-am ps ps-am uninstall uninstall-am uninstall-binSCRIPTS \
+	uninstall-dvi-am uninstall-html-am uninstall-info-am \
+	uninstall-libperlDATA uninstall-man uninstall-man8 \
+	uninstall-pdf-am uninstall-ps-am
 
 
 # The rules for manual.html and manual.texi are only used by

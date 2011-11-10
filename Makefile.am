@@ -5,6 +5,8 @@ AUTOMAKE_OPTIONS = dist-shar
 bin_SCRIPTS = stow
 info_TEXINFOS = stow.texi
 man_MANS = stow.8
+libperldir = $(libdir)/perl5
+libperl_DATA = Stow.pm
 EXTRA_DIST = $(man_MANS)
 
 CLEANFILES = stow manual.html manual.texi
