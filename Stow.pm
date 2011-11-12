@@ -187,11 +187,14 @@ sub Unstow {
   warn "Unstowing in $targetdirPath\n"
     if $verbosity > 1;
 
-  if (!opendir(DIR, $targetdirPath)) {
+  my @contents = ();
+  if (opendir(DIR, $targetdirPath)) {
+    @contents = readdir(DIR);
+    closedir(DIR);
+  }
+  else {
     warn "Warning: $RealScript: Cannot read directory \"$targetdirPath\" ($!). Stow might leave some links. If you think, it does. Rerun Stow with appropriate rights.\n";
   }	
-  my @contents = readdir(DIR);
-  closedir(DIR);
 
   my @puresubdirs;
   foreach my $content (@contents) {
