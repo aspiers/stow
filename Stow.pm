@@ -50,21 +50,21 @@ my $LOCAL_IGNORE_FILE         = '.stow-local-ignore';
 my $GLOBAL_IGNORE_FILE        = '.stow-global-ignore';
 my $defaultGlobalIgnoreRegexp = &GetDefaultGlobalIgnoreRegexp();
 
-my $verbosity = 0;
-my $dry_run   = 0;
-my $prune     = 0;
-my $conflicts = 0;
+my $verbosity      = 0;
+my $dry_run        = 0;
+my $prune          = 0;
+my $show_conflicts = 0;
 my $target_dir;
 my $stow_dir;
 
 sub SetOptions {
   my %opts = @_;
-  $verbosity  = $opts{verbose};
-  $target_dir = $opts{target};
-  $stow_dir   = $opts{stow};
-  $dry_run    = $opts{not_really};
-  $prune      = $opts{prune};
-  $conflicts  = $opts{conflicts};
+  $verbosity      = $opts{verbose};
+  $target_dir     = $opts{target};
+  $stow_dir       = $opts{stow};
+  $dry_run        = $opts{not_really};
+  $prune          = $opts{prune};
+  $show_conflicts = $opts{conflicts};
 }
 
 sub CheckCollections {
@@ -559,8 +559,8 @@ sub Conflict {
   my $src = &AbbrevHome(&JoinPaths($stow_dir,   $a));
   my $dst = &AbbrevHome(&JoinPaths($target_dir, $b));
 
+  if ($show_conflicts) {
   my $msg = "CONFLICT: $src vs. $dst" . ($type ? " ($type)" : '') . "\n";
-  if ($conflicts) {
     warn $msg;
     #system "ls -l $src $dst";
   } else {
