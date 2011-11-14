@@ -90,7 +90,7 @@ sub CommonParent {
   return $result;
 }
 
-# Find the relative path to $b from $a
+# Find the relative path from $a to $b
 sub RelativePath {
   my($a, $b) = @_;
 
@@ -342,28 +342,30 @@ sub EmptyTree {
 }
 
 sub StowContents {
-  my($dir, $stow) = @_;
-  # $dir - the name of the stow package
-  # $stow - the relative path from the stow directory to the installation tree
+  my($relative_dir_to_stow, $stow_relative_to_install) = @_;
+  # $relative_dir_to_stow - the subdirectory whose contents we're stowing, relative to the stow directory
+  # $install_relative_to_stow - the relative path from the stow directory to the installation tree
 
-  warn "Stowing contents of $dir\n" if $verbosity > 1;
-  my $joined = &JoinPaths($stow_dir, $dir);
-  opendir(DIR, $joined)
-    || die "$RealScript: Cannot read directory \"$dir\" ($!)\n";
+  warn "Stowing contents of $relative_dir_to_stow\n" if $verbosity > 1;
+  my $path_to_stow = &JoinPaths($stow_dir, $relative_dir_to_stow);
+  opendir(DIR, $path_to_stow)
+    || die "$RealScript: Cannot read directory \"$relative_dir_to_stow\" ($!)\n";
   my @contents = readdir(DIR);
   closedir(DIR);
-  my $ignoreRegexp = &GetIgnoreRegexp($joined);
+  my $ignoreRegexp = &GetIgnoreRegexp($path_to_stow);
   warn "   ignore regexp: $ignoreRegexp\n" if $verbosity > 3;
   foreach my $content (@contents) {
     next if $content eq '.' or $content eq '..';
     if ($content =~ $ignoreRegexp) {
-      warn "      ignoring $joined/$content\n" if $verbosity > 2;
+      my $ignore_path = &AbbrevHome(&JoinPaths($path_to_stow, $content));
+      warn "      ignoring $ignore_path\n" if $verbosity > 2;
       next;
     }
-    if (-d &JoinPaths($stow_dir, $dir, $content)) {
-      &StowDir(&JoinPaths($dir, $content), $stow);
+    my $content_subpath = &JoinPaths($relative_dir_to_stow, $content);
+    if (-d &JoinPaths($stow_dir, $relative_dir_to_stow, $content)) {
+      &StowDir($content_subpath, $stow_relative_to_install);
     } else {
-      &StowNondir(&JoinPaths($dir, $content), $stow);
+      &StowNondir($content_subpath, $stow_relative_to_install);
     }
   }
 }
@@ -394,13 +396,17 @@ sub GetIgnoreRegexp {
   return $defaultGlobalIgnoreRegexp;
 }
 
+
 sub StowDir {
-  my($dir, $stow) = @_;
-  my @dir = split(/\/+/, $dir);
+  my($relative_dir_to_stow, $stow_relative_to_install) = @_;
+  # $dir_to_stow - the subdirectory we're stowing, relative to the stow directory
+  # $install_relative_to_stow - the relative path from the stow directory to the installation tree
+
+  my @dir = split(/\/+/, $relative_dir_to_stow);
   my $collection = shift(@dir);
   my $subdir = &JoinPaths('/', @dir);
 
-  warn "Stowing directory $dir\n" if ($verbosity > 1);
+  warn "Stowing directory $relative_dir_to_stow\n" if $verbosity > 1;
 
   my $targetSubdirPath = &JoinPaths($target_dir, $subdir);
   if (-l $targetSubdirPath) {
@@ -415,7 +421,7 @@ sub StowDir {
     );
     unless ($stowsubdir) {
       # No, so we can't touch it.
-      &Conflict($dir, $subdir,
+      &Conflict($relative_dir_to_stow, $subdir,
                 &AbbrevHome($targetSubdirPath)
                 . " link doesn't point within stow dir; cannot split open");
       return;
@@ -424,7 +430,7 @@ sub StowDir {
     # Yes it does.
     my $stowSubdirPath = &JoinPaths($stow_dir, $stowsubdir);
     if (-e $stowSubdirPath) {
-      if ($stowsubdir eq $dir) {
+      if ($stowsubdir eq $relative_dir_to_stow) {
 	warn "$targetSubdirPath already points to $stowSubdirPath\n"
 	  if $verbosity > 2;
 	return;
@@ -434,36 +440,39 @@ sub StowDir {
         # manual refers to.
 	&DoUnlink($targetSubdirPath);
 	&DoMkdir($targetSubdirPath);
-	&StowContents($stowsubdir, &JoinPaths('..', $stow));
-	&StowContents($dir, &JoinPaths('..', $stow));
+	&StowContents($stowsubdir, &JoinPaths('..', $stow_relative_to_install));
+	&StowContents($relative_dir_to_stow, &JoinPaths('..', $stow_relative_to_install));
       } else {
-	&Conflict($dir, $subdir,
+	&Conflict($relative_dir_to_stow, $subdir,
                   &AbbrevHome($stowSubdirPath)
                   . " exists but not a directory");
         return;
       }
     } else {
       &DoUnlink($targetSubdirPath);
-      &DoLink(&JoinPaths($stow, $dir),
+      &DoLink(&JoinPaths($install_relative_to_stow, $relative_dir_to_stow),
 	      $targetSubdirPath);
     }
   } elsif (-e $targetSubdirPath) {
     if (-d $targetSubdirPath) {
-      &StowContents($dir, &JoinPaths('..', $stow));
+      &StowContents($relative_dir_to_stow, &JoinPaths('..', $stow_relative_to_install));
     } else {
-      &Conflict($dir, $subdir,
+      &Conflict($relative_dir_to_stow, $subdir,
                 &AbbrevHome($targetSubdirPath)
                 . " exists but not a directory");
     }
   } else {
-    &DoLink(&JoinPaths($stow, $dir),
+    &DoLink(&JoinPaths($install_relative_to_stow, $relative_dir_to_stow),
 	    $targetSubdirPath);
   }
 }
 
 sub StowNondir {
-  my($file, $stow) = @_;
-  my @file = split(/\/+/, $file);
+  my($relative_file_to_stow, $stow_relative_to_install) = @_;
+  # $relative_file_to_stow - the file we're stowing, relative to the stow directory
+  # $install_relative_to_stow - the relative path from the stow directory to the installation tree
+
+  my @file = split(/\/+/, $relative_file_to_stow);
   my $collection = shift(@file);
   my $subfile = &JoinPaths(@file);
 
@@ -478,7 +487,7 @@ sub StowNondir {
     );
     if (! $stowsubfile) {
       # The existing symlink isn't owned by us.
-      &Conflict($file, $subfile,
+      &Conflict($relative_file_to_stow, $subfile,
                 &AbbrevHome($subfilePath)
                 . " symlink did not point within stow dir");
       return;
@@ -486,27 +495,27 @@ sub StowNondir {
     # The existing symlink is owned by us.
     if (-e &JoinPaths($stow_dir, $stowsubfile)) {
       # It's not dangling, but does it point where we want it to point?
-      if ($stowsubfile ne $file) {
-        &Conflict($file, $subfile,
+      if ($stowsubfile ne $relative_file_to_stow) {
+        &Conflict($relative_file_to_stow, $subfile,
                   &AbbrevHome($subfilePath)
                   . " pointed to something else within stow dir");
         return;
       }
       warn sprintf("%s already points to %s\n",
 		   $subfilePath,
-		   &JoinPaths($stow_dir, $file))
-	if ($verbosity > 2);
+		   &JoinPaths($stow_dir, $relative_file_to_stow))
+	if $verbosity > 2;
     } else {
       # It's a dangling symlink - fix it.
       &DoUnlink($subfilePath);
-      &DoLink(&JoinPaths($stow, $file), $subfilePath);
+      &DoLink(&JoinPaths($install_relative_to_stow, $relative_file_to_stow), $subfilePath);
     }
   } elsif (-e $subfilePath) {
-    &Conflict($file, $subfile,
+    &Conflict($relative_file_to_stow, $subfile, $symlink_target,
               &AbbrevHome($subfilePath)
               . " exists but is not a symlink");
   } else {
-    &DoLink(&JoinPaths($stow, $file), $subfilePath);
+    &DoLink(&JoinPaths($install_relative_to_stow, $relative_file_to_stow), $subfilePath);
   }
 }
 
