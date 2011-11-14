@@ -343,6 +343,8 @@ sub EmptyTree {
 
 sub StowContents {
   my($dir, $stow) = @_;
+  # $dir - the name of the stow package
+  # $stow - the relative path from the stow directory to the installation tree
 
   warn "Stowing contents of $dir\n" if $verbosity > 1;
   my $joined = &JoinPaths($stow_dir, $dir);
@@ -467,6 +469,7 @@ sub StowNondir {
 
   my $subfilePath = &JoinPaths($target_dir, $subfile);
   if (-l $subfilePath) {
+    # There's already a symlink where we want to put one.
     my $linktarget = readlink($subfilePath);
     $linktarget or die "$RealScript: Could not read link $subfilePath ($!)\n";
     my $stowsubfile = &FindStowMember(
@@ -474,12 +477,15 @@ sub StowNondir {
       $linktarget
     );
     if (! $stowsubfile) {
+      # The existing symlink isn't owned by us.
       &Conflict($file, $subfile,
                 &AbbrevHome($subfilePath)
                 . " symlink did not point within stow dir");
       return;
     }
+    # The existing symlink is owned by us.
     if (-e &JoinPaths($stow_dir, $stowsubfile)) {
+      # It's not dangling, but does it point where we want it to point?
       if ($stowsubfile ne $file) {
         &Conflict($file, $subfile,
                   &AbbrevHome($subfilePath)
@@ -491,6 +497,7 @@ sub StowNondir {
 		   &JoinPaths($stow_dir, $file))
 	if ($verbosity > 2);
     } else {
+      # It's a dangling symlink - fix it.
       &DoUnlink($subfilePath);
       &DoLink(&JoinPaths($stow, $file), $subfilePath);
     }
