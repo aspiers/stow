@@ -461,9 +461,9 @@ sub StowDir {
 
 sub StowNondir {
   my($file, $stow) = @_;
-  my(@file) = split(/\/+/, $file);
-  my($collection) = shift(@file);
-  my($subfile) = &JoinPaths(@file);
+  my @file = split(/\/+/, $file);
+  my $collection = shift(@file);
+  my $subfile = &JoinPaths(@file);
 
   my $subfilePath = &JoinPaths($target_dir, $subfile);
   if (-l $subfilePath) {
