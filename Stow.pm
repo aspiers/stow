@@ -34,6 +34,21 @@
 
 package Stow;
 
+=head1 NAME
+
+Stow - manage the installation of multiple software packages
+
+=head1 SYNOPSIS
+
+    Stow::StowContents($package, ".STOW");
+
+
+=head1 DESCRIPTION
+
+FIXME
+
+=cut
+
 use strict;
 use warnings;
 
@@ -56,6 +71,12 @@ my $prune          = 0;
 my $show_conflicts = 0;
 my $target_dir;
 my $stow_dir;
+
+=head2 SetOptions(%opts)
+
+FIXME
+
+=cut
 
 sub SetOptions {
   my %opts = @_;
@@ -128,9 +149,15 @@ sub RelativePath {
   return &JoinPaths(@b);
 }
 
-# Concatenates the paths given as arguments, removing double and
-# trailing slashes.  Is subtlely different from File::Spec::join
-# in other aspects, e.g. args ('', '/foo') yields 'foo' not '/foo'.
+=head2 JoinPaths(@path_segments)
+
+Concatenates the paths given as arguments, removing double and
+trailing slashes.  Is subtlely different from C<File::Spec::join()> in
+other aspects, e.g. C<JoinPaths('', '/foo')> yields F<foo> not
+F</foo>.
+
+=cut
+
 sub JoinPaths {
   my(@paths, @parts);
   my ($x, $y);
@@ -149,9 +176,13 @@ sub JoinPaths {
   return $result;
 }
 
-# This removes stow-controlled symlinks from $targetdir for the
-# packages in the %$PkgsToUnstow hash, and is called recursively to
-# process subdirectories.
+=head2 Unstow($targetdir, $stow, $PkgsToUnstow)
+
+This removes stow-controlled symlinks from C<$targetdir> for the
+packages in the C<%$PkgsToUnstow> hash, and is called recursively to
+process subdirectories.
+
+=cut
 
 sub Unstow {
   my($targetdir, $stow, $PkgsToUnstow) = @_;
@@ -341,10 +372,25 @@ sub EmptyTree {
   }
 }
 
+=head2 StowContents($relative_dir_to_stow, $stow_relative_to_install)
+
+=over 4
+
+=item $relative_dir_to_stow
+
+The subdirectory whose contents we're stowing, relative to the stow directory.
+
+=item $stow_relative_to_install
+
+The relative path from the installation directory (which could be a
+subdirectory of the top-level target directory) to the stow directory.
+
+=back
+
+=cut
+
 sub StowContents {
   my($relative_dir_to_stow, $stow_relative_to_install) = @_;
-  # $relative_dir_to_stow - the subdirectory whose contents we're stowing, relative to the stow directory
-  # $install_relative_to_stow - the relative path from the stow directory to the installation tree
 
   warn "Stowing contents of $relative_dir_to_stow\n" if $verbosity > 1;
   my $path_to_stow = &JoinPaths($stow_dir, $relative_dir_to_stow);
@@ -396,11 +442,26 @@ sub GetIgnoreRegexp {
   return $defaultGlobalIgnoreRegexp;
 }
 
+=head2 StowDir($relative_dir_to_stow, $stow_relative_to_install)
 
+Invoked by C<StowContents()> to stow directories.
+
+=over 4
+
+=item $relative_dir_to_stow
+
+The subdirectory we're stowing, relative to the stow directory.
+
+=item $stow_relative_to_install
+
+The relative path from the installation directory (which could be a
+subdirectory of the top-level target directory) to the stow directory.
+
+=back
+
+=cut
 sub StowDir {
   my($relative_dir_to_stow, $stow_relative_to_install) = @_;
-  # $dir_to_stow - the subdirectory we're stowing, relative to the stow directory
-  # $install_relative_to_stow - the relative path from the stow directory to the installation tree
 
   my @dir = split(/\/+/, $relative_dir_to_stow);
   my $collection = shift(@dir);
@@ -467,10 +528,25 @@ sub StowDir {
   }
 }
 
+=head2 StowNondir($relative_file_to_stow, $stow_relative_to_install)
+
+=over 4
+
+=item $relative_file_to_stow
+
+The file we're stowing, relative to the stow directory.
+
+=item $stow_relative_to_install
+
+The relative path from the installation directory (which could be a
+subdirectory of the top-level target directory) to the stow directory.
+
+=back
+
+=cut
+
 sub StowNondir {
   my($relative_file_to_stow, $stow_relative_to_install) = @_;
-  # $relative_file_to_stow - the file we're stowing, relative to the stow directory
-  # $install_relative_to_stow - the relative path from the stow directory to the installation tree
 
   my @file = split(/\/+/, $relative_file_to_stow);
   my $collection = shift(@file);
@@ -684,6 +760,14 @@ sub GetDefaultGlobalIgnoreRegexp {
   my $regexp = &GlobsToRegexp(&GetIgnoreGlobsFromFH(\*DATA));
   return $regexp;
 }
+
+=head1 BUGS
+
+=head1 SEE ALSO
+
+=cut
+
+1;
 
 1;
 __DATA__
