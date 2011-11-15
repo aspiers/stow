@@ -1,12 +1,9 @@
 -*- org -*-
 
-* fix Perl 4 crap
-* STOW_RESOLVE_CONFLICTS="non_stow_symlinks=t stow_symlinks=r"
-* rsync-like include/exclude lists instead of ignore lists
 * honour .no-stow-folding and --no-folding
-* honour STOW_DEFAULT_OPTIONS
-* make CPAN-friendly via Module::Build
+* STOW_RESOLVE_CONFLICTS="non_stow_symlinks=t stow_symlinks=r"
 * Add documentation about conflict resolution
+* honour STOW_DEFAULT_OPTIONS
 * Add documentation about ignore lists.
 
 *** Justification for having stow ignore lists independently of VCS ignore lists
@@ -25,7 +22,10 @@
       should be stowed
 ******* or intended only to be used during compilation / build phase
       shouldn't be stowed
-
+* fix Perl 4 crap
+* change indentation to 4 columns
+* make CPAN-friendly via Module::Build
+* rsync-like include/exclude lists instead of ignore lists
 * Autodetect "foreign" stow directories
 
 * Fix empty-dir problem (see "Known bugs" in the manual)
