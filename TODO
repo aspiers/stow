@@ -1,7 +1,6 @@
 -*- org -*-
 
 * fix Perl 4 crap
-* fix config.check --remake issue when configure.ac updated
 * STOW_RESOLVE_CONFLICTS="non_stow_symlinks=t stow_symlinks=r"
 * rsync-like include/exclude lists instead of ignore lists
 * honour .no-stow-folding and --no-folding
