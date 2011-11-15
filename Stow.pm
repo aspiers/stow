@@ -52,6 +52,7 @@ FIXME
 use strict;
 use warnings;
 
+use File::Copy;
 use File::Spec;
 use FindBin qw($RealBin $RealScript);
 use Getopt::Long;
@@ -470,6 +471,7 @@ sub StowDir {
   warn "Stowing directory $relative_dir_to_stow\n" if $verbosity > 1;
 
   my $targetSubdirPath = &JoinPaths($target_dir, $subdir);
+  my $symlink_target = &JoinPaths($stow_relative_to_install, $relative_dir_to_stow);
   if (-l $targetSubdirPath) {
     # We found a link; now let's see if we should remove it.
     my $linktarget = readlink($targetSubdirPath);
@@ -482,7 +484,7 @@ sub StowDir {
     );
     unless ($stowsubdir) {
       # No, so we can't touch it.
-      &Conflict($relative_dir_to_stow, $subdir,
+      &Conflict($relative_dir_to_stow, $subdir, $symlink_target,
                 &AbbrevHome($targetSubdirPath)
                 . " link doesn't point within stow dir; cannot split open");
       return;
@@ -504,27 +506,25 @@ sub StowDir {
 	&StowContents($stowsubdir, &JoinPaths('..', $stow_relative_to_install));
 	&StowContents($relative_dir_to_stow, &JoinPaths('..', $stow_relative_to_install));
       } else {
-	&Conflict($relative_dir_to_stow, $subdir,
+	&Conflict($relative_dir_to_stow, $subdir, $symlink_target,
                   &AbbrevHome($stowSubdirPath)
                   . " exists but not a directory");
         return;
       }
     } else {
       &DoUnlink($targetSubdirPath);
-      &DoLink(&JoinPaths($install_relative_to_stow, $relative_dir_to_stow),
-	      $targetSubdirPath);
+      &DoLink($symlink_target, $targetSubdirPath);
     }
   } elsif (-e $targetSubdirPath) {
     if (-d $targetSubdirPath) {
       &StowContents($relative_dir_to_stow, &JoinPaths('..', $stow_relative_to_install));
     } else {
-      &Conflict($relative_dir_to_stow, $subdir,
+      &Conflict($relative_dir_to_stow, $subdir, $symlink_target,
                 &AbbrevHome($targetSubdirPath)
                 . " exists but not a directory");
     }
   } else {
-    &DoLink(&JoinPaths($install_relative_to_stow, $relative_dir_to_stow),
-	    $targetSubdirPath);
+    &DoLink($symlink_target, $targetSubdirPath);
   }
 }
 
@@ -553,6 +553,7 @@ sub StowNondir {
   my $subfile = &JoinPaths(@file);
 
   my $subfilePath = &JoinPaths($target_dir, $subfile);
+  my $symlink_target = &JoinPaths($stow_relative_to_install, $relative_file_to_stow);
   if (-l $subfilePath) {
     # There's already a symlink where we want to put one.
     my $linktarget = readlink($subfilePath);
@@ -563,35 +564,33 @@ sub StowNondir {
     );
     if (! $stowsubfile) {
       # The existing symlink isn't owned by us.
-      &Conflict($relative_file_to_stow, $subfile,
+      &Conflict($relative_file_to_stow, $subfile, $symlink_target,
                 &AbbrevHome($subfilePath)
-                . " symlink did not point within stow dir");
+                . " symlink did not point within stow dir",
+                \&resolveConflictWithSymlink);
       return;
     }
     # The existing symlink is owned by us.
     if (-e &JoinPaths($stow_dir, $stowsubfile)) {
       # It's not dangling, but does it point where we want it to point?
       if ($stowsubfile ne $relative_file_to_stow) {
-        &Conflict($relative_file_to_stow, $subfile,
+        &Conflict($relative_file_to_stow, $subfile, $symlink_target,
                   &AbbrevHome($subfilePath)
-                  . " pointed to something else within stow dir");
+                  . " pointed to something else within stow dir",
+                  \&resolveConflictWithSymlink);
         return;
       }
-      warn sprintf("%s already points to %s\n",
-		   $subfilePath,
-		   &JoinPaths($stow_dir, $relative_file_to_stow))
-	if $verbosity > 2;
     } else {
       # It's a dangling symlink - fix it.
       &DoUnlink($subfilePath);
-      &DoLink(&JoinPaths($install_relative_to_stow, $relative_file_to_stow), $subfilePath);
+      &DoLink($symlink_target, $subfilePath);
     }
   } elsif (-e $subfilePath) {
     &Conflict($relative_file_to_stow, $subfile, $symlink_target,
               &AbbrevHome($subfilePath)
               . " exists but is not a symlink");
   } else {
-    &DoLink(&JoinPaths($install_relative_to_stow, $relative_file_to_stow), $subfilePath);
+    &DoLink($symlink_target, $subfilePath);
   }
 }
 
@@ -612,11 +611,11 @@ sub DoRmdir {
 }
 
 sub DoLink {
-  my($target, $name) = @_;
+  my($target, $new) = @_;
 
-  warn "LINK $name to $target\n" if $verbosity;
-  (symlink($target, $name) ||
-   die "$RealScript: Could not symlink $name to $target ($!)\n")
+  warn "SYMLINK $new -> $target\n" if $verbosity;
+  (symlink($target, $new) ||
+   die "$RealScript: Could not create new symlink $new -> $target ($!)\n")
     unless $dry_run;
 }
 
@@ -629,19 +628,140 @@ sub DoMkdir {
     unless $dry_run;
 }
 
+# Handle a conflict during stowing.  Should die if not OK to proceed.
 sub Conflict {
-  my($a, $b, $type) = @_;
+  my($a, $b, $symlink_target, $type, $resolver) = @_;
 
-  my $src = &AbbrevHome(&JoinPaths($stow_dir,   $a));
-  my $dst = &AbbrevHome(&JoinPaths($target_dir, $b));
+  my $src  = &JoinPaths($stow_dir,   $a); # where we're installing from
+  my $dst  = &JoinPaths($target_dir, $b); # where we're installing to
+  my $hsrc = &AbbrevHome($src);
+  my $hdst = &AbbrevHome($dst);
+
+  my $msg = <<EOF;
+CONFLICT:
+    $hsrc
+vs.
+    $hdst
+
+($type)
+
+EOF
+
+  open(LS, "ls -l $src $dst|")
+    or die "Couldn't open(ls -l $src $dst||): $!\n";
+  while (<LS>) {
+    s!$ENV{HOME}/!~/!g;
+    $msg .= $_;
+  }
+  close(LS);
 
   if ($show_conflicts) {
-  my $msg = "CONFLICT: $src vs. $dst" . ($type ? " ($type)" : '') . "\n";
     warn $msg;
-    #system "ls -l $src $dst";
-  } else {
-    die "$RealScript: $msg";
   }
+  else {
+    if ($resolver) {
+      warn $msg;
+      $resolver->($src, $dst, $symlink_target);
+    }
+    else {
+      die "$RealScript: $msg";
+    }
+  }
+}
+
+# Conflict handler callback.  Return true if conflict was resolved.
+sub resolveConflictWithSymlink {
+  my ($src, $dst, $symlink_target) = @_;
+
+  die "BUG: resolveConflictWithSymlink only supposed to be used with symlinks"
+    unless -l $dst;
+
+  die "Not running interactively with a tty; cannot resolve conflict - aborting.\n"
+    unless -t 0 && -t 1;
+
+  my $hsrc = &AbbrevHome($src);
+  my $hdst = &AbbrevHome($dst);
+
+  my $new  = "$dst.stow.new";
+  my $hnew = &AbbrevHome($new);
+
+  my $answer;
+  while (1) {
+    my $answer = &symlinkConflictResolutionAnswer($dst);
+    if ($answer eq 's') {
+      return 0;
+    }
+    elsif (-f $dst and $answer eq 'd') {
+      my $pager = $ENV{PAGER} || 'less';
+      print qq{sh -c 'diff -u "$dst" "$src" | $pager'};
+      system qq{sh -c 'diff -u "$dst" "$src" | $pager'};
+      next;
+    }
+    elsif ($answer eq '!') {
+      my $shell = $ENV{SHELL} || 'bash';
+      print <<EOF;
+
+Launching $shell to let you fix the conflict manually.
+Quit the shell once you are done.
+
+EOF
+      system $shell;
+      next;
+    }
+
+    last if $answer =~ /^[nr]$/ or (-f $dst and $answer eq 't');
+
+    print "\n'$answer' is not a valid response.\n" if length $answer;
+  }
+
+  if ($answer eq 'n') {
+    &DoLink($symlink_target, $new);
+  }
+  elsif ($answer =~ /^[rt]$/) {
+    if ($answer eq 't') {
+      copy($dst, $src) or die "copy($dst, $src) failed: $!\n";
+    }
+    &DoUnlink($dst);
+    &DoLink($symlink_target, $dst);
+  }
+  else {
+    die "BUG";
+  }
+}
+
+sub symlinkConflictResolutionPrompt {
+  my ($dst) = @_;
+
+  chomp(my $prompt = <<EOF);
+
+How would you like to handle the conflict?
+
+  (d) diff existing with new, then ask again
+  (n) keep symlink and install new symlink as
+        $hnew
+  (r) remove existing symlink and install new symlink
+  (t) like (r) but transplant contents of old symlink into new
+      (CAUTION! this will overwrite the file within the
+       package being stowed)
+  (s) skip this conflict - do nothing
+  (!) launch shell in target install directory
+
+Please enter your choice [dnrst!] > 
+EOF
+
+  if (! -f $dst) {
+    # (d) and (t) options require $dst to point to a valid file
+    $prompt =~ s/^\s*\([dt]\).+\n//gm;
+    $prompt =~ s/^(Please enter your choice) \[dnrst!\]/$1 [nrs!]/gm;
+  }
+
+  return $prompt;
+}
+
+sub symlinkConflictResolutionAnswer {
+  print &symlinkConflictResolutionPrompt($dst);
+  chomp(my $answer = <STDIN>);
+  return $answer;
 }
 
 sub AbbrevHome {
