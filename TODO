@@ -1,3 +1,31 @@
+* Split core code into Stow.pm
+* Add use strict / warnings to tests
+* Honour .no-stow-folding and --no-folding
+* Support ignore lists in files
+*** Implement.
+*** Add documentation about ignore lists.
+***** Justification for having stow ignore lists independently of VCS ignore lists
+******* If a file is in the VCS ignore list for its containing repo
+********* generated during development
+        probably shouldn't be stowed
+********* generated during compilation / install
+*********** could be an intermediary file
+          again, probably shouldn't be stowed
+*********** but most likely a file to install
+          e.g. compiled binary/library/docs - should be stowed
+******* If a file is not in the VCS ignore list for its containing repo
+********* it's probably tracked by the VCS - part of the repo
+********* could intended for end use
+*********** e.g. script/config file requiring no modifications, docs
+        should be stowed
+********* or intended only to be used during compilation / build phase
+        shouldn't be stowed
+*** (Eventually) rsync-like include/exclude lists instead of ignore lists
+* Add semi-automatic conflict resolution
+*** STOW_RESOLVE_CONFLICTS="non_stow_symlinks=t stow_symlinks=r"
+*** Add documentation about conflict resolution
+* Make CPAN-friendly via Module::Build
+*** Include test-time dependencies on Test::More and Test::Output
 * Finish 'Deferring' section of manual
 * get account on fencepost.gnu.org (email accounts@gnu.org) 
   set up copyright papers? 
