@@ -2,9 +2,6 @@
   set up copyright papers? 
   'assign.future' and 'request-assign.future.manual'
 
-* Update stow.texi
-  - The email address in 'Reporting Bugs' needs to be updated
-
 * Figure out what needs the option 'nostow' 'notstowed'. Can they be removed?
 
 * _texi2man_ needs author/copyright/license to be completed
