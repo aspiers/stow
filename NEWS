@@ -1,6 +1,6 @@
 News file for Stow.
 
-*  Changes in version 2.0.1:
+* Changes in version 2.0.1
 ** Defer operations until all potential conflicts have been assessed.
 
 We do this by traversing the installation image(s) and recording the
@@ -51,7 +51,7 @@ You can mix and match any number of actions, e.g.,
 
 will unstow p3, p4 and p6, then stow p1, p2, p5 and p6.
 
-* New (repeatable) command line arg: --ignore='<regex>'
+** New (repeatable) command line arg: --ignore='<regex>'
 
 This suppresses operating on a file matching the regex (suffix), e.g.,
 
@@ -132,33 +132,26 @@ more easily check for equivalent functionality.  The initial code base had
 to be refactored substantially to allow for testing.  The test suite is
 not exhaustive, but it should provide enough to check for regressions.
 
-
-*  Changes in version 1.3.3:
-**     Now requires Perl 5.005 or later
-**     Initially empty directories are not removed anymore
-**     Removed buggy fastcwd (we use POSIX::getcwd instead)
-**     Fixed bug when the common Parent of Target dir and Stow dir was "/"
-**     Fixed bug when handling directories named "0"
-**     Stow now only warns the user if a directory is unreadable during unstowing.
-
-*   Changes in version 1.3:
-**     Added --restow option.
-**     Fixed handling of slashes in package names.
-**     Expanded configure-time search for Perl binary.
-
-*   Changes in version 1.2:
-**     Dependency on `pwd' removed.
-**     Perl 4 compatibility fixes.
-**     Manual expanded even more.
-
-*   Changes in version 1.1:
-**     Long and short options now accepted.
-**     Manual expanded.
-**     `make clean' removes stow (which is generated from stow.in).
-
-*   Initial public release (v1.0) of Stow.
-
-
+* Changes in version 1.3.3
+** Now requires Perl 5.005 or later
+** Initially empty directories are not removed anymore
+** Removed buggy fastcwd (we use POSIX::getcwd instead)
+** Fixed bug when the common Parent of Target dir and Stow dir was "/"
+** Fixed bug when handling directories named "0"
+** Stow now only warns the user if a directory is unreadable during unstowing.
+* Changes in version 1.3:
+** Added --restow option.
+** Fixed handling of slashes in package names.
+** Expanded configure-time search for Perl binary.
+* Changes in version 1.2:
+** Dependency on `pwd' removed.
+** Perl 4 compatibility fixes.
+** Manual expanded even more.
+* Changes in version 1.1:
+** Long and short options now accepted.
+** Manual expanded.
+** `make clean' removes stow (which is generated from stow.in).
+* Initial public release (v1.0) of Stow.
 * emacs local variables
   Local Variables:
   mode: org
