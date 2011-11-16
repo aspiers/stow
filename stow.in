@@ -24,6 +24,7 @@ use warnings;
 
 require 5.6.1;
 
+use File::Spec;
 use POSIX qw(getcwd);
 use Getopt::Long;
 
@@ -380,7 +381,7 @@ sub set_stow_path {
     }
 
     # set our one global
-    $Stow_Path = relative_path(getcwd(),$stow_dir);
+    $Stow_Path = File::Spec->abs2rel($stow_dir);
 
     if ($Option{'verbose'} > 1) {
         warn "current dir is ".getcwd()."\n";
@@ -1663,39 +1664,6 @@ sub strip_quotes {
         return $1
     }
     return $string;
-}
-
-#===== SUBROUTINE ===========================================================
-# Name      : relative_path()
-# Purpose   : find the relative path between two given paths
-# Parameters: path1 => a directory path
-#           : path2 => a directory path
-# Returns   : path2 relative to path1
-# Throws    : n/a
-# Comments  : only used once by main interactive routine
-#           : factored out for testing
-#============================================================================
-sub relative_path {
-
-    my ($path1, $path2) = @_;
-
-    my (@path1) = split m{/+}, $path1;
-    my (@path2) = split m{/+}, $path2;
-
-    # drop common prefixes until we find a difference
-    PREFIX:
-    while ( @path1 && @path2 ) {
-        last PREFIX if $path1[0] ne $path2[0];
-        shift @path1;
-        shift @path2;
-    }
-
-    # prepend one '..' to $path2 for each component of $path1 
-    while ( shift @path1 ) {
-        unshift @path2, '..';
-    }
-
-    return join_paths(@path2);
 }
 
 #===== SUBROUTINE ===========================================================

@@ -15,7 +15,6 @@ TESTS = \
 	t/foldable.t               \
 	t/join_paths.t             \
 	t/parent.t                 \
-	t/relative_path.t          \
 	t/stow_contents.t          \
 	t/stow.t                   \
 	t/unstow_contents_orig.t   \
