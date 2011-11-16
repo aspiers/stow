@@ -561,7 +561,8 @@ can actually take a long time (a number of seconds).  Moreover, an accurate
 analysis of potential conflicts, requires us to take in to account all of
 these operations.
 
-Accidentally stowing a package that will result in a conflict
+Accidentally stowing a package that will result in a conflict ...
+FIXME - doesn't look like this section was ever finished.
 
 @c ===========================================================================
 @node Mixing Operations, Multiple Stow Directories, Deferred Operation, Top
