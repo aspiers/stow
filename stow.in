@@ -61,14 +61,14 @@ our $Stow_Path; # only use in main loop and find_stowed_path()
 # Store conflicts during pre-processing
 our @Conflicts = ();
 
-# Store command line packges to stow (-S and -R)
+# Store command line packages to stow (-S and -R)
 our @Pkgs_To_Stow   = ();
 
 # Store command line packages to unstow (-D and -R)
 our @Pkgs_To_Delete = ();
 
 # The following structures are used by the abstractions that allow us to 
-# defer operating on the filesystem until after all potential conflcits have 
+# defer operating on the filesystem until after all potential conflicts have
 # been assessed.
 
 # our @Tasks:  list of operations to be performed (in order)
@@ -82,12 +82,12 @@ our @Pkgs_To_Delete = ();
 our @Tasks    = (); 
 
 # my %Dir_Task_For: map a path to the corresponding directory task reference
-# This structurew allows us to quickly determine if a path has an existing
+# This structure allows us to quickly determine if a path has an existing
 # directory task associated with it.
 our %Dir_Task_For = ();
 
 # my %Link_Task_For: map a path to the corresponding directory task reference
-# This structurew allows us to quickly determine if a path has an existing
+# This structure allows us to quickly determine if a path has an existing
 # directory task associated with it.
 our %Link_Task_For = ();
 
@@ -269,7 +269,7 @@ sub process_options {
 # Returns   : n/a
 # Throws    : no exceptions
 # Comments  : prepends the contents '~/.stowrc' and '.stowrc' to the command
-#           : line so they get parsed just like noremal arguments. (This was 
+#           : line so they get parsed just like normal arguments. (This was
 #           : hacked in so that Emil and I could set different preferences).
 #=============================================================================
 sub get_defaults {
@@ -435,9 +435,9 @@ sub stow_contents {
 #===== SUBROUTINE ===========================================================
 # Name      : stow_node()
 # Purpose   : stow the given node 
-# Parameters: $path    => realtive path to source node from the current directory
-#           : $target  => realtive path to symlink target from the current directory
-#           : $source  => realtive path to symlink source from the dir of target
+# Parameters: $path    => relative path to source node from the current directory
+#           : $target  => relative path to symlink target from the current directory
+#           : $source  => relative path to symlink source from the dir of target
 # Returns   : n/a
 # Throws    : fatal exception if a conflict arises
 # Comments  : stow_node() and stow_contents() are mutually recursive
@@ -455,7 +455,7 @@ sub stow_node {
         warn "--- $target => $source\n";
     }
 
-    # don't try to stow absolute symlinks (they cant be unstowed)
+    # don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
         my $second_source = read_a_link($source); 
         if ($second_source =~ m{\A/} ) {
@@ -640,9 +640,9 @@ sub unstow_node_orig {
             return; # XXX #
         }
 
-        # does the existing $target actually point to anything
+        # does the existing $target actually point to anything?
         if (-e  $old_path) {
-            # does link points to the right place
+            # does link point to the right place?
             if ($old_path eq $path) {
                 do_unlink($target);
             }
@@ -1187,7 +1187,7 @@ sub process_tasks {
 # Returns   : Boolean
 # Throws    : none
 # Comments  : returns false if an existing link is scheduled for removal
-#           : and true if a non-exsitent link is scheduled for creation
+#           : and true if a non-existent link is scheduled for creation
 #============================================================================
 sub is_a_link {
     my ($path) = @_;
@@ -1698,7 +1698,7 @@ sub relative_path {
 }
 
 #===== SUBROUTINE ===========================================================
-# Name      : join_path()
+# Name      : join_paths()
 # Purpose   : concatenates given paths
 # Parameters: path1, path2, ... => paths
 # Returns   : concatenation of given paths

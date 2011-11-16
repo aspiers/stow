@@ -12,7 +12,7 @@ use Test::More tests => 5;
 is(
     relative_path('a/b/c', 'a/b/d'),
     '../d',
-    => 'diferent branches'
+    => 'different branches'
 );
 
 is(

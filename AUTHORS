@@ -26,7 +26,7 @@ inorder to implement:
     7. a test suite (and support code) to ensure that everything still works.  
 
 As these changes required a dramatic reorganisation of the code, very little
-was left untouched, and so stows major version was bumped up to version 2.
+was left untouched, and so Stow's major version was bumped up to version 2.
 
 Austin Wood <austin.wood@rmit.edu.au> and Chris Hoobin
 <christopher.hoobin@rmit.edu.au> helped clean up the documentation for 

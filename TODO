@@ -5,13 +5,13 @@
 * Update stow.texi
   - The email address in 'Reporting Bugs' needs to be updated
 
-* Figure out what needs the optin 'nostow' 'notstowed'. Can they be removed?
+* Figure out what needs the option 'nostow' 'notstowed'. Can they be removed?
 
 * _texi2man_ needs author/copyright/license to be completed
 
 * Update http://directory.fsf.org/project/stow/
 
-* Update savanaugh CVS
+* Update savannah CVS
 
 * Check that all email addresses are working: need an account on fenchpost for
   this bug-stow@gnu.org, help-stow@gnu.org
@@ -45,5 +45,5 @@ From e-mail with meyering@na-net.ornl.gov:
 
 Does Version 2 fix this? (Kal)
 I think that because it never needs to create /usr/local/info,
-it only needs to check th ownership of links that it _operatates_ on,
+it only needs to check the ownership of links that it _operates_ on,
 not on all the elements of the path.

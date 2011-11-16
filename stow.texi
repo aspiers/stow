@@ -388,7 +388,7 @@ directory.
 The following options are deprecated:
 @end table
 
-The following options are deprecated as of Stow Version 2: 
+The following options are deprecated as of Stow version 2:
 @table @samp
 @item -c
 @itemx --conflicts
@@ -400,7 +400,8 @@ This option is deprecated as conflicts are now printed by default and no
 operations will be performed if any conflicts are detected.
 @end table
 
-@ref{Resource Files} for a way to set default values for any of these options 
+@ref{Resource Files} for a way to set default values for any of these
+options.
 
 
 @c ===========================================================================
@@ -480,7 +481,7 @@ current stow directory.  @emph{Stow will never delete anything
 that it doesn't own}.  Stow ``owns'' everything living in the
 target tree that points into a package in the stow directory.  Anything
 Stow owns, it can recompute if lost: symlinks that point into a package in
-the stow directory, or directories that only contain sysmlinks that stow
+the stow directory, or directories that only contain symlinks that stow
 ``owns''.   Note that by this definition, Stow doesn't ``own'' anything
 @emph{in} the stow directory or in any of the packages.
 

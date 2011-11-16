@@ -159,7 +159,7 @@ $Option{'verbose'} = 0;
 make_dir('stow'); # make out stow dir a subdir of target
 $Stow_Path = 'stow';
 
-# emulate stowing into ourself (bizzare corner case or accident)
+# emulate stowing into ourself (bizarre corner case or accident)
 make_dir('stow/pkg7a/stow/pkg7b');
 make_file('stow/pkg7a/stow/pkg7b/file7b');
 make_link('stow/pkg7b', '../stow/pkg7a/stow/pkg7b');
@@ -189,7 +189,7 @@ $Stow_Path = 'stow';
 make_dir('stow2'); # make our alternate stow dir a subdir of target
 make_file('stow2/.stow');
 
-# emulate stowing into ourself (bizzare corner case or accident)
+# emulate stowing into ourself (bizarre corner case or accident)
 make_dir('stow/pkg8a/stow2/pkg8b');
 make_file('stow/pkg8a/stow2/pkg8b/file8b');
 make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
