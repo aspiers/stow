@@ -7,7 +7,8 @@
 # load as a library
 BEGIN { use lib qw(.); require "t/util.pm"; require "stow"; }
 
-use Test::More tests => 11;
+use Test::More tests => 14;
+use Test::Output;
 use English qw(-no_match_vars);
 
 # local utility
@@ -164,7 +165,11 @@ make_file('stow/pkg7a/stow/pkg7b/file7b');
 make_link('stow/pkg7b', '../stow/pkg7a/stow/pkg7b');
 
 unstow_contents_orig('stow/pkg7b', './');
-process_tasks();
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process when unstowing pkg7b'
+);
 ok(
     scalar(@Conflicts) == 0 &&
     -l 'stow/pkg7b' &&
@@ -190,7 +195,11 @@ make_file('stow/pkg8a/stow2/pkg8b/file8b');
 make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
 
 unstow_contents_orig('stow/pkg8a', './');
-process_tasks();
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process when unstowing pkg8a'
+);
 ok(
     scalar(@Conflicts) == 0 &&
     -l 'stow2/pkg8b' &&
@@ -242,7 +251,11 @@ make_link('man10/man1/file10b.1'  => '../../../stow/pkg10b/man10/man1/file10b.1'
 make_dir('../stow/pkg10c/man10/man1');
 make_file('../stow/pkg10c/man10/man1/file10a.1');
 unstow_contents_orig('../stow/pkg10c', './');
-process_tasks();
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process when unstowing pkg8a'
+);
 ok( 
     scalar(@Conflicts) == 0 &&
     readlink('man10/man1/file10a.1') eq '../../../stow/pkg10a/man10/man1/file10a.1' 

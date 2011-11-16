@@ -7,7 +7,8 @@
 # load as a library
 BEGIN { use lib qw(.); require "t/util.pm"; require "stow"; }
 
-use Test::More tests => 13;
+use Test::More tests => 14;
+use Test::Output;
 use English qw(-no_match_vars);
 
 # local utility
@@ -209,7 +210,11 @@ make_link('man10/man1/file10.1' => '../../../stow/pkg10a/man10/man1/file10.1'); 
 make_dir('../stow/pkg10b/man10/man1');
 make_file('../stow/pkg10b/man10/man1/file10.1');
 stow_contents('../stow/pkg10b', './', '../stow/pkg10b');
-process_tasks();
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process'
+);
 ok( 
     scalar(@Conflicts) == 0 &&
     readlink('man10/man1/file10.1') eq '../../../stow/pkg10a/man10/man1/file10.1' 
