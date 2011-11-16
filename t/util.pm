@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 #
 # Utilities shared by test scripts
 #
