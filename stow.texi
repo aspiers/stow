@@ -239,14 +239,10 @@ stow [@var{options}] [@var{action flag}] @var{package @dots{}}
 @end example
 
 @noindent
-Each @var{package} is the name of a package (e.g., @samp{perl}) in the stow 
+Each @var{package} is the name of a package (e.g., @samp{perl}) in the stow
 directory that we wish to install into (or delete from) the target directory.
-The default action is to install the given packages, although alternate actions 
+The default action is to install the given packages, although alternate actions
 may be specified by preceding the package name(s) with an @var{action flag}.
-Unless otherwise specified, the stow directory is assumed to be 
-the current directory and the target directory is assumed to be the parent of 
-the current directory, so it is typical to execute @code{stow} from the 
-directory @file{/usr/local/stow}.   
 
 @noindent
 The following options are supported:
@@ -255,14 +251,14 @@ The following options are supported:
 
 @item -d @var{dir}
 @itemx --dir=@var{dir}
-Set the stow directory to @var{dir} instead of the current directory.
-This also has the effect of making the default target directory be the
-parent of @var{dir}.
+Set the stow directory to @var{dir}.  Defaults to the value of the environment
+variable @code{STOW_DIR} if set, or the current directory otherwise.
 
 @item -t @var{dir}
 @itemx --target=@var{dir}
 Set the target directory to @var{dir} instead of the parent of the stow
-directory.
+directory.  Defaults to the parent of the stow directory, so it is typical to
+execute @code{stow} from the directory @file{/usr/local/stow}.
 
 @item --ignore='<regex>'
 This (repeatable) option lets you suppress acting on files that match the

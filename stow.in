@@ -358,9 +358,10 @@ sub set_stow_path {
 
     my $current_dir = getcwd();
 
-    # default stow dir is the current directory
+    # default stow dir is $STOW_DIR if set, otherwise the current
+    # directory
     if (not $Option{'dir'} ) {
-        $Option{'dir'} = getcwd();
+        $Option{'dir'} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
     if (not chdir($Option{'dir'})) {
         error("Cannot chdir to target tree: '$Option{'dir'}'");

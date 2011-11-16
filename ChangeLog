@@ -49,6 +49,10 @@ Sun Nov 25 19:31:32 2007  Kahlil Hodgson <kahlil@internode.con.net>
 	
 	* stow.8: update to reflect Version 2 changes.
 
+Sat Jan 26 16:15:21 2002  Guillaume Morin  <gmorin@gnu.org>
+
+    * stow.in: if $ENV{'STOW_DIR'} is set, this becomes the default
+      Stow directory.
 
 Sun Jan 06 12:18:50 2002  Guillaume Morin  <gmorin@gnu.org>
 
