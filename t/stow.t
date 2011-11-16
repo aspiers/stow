@@ -88,7 +88,7 @@ is_deeply($Option{'override'}, [qr(\Aman), qr(\Ainfo)] => 'strip shell quoting')
 %Option=();
 local @ARGV = (
     '--ignore="~"',
-    '--ignore="\.#.*'
+    '--ignore="\.#.*"'
 );
 process_options();
 is_deeply($Option{'ignore'}, [ qr(~\z), qr(\.#.*\z) ] => 'ignore temp files');
