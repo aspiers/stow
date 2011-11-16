@@ -79,7 +79,7 @@ $SIG{'__WARN__'} = sub { };
 @ARGV = ('-t', '.', '-l',);
 stdout_like(
     \&run_chkstow,
-    qr{emacs$perl$stow}xms,
+    qr{emacs\nperl\nstow\n}xms,
     "List packages");
 
 @ARGV = ('-t', '.', '-b',);
@@ -111,5 +111,5 @@ stdout_like(
 
 @ARGV = ('-b',);
 process_options();
-ok($Target == q{/usr/local},
+ok($::Target == q{/usr/local},
     "Default target is /usr/local/");

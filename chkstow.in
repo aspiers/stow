@@ -60,8 +60,7 @@ sub check_stow {
         delete $Package{'..'};
 
         if (keys %Package) {
-            local $,="\n";
-            print sort(keys %Package), "\n";
+            print map "$_\n", sort(keys %Package);
         }
     }
     return;
