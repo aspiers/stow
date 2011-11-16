@@ -52,3 +52,6 @@ manual.html: manual.texi
 manual.texi: stow.texi
 	-rm -f $@
 	cp $< $@
+
+test: stow chkstow
+	perl -MTest::Harness -e 'runtests(@ARGV)' t/*.t
