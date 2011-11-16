@@ -101,4 +101,7 @@ sub list {
 
 1; # Hey, it's a module!
 
-# vim:ft=perl
+# Local variables:
+# mode: perl
+# End:
+# vim: ft=perl
