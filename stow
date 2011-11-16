@@ -1,4 +1,4 @@
-#!@PERL@
+#!/usr/bin/perl
 
 # GNU Stow - manage the installation of multiple software packages
 # Copyright (C) 1993, 1994, 1995, 1996 by Bob Glickstein
@@ -26,7 +26,7 @@ require 5.005;
 use POSIX qw(getcwd);
 use Getopt::Long;
 
-my $Version = '@VERSION@';
+my $Version = '2.0.2';
 my $ProgramName = $0;
 $ProgramName =~ s{.*/}{};
 

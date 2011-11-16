@@ -1,3 +1,59 @@
+2008-01-31  Kahlil Hodgson  <kal@grebo.cs.rmit.edu.au>
+
+	* stow.texi: Austin Wood and Chris Hoobin clean this up for version 2.
+
+	* texi2man: new script by Austin and Chris to generate a man page from the
+	texinfo file.
+
+
+Sun Nov 25 19:31:32 2007  Kahlil Hodgson <kahlil@internode.con.net>
+	* all: Version 2.0.1
+
+	* AUTHORS: added Kahlil Hodgson as a new author and current maintainer.
+
+	* stow.in: major rewrite to produce version 2.0.1 see NEWS for details
+	
+	* t/: added test suite and support code
+	
+	* configure.in: renamed to configure.ac as per autotools recommendation.
+
+	* configure.ac: 
+	Use AC_INT rather than obsolete AM_INTI_MAKEFILE usage.
+	Remove redundant VERSION and PACKAGE setttings
+	Remove redundant AC_ARG_PROGRAM
+	Use AM_INIT_AUTOMAKE([-Wall -Werror]) because we are pedantic.
+	Add AC_PREREQ([2.6.1])
+	
+	* Makefile.am, configure.ac: 
+	Use explicit rewrite in Makefile.am, rather than AC_CONFIG_FILES(stow.in),
+	as per autotools recommendation.
+
+	* Makefile.am: 
+	Add TESTS and TEST_ENVIRONMENT for files in t/
+	Use dist_man_MANS instead of EXTRA_DIST for man page 
+
+	* INSTALL: update to reflect autotools modernization.
+
+	* NEWS: update to describe cahnges in Version 2.0.1.
+
+	* README: update to point to the right websites and email addresses.
+	
+	* THANKS: 
+	Add Emil Mikulc who's ideas largely inspired Version 2 and 
+	and Geoffrey Giesemann who did some initial testing and found some
+	important bugs.
+
+	* TODO: remove tasks that where implemented in Version 2
+
+	* stow.texi: update documentation to reflect Version 2 changes.
+	
+	* stow.8: update to reflect Version 2 changes.
+
+
+Sun Jan 06 12:18:50 2002  Guillaume Morin  <gmorin@gnu.org>
+
+    * Makefile.am: use EXTRA_DIST to include manpage in distribution
+
 Wed Jan 02 21:33:41 2002  Guillaume Morin  <gmorin@gnu.org>
 
     * stow.in: Stow now only warns the user if a subdirectory

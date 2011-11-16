@@ -8,13 +8,13 @@ The steps in building stow are:
 
 1.  `cd' to the directory containing the source code (and this file)
     and type `./configure' to configure stow for your system.  This
-    step will attempt to locate your copy of perl and use its location
-    to create `stow' from `stow.in'.  If perl can't be found, you'll
-    have to edit line 1 of `stow' from `#!false' to `#!/path/to/perl'
-    (where /path/to/perl is wherever perl will be found when stow
-    runs).
+    step will attempt to locate your copy of perl and set its location
+    `Makefile.in'.
 
-2.  Type `make' to create stow.info from stow.texi.
+2.  Type `make' to create `stow' and `'stow.info'. If perl could not
+    be found by `./configure', you'll have to edit line 1 of `stow' 
+    from `#!false' to `#!/path/to/perl' (where /path/to/perl is wherever
+    perl will be found when stow runs).
 
 3.  Type `make install' to install `stow' and `stow.info'.
 
@@ -58,8 +58,8 @@ to recreate the current configuration, a file `config.cache' that
 saves the results of its tests to speed up reconfiguring, and a file
 `config.log' containing other output.
 
-The file `configure.in' is used to create `configure' by a program
-called `autoconf'.  You only need `configure.in' if you want to change
+The file `configure.ac' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.ac' if you want to change
 it or regenerate `configure' using a newer version of `autoconf'.
 
 The file `Makefile.am' is used to create `Makefile.in' by a program
