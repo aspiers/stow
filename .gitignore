@@ -1,0 +1,6 @@
+stow
+chkstow
+Makefile
+config.log
+config.status
+t/target/
