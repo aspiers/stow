@@ -5,6 +5,8 @@ AC_PREREQ([2.61])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_PROG_INSTALL
 
+AM_MAINTAINER_MODE([enable])
+
 dnl Check for perl on our system 
 dnl call to AC_SUBST(PERL) is implicit
 AC_PATH_PROGS([PERL], [perl] [perl5], [false])
