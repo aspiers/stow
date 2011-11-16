@@ -44,3 +44,8 @@ Does Version 2 fix this? (Kal)
 I think that because it never needs to create /usr/local/info,
 it only needs to check the ownership of links that it _operates_ on,
 not on all the elements of the path.
+
+* emacs local variables
+  Local Variables:
+  mode: org
+  End:

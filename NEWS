@@ -157,3 +157,9 @@ not exhaustive, but it should provide enough to check for regressions.
 **     `make clean' removes stow (which is generated from stow.in).
 
 *   Initial public release (v1.0) of Stow.
+
+
+* emacs local variables
+  Local Variables:
+  mode: org
+  End:
