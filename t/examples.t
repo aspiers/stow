@@ -16,7 +16,7 @@ sub reset_state {
     @Conflicts      = ();
     %Link_Task_For  = ();
     %Dir_Task_For   = ();
-    %Options        = ();
+    %Option         = ();
     return;
 }
 
