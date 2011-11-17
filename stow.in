@@ -661,10 +661,13 @@ sub unstow_contents {
     my $cwd = getcwd();
     debug(2, "Unstowing from $target (cwd is $cwd)");
     debug(3, "--- source path is $path");
-    # We traverse the source tree not the target tree, 
+    # We traverse the source tree not the target tree, so $path must exist.
     error("unstow_contents() called with non-directory path: $path")
         unless -d $path;
-    error("unstow_contents() called with non-directory target: $target")
+    # When called at the top level, $target should exist.  And
+    # unstow_node() should only call this via mutual recursion if
+    # $target exists.
+    error("unstow_contents() called with invalid target: $target")
         unless is_a_node($target);
 
     opendir my $DIR, $path
