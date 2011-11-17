@@ -21,7 +21,7 @@ sub reset_state {
     @::Conflicts      = ();
     %::Link_Task_For  = ();
     %::Dir_Task_For   = ();
-    %::Option         = ();
+    %::Option         = ( testmode => 1 );
     return;
 }
 
