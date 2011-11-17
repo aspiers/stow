@@ -272,6 +272,14 @@ ok(
     => 'ignore temp files'
 );
 
+#
+# Unstow an already unstowed package
+#
+
+unstow_contents('../stow/pkg12', '.');
+process_tasks();
+ok(scalar(@Conflicts) == 0);
+
 
 # Todo
 #
