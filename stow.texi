@@ -275,9 +275,17 @@ Note that the regular expression is anchored to the end of the filename,
 because this is what you will want to do most of the time.
 
 @item --defer='<regex>'
-This (repeatable) option lets you defer stowing a file matching the given 
-regular expression, if that file is already stowed by another package.  For
-example, the following options
+This (repeatable) option avoids stowing a file matching the given
+regular expression, if that file is already stowed by another package.
+This is effectively the opposite of @code{--override}.
+
+(N.B. the name @code{--defer} was chosen in the sense that the package
+currently being stowed is treated with lower precedence than any already
+installed package, not in the sense that the operation is being
+postponed to be run at a later point in time; do not confuse this
+nomenclature with the wording used in @xref{Deferred Operation}.)
+
+For example, the following options
 
 @example
 --defer='man' --defer='info'
