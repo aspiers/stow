@@ -7,7 +7,7 @@
 # load as a library
 BEGIN { use lib qw(.); require "t/util.pm"; require "stow"; }
 
-use Test::More tests => 14;
+use Test::More tests => 18;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -191,6 +191,7 @@ ok(
 # overriding already stowed documentation
 #
 reset_state();
+make_file('stow/.stow');
 $Stow_Path = '../stow';
 $Option{'override'} = ['man9', 'info9'];
 
@@ -264,10 +265,36 @@ ok(
 #
 # Unstow an already unstowed package
 #
-
+reset_state();
 unstow_contents('../stow/pkg12', '.');
-process_tasks();
-ok(scalar(@Conflicts) == 0);
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process when unstowing pkg12'
+);
+ok(
+    scalar(@Conflicts) == 0
+    => 'unstow already unstowed package pkg12'
+);
+
+#
+# Unstow a never stowed package
+#
+
+eval { remove_dir('t/target'); };
+mkdir('t/target');
+
+reset_state();
+unstow_contents('../stow/pkg12', '.');
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process when unstowing pkg12 which was never stowed'
+);
+ok(
+    scalar(@Conflicts) == 0
+    => 'unstow never stowed package pkg12'
+);
 
 
 # Todo
