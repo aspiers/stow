@@ -34,10 +34,11 @@ $ProgramName =~ s{.*/}{};
 
 # Verbosity rules:
 #
-#   0: errors only
-# > 0: print operations: LINK/UNLINK/MKDIR/RMDIR
-# > 1: print trace: stow/unstow package/contents/node
-# > 2: print trace detail: "_this_ already points to _that_"
+#    0: errors only
+# >= 1: print operations: LINK/UNLINK/MKDIR/RMDIR
+# >= 2: print trace: stow/unstow package/contents/node
+# >= 3: print trace detail: "_this_ already points to _that_"
+# >= 4: debug helper routines
 #
 # All output (except for version() and usage()) is to stderr to preserve
 # backward compatibility.
@@ -108,9 +109,7 @@ if ( not caller() ) {
         if (not -d join_paths($Stow_Path,$package)) {
             error("The given package name ($package) is not in your stow path");
         }
-        if ($Option{'verbose'} > 1) {
-            warn "Unstowing package $package...\n";
-        }
+        debug(2, "Unstowing package $package...");
         if ($Option{'compat'}) {
             unstow_contents_orig(
                 join_paths($Stow_Path,$package), # path to package
@@ -123,26 +122,20 @@ if ( not caller() ) {
                 '',                              # target is current_dir
             );
         }
-        if ($Option{'verbose'} > 1) {
-            warn "Unstowing package $package...done\n";
-        }
+        debug(2, "Unstowing package $package...done");
     }
 
     for my $package (@Pkgs_To_Stow) {
         if (not -d join_paths($Stow_Path,$package)) {
             error("The given package name ($package) is not in your stow path");
         }
-        if ($Option{'verbose'} > 1) {
-            warn "Stowing package $package...\n";
-        }
+        debug(2, "Stowing package $package...");
         stow_contents(
             join_paths($Stow_Path,$package), # path package
             '',                              # target is current dir
             join_paths($Stow_Path,$package), # source from target
         );
-        if ($Option{'verbose'} > 1) {
-            warn "Stowing package $package...done\n";
-        }
+        debug(2, "Stowing package $package...done");
     }
 
     # --verbose:   tell me what you are planning to do
@@ -265,6 +258,22 @@ sub process_options {
 }
 
 #===== SUBROUTINE ============================================================
+# Name      : debug()
+# Purpose   : log to STDERR based on verbosity setting
+# Parameters: $level => minimum verbosity level required to output this message
+#           : $msg => the message
+# Returns   : n/a
+# Throws    : no exceptions
+# Comments  : none
+#=============================================================================
+sub debug {
+    my ($level, $msg) = @_;
+    if ($Option{'verbose'} >= $level) {
+        warn "$msg\n";
+    }
+}
+
+#===== SUBROUTINE ============================================================
 # Name      : get_defaults()  
 # Purpose   : search for default settings in any .stow files
 # Parameters: none
@@ -384,10 +393,8 @@ sub set_stow_path {
     # set our one global
     $Stow_Path = File::Spec->abs2rel($stow_dir);
 
-    if ($Option{'verbose'} > 1) {
-        warn "current dir is ".getcwd()."\n";
-        warn "stow dir path is $Stow_Path\n"; 
-    }
+    debug(2, "current dir is " . getcwd());
+    debug(2, "stow dir path is $Stow_Path");
 }
 
 #===== SUBROUTINE ===========================================================
@@ -406,12 +413,8 @@ sub stow_contents {
 
     my ($path, $target, $source) = @_;
 
-    if ($Option{'verbose'} > 1){
-        warn "Stowing contents of $path\n";
-    }
-    if ($Option{'verbose'} > 2){
-        warn "--- $target => $source\n";
-    }
+    debug(2, "Stowing contents of $path");
+    debug(3, "--- $target => $source");
 
     if (not -d $path) {
         error("stow_contents() called on a non-directory: $path");
@@ -451,21 +454,15 @@ sub stow_node {
 
     my ($path, $target, $source) = @_;
 
-    if ($Option{'verbose'} > 1) {
-        warn "Stowing $path\n";
-    }
-    if ($Option{'verbose'} > 2) {
-        warn "--- $target => $source\n";
-    }
+    debug(2, "Stowing $path");
+    debug(3, "--- $target => $source");
 
     # don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
         my $second_source = read_a_link($source); 
         if ($second_source =~ m{\A/} ) {
             conflict("source is an absolute symlink $source => $second_source");
-            if ($Option{'verbose'} > 2) {
-                warn "absolute symlinks cannot be unstowed";
-            }
+            debug(3, "absolute symlinks cannot be unstowed");
             return;
         }
     }
@@ -478,9 +475,7 @@ sub stow_node {
         if (not $old_source) {
             error("Could not read link: $target");
         }
-        if ($Option{'verbose'} > 2) {
-            warn "--- Evaluate existing link: $target => $old_source\n";
-        }
+        debug(3, "--- Evaluate existing link: $target => $old_source");
 
         # does it point to a node under our stow directory?
         my $old_path = find_stowed_path($target, $old_source);
@@ -492,19 +487,13 @@ sub stow_node {
         # does the existing $target actually point to anything?
         if (is_a_node($old_path)) {
             if ($old_source eq $source) {
-                if ($Option{'verbose'} > 2) {
-                    warn "--- Skipping $target as it already points to $source\n";
-                }
+                debug(3, "--- Skipping $target as it already points to $source");
             }
             elsif (defer($target)) {
-                if ($Option{'verbose'} > 2) {
-                    warn "--- deferring installation of: $target\n";
-                }
+                debug(3, "--- deferring installation of: $target");
             }
             elsif (override($target)) {
-                if ($Option{'verbose'} > 2) {
-                    warn "--- overriding installation of: $target\n";
-                }
+                debug(3, "--- overriding installation of: $target");
                 do_unlink($target);
                 do_link($source,$target);
             }
@@ -515,9 +504,7 @@ sub stow_node {
                 # and the proposed new link points to a directory,
                 # then we can unfold the tree at that point
 
-                if ($Option{'verbose'} > 2){
-                    warn "--- Unfolding $target\n";
-                }
+                debug(3, "--- Unfolding $target");
                 do_unlink($target);
                 do_mkdir($target);
                 stow_contents($old_path, $target, join_paths('..',$old_source));
@@ -533,17 +520,13 @@ sub stow_node {
         }
         else {
             # the existing link is invalid, so replace it with a good link
-            if ($Option{'verbose'} > 2){
-                warn "--- replacing invalid link: $path\n";
-            }
+            debug(3, "--- replacing invalid link: $path");
             do_unlink($target);
             do_link($source, $target);
         }
     }
     elsif (is_a_node($target)) {
-        if ($Option{'verbose'} > 2) {
-            warn("--- Evaluate existing node: $target\n");
-        }
+        debug(3, "--- Evaluate existing node: $target");
         if (is_a_dir($target)) {
             stow_contents($path, $target, join_paths('..',$source));
         }
@@ -577,12 +560,8 @@ sub unstow_contents_orig {
     if ($target eq $Stow_Path or -e "$target/.stow" or -e "$target/.nonstow") {
         return;
     }
-    if ($Option{'verbose'} > 1){
-        warn "Unstowing in $target\n";
-    }
-    if ($Option{'verbose'} > 2){
-        warn "--- path is $path\n";
-    }
+    debug(2, "Unstowing in $target");
+    debug(3, "--- path is $path");
     if (not -d $target) {
         error("unstow_contents() called on a non-directory: $target");
     }
@@ -617,18 +596,12 @@ sub unstow_node_orig {
 
     my ($path, $target) = @_;
 
-    if ($Option{'verbose'} > 1) {
-        warn "Unstowing $target\n";
-    }
-    if ($Option{'verbose'} > 2) {
-        warn "--- path is $path\n";
-    }
+    debug(2, "Unstowing $target");
+    debug(3, "--- path is $path");
 
     # does the target exist
     if (is_a_link($target)) {
-        if ($Option{'verbose'} > 2) {
-            warn("Evaluate existing link: $target\n");
-        }
+        debug(3, "Evaluate existing link: $target");
 
         # where is the link pointing?
         my $old_source = read_a_link($target); 
@@ -650,17 +623,13 @@ sub unstow_node_orig {
                 do_unlink($target);
             }
             elsif (override($target)) {
-                if ($Option{'verbose'} > 2) {
-                    warn("--- overriding installation of: $target\n");
-                }
+                debug(3, "--- overriding installation of: $target");
                 do_unlink($target);
             }
             # else leave it alone
         }
         else {
-            if ($Option{'verbose'} > 2){
-                warn "--- removing invalid link into a stow directory: $path\n";
-            }
+            debug(3, "--- removing invalid link into a stow directory: $path");
             do_unlink($target);
         }
     }
@@ -693,12 +662,8 @@ sub unstow_contents {
     if ($target eq $Stow_Path or -e "$target/.stow") {
         return;
     }
-    if ($Option{'verbose'} > 1){
-        warn "Unstowing in $target\n";
-    }
-    if ($Option{'verbose'} > 2){
-        warn "--- path is $path\n";
-    }
+    debug(2, "Unstowing in $target");
+    debug(3, "--- path is $path");
     if (not -d $path) {
         error("unstow_contents() called on a non-directory: $path");
     }
@@ -736,18 +701,12 @@ sub unstow_node {
 
     my ($path, $target) = @_;
 
-    if ($Option{'verbose'} > 1) {
-        warn "Unstowing $path\n";
-    }
-    if ($Option{'verbose'} > 2) {
-        warn "--- target is $target\n";
-    }
+    debug(2, "Unstowing $path");
+    debug(3, "--- target is $target");
 
     # does the target exist
     if (is_a_link($target)) {
-        if ($Option{'verbose'} > 2) {
-            warn("Evaluate existing link: $target\n");
-        }
+        debug(3, "Evaluate existing link: $target");
 
         # where is the link pointing?
         my $old_source = read_a_link($target); 
@@ -780,14 +739,10 @@ sub unstow_node {
             # package.
 
             #elsif (defer($target)) {
-            #    if ($Option{'verbose'} > 2) {
-            #        warn("--- deferring to installation of: $target\n");
-            #    }
+            #    debug(3, "--- deferring to installation of: $target");
             #}
             #elsif (override($target)) {
-            #    if ($Option{'verbose'} > 2) {
-            #        warn("--- overriding installation of: $target\n");
-            #    }
+            #    debug(3, "--- overriding installation of: $target");
             #    do_unlink($target);
             #}
             #else {
@@ -799,16 +754,12 @@ sub unstow_node {
             #}
         }
         else {
-            if ($Option{'verbose'} > 2){
-                warn "--- removing invalid link into a stow directory: $path\n";
-            }
+            debug(3, "--- removing invalid link into a stow directory: $path");
             do_unlink($target);
         }
     }
     elsif (-e $target) {
-        if ($Option{'verbose'} > 2) {
-            warn("Evaluate existing node: $target\n");
-        }
+        debug(3, "Evaluate existing node: $target");
         if (-d $target) {
             unstow_contents($path, $target);
 
@@ -916,10 +867,8 @@ sub cleanup_invalid_links {
                 not -e join_paths($dir,$source) and  # bad link
                 find_stowed_path($node_path,$source) # owned by stow
             ){
-                if ($Option{'verbose'} > 2) {
-                    warn "--- removing stale link: $node_path => ",
-                          join_paths($dir,$source), "\n";
-                }
+                debug(3, "--- removing stale link: $node_path => " .
+                          join_paths($dir,$source));
                 do_unlink($node_path);
             }
         }
@@ -941,9 +890,7 @@ sub foldable {
 
     my ($target) = @_;
 
-    if ($Option{'verbose'} > 2){
-        warn "--- Is $target foldable?\n";
-    }
+    debug(3, "--- Is $target foldable?");
 
     opendir my $DIR, $target 
         or error(qq{Cannot read directory "$target" ($!)\n});
@@ -988,9 +935,7 @@ sub foldable {
 
     # if the resulting path is owned by stow, we can fold it
     if (find_stowed_path($target,$parent)) {
-        if ($Option{'verbose'} > 2){
-            warn "--- $target is foldable\n";
-        }
+        debug(3, "--- $target is foldable");
         return $parent;
     }
     else {
@@ -1011,9 +956,7 @@ sub fold_tree {
 
     my ($target,$source) = @_;
 
-    if ($Option{'verbose'} > 2){
-        warn "--- Folding tree: $target => $source\n";
-    }
+    debug(3, "--- Folding tree: $target => $source");
      
     opendir my $DIR, $target 
         or error(qq{Cannot read directory "$target" ($!)\n});
@@ -1046,10 +989,8 @@ sub conflict {
 
     my $message = sprintf($format, @args);
 
-    if ($Option{'verbose'}) {
-        warn qq{CONFLICT: $message\n};
-    }
-    push @Conflicts, qq{CONFLICT: $message\n};
+    debug(1, "CONFLICT: $message");
+    push @Conflicts, "CONFLICT: $message\n";
     return;
 }
 
@@ -1125,9 +1066,7 @@ sub override {
 #============================================================================
 sub process_tasks {
     
-    if ($Option{'verbose'} > 1) {
-        warn "Processing tasks...\n"
-    }
+    debug(2, "Processing tasks...");
 
     # strip out all tasks with a skip action
     @Tasks = grep { $_->{'action'} ne 'skip' } @Tasks;
@@ -1177,9 +1116,7 @@ sub process_tasks {
             internal_error(qq(bad task action: $task->{'action'}));
         }
     }
-    if ($Option{'verbose'} > 1) {
-        warn "Processing tasks...done\n"
-    }
+    debug(2, "Processing tasks...done");
     return;
 }
 
@@ -1410,18 +1347,14 @@ sub do_link {
                 )   
             }
             else {
-                if ($Option{'verbose'}) {
-                    warn "LINK: $newfile => $oldfile (duplicates previous action)\n";
-                }
+                debug(1, "LINK: $newfile => $oldfile (duplicates previous action)");
                 return;
             }
         }
         elsif ( $task_ref->{'action'} eq 'remove' ) {
             if ( $task_ref->{'source'} eq $oldfile ) {
                 # no need to remove a link we are going to recreate
-                if ($Option{'verbose'}) {
-                    warn "LINK: $newfile => $oldfile (reverts previous action)\n";
-                }
+                debug(1, "LINK: $newfile => $oldfile (reverts previous action)");
                 $Link_Task_For{$newfile}->{'action'} = 'skip';
                 delete $Link_Task_For{$newfile};
                 return;
@@ -1434,9 +1367,7 @@ sub do_link {
     }
 
     # creating a new link
-    if ($Option{'verbose'}) {
-        warn "LINK: $newfile => $oldfile\n";
-    }
+    debug(1, "LINK: $newfile => $oldfile");
     my $task = { 
         action  => 'create',
         type    => 'link',
@@ -1464,16 +1395,12 @@ sub do_unlink {
     if (exists $Link_Task_For{$file} ) {
         my $task_ref = $Link_Task_For{$file};
         if ( $task_ref->{'action'} eq 'remove' ) {
-            if ($Option{'verbose'}) {
-                warn "UNLINK: $file (duplicates previous action)\n";
-            }
+            debug(1, "UNLINK: $file (duplicates previous action)");
             return;
         }
         elsif ( $task_ref->{'action'} eq 'create' ) {
             # do need to create a link then remove it
-            if ($Option{'verbose'}) {
-                warn "UNLINK: $file (reverts previous action)\n";
-            }
+            debug(1, "UNLINK: $file (reverts previous action)");
             $Link_Task_For{$file}->{'action'} = 'skip';
             delete $Link_Task_For{$file};
             return;
@@ -1492,10 +1419,8 @@ sub do_unlink {
     }
 
     # remove the link
-    if ($Option{'verbose'}) {
-        #warn "UNLINK: $file (".(caller())[2].")\n";
-        warn "UNLINK: $file\n";
-    }
+    #debug(1, "UNLINK: $file (" . (caller())[2] . ")");
+    debug(1, "UNLINK: $file");
 
     my $source = readlink $file or error("could not readlink $file");
 
@@ -1548,15 +1473,11 @@ sub do_mkdir {
         my $task_ref = $Dir_Task_For{$dir};
 
         if ($task_ref->{'action'} eq 'create') {
-            if ($Option{'verbose'}) {
-                warn "MKDIR: $dir (duplicates previous action)\n";
-            }   
+            debug(1, "MKDIR: $dir (duplicates previous action)");
             return;
         }
         elsif ($task_ref->{'action'} eq 'remove') {
-            if ($Option{'verbose'}) {
-                warn "MKDIR: $dir (reverts previous action)\n";
-            }   
+            debug(1, "MKDIR: $dir (reverts previous action)");
             $Dir_Task_For{$dir}->{'action'} = 'skip';
             delete $Dir_Task_For{$dir};
             return;
@@ -1566,9 +1487,7 @@ sub do_mkdir {
         }   
     }
 
-    if ($Option{'verbose'}) {
-        warn "MKDIR: $dir\n";
-    }
+    debug(1, "MKDIR: $dir");
     my $task = { 
         action  => 'create',
         type    => 'dir',
@@ -1607,15 +1526,11 @@ sub do_rmdir {
         my $task_ref = $Link_Task_For{$dir};
 
         if ($task_ref->{'action'} eq 'remove' ) {
-            if ($Option{'verbose'}) {
-                warn "RMDIR $dir (duplicates previous action)\n";
-            }
+            debug(1, "RMDIR $dir (duplicates previous action)");
             return;
         }
         elsif ($task_ref->{'action'} eq 'create' ) {
-            if ($Option{'verbose'}) {
-                warn "MKDIR $dir (reverts previous action)\n";
-            }
+            debug(1, "MKDIR $dir (reverts previous action)");
             $Link_Task_For{$dir}->{'action'} = 'skip';
             delete $Link_Task_For{$dir};
             return;
@@ -1625,9 +1540,7 @@ sub do_rmdir {
         }
     }
 
-    if ($Option{'verbose'}) {
-        warn "RMDIR $dir\n";
-    }
+    debug(1, "RMDIR $dir");
     my $task = { 
         action  => 'remove',
         type    => 'dir',
