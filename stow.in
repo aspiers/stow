@@ -1667,5 +1667,6 @@ sub version {
 
 # Local variables:
 # mode: perl
-# End:
+# cperl-indent-level: 4
+# end:
 # vim: ft=perl
