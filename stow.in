@@ -298,7 +298,7 @@ sub get_defaults {
 #===== SUBROUTINE ===========================================================
 # Name      : usage()
 # Purpose   : print program usage message and exit
-# Parameters: msg => string to prepend to the usage message
+# Parameters: $msg => string to prepend to the usage message
 # Returns   : n/a 
 # Throws    : n/a
 # Comments  : if 'msg' is given, then exit with non-zero status
@@ -391,9 +391,9 @@ sub set_stow_path {
 #===== SUBROUTINE ===========================================================
 # Name      : stow_contents()
 # Purpose   : stow the contents of the given directory
-# Parameters: $path    => relative path to source dir from current directory
-#           : $source  => relative path to symlink source from the dir of target
-#           : $target  => relative path to symlink target from the current directory
+# Parameters: $path   => relative path to source dir from current directory
+#           : $target => relative path to symlink target from the current directory
+#           : $source => relative path to symlink source from the dir of target
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
 # Comments  : stow_node() and stow_contents() are mutually recursive
@@ -432,9 +432,9 @@ sub stow_contents {
 #===== SUBROUTINE ===========================================================
 # Name      : stow_node()
 # Purpose   : stow the given node 
-# Parameters: $path    => relative path to source node from the current directory
-#           : $target  => relative path to symlink target from the current directory
-#           : $source  => relative path to symlink source from the dir of target
+# Parameters: $path   => relative path to source node from the current directory
+#           : $target => relative path to symlink target from the current directory
+#           : $source => relative path to symlink source from the dir of target
 # Returns   : n/a
 # Throws    : fatal exception if a conflict arises
 # Comments  : stow_node() and stow_contents() are mutually recursive
@@ -535,8 +535,8 @@ sub stow_node {
 #===== SUBROUTINE ===========================================================
 # Name      : unstow_contents_orig()
 # Purpose   : unstow the contents of the given directory
-# Parameters: $path    => relative path to source dir from current directory
-#           : $target  => relative path to symlink target from the current directory
+# Parameters: $path   => relative path to source dir from current directory
+#           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
 # Comments  : unstow_node() and unstow_contents() are mutually recursive
@@ -576,8 +576,8 @@ sub unstow_contents_orig {
 #===== SUBROUTINE ===========================================================
 # Name      : unstow_node_orig()
 # Purpose   : unstow the given node 
-# Parameters: $path    => relative path to source node from the current directory
-#           : $target  => relative path to symlink target from the current directory
+# Parameters: $path   => relative path to source node from the current directory
+#           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
 # Comments  : unstow_node() and unstow_contents() are mutually recursive
@@ -636,8 +636,8 @@ sub unstow_node_orig {
 #===== SUBROUTINE ===========================================================
 # Name      : unstow_contents()
 # Purpose   : unstow the contents of the given directory
-# Parameters: $path    => relative path to source dir from current directory
-#           : $target  => relative path to symlink target from the current directory
+# Parameters: $path   => relative path to source dir from current directory
+#           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
 # Comments  : unstow_node() and unstow_contents() are mutually recursive
@@ -680,8 +680,8 @@ sub unstow_contents {
 #===== SUBROUTINE ===========================================================
 # Name      : unstow_node()
 # Purpose   : unstow the given node 
-# Parameters: $path    => relative path to source node from the current directory
-#           : $target  => relative path to symlink target from the current directory
+# Parameters: $path   => relative path to source node from the current directory
+#           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
 # Comments  : unstow_node() and unstow_contents() are mutually recursive
@@ -866,7 +866,7 @@ sub cleanup_invalid_links {
 #===== SUBROUTINE ===========================================================
 # Name      : foldable()
 # Purpose   : determine if a tree can be folded
-# Parameters: target => path to a directory
+# Parameters: $target => path to a directory
 # Returns   : path to the parent dir iff the tree can be safely folded
 # Throws    : n/a
 # Comments  : the path returned is relative to the parent of $target,
@@ -963,7 +963,8 @@ sub fold_tree {
 #===== SUBROUTINE ===========================================================
 # Name      : conflict()
 # Purpose   : handle conflicts in stow operations
-# Parameters: paths that conflict
+# Parameters: $format => message printf format
+#           : @args   => paths that conflict
 # Returns   : n/a
 # Throws    : fatal exception unless 'conflicts' option is set
 # Comments  : indicates what type of conflict it is
@@ -981,7 +982,7 @@ sub conflict {
 #===== SUBROUTINE ============================================================
 # Name      : ignore
 # Purpose   : determine if the given path matches a regex in our ignore list
-# Parameters: none
+# Parameters: $path
 # Returns   : Boolean
 # Throws    : no exceptions
 # Comments  : none
@@ -998,7 +999,7 @@ sub ignore {
 #===== SUBROUTINE ============================================================
 # Name      : defer
 # Purpose   : determine if the given path matches a regex in our defer list
-# Parameters: none
+# Parameters: $path
 # Returns   : Boolean
 # Throws    : no exceptions
 # Comments  : none
@@ -1015,7 +1016,7 @@ sub defer {
 #===== SUBROUTINE ============================================================
 # Name      : overide
 # Purpose   : determine if the given path matches a regex in our override list
-# Parameters: none
+# Parameters: $path
 # Returns   : Boolean
 # Throws    : no exceptions
 # Comments  : none
@@ -1103,7 +1104,7 @@ sub process_tasks {
 #===== SUBROUTINE ===========================================================
 # Name      : is_a_link()
 # Purpose   : is the given path a current or planned link
-# Parameters: none
+# Parameters: $path
 # Returns   : Boolean
 # Throws    : none
 # Comments  : returns false if an existing link is scheduled for removal
@@ -1146,7 +1147,7 @@ sub is_a_link {
 #===== SUBROUTINE ===========================================================
 # Name      : is_a_dir()
 # Purpose   : is the given path a current or planned directory
-# Parameters: none
+# Parameters: $path
 # Returns   : Boolean
 # Throws    : none
 # Comments  : returns false if an existing directory is scheduled for removal
@@ -1188,7 +1189,7 @@ sub is_a_dir {
 #===== SUBROUTINE ===========================================================
 # Name      : is_a_node()
 # Purpose   : is the given path a current or planned node
-# Parameters: none
+# Parameters: $path
 # Returns   : Boolean
 # Throws    : none
 # Comments  : returns false if an existing node is scheduled for removal
@@ -1279,7 +1280,8 @@ sub read_a_link {
 #===== SUBROUTINE ===========================================================
 # Name      : do_link()
 # Purpose   : wrap 'link' operation for later processing
-# Parameters: file => the file to link
+# Parameters: $oldfile => the existing file to link to
+#           : $newfile => the file to link
 # Returns   : n/a
 # Throws    : error if this clashes with an existing planned operation 
 # Comments  : cleans up operations that undo previous operations
