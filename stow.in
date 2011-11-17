@@ -545,7 +545,7 @@ sub stow_node {
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
-# Comments  : unstow_node() and unstow_contents() are mutually recursive
+# Comments  : unstow_node_orig() and unstow_contents_orig() are mutually recursive
 #           : Here we traverse the target tree, rather than the source tree.
 #============================================================================
 sub unstow_contents_orig {
@@ -649,7 +649,7 @@ sub unstow_node_orig {
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
 # Comments  : unstow_node() and unstow_contents() are mutually recursive
-#           : Here we traverse the target tree, rather than the source tree.
+#           : Here we traverse the source tree, rather than the target tree.
 #============================================================================
 sub unstow_contents {
     my ($path, $target) = @_;
