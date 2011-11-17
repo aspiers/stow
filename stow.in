@@ -553,6 +553,7 @@ sub unstow_contents_orig {
 
     #  don't try to remove anything under a stow directory
     if ($target eq $Stow_Path or -e "$target/.stow" or -e "$target/.nonstow") {
+        debug(2, "Not unstowing from protected directory $target (compat mode)");
         return;
     }
     my $cwd = getcwd();
@@ -659,6 +660,7 @@ sub unstow_contents {
 
     #  don't try to remove anything under a stow directory
     if ($target eq $Stow_Path or -e "$target/.stow") {
+        debug(2, "Not unstowing from protected directory $target");
         return;
     }
     my $cwd = getcwd();
