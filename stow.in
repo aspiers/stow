@@ -122,7 +122,7 @@ if (not caller()) {
                 '',                              # target is current_dir
             );
         }
-        debug(2, "Unstowing package $package...done");
+        debug(2, "Unstowing package $package... done");
     }
 
     for my $package (@Pkgs_To_Stow) {
@@ -135,7 +135,7 @@ if (not caller()) {
             '',                              # target is current dir
             join_paths($Stow_Path, $package), # source from target
         );
-        debug(2, "Stowing package $package...done");
+        debug(2, "Stowing package $package... done");
     }
 
     # --verbose:   tell me what you are planning to do
@@ -385,7 +385,7 @@ sub set_stow_path {
     $Stow_Path = File::Spec->abs2rel($stow_dir);
 
     debug(2, "current dir is " . getcwd());
-    debug(2, "stow dir path is $Stow_Path");
+    debug(2, "stow dir path relative to cwd is $Stow_Path");
 }
 
 #===== SUBROUTINE ===========================================================
@@ -403,7 +403,8 @@ sub set_stow_path {
 sub stow_contents {
     my ($path, $target, $source) = @_;
 
-    debug(2, "Stowing contents of $path");
+    my $cwd = getcwd();
+    debug(2, "Stowing contents of $path (cwd is $cwd)");
     debug(3, "--- $target => $source");
 
     if (not -d $path) {
@@ -443,7 +444,7 @@ sub stow_contents {
 sub stow_node {
     my ($path, $target, $source) = @_;
 
-    debug(2, "Stowing $path");
+    debug(2, "Stowing from $path");
     debug(3, "--- $target => $source");
 
     # don't try to stow absolute symlinks (they can't be unstowed)
@@ -548,8 +549,9 @@ sub unstow_contents_orig {
     if ($target eq $Stow_Path or -e "$target/.stow" or -e "$target/.nonstow") {
         return;
     }
-    debug(2, "Unstowing in $target");
-    debug(3, "--- path is $path");
+    my $cwd = getcwd();
+    debug(2, "Unstowing from $target (compat mode, cwd is $cwd)");
+    debug(3, "--- source path is $path");
     if (not -d $target) {
         error("unstow_contents() called on a non-directory: $target");
     }
@@ -583,8 +585,8 @@ sub unstow_contents_orig {
 sub unstow_node_orig {
     my ($path, $target) = @_;
 
-    debug(2, "Unstowing $target");
-    debug(3, "--- path is $path");
+    debug(2, "Unstowing $target (compat mode)");
+    debug(3, "--- source path is $path");
 
     # does the target exist
     if (is_a_link($target)) {
@@ -648,8 +650,9 @@ sub unstow_contents {
     if ($target eq $Stow_Path or -e "$target/.stow") {
         return;
     }
-    debug(2, "Unstowing in $target");
-    debug(3, "--- path is $path");
+    my $cwd = getcwd();
+    debug(2, "Unstowing from $target (cwd is $cwd)");
+    debug(3, "--- source path is $path");
     if (not -d $path) {
         error("unstow_contents() called on a non-directory: $path");
     }
@@ -1093,7 +1096,7 @@ sub process_tasks {
             internal_error(qq(bad task action: $task->{'action'}));
         }
     }
-    debug(2, "Processing tasks...done");
+    debug(2, "Processing tasks... done");
     return;
 }
 
