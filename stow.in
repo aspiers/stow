@@ -170,15 +170,9 @@ sub process_options {
 
     Getopt::Long::config('no_ignore_case', 'bundling', 'permute');
     GetOptions(
-        'v'              => sub { $Option{'verbose'}++            },
-        'verbose:i'      => sub { $Option{'verbose'}+= $_[1] || 1 },
-        'h|help'         => sub { $Option{'help'}         = '1'   },
-        'n|no|simulate'  => sub { $Option{'simulate'}     = '1'   },
-        'c|conflicts'    => sub { $Option{'conflicts'}    = '1'   },
-        'V|version'      => sub { $Option{'version'}      = '1'   },
-        'p|compat'       => sub { $Option{'compat'}       = '1'   },
-        'd|dir=s'        => sub { $Option{'dir'}          = $_[1] },
-        't|target=s'     => sub { $Option{'target'}       = $_[1] },
+        \%Option,
+        'verbose|v:+', 'help|h', 'simulate|n|no', 'conflicts|c',
+        'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
 
         # clean and pre-compile any regex's at parse time
         'ignore=s' => 
