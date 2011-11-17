@@ -554,17 +554,21 @@ un-populatable symlink.
 For complex packages, scanning the stow and target trees in tandem, and
 deciding whether to make directories or links, split-open or fold directories,
 can actually take a long time (a number of seconds).  Moreover, an accurate 
-analysis of potential conflicts, requires us to take in to account all of
+analysis of potential conflicts requires us to take into account all of
 these operations.
 
-Accidentally stowing a package that will result in a conflict ...
-FIXME - doesn't look like this section was ever finished.
+Since version 2.0, Stow now adopts a two-phase algorithm, first scanning
+for any potential conflicts before any stowing or unstowing operations
+are performed.  This means that there is much less risk of a package
+being partially stowed or unstowed due to conflicts.  Prior to version
+2.0, if a conflict was discovered, the stow or unstow operation could be
+aborted mid-flow, leaving the target tree in an inconsistent state.
 
 @c ===========================================================================
 @node Mixing Operations, Multiple Stow Directories, Deferred Operation, Top
 @chapter Mixing Operations
 
-Since Version 2.0, multiple distinct actions can be specified in a single
+Since version 2.0, multiple distinct actions can be specified in a single
 invocation of GNU Stow.  For example, to update an installation of Emacs from
 version 21.3 to 21.4a you can now do the following:
 
@@ -576,9 +580,10 @@ stow -D emacs-21.3 -S emacs-21.4a
 which will replace emacs-21.3 with emacs-21.4a using a single invocation. 
 
 This is much faster and cleaner than performing two separate invocations of
-stow, because redundant folding/unfolding operations can be factored out.
-In addition, all the operations are calculated and merged before being executed
-@pxref{Deferred Operation}, so the amount of of time in which GNU Emacs is unavailable is minimised.
+stow, because redundant folding/unfolding operations can be factored out.  In
+addition, all the operations are calculated and merged before being executed
+@pxref{Deferred Operation}, so the amount of of time in which GNU Emacs is
+unavailable is minimised.
 
 You can mix and match any number of actions, for example, 
 
