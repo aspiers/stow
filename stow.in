@@ -113,13 +113,13 @@ if (not caller()) {
         if ($Option{'compat'}) {
             unstow_contents_orig(
                 join_paths($Stow_Path, $package), # path to package
-                '',                              # target is current_dir
+                '.',                              # target is current_dir
             );
         }
         else {
             unstow_contents(
                 join_paths($Stow_Path, $package), # path to package
-                '',                              # target is current_dir
+                '.',                              # target is current_dir
             );
         }
         debug(2, "Unstowing package $package... done");
@@ -132,7 +132,7 @@ if (not caller()) {
         debug(2, "Stowing package $package...");
         stow_contents(
             join_paths($Stow_Path, $package), # path package
-            '',                              # target is current dir
+            '.',                              # target is current dir
             join_paths($Stow_Path, $package), # source from target
         );
         debug(2, "Stowing package $package... done");
@@ -407,9 +407,10 @@ sub stow_contents {
     debug(2, "Stowing contents of $path (cwd is $cwd)");
     debug(3, "--- $target => $source");
 
-    if (not -d $path) {
-        error("stow_contents() called on a non-directory: $path");
-    }
+    error("stow_contents() called with non-directory path: $path")
+        unless -d $path;
+    error("stow_contents() called with non-directory target: $target")
+        unless is_a_node($target);
 
     opendir my $DIR, $path 
         or error("cannot read directory: $path");
@@ -552,9 +553,11 @@ sub unstow_contents_orig {
     my $cwd = getcwd();
     debug(2, "Unstowing from $target (compat mode, cwd is $cwd)");
     debug(3, "--- source path is $path");
-    if (not -d $target) {
-        error("unstow_contents() called on a non-directory: $target");
-    }
+    # In compat mode we traverse the target tree not the source tree,
+    # so we're unstowing the contents of /target/foo, there's no
+    # guarantee that the corresponding /stow/mypkg/foo exists.
+    error("unstow_contents_orig() called with non-directory target: $target")
+        unless -d $target;
 
     opendir my $DIR, $target
         or error("cannot read directory: $target");
@@ -653,9 +656,11 @@ sub unstow_contents {
     my $cwd = getcwd();
     debug(2, "Unstowing from $target (cwd is $cwd)");
     debug(3, "--- source path is $path");
-    if (not -d $path) {
-        error("unstow_contents() called on a non-directory: $path");
-    }
+    # We traverse the source tree not the target tree, 
+    error("unstow_contents() called with non-directory path: $path")
+        unless -d $path;
+    error("unstow_contents() called with non-directory target: $target")
+        unless is_a_node($target);
 
     opendir my $DIR, $path
         or error("cannot read directory: $path");

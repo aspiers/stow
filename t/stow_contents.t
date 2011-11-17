@@ -57,7 +57,7 @@ $Option{'verbose'} = 0;
 make_dir('../stow/pkg2/lib2');
 make_file('../stow/pkg2/lib2/file2');
 make_dir('lib2');
-stow_contents('../stow/pkg2', './', '../stow/pkg2');
+stow_contents('../stow/pkg2', '.', '../stow/pkg2');
 process_tasks();
 is( 
     readlink('lib2/file2'),
