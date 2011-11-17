@@ -1109,6 +1109,81 @@ sub process_tasks {
 }
 
 #===== SUBROUTINE ===========================================================
+# Name      : link_task_action()
+# Purpose   : finds the link task action for the given path, if there is one
+# Parameters: $path
+# Returns   : 'remove', 'create', or '' if there is no action
+# Throws    : a fatal exception if an invalid action is found
+# Comments  : none
+#============================================================================
+sub link_task_action {
+    my ($path) = @_;
+
+    if (! exists $Link_Task_For{$path}) {
+        debug(4, "  link_task_action($path): no task");
+        return '';
+    }
+
+    my $action = $Link_Task_For{$path}->{'action'};
+    internal_error("bad task action: $action")
+        unless $action eq 'remove' or $action eq 'create';
+
+    debug(4, "  link_task_action($path): link task exists with action $action");
+    return $action;
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : dir_task_action()
+# Purpose   : finds the dir task action for the given path, if there is one
+# Parameters: $path
+# Returns   : 'remove', 'create', or '' if there is no action
+# Throws    : a fatal exception if an invalid action is found
+# Comments  : none
+#============================================================================
+sub dir_task_action {
+    my ($path) = @_;
+
+    if (! exists $Dir_Task_For{$path}) {
+        debug(4, "  dir_task_action($path): no task");
+        return '';
+    }
+
+    my $action = $Dir_Task_For{$path}->{'action'};
+    internal_error("bad task action: $action")
+        unless $action eq 'remove' or $action eq 'create';
+
+    debug(4, "  dir_task_action($path): dir task exists with action $action");
+    return $action;
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : parent_link_scheduled_for_removal()
+# Purpose   : determines whether the given path or any parent thereof
+#           : is a link scheduled for removal
+# Parameters: $path
+# Returns   : Boolean
+# Throws    : none
+# Comments  : none
+#============================================================================
+sub parent_link_scheduled_for_removal {
+    my ($path) = @_;
+
+    my $prefix = '';
+    for my $part (split m{/+}, $path) {
+        $prefix = join_paths($prefix, $part);
+        debug(4, "    parent_link_scheduled_for_removal($path): prefix $prefix");
+        if (exists $Link_Task_For{$prefix} and
+             $Link_Task_For{$prefix}->{'action'} eq 'remove') {
+            debug(4, "    parent_link_scheduled_for_removal($path): link scheduled for removal");
+            return 1;
+        }
+    }
+
+    debug(4, "    parent_link_scheduled_for_removal($path): returning false");
+    return 0;
+}
+
+#===== SUBROUTINE ===========================================================
 # Name      : is_a_link()
 # Purpose   : is the given path a current or planned link
 # Parameters: $path
@@ -1121,39 +1196,25 @@ sub is_a_link {
     my ($path) = @_;
     debug(4, "  is_a_link($path)");
 
-    if (exists $Link_Task_For{$path}) {
-        my $action = $Link_Task_For{$path}->{'action'}; 
-        debug(4, "is_a_link($path): task exists with action $action");
-
+    if (my $action = link_task_action($path)) {
         if ($action eq 'remove') {
             return 0;
         }
         elsif ($action eq 'create') {
             return 1;
         }
-        else {
-            internal_error("bad task action: $action");
-        }
     }
-    elsif (-l $path) {
+
+    if (-l $path) {
         # check if any of its parent are links scheduled for removal
         # (need this for edge case during unfolding)
-        debug(4, "is_a_link($path): is a real link");
-        my $parent = '';
-        for my $part (split m{/+}, $path) {
-            $parent = join_paths($parent, $part);
-            if (exists $Link_Task_For{$parent}) {
-                if ($Link_Task_For{$parent}->{'action'} eq 'remove') {
-                    return 0;
-                }
-            }
-        }
-        return 1;
+        debug(4, "  is_a_link($path): is a real link");
+        return parent_link_scheduled_for_removal($path) ? 0 : 1;
     }
-    debug(4, "is_a_link($path): returning false");
+
+    debug(4, "  is_a_link($path): returning false");
     return 0;
 }
-
 
 #===== SUBROUTINE ===========================================================
 # Name      : is_a_dir()
@@ -1169,35 +1230,23 @@ sub is_a_dir {
     my ($path) = @_;
     debug(4, "  is_a_dir($path)");
 
-    if (exists $Dir_Task_For{$path}) {
-        my $action = $Dir_Task_For{$path}->{'action'}; 
-        debug(4, "is_a_dir($path): task exists with action $action");
+    if (my $action = dir_task_action($path)) {
         if ($action eq 'remove') {
             return 0;
         }
         elsif ($action eq 'create') {
             return 1;
         }
-        else {
-            internal_error("bad task action: $action");
-        }
     }
 
-    # are we really following a link that is scheduled for removal
-    my $prefix = '';
-    for my $part (split m{/+}, $path) {
-        $prefix = join_paths($prefix, $part);
-        if (exists $Link_Task_For{$prefix} and
-            $Link_Task_For{$prefix}->{'action'} eq 'remove') {
-            return 0;
-        }
-    }
+    return 0 if parent_link_scheduled_for_removal($path);
 
     if (-d $path) {
-        debug(4, "is_a_dir($path): real dir");
+        debug(4, "  is_a_dir($path): real dir");
         return 1;
     }
-    debug(4, "is_a_dir($path): returning false");
+
+    debug(4, "  is_a_dir($path): returning false");
     return 0;
 }
 
@@ -1215,51 +1264,60 @@ sub is_a_node {
     my ($path) = @_;
     debug(4, "  is_a_node($path)");
 
-    if (exists $Link_Task_For{$path}) {
-        my $action = $Link_Task_For{$path}->{'action'}; 
-        debug(4, "is_a_node($path): link task exists with action $action");
-        if ($action eq 'remove') {
+    my $laction = link_task_action($path);
+    my $daction = dir_task_action($path);
+
+    if ($laction eq 'remove') {
+        if ($daction eq 'remove') {
+            internal_error("removing link and dir: $path");
             return 0;
         }
-        elsif ($action eq 'create') {
+        elsif ($daction eq 'create') {
+            # Assume that we're unfolding $path, and that the link
+            # removal action is earlier than the dir creation action
+            # in the task queue.  FIXME: is this a safe assumption?
             return 1;
         }
-        else {
-            internal_error("bad task action: $action");
+        else { # no dir action
+            return 0;
+        }
+    }
+    elsif ($laction eq 'create') {
+        if ($daction eq 'remove') {
+            # Assume that we're folding $path, and that the dir
+            # removal action is earlier than the link creation action
+            # in the task queue.  FIXME: is this a safe assumption?
+            return 1;
+        }
+        elsif ($daction eq 'create') {
+            internal_error("creating link and dir: $path");
+            return 1;
+        }
+        else { # no dir action
+            return 1;
+        }
+    }
+    else {
+        # No link action
+        if ($daction eq 'remove') {
+            return 0;
+        }
+        elsif ($daction eq 'create') {
+            return 1;
+        }
+        else { # no dir action
+            # fall through to below
         }
     }
 
-    if (exists $Dir_Task_For{$path}) {
-        my $action = $Dir_Task_For{$path}->{'action'}; 
-        debug(4, "is_a_node($path): dir task exists with action $action");
-        if ($action eq 'remove') {
-            return 0;
-        }
-        elsif ($action eq 'create') {
-            return 1;
-        }
-        else {
-            internal_error("bad task action: $action");
-        }
-    }
-    
-    # are we really following a link that is scheduled for removal
-    my $prefix = '';
-    for my $part (split m{/+}, $path) {
-        $prefix = join_paths($prefix, $part);
-        debug(4, "is_a_node($path): prefix $prefix");
-        if (exists $Link_Task_For{$prefix} and
-             $Link_Task_For{$prefix}->{'action'} eq 'remove') {
-            debug(4, "is_a_node($path): link scheduled for removal");
-            return 0;
-        }
-    }
+    return 0 if parent_link_scheduled_for_removal($path);
 
     if (-e $path) {
-        debug(4, "is_a_node($path): really exists");
+        debug(4, "  is_a_node($path): really exists");
         return 1;
     }
-    debug(4, "is_a_node($path): returning false");
+
+    debug(4, "  is_a_node($path): returning false");
     return 0;
 }
 
@@ -1275,9 +1333,8 @@ sub is_a_node {
 sub read_a_link {
     my ($path) = @_;
 
-    if (exists $Link_Task_For{$path}) {
-        my $action = $Link_Task_For{$path}->{'action'}; 
-        debug(4, "read_a_link($path): task exists with action $action");
+    if (my $action = link_task_action($path)) {
+        debug(4, "  read_a_link($path): task exists with action $action");
 
         if ($action eq 'create') {
             return $Link_Task_For{$path}->{'source'};
@@ -1287,12 +1344,9 @@ sub read_a_link {
                 "read_a_link() passed a path that is scheduled for removal: $path"
             );
         }
-        else {
-            internal_error("bad task action: $action");
-        }
     }
     elsif (-l $path) {
-        debug(4, "read_a_link($path): real link");
+        debug(4, "  read_a_link($path): real link");
         return readlink $path
             or error("Could not read link: $path");
     }
