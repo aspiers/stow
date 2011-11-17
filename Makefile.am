@@ -2,7 +2,6 @@
 
 bin_SCRIPTS = stow chkstow
 info_TEXINFOS = stow.texi
-man8_MANS = stow.8
 dist_man_MANS = stow.8
 dist_doc_DATA = README
 
