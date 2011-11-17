@@ -94,7 +94,9 @@ our %Dir_Task_For = ();
 # directory task associated with it.
 our %Link_Task_For = ();
 
-# NB: directory tasks and link tasks are NOT mutually exclusive
+# N.B.: directory tasks and link tasks are NOT mutually exclusive due
+# to tree splitting (which involves a remove link task followed by
+# a create directory task).
 
 # put the main loop in this block so we can load the 
 # rest of the code as a module for testing
@@ -493,7 +495,7 @@ sub stow_node {
 
                 # if the existing link points to a directory,
                 # and the proposed new link points to a directory,
-                # then we can unfold the tree at that point
+                # then we can unfold (split open) the tree at that point
 
                 debug(3, "--- Unfolding $target");
                 do_unlink($target);
