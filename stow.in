@@ -1112,9 +1112,11 @@ sub process_tasks {
 #============================================================================
 sub is_a_link {
     my ($path) = @_;
+    debug(4, "  is_a_link($path)");
 
     if (exists $Link_Task_For{$path}) {
         my $action = $Link_Task_For{$path}->{'action'}; 
+        debug(4, "is_a_link($path): task exists with action $action");
 
         if ($action eq 'remove') {
             return 0;
@@ -1129,6 +1131,7 @@ sub is_a_link {
     elsif (-l $path) {
         # check if any of its parent are links scheduled for removal
         # (need this for edge case during unfolding)
+        debug(4, "is_a_link($path): is a real link");
         my $parent = '';
         for my $part (split m{/+}, $path) {
             $parent = join_paths($parent, $part);
@@ -1140,6 +1143,7 @@ sub is_a_link {
         }
         return 1;
     }
+    debug(4, "is_a_link($path): returning false");
     return 0;
 }
 
@@ -1156,9 +1160,11 @@ sub is_a_link {
 #============================================================================
 sub is_a_dir {
     my ($path) = @_;
+    debug(4, "  is_a_dir($path)");
 
     if (exists $Dir_Task_For{$path}) {
         my $action = $Dir_Task_For{$path}->{'action'}; 
+        debug(4, "is_a_dir($path): task exists with action $action");
         if ($action eq 'remove') {
             return 0;
         }
@@ -1181,8 +1187,10 @@ sub is_a_dir {
     }
 
     if (-d $path) {
+        debug(4, "is_a_dir($path): real dir");
         return 1;
     }
+    debug(4, "is_a_dir($path): returning false");
     return 0;
 }
 
@@ -1198,10 +1206,11 @@ sub is_a_dir {
 #============================================================================
 sub is_a_node {
     my ($path) = @_;
+    debug(4, "  is_a_node($path)");
 
     if (exists $Link_Task_For{$path}) {
         my $action = $Link_Task_For{$path}->{'action'}; 
-
+        debug(4, "is_a_node($path): link task exists with action $action");
         if ($action eq 'remove') {
             return 0;
         }
@@ -1215,7 +1224,7 @@ sub is_a_node {
 
     if (exists $Dir_Task_For{$path}) {
         my $action = $Dir_Task_For{$path}->{'action'}; 
-
+        debug(4, "is_a_node($path): dir task exists with action $action");
         if ($action eq 'remove') {
             return 0;
         }
@@ -1230,16 +1239,20 @@ sub is_a_node {
     # are we really following a link that is scheduled for removal
     my $prefix = '';
     for my $part (split m{/+}, $path) {
-        $prefix =  join_paths($prefix, $part);
+        $prefix = join_paths($prefix, $part);
+        debug(4, "is_a_node($path): prefix $prefix");
         if (exists $Link_Task_For{$prefix} and
              $Link_Task_For{$prefix}->{'action'} eq 'remove') {
+            debug(4, "is_a_node($path): link scheduled for removal");
             return 0;
         }
     }
 
     if (-e $path) {
+        debug(4, "is_a_node($path): really exists");
         return 1;
     }
+    debug(4, "is_a_node($path): returning false");
     return 0;
 }
 
@@ -1257,6 +1270,7 @@ sub read_a_link {
 
     if (exists $Link_Task_For{$path}) {
         my $action = $Link_Task_For{$path}->{'action'}; 
+        debug(4, "read_a_link($path): task exists with action $action");
 
         if ($action eq 'create') {
             return $Link_Task_For{$path}->{'source'};
@@ -1271,6 +1285,7 @@ sub read_a_link {
         }
     }
     elsif (-l $path) {
+        debug(4, "read_a_link($path): real link");
         return readlink $path
             or error("Could not read link: $path");
     }
