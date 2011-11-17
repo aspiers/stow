@@ -98,7 +98,7 @@ our %Link_Task_For = ();
 
 # put the main loop in this block so we can load the 
 # rest of the code as a module for testing
-if ( not caller() ) {
+if (not caller()) {
 
     process_options();
     set_stow_path();
@@ -106,19 +106,19 @@ if ( not caller() ) {
     # current dir is now the target directory
     
     for my $package (@Pkgs_To_Delete) {
-        if (not -d join_paths($Stow_Path,$package)) {
+        if (not -d join_paths($Stow_Path, $package)) {
             error("The given package name ($package) is not in your stow path");
         }
         debug(2, "Unstowing package $package...");
         if ($Option{'compat'}) {
             unstow_contents_orig(
-                join_paths($Stow_Path,$package), # path to package
+                join_paths($Stow_Path, $package), # path to package
                 '',                              # target is current_dir
             );
         }
         else {
             unstow_contents(
-                join_paths($Stow_Path,$package), # path to package
+                join_paths($Stow_Path, $package), # path to package
                 '',                              # target is current_dir
             );
         }
@@ -126,14 +126,14 @@ if ( not caller() ) {
     }
 
     for my $package (@Pkgs_To_Stow) {
-        if (not -d join_paths($Stow_Path,$package)) {
+        if (not -d join_paths($Stow_Path, $package)) {
             error("The given package name ($package) is not in your stow path");
         }
         debug(2, "Stowing package $package...");
         stow_contents(
-            join_paths($Stow_Path,$package), # path package
+            join_paths($Stow_Path, $package), # path package
             '',                              # target is current dir
-            join_paths($Stow_Path,$package), # source from target
+            join_paths($Stow_Path, $package), # source from target
         );
         debug(2, "Stowing package $package...done");
     }
@@ -164,7 +164,6 @@ if ( not caller() ) {
 # Comments  : checks @ARGV for valid package names
 #============================================================================
 sub process_options {
-
     get_defaults();
     #$,="\n"; print @ARGV,"\n"; # for debugging rc file
 
@@ -236,14 +235,14 @@ sub process_options {
         $Option{'simulate'} = 1;
     }
 
-    if (not scalar @Pkgs_To_Stow and not scalar @Pkgs_To_Delete ) {
+    if (not scalar @Pkgs_To_Stow and not scalar @Pkgs_To_Delete) {
         usage("No packages named");
     }
 
     # check package arguments
-    for my $package ( (@Pkgs_To_Stow, @Pkgs_To_Delete) ) {
+    for my $package ((@Pkgs_To_Stow, @Pkgs_To_Delete)) {
         $package =~ s{/+$}{};    # delete trailing slashes
-        if ( $package =~ m{/} ) {
+        if ($package =~ m{/}) {
             error("Slashes are not permitted in package names");
         }
     }
@@ -278,14 +277,13 @@ sub debug {
 #           : hacked in so that Emil and I could set different preferences).
 #=============================================================================
 sub get_defaults {
-
     my @defaults = ();
-    for my $file ($ENV{'HOME'}.'/.stowrc','.stowrc') {
-        if (-r $file ) {
+    for my $file ($ENV{'HOME'}.'/.stowrc', '.stowrc') {
+        if (-r $file) {
             warn "Loading defaults from $file\n";
             open my $FILE, '<', $file 
                 or die "Could not open $file for reading\n";
-            while (my $line = <$FILE> ){
+            while (my $line = <$FILE>){
                 chomp $line;
                 push @defaults, split " ", $line;
             }
@@ -341,7 +339,7 @@ OPTIONS:
     -V, --version         Show stow version number
     -h, --help            Show this help
 EOT
-    exit( $msg ? 1 : 0 );
+    exit $msg ? 1 : 0;
 }
 
 #===== SUBROUTINE ===========================================================
@@ -354,7 +352,6 @@ EOT
 # Comments  : This sets the current working directory to $Option{target}
 #============================================================================
 sub set_stow_path {
-
     # Changing dirs helps a lot when soft links are used
     # Also prevents problems when 'stow_dir' or 'target' are 
     # supplied as relative paths (FIXME: examples?)
@@ -363,7 +360,7 @@ sub set_stow_path {
 
     # default stow dir is $STOW_DIR if set, otherwise the current
     # directory
-    if (not $Option{'dir'} ) {
+    if (not $Option{'dir'}) {
         $Option{'dir'} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
     if (not chdir($Option{'dir'})) {
@@ -404,7 +401,6 @@ sub set_stow_path {
 #           : $path is used for folding/unfolding trees as necessary
 #============================================================================
 sub stow_contents {
-
     my ($path, $target, $source) = @_;
 
     debug(2, "Stowing contents of $path");
@@ -425,9 +421,9 @@ sub stow_contents {
         next NODE if $node eq '..';
         next NODE if ignore($node);
         stow_node(
-            join_paths($path,  $node),   # path 
-            join_paths($target,$node),   # target
-            join_paths($source,$node),   # source
+            join_paths($path,   $node),   # path
+            join_paths($target, $node),   # target
+            join_paths($source, $node),   # source
         );
     }
 }
@@ -445,7 +441,6 @@ sub stow_contents {
 #           : $path is used for folding/unfolding trees as necessary
 #============================================================================
 sub stow_node {
-
     my ($path, $target, $source) = @_;
 
     debug(2, "Stowing $path");
@@ -454,7 +449,7 @@ sub stow_node {
     # don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
         my $second_source = read_a_link($source); 
-        if ($second_source =~ m{\A/} ) {
+        if ($second_source =~ m{\A/}) {
             conflict("source is an absolute symlink $source => $second_source");
             debug(3, "absolute symlinks cannot be unstowed");
             return;
@@ -489,10 +484,10 @@ sub stow_node {
             elsif (override($target)) {
                 debug(3, "--- overriding installation of: $target");
                 do_unlink($target);
-                do_link($source,$target);
+                do_link($source, $target);
             }
-            elsif (is_a_dir(join_paths(parent($target),$old_source)) && 
-                   is_a_dir(join_paths(parent($target),$source))     ) {
+            elsif (is_a_dir(join_paths(parent($target), $old_source)) &&
+                   is_a_dir(join_paths(parent($target), $source))     ) {
 
                 # if the existing link points to a directory,
                 # and the proposed new link points to a directory,
@@ -501,8 +496,8 @@ sub stow_node {
                 debug(3, "--- Unfolding $target");
                 do_unlink($target);
                 do_mkdir($target);
-                stow_contents($old_path, $target, join_paths('..',$old_source));
-                stow_contents($path,     $target, join_paths('..',$source));
+                stow_contents($old_path, $target, join_paths('..', $old_source));
+                stow_contents($path,     $target, join_paths('..', $source));
             }
             else {
                 conflict(
@@ -522,7 +517,7 @@ sub stow_node {
     elsif (is_a_node($target)) {
         debug(3, "--- Evaluate existing node: $target");
         if (is_a_dir($target)) {
-            stow_contents($path, $target, join_paths('..',$source));
+            stow_contents($path, $target, join_paths('..', $source));
         }
         else {
             conflict(
@@ -547,7 +542,6 @@ sub stow_node {
 #           : Here we traverse the target tree, rather than the source tree.
 #============================================================================
 sub unstow_contents_orig {
-
     my ($path, $target) = @_;
 
     #  don't try to remove anything under a stow directory
@@ -587,7 +581,6 @@ sub unstow_contents_orig {
 # Comments  : unstow_node() and unstow_contents() are mutually recursive
 #============================================================================
 sub unstow_node_orig {
-
     my ($path, $target) = @_;
 
     debug(2, "Unstowing $target");
@@ -632,7 +625,7 @@ sub unstow_node_orig {
 
         # this action may have made the parent directory foldable
         if (my $parent = foldable($target)) {
-            fold_tree($target,$parent);
+            fold_tree($target, $parent);
         }
     }
     return;
@@ -649,7 +642,6 @@ sub unstow_node_orig {
 #           : Here we traverse the target tree, rather than the source tree.
 #============================================================================
 sub unstow_contents {
-
     my ($path, $target) = @_;
 
     #  don't try to remove anything under a stow directory
@@ -692,7 +684,6 @@ sub unstow_contents {
 # Comments  : unstow_node() and unstow_contents() are mutually recursive
 #============================================================================
 sub unstow_node {
-
     my ($path, $target) = @_;
 
     debug(2, "Unstowing $path");
@@ -723,7 +714,7 @@ sub unstow_node {
         }
 
         # does the existing $target actually point to anything
-        if (-e  $old_path) {
+        if (-e $old_path) {
             # does link points to the right place
             if ($old_path eq $path) {
                 do_unlink($target);
@@ -759,7 +750,7 @@ sub unstow_node {
 
             # this action may have made the parent directory foldable
             if (my $parent = foldable($target)) {
-                fold_tree($target,$parent);
+                fold_tree($target, $parent);
             }
         }
         else {
@@ -784,7 +775,6 @@ sub unstow_node {
 #           : we could put more logic under here for multiple stow dirs
 #============================================================================
 sub find_stowed_path {
-
     my ($target, $source) = @_;
 
     # evaluate softlink relative to its target
@@ -793,7 +783,7 @@ sub find_stowed_path {
     # search for .stow files 
     my $dir = '';
     for my $part (split m{/+}, $path) {
-       $dir = join_paths($dir,$part);
+       $dir = join_paths($dir, $part);
        if (-f "$dir/.stow") {
             return $path;
        }
@@ -804,8 +794,8 @@ sub find_stowed_path {
     my @stow_path = split m{/+}, $Stow_Path;
 
     # strip off common prefixes
-    while ( @path && @stow_path ) {
-        if ( (shift @path) ne (shift @stow_path) ) {
+    while (@path && @stow_path) {
+        if ((shift @path) ne (shift @stow_path)) {
             return '';
         }
     }
@@ -829,7 +819,6 @@ sub find_stowed_path {
 #           : it anyway
 #=============================================================================
 sub cleanup_invalid_links {
-
     my ($dir) = @_;
 
     if (not -d $dir) {
@@ -846,7 +835,7 @@ sub cleanup_invalid_links {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
 
-        my $node_path = join_paths($dir,$node);
+        my $node_path = join_paths($dir, $node);
 
         if (-l $node_path and not exists $Link_Task_For{$node_path}) {
             
@@ -858,11 +847,11 @@ sub cleanup_invalid_links {
             }
 
             if (
-                not -e join_paths($dir,$source) and  # bad link
-                find_stowed_path($node_path,$source) # owned by stow
+                not -e join_paths($dir, $source) and  # bad link
+                find_stowed_path($node_path, $source) # owned by stow
             ){
                 debug(3, "--- removing stale link: $node_path => " .
-                          join_paths($dir,$source));
+                          join_paths($dir, $source));
                 do_unlink($node_path);
             }
         }
@@ -881,7 +870,6 @@ sub cleanup_invalid_links {
 #           : that is, it can be used as the source for a replacement symlink
 #============================================================================
 sub foldable {
-
     my ($target) = @_;
 
     debug(3, "--- Is $target foldable?");
@@ -898,7 +886,7 @@ sub foldable {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
 
-        my $path =  join_paths($target,$node);
+        my $path =  join_paths($target, $node);
 
         # skip nodes scheduled for removal
         next NODE if not is_a_node($path);
@@ -928,7 +916,7 @@ sub foldable {
     $parent =~ s{\A\.\./}{};
 
     # if the resulting path is owned by stow, we can fold it
-    if (find_stowed_path($target,$parent)) {
+    if (find_stowed_path($target, $parent)) {
         debug(3, "--- $target is foldable");
         return $parent;
     }
@@ -947,8 +935,7 @@ sub foldable {
 # Comments  : only called iff foldable() is true so we can remove some checks
 #============================================================================
 sub fold_tree {
-
-    my ($target,$source) = @_;
+    my ($target, $source) = @_;
 
     debug(3, "--- Folding tree: $target => $source");
      
@@ -961,8 +948,8 @@ sub fold_tree {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        next NODE if not is_a_node(join_paths($target,$node));
-        do_unlink(join_paths($target,$node));
+        next NODE if not is_a_node(join_paths($target, $node));
+        do_unlink(join_paths($target, $node));
     }
     do_rmdir($target);
     do_link($source, $target);
@@ -979,7 +966,7 @@ sub fold_tree {
 # Comments  : indicates what type of conflict it is
 #============================================================================
 sub conflict {
-    my ( $format, @args ) = @_;
+    my ($format, @args) = @_;
 
     my $message = sprintf($format, @args);
 
@@ -997,7 +984,6 @@ sub conflict {
 # Comments  : none
 #=============================================================================
 sub ignore {
-
     my ($path) = @_;
 
     for my $suffix (@{$Option{'ignore'}}) {
@@ -1015,7 +1001,6 @@ sub ignore {
 # Comments  : none
 #=============================================================================
 sub defer {
-
     my ($path) = @_;
 
     for my $prefix (@{$Option{'defer'}}) {
@@ -1033,7 +1018,6 @@ sub defer {
 # Comments  : none
 #=============================================================================
 sub override {
-
     my ($path) = @_;
 
     for my $regex (@{$Option{'override'}}) {
@@ -1059,7 +1043,6 @@ sub override {
 #           : an action is set to 'skip' if it is found to be redundant
 #============================================================================
 sub process_tasks {
-    
     debug(2, "Processing tasks...");
 
     # strip out all tasks with a skip action
@@ -1076,14 +1059,14 @@ sub process_tasks {
 
     for my $task (@Tasks) {
 
-        if ( $task->{'action'} eq 'create' ) {
-            if ( $task->{'type'} eq 'dir' ) {
+        if ($task->{'action'} eq 'create') {
+            if ($task->{'type'} eq 'dir') {
                 mkdir($task->{'path'}, 0777) 
                     or error(qq(Could not create directory: $task->{'path'}));
             }
-            elsif ( $task->{'type'} eq 'link' ) {
+            elsif ($task->{'type'} eq 'link') {
                 symlink $task->{'source'}, $task->{'path'} 
-                    or error( 
+                    or error(
                         q(Could not create symlink: %s => %s),
                         $task->{'path'},
                         $task->{'source'}
@@ -1093,12 +1076,12 @@ sub process_tasks {
                 internal_error(qq(bad task type: $task->{'type'}));
             }
         }
-        elsif ( $task->{'action'} eq 'remove' ) {
-            if ( $task->{'type'} eq 'dir' ) {
+        elsif ($task->{'action'} eq 'remove') {
+            if ($task->{'type'} eq 'dir') {
                 rmdir $task->{'path'} 
                     or error(qq(Could not remove directory: $task->{'path'}));
             }
-            elsif ( $task->{'type'} eq 'link' ) {
+            elsif ($task->{'type'} eq 'link') {
                 unlink $task->{'path'} 
                     or error(qq(Could not remove link: $task->{'path'}));
             }
@@ -1126,9 +1109,7 @@ sub process_tasks {
 sub is_a_link {
     my ($path) = @_;
 
-
-    if ( exists $Link_Task_For{$path} ) {
-
+    if (exists $Link_Task_For{$path}) {
         my $action = $Link_Task_For{$path}->{'action'}; 
 
         if ($action eq 'remove') {
@@ -1145,9 +1126,9 @@ sub is_a_link {
         # check if any of its parent are links scheduled for removal
         # (need this for edge case during unfolding)
         my $parent = '';
-        for my $part (split m{/+}, $path ) {
-            $parent = join_paths($parent,$part);
-            if ( exists $Link_Task_For{$parent} ) {
+        for my $part (split m{/+}, $path) {
+            $parent = join_paths($parent, $part);
+            if (exists $Link_Task_For{$parent}) {
                 if ($Link_Task_For{$parent}->{'action'} eq 'remove') {
                     return 0;
                 }
@@ -1172,7 +1153,7 @@ sub is_a_link {
 sub is_a_dir {
     my ($path) = @_;
 
-    if ( exists $Dir_Task_For{$path} ) {
+    if (exists $Dir_Task_For{$path}) {
         my $action = $Dir_Task_For{$path}->{'action'}; 
         if ($action eq 'remove') {
             return 0;
@@ -1188,7 +1169,7 @@ sub is_a_dir {
     # are we really following a link that is scheduled for removal
     my $prefix = '';
     for my $part (split m{/+}, $path) {
-        $prefix =  join_paths($prefix,$part);
+        $prefix = join_paths($prefix, $part);
         if (exists $Link_Task_For{$prefix} and
             $Link_Task_For{$prefix}->{'action'} eq 'remove') {
             return 0;
@@ -1214,8 +1195,7 @@ sub is_a_dir {
 sub is_a_node {
     my ($path) = @_;
 
-    if ( exists $Link_Task_For{$path} ) {
-
+    if (exists $Link_Task_For{$path}) {
         my $action = $Link_Task_For{$path}->{'action'}; 
 
         if ($action eq 'remove') {
@@ -1229,8 +1209,7 @@ sub is_a_node {
         }
     }
 
-    if ( exists $Dir_Task_For{$path} ) {
-
+    if (exists $Dir_Task_For{$path}) {
         my $action = $Dir_Task_For{$path}->{'action'}; 
 
         if ($action eq 'remove') {
@@ -1247,8 +1226,8 @@ sub is_a_node {
     # are we really following a link that is scheduled for removal
     my $prefix = '';
     for my $part (split m{/+}, $path) {
-        $prefix =  join_paths($prefix,$part);
-        if ( exists $Link_Task_For{$prefix} and
+        $prefix =  join_paths($prefix, $part);
+        if (exists $Link_Task_For{$prefix} and
              $Link_Task_For{$prefix}->{'action'} eq 'remove') {
             return 0;
         }
@@ -1270,10 +1249,9 @@ sub is_a_node {
 # Comments  : none
 #============================================================================
 sub read_a_link {
-
     my ($path) = @_;
 
-    if ( exists $Link_Task_For{$path} ) {
+    if (exists $Link_Task_For{$path}) {
         my $action = $Link_Task_For{$path}->{'action'}; 
 
         if ($action eq 'create') {
@@ -1304,23 +1282,21 @@ sub read_a_link {
 # Comments  : cleans up operations that undo previous operations
 #============================================================================
 sub do_link {
+    my ($oldfile, $newfile) = @_;
 
-    my ( $oldfile, $newfile ) = @_;
-
-    if ( exists $Dir_Task_For{$newfile} ) {
-        
+    if (exists $Dir_Task_For{$newfile}) {
         my $task_ref = $Dir_Task_For{$newfile};
 
-        if ( $task_ref->{'action'} eq 'create' ) {
+        if ($task_ref->{'action'} eq 'create') {
             if ($task_ref->{'type'} eq 'dir') {
                 internal_error(
-                    "new link (%s => %s ) clashes with planned new directory",
+                    "new link (%s => %s) clashes with planned new directory",
                     $newfile, 
                     $oldfile,
                 );
             }
         }
-        elsif ( $task_ref->{'action'} eq 'remove' ) {
+        elsif ($task_ref->{'action'} eq 'remove') {
             # we may need to remove a directory before creating a link so continue;
         }
         else {
@@ -1328,12 +1304,11 @@ sub do_link {
         }
     }
 
-    if ( exists $Link_Task_For{$newfile} ) {
-
+    if (exists $Link_Task_For{$newfile}) {
         my $task_ref = $Link_Task_For{$newfile};
 
-        if ( $task_ref->{'action'} eq 'create' ) {
-            if ( $task_ref->{'source'} ne $oldfile ) {
+        if ($task_ref->{'action'} eq 'create') {
+            if ($task_ref->{'source'} ne $oldfile) {
                 internal_error(
                     "new link clashes with planned new link: %s => %s", 
                     $task_ref->{'path'},
@@ -1345,8 +1320,8 @@ sub do_link {
                 return;
             }
         }
-        elsif ( $task_ref->{'action'} eq 'remove' ) {
-            if ( $task_ref->{'source'} eq $oldfile ) {
+        elsif ($task_ref->{'action'} eq 'remove') {
+            if ($task_ref->{'source'} eq $oldfile) {
                 # no need to remove a link we are going to recreate
                 debug(1, "LINK: $newfile => $oldfile (reverts previous action)");
                 $Link_Task_For{$newfile}->{'action'} = 'skip';
@@ -1383,16 +1358,15 @@ sub do_link {
 # Comments  : will remove an existing planned link
 #============================================================================
 sub do_unlink {
-
     my ($file) = @_;
 
-    if (exists $Link_Task_For{$file} ) {
+    if (exists $Link_Task_For{$file}) {
         my $task_ref = $Link_Task_For{$file};
-        if ( $task_ref->{'action'} eq 'remove' ) {
+        if ($task_ref->{'action'} eq 'remove') {
             debug(1, "UNLINK: $file (duplicates previous action)");
             return;
         }
-        elsif ( $task_ref->{'action'} eq 'create' ) {
+        elsif ($task_ref->{'action'} eq 'create') {
             # do need to create a link then remove it
             debug(1, "UNLINK: $file (reverts previous action)");
             $Link_Task_For{$file}->{'action'} = 'skip';
@@ -1404,7 +1378,7 @@ sub do_unlink {
         }
     }
 
-    if ( exists $Dir_Task_For{$file} and $Dir_Task_For{$file} eq 'create' ) { 
+    if (exists $Dir_Task_For{$file} and $Dir_Task_For{$file} eq 'create') { 
         internal_error(
             "new unlink operation clashes with planned operation: %s dir %s",
             $Dir_Task_For{$file}->{'action'},
@@ -1443,8 +1417,7 @@ sub do_unlink {
 sub do_mkdir {
     my ($dir) = @_;
 
-    if ( exists $Link_Task_For{$dir} ) {
-
+    if (exists $Link_Task_For{$dir}) {
         my $task_ref = $Link_Task_For{$dir};
 
         if ($task_ref->{'action'} eq 'create') {
@@ -1462,8 +1435,7 @@ sub do_mkdir {
         }
     }
 
-    if ( exists $Dir_Task_For{$dir} ) {
-
+    if (exists $Dir_Task_For{$dir}) {
         my $task_ref = $Dir_Task_For{$dir};
 
         if ($task_ref->{'action'} eq 'create') {
@@ -1506,7 +1478,7 @@ sub do_mkdir {
 sub do_rmdir {
     my ($dir) = @_;
 
-    if (exists $Link_Task_For{$dir} ) {
+    if (exists $Link_Task_For{$dir}) {
         my $task_ref = $Link_Task_For{$dir};
         internal_error(
             "rmdir clashes with planned operation: %s link %s => %s",
@@ -1516,14 +1488,14 @@ sub do_rmdir {
         );
     }
 
-    if (exists $Dir_Task_For{$dir} ) {
+    if (exists $Dir_Task_For{$dir}) {
         my $task_ref = $Link_Task_For{$dir};
 
-        if ($task_ref->{'action'} eq 'remove' ) {
+        if ($task_ref->{'action'} eq 'remove') {
             debug(1, "RMDIR $dir (duplicates previous action)");
             return;
         }
-        elsif ($task_ref->{'action'} eq 'create' ) {
+        elsif ($task_ref->{'action'} eq 'create') {
             debug(1, "MKDIR $dir (reverts previous action)");
             $Link_Task_For{$dir}->{'action'} = 'skip';
             delete $Link_Task_For{$dir};
@@ -1562,7 +1534,6 @@ sub do_rmdir {
 # Comments  : none
 #=============================================================================
 sub strip_quotes {
-
     my ($string) = @_;
 
     if ($string =~ m{\A\s*'(.*)'\s*\z}) {
@@ -1584,7 +1555,6 @@ sub strip_quotes {
 #           : '//' => '/' and 'a/b/../c' => 'a/c'
 #============================================================================
 sub join_paths {
-
     my @paths = @_;
 
     # weed out empty components and concatenate
@@ -1593,7 +1563,7 @@ sub join_paths {
     # factor out back references and remove redundant /'s)
     my @result = ();
     PART:
-    for my $part ( split m{/+}, $result) {
+    for my $part (split m{/+}, $result) {
         next PART if $part eq '.';
         if (@result && $part eq '..' && $result[-1] ne '..') {
             pop @result;
@@ -1632,8 +1602,8 @@ sub parent {
 # Comments  : none
 #============================================================================
 sub internal_error {
-    my ($format,@args) = @_;
-    die "$ProgramName: INTERNAL ERROR: ".sprintf($format,@args)."\n",
+    my ($format, @args) = @_;
+    die "$ProgramName: INTERNAL ERROR: " . sprintf($format, @args) . "\n",
         "This _is_ a bug. Please submit a bug report so we can fix it:-)\n";
 }
 
@@ -1646,8 +1616,8 @@ sub internal_error {
 # Comments  : none
 #============================================================================
 sub error {
-    my ($format,@args) = @_;
-    die "$ProgramName: ERROR: ".sprintf($format,@args)." ($!)\n";
+    my ($format, @args) = @_;
+    die "$ProgramName: ERROR: " . sprintf($format, @args) . " ($!)\n";
 }
 
 #===== SUBROUTINE ===========================================================

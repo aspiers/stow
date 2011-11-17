@@ -75,7 +75,7 @@ sub make_file {
             or die "could not create file: $path ($!)\n";
         close $FILE;
     }
-    elsif ( not -f $path) {
+    elsif (not -f $path) {
         die "a non-file already exists at $path\n";
     }
     return;
