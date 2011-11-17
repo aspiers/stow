@@ -136,8 +136,10 @@ make_file('../stow/pkg6b/bin6/file6');
 
 unstow_contents_orig('../stow/pkg6b', '.');
 ok(
-    -l 'bin6/file6' && readlink('bin6/file6') eq '../../stow/pkg6a/bin6/file6'
-    => q(existing link owned by stow but points to a different package)
+    scalar(@Conflicts) == 0 &&
+    -l 'bin6/file6' &&
+    readlink('bin6/file6') eq '../../stow/pkg6a/bin6/file6'
+    => q(ignore existing link that points to a different package)
 );
 
 #
@@ -244,7 +246,7 @@ unstow_contents_orig('../stow/pkg10c', '.');
 stderr_like(
   sub { process_tasks(); },
   qr/There are no outstanding operations to perform/,
-  'no tasks to process when unstowing pkg8a'
+  'no tasks to process when unstowing pkg10c'
 );
 ok( 
     scalar(@Conflicts) == 0 &&
@@ -273,6 +275,7 @@ ok(
     !-e 'man12/man1/file12.1'
     => 'ignore temp files'
 );
+
 
 # Todo
 #
