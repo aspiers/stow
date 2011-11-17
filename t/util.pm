@@ -7,6 +7,24 @@
 use strict;
 use warnings;
 
+
+#===== SUBROUTINE ===========================================================
+# Name      : reset_state()
+# Purpose   : reset internal state machine
+# Parameters: none
+# Returns   : n/a
+# Throws    : n/a
+# Comments  : none
+#============================================================================
+sub reset_state {
+    @::Tasks          = ();
+    @::Conflicts      = ();
+    %::Link_Task_For  = ();
+    %::Dir_Task_For   = ();
+    %::Option         = ();
+    return;
+}
+
 #===== SUBROUTINE ===========================================================
 # Name      : make_link()
 # Purpose   : safely create a link

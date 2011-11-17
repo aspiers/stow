@@ -10,16 +10,6 @@ BEGIN { use lib qw(.); require "t/util.pm"; require "stow"; }
 use Test::More tests => 3;
 use English qw(-no_match_vars);
 
-# local utility
-sub reset_state {
-    @Tasks          = ();
-    @Conflicts      = ();
-    %Link_Task_For  = ();
-    %Dir_Task_For   = ();
-    %Option         = ();
-    return;
-}
-
 ### setup 
 eval { remove_dir('t/target'); };
 eval { remove_dir('t/stow');   };

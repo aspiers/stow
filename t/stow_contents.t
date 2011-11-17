@@ -11,16 +11,6 @@ use Test::More tests => 14;
 use Test::Output;
 use English qw(-no_match_vars);
 
-# local utility
-sub reset_state {
-    @Tasks          = ();
-    @Conflicts      = ();
-    %Link_Task_For  = ();
-    %Dir_Task_For   = ();
-    %Option         = ();
-    return;
-}
-
 ### setup 
 eval { remove_dir('t/target'); };
 eval { remove_dir('t/stow'); };
