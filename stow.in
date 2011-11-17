@@ -638,6 +638,9 @@ sub unstow_node_orig {
             fold_tree($target, $parent);
         }
     }
+    else {
+        debug(3, "$target did not exist to be unstowed");
+    }
     return;
 }
 
@@ -774,6 +777,9 @@ sub unstow_node {
                 qq{existing target is neither a link nor a directory: $target},
             );
         }
+    }
+    else {
+        debug(3, "$target did not exist to be unstowed");
     }
     return;
 }
