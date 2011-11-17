@@ -675,6 +675,11 @@ sub unstow_node_orig {
             fold_tree($target, $parent);
         }
     }
+    elsif (-e $target) {
+        conflict(
+            qq{existing target is neither a link nor a directory: $target},
+        );
+    }
     else {
         debug(3, "$target did not exist to be unstowed");
     }
