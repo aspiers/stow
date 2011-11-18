@@ -7,7 +7,7 @@
 # load as a library
 BEGIN { use lib qw(.); require "t/util.pm"; require "stow"; }
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -275,4 +275,25 @@ ok(
     readlink('lib13/liba.so.1') eq '../../stow/pkg13a/lib13/liba.so.1'  &&
     readlink('lib13/libb.so.1') eq '../../stow/pkg13b/lib13/libb.so.1'  
     => 'unfolding to stow links to libraries'
+);
+
+#
+# stowing to stow dir should fail
+#
+reset_state();
+$Stow_Path= 'stow';
+
+make_dir('stow/pkg14/stow/pkg15');
+make_file('stow/pkg14/stow/pkg15/node15');
+
+stow_contents('stow/pkg14', '.', 'stow/pkg14');
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process'
+);
+ok(
+    scalar(@Conflicts) == 0 &&
+    ! -l 'stow/pkg15'
+    => "stowing to stow dir should fail"
 );

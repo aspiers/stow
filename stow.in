@@ -413,6 +413,8 @@ sub set_stow_path {
 sub stow_contents {
     my ($path, $target, $source) = @_;
 
+    return if should_skip_stow_dir_target($target);
+
     my $cwd = getcwd();
     my $msg = "Stowing contents of $path (cwd=$cwd, stow dir=$Stow_Path)";
     $msg =~ s!$ENV{HOME}/!~/!g;
