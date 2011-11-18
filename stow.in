@@ -264,12 +264,13 @@ sub process_options {
 sub debug {
     my ($level, $msg) = @_;
     if ($Option{'testmode'}) {
+        # Convert TEST_VERBOSE=y into numeric value
         $ENV{TEST_VERBOSE} = 3
             if $ENV{TEST_VERBOSE} && $ENV{TEST_VERBOSE} !~ /^\d+$/;
-        $Option{'verbose'} = $ENV{TEST_VERBOSE}
-            if $ENV{TEST_VERBOSE} && ! $Option{'verbose'};
-        print "# $msg\n"
-            if $Option{'verbose'} >= $level;
+
+        my $verbose = exists $Option{'verbose'} ? $Option{'verbose'} :
+                      length $ENV{TEST_VERBOSE} ? $ENV{TEST_VERBOSE} : 0;
+        print "# $msg\n" if $verbose >= $level;
     }
     elsif ($Option{'verbose'} >= $level) {
         warn "$msg\n";
