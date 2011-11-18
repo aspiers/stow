@@ -414,7 +414,9 @@ sub stow_contents {
     my ($path, $target, $source) = @_;
 
     my $cwd = getcwd();
-    debug(2, "Stowing contents of $path (cwd is $cwd)");
+    my $msg = "Stowing contents of $path (cwd=$cwd, stow dir=$Stow_Path)";
+    $msg =~ s!$ENV{HOME}/!~/!g;
+    debug(2, $msg);
     debug(3, "--- $target => $source");
 
     error("stow_contents() called with non-directory path: $path")
@@ -586,7 +588,9 @@ sub unstow_contents_orig {
     return if should_skip_stow_dir_target($target);
 
     my $cwd = getcwd();
-    debug(2, "Unstowing from $target (compat mode, cwd is $cwd)");
+    my $msg = "Unstowing from $target (compat mode, cwd=$cwd, stow dir=$Stow_Path)";
+    $msg =~ s!$ENV{HOME}/!~/!g;
+    debug(2, $msg);
     debug(3, "--- source path is $path");
     # In compat mode we traverse the target tree not the source tree,
     # so we're unstowing the contents of /target/foo, there's no
@@ -690,7 +694,9 @@ sub unstow_contents {
     return if should_skip_stow_dir_target($target);
 
     my $cwd = getcwd();
-    debug(2, "Unstowing from $target (cwd is $cwd)");
+    my $msg = "Unstowing from $target (cwd=$cwd, stow dir=$Stow_Path)";
+    $msg =~ s!$ENV{HOME}/!~/!g;
+    debug(2, $msg);
     debug(3, "--- source path is $path");
     # We traverse the source tree not the target tree, so $path must exist.
     error("unstow_contents() called with non-directory path: $path")
