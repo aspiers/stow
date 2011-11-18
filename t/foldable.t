@@ -25,7 +25,6 @@ $Stow_Path= '../stow';
 #
 # can fold a simple tree
 #
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg1/bin1');
 make_file('../stow/pkg1/bin1/file1');
@@ -37,7 +36,6 @@ is( foldable('bin1'), '../stow/pkg1/bin1' => q(can fold a simple tree) );
 #
 # can't fold an empty directory 
 # 
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg2/bin2');
 make_file('../stow/pkg2/bin2/file2');
@@ -48,7 +46,6 @@ is( foldable('bin2'), '' => q(can't fold an empty directory) );
 #
 # can't fold if dir contains a non-link
 #
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg3/bin3');
 make_file('../stow/pkg3/bin3/file3');
@@ -61,7 +58,6 @@ is( foldable('bin3'), '' => q(can't fold a dir containing non-links) );
 #
 # can't fold if links point to different directories
 #
-$Option{'verbose'} = 0;
 
 make_dir('bin4');
 make_dir('../stow/pkg4a/bin4');

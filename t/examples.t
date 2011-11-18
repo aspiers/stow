@@ -43,7 +43,6 @@ make_file('stow/emacs/man/man1/emacs.1');
 # stow perl into an empty target
 # 
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('stow/perl/bin');
 make_file('stow/perl/bin/perl');
@@ -70,7 +69,6 @@ ok(
 # stow perl into a non-empty target
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 # clean up previous stow
 remove_link('bin');
@@ -102,7 +100,6 @@ ok(
 # Install perl into an empty target and then install emacs
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 # clean up previous stow
 remove_link('info');
@@ -155,7 +152,6 @@ ok(
 # behaviour is the same as if the empty directory had nothing to do with stow
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('stow/pkg1a/bin1');
 make_dir('stow/pkg1b/bin1');
@@ -178,7 +174,6 @@ ok(
 # directories
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('stow2a/pkg2a/bin2');
 make_file('stow2a/pkg2a/bin2/file2a');

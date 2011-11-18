@@ -27,7 +27,6 @@ $Stow_Path= '../stow';
 # 
 
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg1/bin1');
 make_file('../stow/pkg1/bin1/file1');
@@ -45,7 +44,6 @@ ok(
 # unstow a simple tree from an existing directory
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('lib2');
 make_dir('../stow/pkg2/lib2');
@@ -63,7 +61,6 @@ ok(
 # fold tree after unstowing
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('bin3');
 
@@ -87,7 +84,6 @@ ok(
 # existing link is owned by stow but is invalid so it gets removed anyway
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('bin4');
 make_dir('../stow/pkg4/bin4');
@@ -106,7 +102,6 @@ ok(
 # Existing link is not owned by stow
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg5/bin5');
 make_link('bin5', '../not-stow');
@@ -124,7 +119,6 @@ ok(
 # Target already exists, is owned by stow, but points to a different package
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('bin6');
 make_dir('../stow/pkg6a/bin6');
@@ -146,7 +140,6 @@ ok(
 # Don't unlink anything under the stow directory
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('stow'); # make out stow dir a subdir of target
 $Stow_Path = 'stow';
@@ -173,7 +166,6 @@ ok(
 # Don't unlink any nodes under another stow directory
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('stow'); # make out stow dir a subdir of target
 $Stow_Path = 'stow';
@@ -204,7 +196,6 @@ ok(
 #
 reset_state();
 $Stow_Path = '../stow';
-$Option{'verbose'} = 0;
 $Option{'override'} = ['man9', 'info9'];
 
 make_dir('../stow/pkg9a/man9/man1');
@@ -226,7 +217,6 @@ ok(
 # deferring to already stowed documentation
 #
 reset_state();
-$Option{'verbose'} = 0;
 $Option{'defer'} = ['man10', 'info10'];
 
 make_dir('../stow/pkg10a/man10/man1');
@@ -258,7 +248,6 @@ ok(
 # Ignore temp files
 #
 reset_state();
-$Option{'verbose'} = 0;
 $Option{'ignore'} = ['~', '\.#.*'];
 
 make_dir('../stow/pkg12/man12/man1');

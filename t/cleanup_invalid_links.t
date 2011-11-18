@@ -25,7 +25,6 @@ $Stow_Path= '../stow';
 # nothing to clean in a simple tree
 # 
 reset_state();
-$Option{'verbose'} = 1;
 
 make_dir('../stow/pkg1/bin1');
 make_file('../stow/pkg1/bin1/file1');
@@ -41,7 +40,6 @@ is(
 # cleanup a bad link in a simple tree
 # 
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('bin2');
 make_dir('../stow/pkg2/bin2');
@@ -64,7 +62,6 @@ ok(
 # dont cleanup a bad link not owned by stow
 # 
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('bin3');
 make_dir('../stow/pkg3/bin3');

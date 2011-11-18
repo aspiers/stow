@@ -26,7 +26,6 @@ $Stow_Path= '../stow';
 # stow a simple tree minimally
 # 
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg1/bin1');
 make_file('../stow/pkg1/bin1/file1');
@@ -42,7 +41,6 @@ is(
 # stow a simple tree into an existing directory
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg2/lib2');
 make_file('../stow/pkg2/lib2/file2');
@@ -59,7 +57,6 @@ is(
 # unfold existing tree 
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg3a/bin3');
 make_file('../stow/pkg3a/bin3/file3a');
@@ -80,7 +77,6 @@ ok(
 # Link to a new  dir conflicts with existing non-dir (can't unfold)
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_file('bin4'); # this is a file but named like a directory
 make_dir('../stow/pkg4/bin4'); 
@@ -95,7 +91,6 @@ like(
 # Target already exists but is not owned by stow
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('bin5'); 
 make_link('bin5/file5','../../empty');
@@ -110,7 +105,6 @@ like(
 # Replace existing but invalid target 
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_link('file6','../stow/path-does-not-exist');
 make_dir('../stow/pkg6');
@@ -127,7 +121,6 @@ is(
 # (can't unfold)
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('bin7');
 make_dir('../stow/pkg7a/bin7');
@@ -145,7 +138,6 @@ like(
 # stowing directories named 0
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg8a/0');
 make_file('../stow/pkg8a/0/file8a');
@@ -167,7 +159,6 @@ ok(
 # overriding already stowed documentation
 #
 reset_state();
-$Option{'verbose'} = 0;
 $Option{'override'} = ['man9', 'info9'];
 
 make_dir('../stow/pkg9a/man9/man1');
@@ -189,7 +180,6 @@ ok(
 # deferring to already stowed documentation
 #
 reset_state();
-$Option{'verbose'} = 0;
 $Option{'defer'} = ['man10', 'info10'];
 
 make_dir('../stow/pkg10a/man10/man1');
@@ -215,7 +205,6 @@ ok(
 # Ignore temp files
 #
 reset_state();
-$Option{'verbose'} = 0;
 $Option{'ignore'} = ['~', '\.#.*'];
 
 make_dir('../stow/pkg11/man11/man1');
@@ -238,7 +227,6 @@ ok(
 # stowing links library files
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg12/lib12/');
 make_file('../stow/pkg12/lib12/lib.so');
@@ -257,7 +245,6 @@ ok(
 # unfolding to stow links to library files
 #
 reset_state();
-$Option{'verbose'} = 0;
 
 make_dir('../stow/pkg13a/lib13/');
 make_file('../stow/pkg13a/lib13/liba.so');
