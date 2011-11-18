@@ -7,7 +7,7 @@
 # load as a library
 BEGIN { use lib qw(.); require "t/util.pm"; require "stow"; }
 
-use Test::More tests => 18;
+use Test::More tests => 20;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -294,6 +294,24 @@ stderr_like(
 ok(
     scalar(@Conflicts) == 0
     => 'unstow never stowed package pkg12'
+);
+
+#
+# Unstowing when target contains a real file shouldn't be an issue.
+#
+make_file('man12/man1/file12.1');
+
+reset_state();
+unstow_contents('../stow/pkg12', '.');
+stderr_like(
+  sub { process_tasks(); },
+  qr/There are no outstanding operations to perform/,
+  'no tasks to process when unstowing pkg12 for third time'
+);
+ok(
+    scalar(@Conflicts) == 1 &&
+    $Conflicts[0] =~ m!existing target is neither a link nor a directory: man12/man1/file12\.1!
+    => 'unstow pkg12 for third time'
 );
 
 
