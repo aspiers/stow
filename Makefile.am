@@ -30,8 +30,8 @@ clean-local:
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
-		   -e 's|[@]PACKAGE[@]|$(PACKAGE)|g' \
-		   -e 's|[@]VERSION[@]|$(VERSION)|g'
+	   -e 's|[@]PACKAGE[@]|$(PACKAGE)|g' \
+	   -e 's|[@]VERSION[@]|$(VERSION)|g'
 
 stow: stow.in Makefile
 	$(edit) < $< > $@
