@@ -544,6 +544,33 @@ sub stow_node {
 }
 
 #===== SUBROUTINE ===========================================================
+# Name      : should_skip_stow_dir_target()
+# Purpose   : determine whether target is a stow directory and should be skipped
+# Parameters: $target => relative path to symlink target from the current directory
+# Returns   : true iff target is a stow directory
+# Throws    : n/a
+# Comments  : none
+#============================================================================
+sub should_skip_stow_dir_target {
+    my ($target) = @_;
+
+    #  don't try to remove anything under a stow directory
+    if ($target eq $Stow_Path) {
+        debug(2, "Skipping target which was current stow directory $target");
+        return 1;
+    }
+    for my $f (".stow", ".nonstow") {
+        if (-e join_paths($target, $f)) {
+            debug(2, "Skipping $target which contained $f");
+            return 1;
+        }
+    }
+
+    debug (4, "$target not protected");
+    return 0;
+}
+
+#===== SUBROUTINE ===========================================================
 # Name      : unstow_contents_orig()
 # Purpose   : unstow the contents of the given directory
 # Parameters: $path   => relative path to source dir from current directory
@@ -556,11 +583,8 @@ sub stow_node {
 sub unstow_contents_orig {
     my ($path, $target) = @_;
 
-    #  don't try to remove anything under a stow directory
-    if ($target eq $Stow_Path or -e "$target/.stow" or -e "$target/.nonstow") {
-        debug(2, "Not unstowing from protected directory $target (compat mode)");
-        return;
-    }
+    return if should_skip_stow_dir_target($target);
+
     my $cwd = getcwd();
     debug(2, "Unstowing from $target (compat mode, cwd is $cwd)");
     debug(3, "--- source path is $path");
@@ -663,11 +687,8 @@ sub unstow_node_orig {
 sub unstow_contents {
     my ($path, $target) = @_;
 
-    #  don't try to remove anything under a stow directory
-    if ($target eq $Stow_Path or -e "$target/.stow") {
-        debug(2, "Not unstowing from protected directory $target");
-        return;
-    }
+    return if should_skip_stow_dir_target($target);
+
     my $cwd = getcwd();
     debug(2, "Unstowing from $target (cwd is $cwd)");
     debug(3, "--- source path is $path");
