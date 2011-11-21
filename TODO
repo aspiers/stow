@@ -22,8 +22,6 @@
 * Add semi-automatic conflict resolution
 *** STOW_RESOLVE_CONFLICTS="non_stow_symlinks=t stow_symlinks=r"
 *** Add documentation about conflict resolution
-* Make CPAN-friendly via Module::Build
-*** Include test-time dependencies on Test::More and Test::Output
 * get account on fencepost.gnu.org (email accounts@gnu.org) 
   set up copyright papers? 
   'assign.future' and 'request-assign.future.manual'
