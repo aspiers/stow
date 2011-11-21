@@ -13,3 +13,5 @@ lib/Stow.pm
 doc/stow.8
 .dirstamp
 stamp-vti
+MYMETA.json
+MYMETA.yml
