@@ -1,11 +1,14 @@
 ## Process this file with Automake to produce Makefile.in
 
-bin_SCRIPTS = stow chkstow
-info_TEXINFOS = stow.texi
-dist_man_MANS = stow.8
+dist_bin_SCRIPTS = bin/stow bin/chkstow
+info_TEXINFOS = doc/stow.texi
+TEXINFO_TEX = doc/texinfo.tex
+dist_man_MANS = doc/stow.8
 dist_doc_DATA = README
 pmdir = $(libdir)/perl5
-pm_DATA = lib/Stow.pm lib/Stow/Util.pm
+dist_pm_DATA = lib/Stow.pm
+pmstowdir = $(pmdir)/Stow
+dist_pmstow_DATA = lib/Stow/Util.pm
 
 TESTS_ENVIRONMENT=$(PERL) -I $(top_srcdir)
 TESTS = \
@@ -23,8 +26,13 @@ TESTS = \
 	t/chkstow.t
 
 AUTOMAKE_OPTIONS = dist-shar
-EXTRA_DIST = $(TESTS) t/testutil.pm
-CLEANFILES = $(bin_SCRIPTS)
+CPAN_FILES = MANIFEST MANIFEST.SKIP Build.PL META.yml META.json
+EXTRA_DIST = \
+	bin/stow.in bin/chkstow.in lib/Stow.pm.in \
+	$(TESTS) t/testutil.pm \
+	$(TEXINFO_TEX) \
+	$(CPAN_FILES)
+CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
 
 # clean up files left behind by test suite
 clean-local:
@@ -34,11 +42,11 @@ clean-local:
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
 	   -e 's|[@]VERSION[@]|$(VERSION)|g'
 
-stow: stow.in Makefile
+bin/stow: bin/stow.in Makefile
 	$(edit) < $< > $@
 	chmod +x $@
 
-chkstow: chkstow.in Makefile
+bin/chkstow: bin/chkstow.in Makefile
 	$(edit) < $< > $@
 	chmod +x $@
 
@@ -47,15 +55,15 @@ lib/Stow.pm: lib/Stow.pm.in
 
 # The rules for manual.html and manual.texi are only used by
 # the developer
-manual.html: manual.texi
+doc/manual.html: doc/manual.texi
 	-rm -f $@
 	texi2html -expandinfo -menu -monolithic -verbose $<
 
-manual.texi: stow.texi
+doc/manual.texi: doc/stow.texi
 	-rm -f $@
 	cp $< $@
 
 MODULES = lib/Stow.pm lib/Stow/Util.pm
 
-test: stow chkstow $(MODULES)
+test: bin/stow bin/chkstow $(MODULES)
 	perl -MTest::Harness -Ilib -It -Ibin -e 'runtests(@ARGV)' t/*.t
