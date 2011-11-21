@@ -566,7 +566,9 @@ sub unstow_node_orig {
         # Does it point to a node under our stow directory?
         my $old_path = $self->find_stowed_path($target, $old_source);
         if (not $old_path) {
-            # skip links not owned by stow
+            # We're traversing the target tree not the package tree,
+            # so we definitely expect to find stuff not owned by stow.
+            # Therefore we can't flag a conflict.
             return; # XXX #
         }
 
