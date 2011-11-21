@@ -14,6 +14,12 @@
    },
    "name" : "Stow",
    "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::More" : 0,
+            "Test::Output" : 0
+         }
+      },
       "configure" : {
          "requires" : {
             "Module::Build" : 0

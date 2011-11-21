@@ -2,7 +2,9 @@
 abstract: 'manage the installation of multiple software packages'
 author:
   - unknown
-build_requires: {}
+build_requires:
+  Test::More: 0
+  Test::Output: 0
 configure_requires:
   Module::Build: 0
 dynamic_config: 1

@@ -49,6 +49,10 @@ my $build = Module::Build->new(
     configure_requires => {
         'Module::Build' => 0,
     },
+    build_requires => {
+        'Test::More'   => 0,
+        'Test::Output' => 0,
+    },
 );
 
 $build->create_build_script();
