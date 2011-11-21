@@ -7,10 +7,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 23;
 use Test::Output;
 use English qw(-no_match_vars);
 
+use Stow::Util qw(canon_path);
 use testutil;
 
 make_fresh_stow_and_target_dirs();
@@ -303,5 +304,43 @@ is($stow->get_conflicts(), 0, 'no conflicts with minimal stow');
 is(
     readlink('t/target/bin16'),
     '../stow/pkg16/bin16',
-    => 'minimal stow of a simple tree'
+    => "minimal stow of a simple tree when cwd isn't target"
+);
+
+#
+# stow a simple tree minimally to absolute stow dir when cwd isn't
+# target
+#
+$stow = new_Stow(dir    => canon_path('t/stow'),
+                 target => 't/target');
+
+make_dir('t/stow/pkg17/bin17');
+make_file('t/stow/pkg17/bin17/file17');
+
+$stow->plan_stow('pkg17');
+$stow->process_tasks();
+is($stow->get_conflicts(), 0, 'no conflicts with minimal stow');
+is(
+    readlink('t/target/bin17'),
+    '../stow/pkg17/bin17',
+    => "minimal stow of a simple tree with absolute stow dir"
+);
+
+#
+# stow a simple tree minimally with absolute stow AND target dirs when
+# cwd isn't target
+#
+$stow = new_Stow(dir    => canon_path('t/stow'),
+                 target => canon_path('t/target'));
+
+make_dir('t/stow/pkg18/bin18');
+make_file('t/stow/pkg18/bin18/file18');
+
+$stow->plan_stow('pkg18');
+$stow->process_tasks();
+is($stow->get_conflicts(), 0, 'no conflicts with minimal stow');
+is(
+    readlink('t/target/bin18'),
+    '../stow/pkg18/bin18',
+    => "minimal stow of a simple tree with absolute stow and target dirs"
 );
