@@ -32,4 +32,9 @@ Austin Wood <austin.wood@rmit.edu.au> and Chris Hoobin
 <christopher.hoobin@rmit.edu.au> helped clean up the documentation for 
 version 2 and created the texi2man script.
 
+Adam Spiers <stow@adamspiers.org> refactored the backend code into new
+Stow.pm and Stow/Util.pm modules providing an OO interface, tightened
+up the test suite, added support for `make test' and distribution via
+CPAN, and cleaned up numerous other minor issues.
+
 Stow is currently maintained by Troy Mill.
