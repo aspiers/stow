@@ -129,7 +129,7 @@ remove files in independent packages without confusing them with other
 files sharing the same file system space.  For instance, it is common to
 install Perl and Emacs in @file{/usr/local}.  When one does so, one
 winds up with the following files@footnote{As of Perl 4.036 and Emacs
-19.22.} in @file{/usr/local/man/man1}: 
+19.22.} in @file{/usr/local/man/man1}:
 
 @example
 a2p.1
@@ -138,7 +138,7 @@ emacs.1
 etags.1
 h2ph.1
 perl.1
-s2p.1  
+s2p.1
 @end example
 
 @noindent
@@ -269,7 +269,7 @@ given perl regular expression.  For example, using the options
 @end example
 
 @noindent
-will cause stow to ignore emacs and CVS backup files. 
+will cause stow to ignore emacs and CVS backup files.
 
 Note that the regular expression is anchored to the end of the filename,
 because this is what you will want to do most of the time.
@@ -299,7 +299,7 @@ a Perl regex.
 
 Note that the regular expression is anchored to the beginning of the path
 relative to the target directory, because this is what you will want to do most
-of the time.  
+of the time.
 
 @item --override='<regex>'
 This (repeatable) option forces any file matching the regular expression to be
@@ -312,7 +312,7 @@ the following options
 
 @noindent
 will permit stow to overwrite links that point to pre-existing man and info
-pages that are owned by stow and would otherwise cause a conflict.  
+pages that are owned by stow and would otherwise cause a conflict.
 
 The regular expression is anchored to the beginning of the path relative to
 the target directory, because this is what you will want to do most of the time.
@@ -321,7 +321,7 @@ the target directory, because this is what you will want to do most of the time.
 @itemx --no
 @itemx --simulate
 Do not perform any operations that modify the file system; in combination with
-@samp{-v} can be used to merely show what would happen. 
+@samp{-v} can be used to merely show what would happen.
 
 @item -v
 @itemx --verbose[=@var{n}]
@@ -335,8 +335,8 @@ doing.  Verbosity levels are 0, 1, 2, and 3; 0 is the default.  Using
 Scan the whole target tree when unstowing.  By default, only directories
 specified in the @dfn{installation image} are scanned during an unstow
 operation.  Scanning the whole tree can be prohibitive if your target tree is
-very large.  This option restores the legacy behaviour; however, the 
-@samp{--badlinks} option may be a better way of ensuring that your 
+very large.  This option restores the legacy behaviour; however, the
+@samp{--badlinks} option may be a better way of ensuring that your
 installation does not have any dangling symlinks.
 
 @item -V
@@ -377,7 +377,7 @@ The following options are useful for cleaning up your target tree:
 @item -b
 @itemx --badlinks
 Checks target directory for bogus symbolic links. That is, links that point to
-non-existent files. 
+non-existent files.
 
 @item -a
 @itemx --aliens
@@ -387,7 +387,7 @@ contain a @file{.stow} file.
 
 @item -l
 @itemx --list
-Will display the target package for every symbolic link in the stow target 
+Will display the target package for every symbolic link in the stow target
 directory.
 The following options are deprecated:
 @end table
@@ -398,9 +398,9 @@ The following options are deprecated as of Stow version 2:
 @itemx --conflicts
 Print any conflicts that are encountered.  This option
 implies @samp{-n}, and is used to search for all conflicts that might
-arise from an actual Stow operation.  
+arise from an actual Stow operation.
 
-This option is deprecated as conflicts are now printed by default and no 
+This option is deprecated as conflicts are now printed by default and no
 operations will be performed if any conflicts are detected.
 @end table
 
@@ -460,8 +460,8 @@ tree-folding symlink.
 @cindex unfolding trees
 The time often comes when a tree-folding symlink has to be undone
 because another package uses one or more of the folded subdirectories in
-its installation image.  This operation is called @dfn{splitting open}  or 
-@dfn{unfolding} a folded tree.  It involves removing the original symlink from 
+its installation image.  This operation is called @dfn{splitting open} or
+@dfn{unfolding} a folded tree.  It involves removing the original symlink from
 the target tree, creating a true directory in its place, and then populating the
 new directory with symlinks to the newly-installed package @emph{and} to
 the old package that used the old symlink.  For example, suppose that
@@ -561,7 +561,7 @@ un-populatable symlink.
 
 For complex packages, scanning the stow and target trees in tandem, and
 deciding whether to make directories or links, split-open or fold directories,
-can actually take a long time (a number of seconds).  Moreover, an accurate 
+can actually take a long time (a number of seconds).  Moreover, an accurate
 analysis of potential conflicts requires us to take into account all of
 these operations.
 
@@ -585,7 +585,7 @@ stow -D emacs-21.3 -S emacs-21.4a
 @end example
 
 @noindent
-which will replace emacs-21.3 with emacs-21.4a using a single invocation. 
+which will replace emacs-21.3 with emacs-21.4a using a single invocation.
 
 This is much faster and cleaner than performing two separate invocations of
 stow, because redundant folding/unfolding operations can be factored out.  In
@@ -593,7 +593,7 @@ addition, all the operations are calculated and merged before being executed
 @pxref{Deferred Operation}, so the amount of of time in which GNU Emacs is
 unavailable is minimised.
 
-You can mix and match any number of actions, for example, 
+You can mix and match any number of actions, for example,
 
 @example
 stow -S pkg1 pkg2 -D pkg3 pkg4 -S pkg5 -R pkg6
@@ -631,7 +631,7 @@ symlink, and thus cannot remove it).
 @chapter Target Maintenance
 
 From time to time you will need to clean up your target tree.
-Stow includes three operational modes that performs checks that 
+Stow includes three operational modes that performs checks that
 would generally be too expensive to performed during normal stow
 execution.
 
@@ -1020,8 +1020,8 @@ the output from the command (preferably verbose output, obtained by
 adding @samp{--verbose=3} to the Stow command line).
 @end itemize
 
-If you are really keen, consider developing a minimal test case and creating a 
-new test.  See the @file{t/} for lots of examples.
+If you are really keen, consider developing a minimal test case and
+creating a new test.  See the @file{t/} for lots of examples.
 
 Before reporting a bug, please read the manual carefully, especially
 @ref{Known Bugs}, to see whether you're encountering

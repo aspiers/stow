@@ -1,0 +1,31 @@
+---
+abstract: 'manage the installation of multiple software packages'
+author:
+  - unknown
+build_requires: {}
+configure_requires:
+  Module::Build: 0
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.112621'
+license: open_source
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Stow
+provides:
+  Stow:
+    file: lib/Stow.pm
+    version: v2.0.2
+  Stow::Util:
+    file: lib/Stow/Util.pm
+    version: 0
+requires:
+  Carp: 0
+  File::Slurp: 0
+  IO::File: 0
+  perl: 5.006
+resources:
+  homepage: https://savannah.gnu.org/projects/stow
+  license: http://www.gnu.org/licenses/gpl-2.0.html
+  repository: http://github.com/aspiers/stow
+version: v2.0.2

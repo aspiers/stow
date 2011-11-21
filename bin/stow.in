@@ -87,34 +87,34 @@ sub process_options {
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
 
         # clean and pre-compile any regex's at parse time
-        'ignore=s' => 
+        'ignore=s' =>
         sub {
             # FIXME: do we really need strip_quotes here?
             my $regex = strip_quotes($_[1]);
             push @{$options{'ignore'}}, qr($regex\z);
         },
 
-        'override=s' => 
-        sub { 
+        'override=s' =>
+        sub {
             my $regex = strip_quotes($_[1]);
             push @{$options{'override'}}, qr(\A$regex);
         },
 
-        'defer=s' => 
-        sub { 
+        'defer=s' =>
+        sub {
             my $regex = strip_quotes($_[1]);
             push @{$options{'defer'}}, qr(\A$regex);
         },
 
         # a little craziness so we can do different actions on the same line:
-        # a -D, -S, or -R changes the action that will be performed on the 
+        # a -D, -S, or -R changes the action that will be performed on the
         # package arguments that follow it.
         'D|delete'  => sub { $action = 'unstow' },
         'S|stow'    => sub { $action = 'stow'   },
         'R|restow'  => sub { $action = 'restow' },
 
         # Handler for non-option arguments
-        '<>' => 
+        '<>' =>
         sub {
             if ($action eq 'restow') {
                 push @pkgs_to_unstow, $_[0];
@@ -146,7 +146,7 @@ sub sanitize_path_options {
         $options->{'dir'}    =~ s/ +\z//;
     }
     else {
-        $options->{'dir'} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();        
+        $options->{'dir'} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
 
     if (exists $options->{'target'}) {
@@ -176,7 +176,7 @@ sub check_packages {
 
 
 #===== SUBROUTINE ============================================================
-# Name      : get_config_file_options()  
+# Name      : get_config_file_options()
 # Purpose   : search for default settings in any .stowrc files
 # Parameters: none
 # Returns   : a list of default options
@@ -190,7 +190,7 @@ sub get_config_file_options {
     for my $file ("$ENV{'HOME'}/.stowrc", '.stowrc') {
         if (-r $file) {
             warn "Loading defaults from $file\n";
-            open my $FILE, '<', $file 
+            open my $FILE, '<', $file
                 or die "Could not open $file for reading\n";
             while (my $line = <$FILE>){
                 chomp $line;
@@ -200,13 +200,13 @@ sub get_config_file_options {
         }
     }
     return @defaults;
-}                                                              
+}
 
 #===== SUBROUTINE ===========================================================
 # Name      : usage()
 # Purpose   : print program usage message and exit
 # Parameters: $msg => string to prepend to the usage message
-# Returns   : n/a 
+# Returns   : n/a
 # Throws    : n/a
 # Comments  : if 'msg' is given, then exit with non-zero status
 #============================================================================
@@ -255,7 +255,7 @@ sub version {
 }
 
 #===== METHOD ================================================================
-# Name      : strip_quotes 
+# Name      : strip_quotes
 # Purpose   : remove matching outer quotes from the given string
 # Parameters: none
 # Returns   : n/a
