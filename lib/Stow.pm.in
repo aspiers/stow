@@ -683,7 +683,7 @@ sub unstow_node {
         }
 
         if ($old_source =~ m{\A/}) {
-            warn "ignoring a absolute symlink: $target => $old_source\n";
+            warn "ignoring an absolute symlink: $target => $old_source\n";
             return; # XXX #
         }
 
@@ -1028,7 +1028,7 @@ sub defer {
 }
 
 #===== METHOD ================================================================
-# Name      : overide
+# Name      : override
 # Purpose   : determine if the given path matches a regex in our override list
 # Parameters: $path
 # Returns   : Boolean
