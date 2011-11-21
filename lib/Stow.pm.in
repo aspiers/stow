@@ -369,7 +369,7 @@ sub stow_node {
     debug(2, "Stowing from $path");
     debug(3, "--- $target => $source");
 
-    # don't try to stow absolute symlinks (they can't be unstowed)
+    # Don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
         my $second_source = $self->read_a_link($source);
         if ($second_source =~ m{\A/}) {
@@ -379,24 +379,24 @@ sub stow_node {
         }
     }
 
-    # does the target already exist?
+    # Does the target already exist?
     if ($self->is_a_link($target)) {
 
-        # where is the link pointing?
+        # Where is the link pointing?
         my $old_source = $self->read_a_link($target);
         if (not $old_source) {
             error("Could not read link: $target");
         }
         debug(3, "--- Evaluate existing link: $target => $old_source");
 
-        # does it point to a node under our stow directory?
+        # Does it point to a node under our stow directory?
         my $old_path = $self->find_stowed_path($target, $old_source);
         if (not $old_path) {
             $self->conflict("existing target is not owned by stow: $target");
             return; # XXX #
         }
 
-        # does the existing $target actually point to anything?
+        # Does the existing $target actually point to anything?
         if ($self->is_a_node($old_path)) {
             if ($old_source eq $source) {
                 debug(3, "--- Skipping $target as it already points to $source");
@@ -412,7 +412,7 @@ sub stow_node {
             elsif ($self->is_a_dir(join_paths(parent($target), $old_source)) &&
                    $self->is_a_dir(join_paths(parent($target), $source))     ) {
 
-                # if the existing link points to a directory,
+                # If the existing link points to a directory,
                 # and the proposed new link points to a directory,
                 # then we can unfold (split open) the tree at that point
 
@@ -431,7 +431,7 @@ sub stow_node {
             }
         }
         else {
-            # the existing link is invalid, so replace it with a good link
+            # The existing link is invalid, so replace it with a good link
             debug(3, "--- replacing invalid link: $path");
             $self->do_unlink($target);
             $self->do_link($source, $target);
@@ -466,7 +466,7 @@ sub should_skip_stow_dir_target {
     my $self = shift;
     my ($target) = @_;
 
-    #  don't try to remove anything under a stow directory
+    # Don't try to remove anything under a stow directory
     if ($target eq $self->{stow_path}) {
         debug(2, "Skipping target which was current stow directory $target");
         return 1;
@@ -553,26 +553,26 @@ sub unstow_node_orig {
     debug(2, "Unstowing $target (compat mode)");
     debug(3, "--- source path is $path");
 
-    # does the target exist
+    # Does the target exist?
     if ($self->is_a_link($target)) {
         debug(3, "Evaluate existing link: $target");
 
-        # where is the link pointing?
+        # Where is the link pointing?
         my $old_source = $self->read_a_link($target);
         if (not $old_source) {
             error("Could not read link: $target");
         }
 
-        # does it point to a node under our stow directory?
+        # Does it point to a node under our stow directory?
         my $old_path = $self->find_stowed_path($target, $old_source);
         if (not $old_path) {
             # skip links not owned by stow
             return; # XXX #
         }
 
-        # does the existing $target actually point to anything?
-        if (-e  $old_path) {
-            # does link point to the right place?
+        # Does the existing $target actually point to anything?
+        if (-e $old_path) {
+            # Does link point to the right place?
             if ($old_path eq $path) {
                 $self->do_unlink($target);
             }
@@ -590,7 +590,7 @@ sub unstow_node_orig {
     elsif (-d $target) {
         $self->unstow_contents_orig($path, $target);
 
-        # this action may have made the parent directory foldable
+        # This action may have made the parent directory foldable
         if (my $parent = $self->foldable($target)) {
             $self->fold_tree($target, $parent);
         }
@@ -672,11 +672,11 @@ sub unstow_node {
     debug(2, "Unstowing $path");
     debug(3, "--- target is $target");
 
-    # does the target exist
+    # Does the target exist?
     if ($self->is_a_link($target)) {
         debug(3, "Evaluate existing link: $target");
 
-        # where is the link pointing?
+        # Where is the link pointing?
         my $old_source = $self->read_a_link($target);
         if (not $old_source) {
             error("Could not read link: $target");
@@ -687,7 +687,7 @@ sub unstow_node {
             return; # XXX #
         }
 
-        # does it point to a node under our stow directory?
+        # Does it point to a node under our stow directory?
         my $old_path = $self->find_stowed_path($target, $old_source);
         if (not $old_path) {
              $self->conflict(
@@ -696,9 +696,9 @@ sub unstow_node {
             return; # XXX #
         }
 
-        # does the existing $target actually point to anything
+        # Does the existing $target actually point to anything?
         if (-e $old_path) {
-            # does link points to the right place
+            # Does link points to the right place?
             if ($old_path eq $path) {
                 $self->do_unlink($target);
             }
@@ -731,7 +731,7 @@ sub unstow_node {
         if (-d $target) {
             $self->unstow_contents($path, $target);
 
-            # this action may have made the parent directory foldable
+            # This action may have made the parent directory foldable
             if (my $parent = $self->foldable($target)) {
                 $self->fold_tree($target, $parent);
             }
@@ -764,22 +764,22 @@ sub find_stowed_path {
     my $self = shift;
     my ($target, $source) = @_;
 
-    # evaluate softlink relative to its target
+    # Evaluate softlink relative to its target
     my $path = join_paths(parent($target), $source);
     debug(4, "  is path $path under $self->{stow_path} ?");
 
-    # search for .stow files
+    # Search for .stow files
     my $dir = '';
     for my $part (split m{/+}, $path) {
         $dir = join_paths($dir, $part);
         return $path if $self->protected_dir($dir);
     }
 
-    # compare with $self->{stow_path}
+    # Compare with $self->{stow_path}
     my @path = split m{/+}, $path;
     my @stow_path = split m{/+}, $self->{stow_path};
 
-    # strip off common prefixes until one is empty
+    # Strip off common prefixes until one is empty
     while (@path && @stow_path) {
         if ((shift @path) ne (shift @stow_path)) {
             debug(4, "    no - either $path not under $self->{stow_path} or vice-versa");
@@ -829,8 +829,8 @@ sub cleanup_invalid_links {
 
         if (-l $node_path and not exists $self->{link_task_for}{$node_path}) {
 
-            # where is the link pointing?
-            # (dont use read_a_link here)
+            # Where is the link pointing?
+            # (don't use read_a_link() here)
             my $source = readlink($node_path);
             if (not $source) {
                 error("Could not read link $node_path");
@@ -879,13 +879,13 @@ sub foldable {
 
         my $path =  join_paths($target, $node);
 
-        # skip nodes scheduled for removal
+        # Skip nodes scheduled for removal
         next NODE if not $self->is_a_node($path);
 
-        # if its not a link then we can't fold its parent
+        # If it's not a link then we can't fold its parent
         return '' if not $self->is_a_link($path);
 
-        # where is the link pointing?
+        # Where is the link pointing?
         my $source = $self->read_a_link($path);
         if (not $source) {
             error("Could not read link $path");
@@ -899,14 +899,14 @@ sub foldable {
     }
     return '' if not $parent;
 
-    # if we get here then all nodes inside $target are links, and those links
+    # If we get here then all nodes inside $target are links, and those links
     # point to nodes inside the same directory.
 
     # chop of leading '..' to get the path to the common parent directory
     # relative to the parent of our $target
     $parent =~ s{\A\.\./}{};
 
-    # if the resulting path is owned by stow, we can fold it
+    # If the resulting path is owned by stow, we can fold it
     if ($self->find_stowed_path($target, $parent)) {
         debug(3, "--- $target is foldable");
         return $parent;
@@ -1070,7 +1070,7 @@ sub process_tasks {
         return;
     }
 
-    # strip out all tasks with a skip action
+    # Strip out all tasks with a skip action
     $self->{tasks} = [ grep { $_->{'action'} ne 'skip' } @{ $self->{tasks} } ];
 
     if (not @{ $self->{tasks} }) {
@@ -1238,7 +1238,7 @@ sub is_a_link {
     }
 
     if (-l $path) {
-        # check if any of its parent are links scheduled for removal
+        # Check if any of its parent are links scheduled for removal
         # (need this for edge case during unfolding)
         debug(4, "  is_a_link($path): is a real link");
         return $self->parent_link_scheduled_for_removal($path) ? 0 : 1;
@@ -1414,7 +1414,7 @@ sub do_link {
             }
         }
         elsif ($task_ref->{'action'} eq 'remove') {
-            # we may need to remove a directory before creating a link so continue;
+            # We may need to remove a directory before creating a link so continue.
         }
         else {
             internal_error("bad task action: $task_ref->{'action'}");
@@ -1439,20 +1439,20 @@ sub do_link {
         }
         elsif ($task_ref->{'action'} eq 'remove') {
             if ($task_ref->{'source'} eq $oldfile) {
-                # no need to remove a link we are going to recreate
+                # No need to remove a link we are going to recreate
                 debug(1, "LINK: $newfile => $oldfile (reverts previous action)");
                 $self->{link_task_for}{$newfile}->{'action'} = 'skip';
                 delete $self->{link_task_for}{$newfile};
                 return;
             }
-            # we may need to remove a link to replace it so continue
+            # We may need to remove a link to replace it so continue
         }
         else {
             internal_error("bad task action: $task_ref->{'action'}");
         }
     }
 
-    # creating a new link
+    # Creating a new link
     debug(1, "LINK: $newfile => $oldfile");
     my $task = {
         action  => 'create',
@@ -1485,7 +1485,7 @@ sub do_unlink {
             return;
         }
         elsif ($task_ref->{'action'} eq 'create') {
-            # do need to create a link then remove it
+            # Do need to create a link then remove it
             debug(1, "UNLINK: $file (reverts previous action)");
             $self->{link_task_for}{$file}->{'action'} = 'skip';
             delete $self->{link_task_for}{$file};
@@ -1504,8 +1504,7 @@ sub do_unlink {
         );
     }
 
-    # remove the link
-    #debug(1, "UNLINK: $file (" . (caller())[2] . ")");
+    # Remove the link
     debug(1, "UNLINK: $file");
 
     my $source = readlink $file or error("could not readlink $file");
@@ -1547,7 +1546,7 @@ sub do_mkdir {
             );
         }
         elsif ($task_ref->{'action'} eq 'remove') {
-            # may need to remove a link before creating a directory so continue
+            # May need to remove a link before creating a directory so continue
         }
         else {
             internal_error("bad task action: $task_ref->{'action'}");
