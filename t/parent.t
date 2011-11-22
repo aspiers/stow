@@ -13,25 +13,25 @@ use Test::More tests => 5;
 
 is(
     parent('a/b/c'),
-    'a/b',
+    'a/b'
     => 'no leading or trailing /'
 );
 
 is(
     parent('/a/b/c'),
-    '/a/b',
+    '/a/b'
     => 'leading /'
 );
 
 is(
     parent('a/b/c/'),
-    'a/b',
+    'a/b'
     => 'trailing /'
 );
 
 is(
     parent('/////a///b///c///'),
-    '/a/b',
+    '/a/b'
     => 'multiple /'
 );
 

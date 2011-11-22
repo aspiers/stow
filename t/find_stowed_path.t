@@ -17,7 +17,7 @@ my $stow = new_Stow(dir => 't/stow');
 
 is(
     $stow->find_stowed_path('t/target/a/b/c', '../../../stow/a/b/c'),
-    't/stow/a/b/c',
+    't/stow/a/b/c'
     => 'from root'
 );
 
@@ -25,7 +25,7 @@ cd('t/target');
 $stow->set_stow_dir('../stow');
 is(
     $stow->find_stowed_path('a/b/c','../../../stow/a/b/c'),
-    '../stow/a/b/c',
+    '../stow/a/b/c'
     => 'from target directory'
 );
 
@@ -35,13 +35,13 @@ $stow->set_stow_dir('t/target/stow');
 
 is(
     $stow->find_stowed_path('t/target/a/b/c', '../../stow/a/b/c'),
-    't/target/stow/a/b/c',
+    't/target/stow/a/b/c'
     => 'stow is subdir of target directory'
 );
 
 is(
     $stow->find_stowed_path('t/target/a/b/c','../../empty'),
-    '',
+    ''
     => 'target is not stowed'
 );
 

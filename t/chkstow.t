@@ -63,7 +63,7 @@ sub run_chkstow() {
     check_stow();
 }
 
-local @ARGV = ('-t', '.', '-b',);
+local @ARGV = ('-t', '.', '-b');
 stderr_like(
     \&run_chkstow,
     qr{\Askipping .*stow.*\z}xms,
@@ -72,19 +72,19 @@ stderr_like(
 # squelch warn so that check_stow doesn't carp about skipping .stow all the time
 $SIG{'__WARN__'} = sub { };
 
-@ARGV = ('-t', '.', '-l',);
+@ARGV = ('-t', '.', '-l');
 stdout_like(
     \&run_chkstow,
     qr{emacs\nperl\nstow\n}xms,
     "List packages");
 
-@ARGV = ('-t', '.', '-b',);
+@ARGV = ('-t', '.', '-b');
 stdout_like(
     \&run_chkstow,
     qr{\A\z}xms,
     "No bogus links exist");
 
-@ARGV = ('-t', '.', '-a',);
+@ARGV = ('-t', '.', '-a');
 stdout_like(
     \&run_chkstow,
     qr{\A\z}xms,
@@ -92,20 +92,20 @@ stdout_like(
 
 # Create an alien
 make_file('bin/alien');
-@ARGV = ('-t', '.', '-a',);
+@ARGV = ('-t', '.', '-a');
 stdout_like(
     \&run_chkstow,
     qr{Unstowed\ file:\ ./bin/alien}xms,
     "Aliens exist");
 
 make_link('bin/link', 'ireallyhopethisfiledoesn/t.exist');
-@ARGV = ('-t', '.', '-b',);
+@ARGV = ('-t', '.', '-b');
 stdout_like(
     \&run_chkstow,
     qr{Bogus\ link:\ ./bin/link}xms,
     "Bogus links exist");
 
-@ARGV = ('-b',);
+@ARGV = ('-b');
 process_options();
 our $Target;
 ok($Target == q{/usr/local},
