@@ -9,7 +9,7 @@ use warnings;
 
 use Stow::Util qw(join_paths);
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 is(
     join_paths('a/b/c', 'd/e/f'),
@@ -88,4 +88,10 @@ is(
     join_paths('./a1', '../../a2'),
     '../a2'
     => 'drop any "./"'
+);
+
+is(
+    join_paths('a/b/c', '.'),
+    'a/b/c'
+    => '. on RHS'
 );
