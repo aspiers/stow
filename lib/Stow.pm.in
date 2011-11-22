@@ -473,7 +473,7 @@ sub should_skip_target_which_is_stow_dir {
         return 1;
     }
 
-    if ($self->protected_dir($target)) {
+    if ($self->marked_stow_dir($target)) {
         debug(2, "Skipping protected directory $target");
         return 1;
     }
@@ -482,7 +482,7 @@ sub should_skip_target_which_is_stow_dir {
     return 0;
 }
 
-sub protected_dir {
+sub marked_stow_dir {
     my $self = shift;
     my ($target) = @_;
     for my $f (".stow", ".nonstow") {
@@ -775,7 +775,7 @@ sub find_stowed_path {
     my $dir = '';
     for my $part (split m{/+}, $path) {
         $dir = join_paths($dir, $part);
-        return $path if $self->protected_dir($dir);
+        return $path if $self->marked_stow_dir($dir);
     }
 
     # Compare with $self->{stow_path}
