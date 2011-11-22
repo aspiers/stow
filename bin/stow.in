@@ -434,7 +434,7 @@ sub main {
     if (scalar @conflicts) {
         warn "WARNING: conflicts detected.\n";
         if ($options->{'conflicts'}) {
-            map { warn $_ } @conflicts;
+            warn $_ foreach @conflicts;
         }
         warn "WARNING: all operations aborted.\n";
     }
