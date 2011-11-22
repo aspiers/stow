@@ -232,7 +232,7 @@ sub plan_unstow {
             if (not -d join_paths($self->{stow_path}, $package)) {
                 error("The given package name ($package) is not in your stow path $self->{stow_path}");
             }
-            debug(2, "Unstowing package $package...");
+            debug(2, "Planning unstow of package $package...");
             if ($self->{'compat'}) {
                 $self->unstow_contents_orig(
                     join_paths($self->{stow_path}, $package), # path to package
@@ -245,7 +245,7 @@ sub plan_unstow {
                     '.',                                      # target is current_dir
                 );
             }
-            debug(2, "Unstowing package $package... done");
+            debug(2, "Planning unstow of package $package... done");
         }
     });
 }
@@ -267,13 +267,13 @@ sub plan_stow {
             if (not -d join_paths($self->{stow_path}, $package)) {
                 error("The given package name ($package) is not in your stow path $self->{stow_path}");
             }
-            debug(2, "Stowing package $package...");
+            debug(2, "Planning stow of package $package...");
             $self->stow_contents(
                 join_paths($self->{stow_path}, $package), # path package
                 '.',                                      # target is current dir
                 join_paths($self->{stow_path}, $package), # source from target
             );
-            debug(2, "Stowing package $package... done");
+            debug(2, "Planning stow of package $package... done");
         }
     });
 }
