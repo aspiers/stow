@@ -26,7 +26,7 @@ my $stow;
 
 make_dir('../stow/pkg1/bin1');
 make_file('../stow/pkg1/bin1/file1');
-make_link('bin1','../stow/pkg1/bin1');
+make_link('bin1', '../stow/pkg1/bin1');
 
 $stow = new_Stow();
 $stow->cleanup_invalid_links('./');
@@ -41,8 +41,8 @@ is(
 make_dir('bin2');
 make_dir('../stow/pkg2/bin2');
 make_file('../stow/pkg2/bin2/file2a');
-make_link('bin2/file2a','../../stow/pkg2/bin2/file2a');
-make_link('bin2/file2b','../../stow/pkg2/bin2/file2b');
+make_link('bin2/file2a', '../../stow/pkg2/bin2/file2a');
+make_link('bin2/file2b', '../../stow/pkg2/bin2/file2b');
 
 $stow = new_Stow();
 $stow->cleanup_invalid_links('bin2');
@@ -57,8 +57,8 @@ is($stow->link_task_action('bin2/file2b'), 'remove', 'removal task for bad link'
 make_dir('bin3');
 make_dir('../stow/pkg3/bin3');
 make_file('../stow/pkg3/bin3/file3a');
-make_link('bin3/file3a','../../stow/pkg3/bin3/file3a');
-make_link('bin3/file3b','../../empty');
+make_link('bin3/file3a', '../../stow/pkg3/bin3/file3a');
+make_link('bin3/file3b', '../../empty');
 
 $stow = new_Stow();
 $stow->cleanup_invalid_links('bin3');
