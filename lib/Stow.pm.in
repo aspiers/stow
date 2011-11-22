@@ -319,7 +319,7 @@ sub stow_contents {
     my $self = shift;
     my ($path, $target, $source) = @_;
 
-    return if $self->should_skip_stow_dir_target($target);
+    return if $self->should_skip_target_which_is_stow_dir($target);
 
     my $cwd = getcwd();
     my $msg = "Stowing contents of $path (cwd=$cwd, stow dir=$self->{stow_path})";
@@ -455,14 +455,15 @@ sub stow_node {
 }
 
 #===== METHOD ===============================================================
-# Name      : should_skip_stow_dir_target()
-# Purpose   : determine whether target is a stow directory and should be skipped
+# Name      : should_skip_target_which_is_stow_dir()
+# Purpose   : determine whether target is a stow directory which should
+#           : not be stowed to or unstowed from
 # Parameters: $target => relative path to symlink target from the current directory
 # Returns   : true iff target is a stow directory
 # Throws    : n/a
 # Comments  : none
 #============================================================================
-sub should_skip_stow_dir_target {
+sub should_skip_target_which_is_stow_dir {
     my $self = shift;
     my ($target) = @_;
 
@@ -507,7 +508,7 @@ sub unstow_contents_orig {
     my $self = shift;
     my ($path, $target) = @_;
 
-    return if $self->should_skip_stow_dir_target($target);
+    return if $self->should_skip_target_which_is_stow_dir($target);
 
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (compat mode, cwd=$cwd, stow dir=$self->{stow_path})";
@@ -622,7 +623,7 @@ sub unstow_contents {
     my $self = shift;
     my ($path, $target) = @_;
 
-    return if $self->should_skip_stow_dir_target($target);
+    return if $self->should_skip_target_which_is_stow_dir($target);
 
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (cwd=$cwd, stow dir=$self->{stow_path})";
