@@ -128,7 +128,7 @@ sub join_paths {
     my @paths = @_;
 
     # weed out empty components and concatenate
-    my $result = join '/', grep {!/\A\z/} @paths;
+    my $result = join '/', grep {! /\A\z/} @paths;
 
     # factor out back references and remove redundant /'s)
     my @result = ();

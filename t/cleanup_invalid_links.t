@@ -12,7 +12,7 @@ use English qw(-no_match_vars);
 
 use testutil;
 
-make_fresh_stow_and_target_dirs();
+init_test_dirs();
 cd('t/target');
 
 my $stow;

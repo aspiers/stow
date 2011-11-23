@@ -14,7 +14,7 @@ use Test::More tests => 7;
 use Test::Output;
 use English qw(-no_match_vars);
 
-make_fresh_stow_and_target_dirs();
+init_test_dirs();
 cd('t/target');
 
 # setup stow directory

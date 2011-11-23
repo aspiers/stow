@@ -12,7 +12,7 @@ use testutil;
 use Test::More tests => 4;
 use English qw(-no_match_vars);
 
-make_fresh_stow_and_target_dirs();
+init_test_dirs();
 cd('t/target');
 
 my $stow = new_Stow(dir => '../stow');

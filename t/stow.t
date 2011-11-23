@@ -13,7 +13,7 @@ use testutil;
 
 require 'stow';
 
-make_fresh_stow_and_target_dirs();
+init_test_dirs();
 
 local @ARGV = (
     '-v',
