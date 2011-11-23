@@ -14,7 +14,7 @@ use English qw(-no_match_vars);
 use testutil;
 use Stow::Util qw(canon_path);
 
-make_fresh_stow_and_target_dirs();
+init_test_dirs();
 cd('t/target');
 
 # Note that each of the following tests use a distinct set of files

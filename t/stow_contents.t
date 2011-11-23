@@ -14,7 +14,7 @@ use English qw(-no_match_vars);
 use Stow::Util qw(canon_path);
 use testutil;
 
-make_fresh_stow_and_target_dirs();
+init_test_dirs();
 cd('t/target');
 
 my $stow;

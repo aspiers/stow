@@ -45,6 +45,12 @@ use Stow::Util qw(set_debug_level debug error set_test_mode
 our $ProgramName = 'stow';
 our $VERSION = '@VERSION@';
 
+our $LOCAL_IGNORE_FILE  = '.stow-local-ignore';
+our $GLOBAL_IGNORE_FILE = '.stow-global-ignore';
+
+our @default_global_ignore_regexps =
+    __PACKAGE__->get_default_global_ignore_regexps();
+
 # These are the default options for each Stow instance.
 our %DEFAULT_OPTIONS = (
     conflicts  => 0,
@@ -235,14 +241,16 @@ sub plan_unstow {
             debug(2, "Planning unstow of package $package...");
             if ($self->{'compat'}) {
                 $self->unstow_contents_orig(
-                    join_paths($self->{stow_path}, $package), # path to package
-                    '.',                                      # target is current_dir
+                    $self->{stow_path},
+                    $package,
+                    '.',
                 );
             }
             else {
                 $self->unstow_contents(
-                    join_paths($self->{stow_path}, $package), # path to package
-                    '.',                                      # target is current_dir
+                    $self->{stow_path},
+                    $package,
+                    '.',
                 );
             }
             debug(2, "Planning unstow of package $package... done");
@@ -269,8 +277,9 @@ sub plan_stow {
             }
             debug(2, "Planning stow of package $package...");
             $self->stow_contents(
-                join_paths($self->{stow_path}, $package), # path package
-                '.',                                      # target is current dir
+                $self->{stow_path},
+                $package,
+                '.',
                 join_paths($self->{stow_path}, $package), # source from target
             );
             debug(2, "Planning stow of package $package... done");
@@ -306,23 +315,29 @@ sub within_target_do {
 #===== METHOD ===============================================================
 # Name      : stow_contents()
 # Purpose   : stow the contents of the given directory
-# Parameters: $path   => relative path to source dir from current directory
-#           : $target => relative path to symlink target from the current directory
-#           : $source => relative path to symlink source from the dir of target
+# Parameters: $stow_path => relative path from current (i.e. target) directory
+#           :               to the stow dir containing the package to be stowed
+#           : $package => the package whose contents are being stowed
+#           : $target => subpath relative to package and target directories
+#           : $source => relative path from the (sub)dir of target
+#           :            to symlink source
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
-# Comments  : stow_node() and stow_contents() are mutually recursive
+# Comments  : stow_node() and stow_contents() are mutually recursive.
 #           : $source and $target are used for creating the symlink
 #           : $path is used for folding/unfolding trees as necessary
 #============================================================================
 sub stow_contents {
     my $self = shift;
-    my ($path, $target, $source) = @_;
+    my ($stow_path, $package, $target, $source) = @_;
+
+    my $path = join_paths($stow_path, $package, $target);
 
     return if $self->should_skip_target_which_is_stow_dir($target);
 
     my $cwd = getcwd();
-    my $msg = "Stowing contents of $path (cwd=$cwd, stow dir=$self->{stow_path})";
+    my $msg = "Stowing contents of $path in package $package "
+            . "(cwd=$cwd, stow dir=$self->{stow_path})";
     $msg =~ s!$ENV{HOME}/!~/!g;
     debug(2, $msg);
     debug(3, "--- $target => $source");
@@ -341,10 +356,12 @@ sub stow_contents {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        next NODE if $self->ignore($node);
+        my $node_target = join_paths($target, $node);
+        next NODE if $self->ignore($stow_path, $package, $node_target);
         $self->stow_node(
-            join_paths($path,   $node),   # path
-            join_paths($target, $node),   # target
+            $stow_path,
+            $package,
+            $node_target,                 # target
             join_paths($source, $node),   # source
         );
     }
@@ -353,8 +370,10 @@ sub stow_contents {
 #===== METHOD ===============================================================
 # Name      : stow_node()
 # Purpose   : stow the given node
-# Parameters: $path   => relative path to source node from the current directory
-#           : $target => relative path to symlink target from the current directory
+# Parameters: $stow_path => relative path from current (i.e. target) directory
+#           :               to the stow dir containing the node to be stowed
+#           : $package => the package containing the node being stowed
+#           : $target => subpath relative to package and target directories
 #           : $source => relative path to symlink source from the dir of target
 # Returns   : n/a
 # Throws    : fatal exception if a conflict arises
@@ -364,7 +383,9 @@ sub stow_contents {
 #============================================================================
 sub stow_node {
     my $self = shift;
-    my ($path, $target, $source) = @_;
+    my ($stow_path, $package, $target, $source) = @_;
+
+    my $path = join_paths($stow_path, $package, $target);
 
     debug(2, "Stowing from $path");
     debug(3, "--- $target => $source");
@@ -381,7 +402,6 @@ sub stow_node {
 
     # Does the target already exist?
     if ($self->is_a_link($target)) {
-
         # Where is the link pointing?
         my $existing_source = $self->read_a_link($target);
         if (not $existing_source) {
@@ -390,7 +410,8 @@ sub stow_node {
         debug(3, "--- Evaluate existing link: $target => $existing_source");
 
         # Does it point to a node under our stow directory?
-        my $existing_path = $self->find_stowed_path($target, $existing_source);
+        my ($existing_path, $existing_stow_path, $existing_package) =
+            $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
             $self->conflict("existing target is not owned by stow: $target");
             return; # XXX #
@@ -416,11 +437,21 @@ sub stow_node {
                 # and the proposed new link points to a directory,
                 # then we can unfold (split open) the tree at that point
 
-                debug(3, "--- Unfolding $target");
+                debug(3, "--- Unfolding $target which was already owned by $existing_package");
                 $self->do_unlink($target);
                 $self->do_mkdir($target);
-                $self->stow_contents($existing_path, $target, join_paths('..', $existing_source));
-                $self->stow_contents($path,     $target, join_paths('..', $source));
+                $self->stow_contents(
+                    $existing_stow_path,
+                    $existing_package,
+                    $target,
+                    join_paths('..', $existing_source),
+                );
+                $self->stow_contents(
+                    $self->{stow_path},
+                    $package,
+                    $target,
+                    join_paths('..', $source),
+                );
             }
             else {
                 $self->conflict(
@@ -440,7 +471,12 @@ sub stow_node {
     elsif ($self->is_a_node($target)) {
         debug(3, "--- Evaluate existing node: $target");
         if ($self->is_a_dir($target)) {
-            $self->stow_contents($path, $target, join_paths('..', $source));
+            $self->stow_contents(
+                $self->{stow_path},
+                $package,
+                $target,
+                join_paths('..', $source),
+            );
         }
         else {
             $self->conflict(
@@ -497,7 +533,9 @@ sub marked_stow_dir {
 #===== METHOD ===============================================================
 # Name      : unstow_contents_orig()
 # Purpose   : unstow the contents of the given directory
-# Parameters: $path   => relative path to source dir from current directory
+# Parameters: $stow_path => relative path from current (i.e. target) directory
+#           :               to the stow dir containing the package to be unstowed
+#           : $package => the package whose contents are being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
@@ -506,7 +544,9 @@ sub marked_stow_dir {
 #============================================================================
 sub unstow_contents_orig {
     my $self = shift;
-    my ($path, $target) = @_;
+    my ($stow_path, $package, $target) = @_;
+
+    my $path = join_paths($stow_path, $package, $target);
 
     return if $self->should_skip_target_which_is_stow_dir($target);
 
@@ -530,18 +570,18 @@ sub unstow_contents_orig {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        next NODE if $self->ignore($node);
-        $self->unstow_node_orig(
-            join_paths($path,   $node), # path
-            join_paths($target, $node), # target
-        );
+        my $node_target = join_paths($target, $node);
+        next NODE if $self->ignore($stow_path, $package, $node_target);
+        $self->unstow_node_orig($stow_path, $package, $node_target);
     }
 }
 
 #===== METHOD ===============================================================
 # Name      : unstow_node_orig()
 # Purpose   : unstow the given node
-# Parameters: $path   => relative path to source node from the current directory
+# Parameters: $stow_path => relative path from current (i.e. target) directory
+#           :               to the stow dir containing the node to be stowed
+#           : $package => the package containing the node being stowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
@@ -549,7 +589,9 @@ sub unstow_contents_orig {
 #============================================================================
 sub unstow_node_orig {
     my $self = shift;
-    my ($path, $target) = @_;
+    my ($stow_path, $package, $target) = @_;
+
+    my $path = join_paths($stow_path, $package, $target);
 
     debug(2, "Unstowing $target (compat mode)");
     debug(3, "--- source path is $path");
@@ -565,7 +607,8 @@ sub unstow_node_orig {
         }
 
         # Does it point to a node under our stow directory?
-        my $existing_path = $self->find_stowed_path($target, $existing_source);
+        my ($existing_path, $existing_stow_path, $existing_package) =
+            $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
             # We're traversing the target tree not the package tree,
             # so we definitely expect to find stuff not owned by stow.
@@ -591,7 +634,7 @@ sub unstow_node_orig {
         }
     }
     elsif (-d $target) {
-        $self->unstow_contents_orig($path, $target);
+        $self->unstow_contents_orig($stow_path, $package, $target);
 
         # This action may have made the parent directory foldable
         if (my $parent = $self->foldable($target)) {
@@ -612,7 +655,9 @@ sub unstow_node_orig {
 #===== METHOD ===============================================================
 # Name      : unstow_contents()
 # Purpose   : unstow the contents of the given directory
-# Parameters: $path   => relative path to source dir from current directory
+# Parameters: $stow_path => relative path from current (i.e. target) directory
+#           :               to the stow dir containing the package to be unstowed
+#           : $package => the package whose contents are being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
@@ -621,7 +666,9 @@ sub unstow_node_orig {
 #============================================================================
 sub unstow_contents {
     my $self = shift;
-    my ($path, $target) = @_;
+    my ($stow_path, $package, $target) = @_;
+
+    my $path = join_paths($stow_path, $package, $target);
 
     return if $self->should_skip_target_which_is_stow_dir($target);
 
@@ -648,11 +695,9 @@ sub unstow_contents {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        next NODE if $self->ignore($node);
-        $self->unstow_node(
-            join_paths($path,   $node), # path
-            join_paths($target, $node), # target
-        );
+        my $node_target = join_paths($target, $node);
+        next NODE if $self->ignore($stow_path, $package, $node_target);
+        $self->unstow_node($stow_path, $package, $node_target);
     }
     if (-d $target) {
         $self->cleanup_invalid_links($target);
@@ -662,7 +707,9 @@ sub unstow_contents {
 #===== METHOD ===============================================================
 # Name      : unstow_node()
 # Purpose   : unstow the given node
-# Parameters: $path   => relative path to source node from the current directory
+# Parameters: $stow_path => relative path from current (i.e. target) directory
+#           :               to the stow dir containing the node to be stowed
+#           : $package => the package containing the node being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
@@ -670,7 +717,9 @@ sub unstow_contents {
 #============================================================================
 sub unstow_node {
     my $self = shift;
-    my ($path, $target) = @_;
+    my ($stow_path, $package, $target) = @_;
+
+    my $path = join_paths($stow_path, $package, $target);
 
     debug(2, "Unstowing $path");
     debug(3, "--- target is $target");
@@ -686,12 +735,13 @@ sub unstow_node {
         }
 
         if ($existing_source =~ m{\A/}) {
-            warn "ignoring an absolute symlink: $target => $existing_source\n";
+            warn "Ignoring an absolute symlink: $target => $existing_source\n";
             return; # XXX #
         }
 
         # Does it point to a node under our stow directory?
-        my $existing_path = $self->find_stowed_path($target, $existing_source);
+        my ($existing_path, $existing_stow_path, $existing_package) =
+            $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
              $self->conflict(
                  qq{existing target is not owned by stow: $target => $existing_source}
@@ -732,7 +782,7 @@ sub unstow_node {
     elsif (-e $target) {
         debug(3, "Evaluate existing node: $target");
         if (-d $target) {
-            $self->unstow_contents($path, $target);
+            $self->unstow_contents($stow_path, $package, $target);
 
             # This action may have made the parent directory foldable
             if (my $parent = $self->foldable($target)) {
@@ -752,16 +802,39 @@ sub unstow_node {
 }
 
 #===== METHOD ===============================================================
-# Name      : find_stowed_path()
+# Name      : path_owned_by_package()
 # Purpose   : determine if the given link points to a member of a
 #           : stowed package
 # Parameters: $target => path to a symbolic link under current directory
 #           : $source => where that link points to
-# Returns   : relative path to stowed node (from the current directory)
-#           : or '' if link is not owned by stow
-# Throws    : fatal exception if link is unreadable
-# Comments  : allow for stow dir not being under target dir
-#           : we could put more logic under here for multiple stow dirs
+# Returns   : the package iff link is owned by stow, otherwise ''
+# Throws    : n/a
+# Comments  : lossy wrapper around find_stowed_path()
+#============================================================================
+sub path_owned_by_package {
+    my $self = shift;
+    my ($target, $source) = @_;
+
+    my ($path, $stow_path, $package) =
+        $self->find_stowed_path($target, $source);
+    return $package;
+}
+
+#===== METHOD ===============================================================
+# Name      : find_stowed_path()
+# Purpose   : determine if the given link points to a member of a
+#           : stowed package
+# Parameters: $target => path to a symbolic link under current directory
+#           : $source => where that link points to (needed because link
+#           :            might not exist yet due to two-phase approach,
+#           :            so we can't just call readlink())
+# Returns   : ($path, $stow_path, $package) where $path and $stow_path are
+#           : relative from the current (i.e. target) directory
+#           : or ('', '', '') if link is not owned by stow
+# Throws    : n/a
+# Comments  : Needs 
+#           : Allow for stow dir not being under target dir.
+#           : We could put more logic under here for multiple stow dirs.
 #============================================================================
 sub find_stowed_path {
     my $self = shift;
@@ -769,34 +842,48 @@ sub find_stowed_path {
 
     # Evaluate softlink relative to its target
     my $path = join_paths(parent($target), $source);
-    debug(4, "  is path $path under $self->{stow_path} ?");
+    debug(4, "  is path $path owned by stow?");
 
-    # Search for .stow files
+    # Search for .stow files - this allows us to detect links
+    # owned by stow directories other than the current one.
     my $dir = '';
-    for my $part (split m{/+}, $path) {
+    my @path = split m{/+}, $path;
+    for my $i (0 .. $#path) {
+        my $part = $path[$i];
         $dir = join_paths($dir, $part);
-        return $path if $self->marked_stow_dir($dir);
+        if ($self->marked_stow_dir($dir)) {
+            # FIXME - not sure if this can ever happen
+            internal_error("find_stowed_path() called directly on stow dir")
+                if $i == $#path;
+
+            debug(4, "    yes - $dir was marked as a stow dir");
+            my $package = $path[$i + 1];
+            return ($path, $dir, $package);
+        }
     }
 
-    # Compare with $self->{stow_path}
-    my @path = split m{/+}, $path;
+    # If no .stow file was found, we need to find out whether it's
+    # owned by the current stow directory, in which case $path will be
+    # a prefix of $self->{stow_path}.
     my @stow_path = split m{/+}, $self->{stow_path};
 
     # Strip off common prefixes until one is empty
     while (@path && @stow_path) {
         if ((shift @path) ne (shift @stow_path)) {
             debug(4, "    no - either $path not under $self->{stow_path} or vice-versa");
-            return '';
+            return ('', '', '');
         }
     }
 
     if (@stow_path) { # @path must be empty
         debug(4, "    no - $path is not under $self->{stow_path}");
-        return '';
+        return ('', '', '');
     }
 
-    debug(4, "    yes - in " . join_paths(@path));
-    return $path;
+    my $package = shift @path;
+    
+    debug(4, "    yes - by $package in " . join_paths(@path));
+    return ($path, $self->{stow_path}, $package);
 }
 
 #===== METHOD ================================================================
@@ -841,7 +928,7 @@ sub cleanup_invalid_links {
 
             if (
                 not -e join_paths($dir, $source) and  # bad link
-                $self->find_stowed_path($node_path, $source) # owned by stow
+                $self->path_owned_by_package($node_path, $source) # owned by stow
             ){
                 debug(3, "--- removing stale link: $node_path => " .
                           join_paths($dir, $source));
@@ -910,7 +997,7 @@ sub foldable {
     $parent =~ s{\A\.\./}{};
 
     # If the resulting path is owned by stow, we can fold it
-    if ($self->find_stowed_path($target, $parent)) {
+    if ($self->path_owned_by_package($target, $parent)) {
         debug(3, "--- $target is foldable");
         return $parent;
     }
@@ -997,19 +1084,187 @@ sub get_tasks {
 #===== METHOD ================================================================
 # Name      : ignore
 # Purpose   : determine if the given path matches a regex in our ignore list
-# Parameters: $path
-# Returns   : Boolean
+# Parameters: $stow_path => the stow directory containing the package
+#           : $package   => the package containing the path
+#           : $target    => the path to check against the ignore list
+#           :               relative to its package directory
+# Returns   : true iff the path should be ignored
 # Throws    : no exceptions
 # Comments  : none
 #=============================================================================
 sub ignore {
     my $self = shift;
-    my ($path) = @_;
+    my ($stow_path, $package, $target) = @_;
 
-    for my $suffix (@{$self->{'ignore'}}) {
-        return 1 if $path =~ m/$suffix/;
+    internal_error(__PACKAGE__ . "::ignore() called with empty target")
+        unless length $target;
+
+    for my $suffix (@{ $self->{'ignore'} }) {
+        if ($target =~ m/$suffix/) {
+            debug(4, "  Ignoring path $target due to --ignore=$suffix");
+            return 1;
+        }
     }
+
+    my $package_dir = join_paths($stow_path, $package);
+    my ($path_regexp, $segment_regexp) =
+        $self->get_ignore_regexps($package_dir);
+    debug(3, "    Ignore list regexp for paths:    " .
+             (defined $path_regexp ? "/$path_regexp/" : "none"));
+    debug(3, "    Ignore list regexp for segments: " .
+             (defined $segment_regexp ? "/$segment_regexp/" : "none"));
+
+    if (defined $path_regexp and "/$target" =~ $path_regexp) {
+        debug(4, "  Ignoring path /$target");
+        return 1;
+    }
+
+    (my $basename = $target) =~ s!.+/!!;
+    if (defined $segment_regexp and $basename =~ $segment_regexp) {
+        debug(4, "  Ignoring path segment $basename");
+        return 1;
+    }
+
+    debug(5, "  Not ignoring $target");
     return 0;
+}
+
+sub get_ignore_regexps {
+    my $self = shift;
+    my ($dir) = @_;
+
+    # N.B. the local and global stow ignore files have to have different
+    # names so that:
+    #   1. the global one can be a symlink to within a stow
+    #      package, managed by stow itself, and
+    #   2. the local ones can be ignored via hardcoded logic in
+    #      GlobsToRegexp(), so that they always stay within their stow packages.
+
+    my $local_stow_ignore  = join_paths($dir,       $LOCAL_IGNORE_FILE);
+    my $global_stow_ignore = join_paths($ENV{HOME}, $GLOBAL_IGNORE_FILE);
+
+    for my $file ($local_stow_ignore, $global_stow_ignore) {
+        if (-e $file) {
+            debug(3, "  Using ignore file: $file");
+            return $self->get_ignore_regexps_from_file($file);
+        }
+        else {
+            debug(4, "  $file didn't exist");
+        }
+    }
+
+    debug(4, "  Using built-in ignore list");
+    return @default_global_ignore_regexps;
+}
+
+my %ignore_file_regexps;
+
+sub get_ignore_regexps_from_file {
+    my $self = shift;
+    my ($file) = @_;
+
+    if (exists $ignore_file_regexps{$file}) {
+        debug(4, "    Using memoized regexps from $file");
+        return @{ $ignore_file_regexps{$file} };
+    }
+
+    if (! open(REGEXPS, $file)) {
+        debug(4, "    Failed to open $file: $!");
+        return undef;
+    }
+
+    my @regexps = $self->get_ignore_regexps_from_fh(\*REGEXPS);
+    close(REGEXPS);
+
+    $ignore_file_regexps{$file} = [ @regexps ];
+    return @regexps;
+}
+
+=head2 invalidate_memoized_regexp($file)
+
+For efficiency of performance, regular expressions are compiled from
+each ignore list file the first time it is used by the Stow process,
+and then memoized for future use.  If you expect the contents of these
+files to change during a single run, you will need to invalidate the
+memoized value from this cache.  This method allows you to do that.
+
+=cut
+
+sub invalidate_memoized_regexp {
+    my $self = shift;
+    my ($file) = @_;
+    if (exists $ignore_file_regexps{$file}) {
+        debug(4, "    Invalidated memoized regexp for $file");
+        delete $ignore_file_regexps{$file};
+    }
+    else {
+        debug(2, "  WARNING: no memoized regexp for $file to invalidate");
+    }
+}
+
+sub get_ignore_regexps_from_fh {
+    my $self = shift;
+    my ($fh) = @_;
+    my %regexps;
+    while (<$fh>) {
+        chomp;
+        s/^\s+//;
+        s/\s+$//;
+        next if /^#/ or length($_) == 0;
+        s/\s+#.+//; # strip comments to right of pattern
+        s/\\#/#/g;
+        $regexps{$_}++;
+    }
+
+    # Local ignore lists should *always* stay within the stow directory,
+    # because this is the only place stow looks for them.
+    $regexps{"^/\Q$LOCAL_IGNORE_FILE\E\$"}++;
+
+    return $self->compile_ignore_regexps(%regexps);
+}
+
+sub compile_ignore_regexps {
+    my $self = shift;
+    my (%regexps) = @_;
+
+    my @segment_regexps;
+    my @path_regexps;
+    for my $regexp (keys %regexps) {
+        if (index($regexp, '/') < 0) {
+            # No / found in regexp, so use it for matching against basename
+            push @segment_regexps, $regexp;
+        }
+        else {
+            # / found in regexp, so use it for matching against full path
+            push @path_regexps, $regexp;
+        }
+    }
+
+    my $segment_regexp = join '|', @segment_regexps;
+    my $path_regexp    = join '|', @path_regexps;
+    $segment_regexp = @segment_regexps ?
+        $self->compile_regexp("^($segment_regexp)\$") : undef;
+    $path_regexp    = @path_regexps    ?
+        $self->compile_regexp("(^|/)($path_regexp)(/|\$)") : undef;
+
+    return ($path_regexp, $segment_regexp);
+}
+
+sub compile_regexp {
+    my $self = shift;
+    my ($regexp) = @_;
+    my $compiled = eval { qr/$regexp/ };
+    die "Failed to compile regexp: $@\n" if $@;
+    return $compiled;
+}
+
+sub get_default_global_ignore_regexps {
+    my $class = shift;
+    # Bootstrap issue - first time we stow, we will be stowing
+    # .cvsignore so it might not exist in ~ yet, or if it does, it could
+    # be an old version missing the entries we need.  So we make sure
+    # they are there by hardcoding some crucial entries.
+    return $class->get_ignore_regexps_from_fh(\*DATA);
 }
 
 #===== METHOD ================================================================
@@ -1024,7 +1279,7 @@ sub defer {
     my $self = shift;
     my ($path) = @_;
 
-    for my $prefix (@{$self->{'defer'}}) {
+    for my $prefix (@{ $self->{'defer'} }) {
         return 1 if $path =~ m/$prefix/;
     }
     return 0;
@@ -1042,7 +1297,7 @@ sub override {
     my $self = shift;
     my ($path) = @_;
 
-    for my $regex (@{$self->{'override'}}) {
+    for my $regex (@{ $self->{'override'} }) {
         return 1 if $path =~ m/$regex/;
     }
     return 0;
@@ -1675,3 +1930,9 @@ sub internal_error {
 # cperl-indent-level: 4
 # end:
 # vim: ft=perl
+
+#############################################################################
+# Default global list of ignore regexps follows
+# (automatically appended by the Makefile)
+
+__DATA__
