@@ -82,6 +82,7 @@ approved by the Free Software Foundation.
 
 @c ==========================================================================
 @node Top, Introduction, (dir), (dir)
+@top
 
 @ifinfo
 This manual describes GNU Stow @value{VERSION}, a program for managing
@@ -89,34 +90,43 @@ the installation of software packages.
 @end ifinfo
 
 @menu
-* Introduction::                  Description of Stow.
-* Terminology::                   Terms used by this manual.
-* Invoking Stow::                 Option summary.
-* Installing Packages::           Using Stow to install.
-* Deleting Packages::             Using Stow to uninstall.
-* Conflicts::                     When Stow can't stow.
-* Deferred Operation::            Using two passes to stow.
-* Mixing Operations::             Multiple actions per invocation.
-* Multiple Stow Directories::     Further segregating software.
-* Target Maintenance::            Cleaning up mistakes.
-* Resource Files::                Setting default command line options.
+* Introduction::                Description of Stow.
+* Terminology::                 Terms used by this manual.
+* Invoking Stow::               Option summary.
+* Ignore Lists::                Controlling what gets stowed.
+* Installing Packages::         Using Stow to install.
+* Deleting Packages::           Using Stow to uninstall.
+* Conflicts::                   When Stow can't stow.
+* Deferred Operation::          Using two passes to stow.
+* Mixing Operations::           Multiple actions per invocation.
+* Multiple Stow Directories::   Further segregating software.
+* Target Maintenance::          Cleaning up mistakes.
+* Resource Files::              Setting default command line options.
 * Compile-time vs Install-time::  Faking out `make install'.
-* Bootstrapping::                 When stow and perl are not yet stowed.
-* Reporting Bugs::                How, what, where, and when to report.
-* Known Bugs::                    Don't report any of these.
-* GNU General Public License::    Copying terms.
-* Index::                         Index of concepts.
+* Bootstrapping::               When stow and perl are not yet stowed.
+* Reporting Bugs::              How, what, where, and when to report.
+* Known Bugs::                  Don't report any of these.
+* GNU General Public License::  Copying terms.
+* Index::                       Index of concepts.
 
+@detailmenu
  --- The Detailed Node Listing ---
 
-Compile-time and install-time
+Ignore Lists
 
-* GNU Emacs::
-* Other FSF Software::
-* Cygnus Software::
-* Perl and Perl 5 Modules::
+* Motivation For Ignore Lists::  
+* Types And Syntax Of Ignore Lists::  
+* Justification For Yet Another Set Of Ignore Files::  
+
+Compile-time vs Install-time
+
+* GNU Emacs::                   
+* Other FSF Software::          
+* Cygnus Software::             
+* Perl and Perl 5 Modules::     
+
+@end detailmenu
 @end menu
-
 
 @c ===========================================================================
 @node Introduction, Terminology, Top, Top
@@ -229,7 +239,7 @@ computed starting from the symlink's own directory.  Stow only
 creates relative symlinks.
 
 @c ===========================================================================
-@node Invoking Stow, Installing Packages, Terminology, Top
+@node Invoking Stow, Ignore Lists, Terminology, Top
 @chapter Invoking Stow
 
 The syntax of the @code{stow} command is:
@@ -265,14 +275,18 @@ This (repeatable) option lets you suppress acting on files that match the
 given perl regular expression.  For example, using the options
 
 @example
---ignore='~' --ignore='\.#.*'
+--ignore='*.orig' --ignore='*.dist'
 @end example
 
 @noindent
-will cause stow to ignore emacs and CVS backup files.
+will cause stow to ignore files ending in @file{.orig} or @file{.dist}.
 
 Note that the regular expression is anchored to the end of the filename,
 because this is what you will want to do most of the time.
+
+Also note that by default Stow automatically ignores a ``sensible''
+built-in list of files and directories such as @file{CVS}, editor
+backup files, and so on.  @xref{Ignore Lists}, for more details.
 
 @item --defer='<regex>'
 This (repeatable) option avoids stowing a file matching the given
@@ -407,9 +421,152 @@ operations will be performed if any conflicts are detected.
 @ref{Resource Files} for a way to set default values for any of these
 options.
 
+@c ===========================================================================
+@node Ignore Lists, Installing Packages, Invoking Stow, Top
+@chapter Ignore Lists
+
+@cindex ignore lists
+@cindex ignoring files and directories
+
+@menu
+* Motivation For Ignore Lists::  
+* Types And Syntax Of Ignore Lists::  
+* Justification For Yet Another Set Of Ignore Files::  
+@end menu
 
 @c ===========================================================================
-@node Installing Packages, Deleting Packages, Invoking Stow, Top
+@node Motivation For Ignore Lists, Types And Syntax Of Ignore Lists, Ignore Lists, Ignore Lists
+@section Motivation For Ignore Lists
+
+In many situations, there will exist files under the package
+directories which it would be undesirable to stow into the target
+directory.  For example, files related version control such as
+@file{.gitignore}, @file{CVS}, @file{*,v} (RCS files) should typically
+not have symlinks from the target tree pointing to them.  Also there
+may be files or directories relating to the build of the package which
+are not needed at run-time.
+
+In these cases, it can be rather cumbersome to specify a
+@samp{--ignore} parameter for each file or directory to be ignored.
+This could be worked around by ensuring the existence of
+@file{~/.stowrc} containing multiple @samp{--ignore} lines, or if a
+different set of files/directories should be ignored depending on
+which stow package is involved, a @file{.stowrc} file for each stow
+package, but this would require the user to ensure that they were in
+the correct directory before invoking stow, which would be tedious and
+error-prone.  Furthermore, since Stow shifts parameters from
+@file{.stowrc} onto ARGV at run-time, it could clutter up the process
+table with excessively long parameter lists, or even worse, exceed the
+operating system's limit for process arguments.
+
+@cindex ignore lists
+Therefore in addition to @samp{--ignore} parameters, Stow provides a
+way to specify lists of files and directories to ignore.
+
+@c ===========================================================================
+@node Types And Syntax Of Ignore Lists, Justification For Yet Another Set Of Ignore Files, Motivation For Ignore Lists, Ignore Lists
+@section Types And Syntax Of Ignore Lists
+
+If you put Perl regular expressions, one per line, in a
+@file{.stow-local-ignore} file within any top level package directory,
+in which case any file or directory within that package matching any
+of these regular expressions will be ignored.  In the absence of this
+package-specific ignore list, Stow will instead use the contents of
+@file{~/.stow-global-ignore}, if it exists.  If neither the
+package-local or global ignore list exist, Stow will use its own
+built-in default ignore list, which serves as a useful example of the
+format of these ignore list files:
+
+@example
+@verbatiminclude default-ignore-list
+@end example
+
+Stow first iterates through the chosen ignore list (built-in, global,
+or package-local) as per above, stripping out comments (if you want to
+include the @samp{#} symbol in a regular expression, escape it with a
+blackslash) and blank lines, placing each regular expressions into one
+of two sets depending on whether it contains the @samp{/} forward
+slash symbol.
+
+Then in order to determine whether a file or directory should be
+ignored:
+
+@enumerate
+@item
+Stow calculates its path relative to the top-level package directory,
+prefixing that with @samp{/}.  If any of the regular expressions
+containing a @samp{/} @emph{exactly}@footnote{Exact matching means the
+regular expression is anchored at the beginning and end, in contrast
+to unanchored regular expressions which will match a substring.} match
+a subpath@footnote{In this context, ``subpath'' means a contiguous
+subset of path segments; e.g for the relative path
+@file{one/two/three/four}, the following are examples of valid
+subpaths: @file{one}, @file{two}, @file{two/three},
+@file{two/three/four}.} of this relative path, then the file or
+directory will be ignored.
+
+@item
+If none of the regular expressions containing a @samp{/} match in the
+manner described above, Stow checks whether the
+@emph{basename}@footnote{The ``basename'' is the name of the file or
+directory itself, excluding any directory path prefix - as returned by
+the @command{basename} command.} of the file or directory matches
+@emph{exactly} against the remaining regular expressions which do not
+contain a @samp{/}, and if so, ignores the file or directory.
+
+@item
+Otherwise, the file or directory is not ignored.
+@end enumerate
+
+For example, if a file @file{bazqux} is in the @file{foo/bar}
+subdirectory of the package directory, Stow would use
+@code{/foo/bar/bazqux} as the text for matching against regular
+expressions which contain @samp{/}, and @code{bazqux} as the text for
+matching against regular expressions which don't contain @samp{/}.
+Then regular expressions @code{bazqux}, @code{baz.*}, @code{.*qux},
+@code{bar/.*x}, and @code{^/foo/.*qux} would all match (causing the
+file to be ignored), whereas @code{bar}, @code{baz}, and @code{qux}
+would not (although @code{bar} would cause its parent directory to be
+ignored and prevent Stow from recursing into that anyway, in which
+case the file @file{bazqux} would not even be considered for
+stowing).
+
+As a special exception to the above algorithm, any
+@file{.stow-local-ignore} present in the top-level package directory
+is @emph{always} ignored, regardless of the contents of any ignore
+list, because this file serves no purpose outside the stow directory.
+
+@c ===========================================================================
+@node Justification For Yet Another Set Of Ignore Files,  , Types And Syntax Of Ignore Lists, Ignore Lists
+@section Justification For Yet Another Set Of Ignore Files
+
+The reader may note that this format is very similar to existing
+ignore list file formats, such as those for @code{CVS}, @code{git},
+@code{rsync} etc., and wonder if another set of ignore lists is
+justified.  However there are good reasons why Stow does not simply
+check for the presence of say, @code{.cvsignore}, and use that if it
+exists.  Firstly, there is no guarantee that a stow package would
+contain any version control meta-data, or permit introducing this if
+it didn't already exist.  
+
+Secondly even if it did, version control system ignore lists generally
+reflect @emph{build-time} ignores rather than @emph{install-time}, and
+there may be some intermediate or temporary files on those ignore
+lists generated during development or at build-time which it would be
+inappropriate to stow, even though many files generated at build-time
+(binaries, libraries, documentation etc.) certainly do need to be
+stowed.  Similarly, if a file is @emph{not} in the version control
+system's ignore list, there is no way of knowing whether the file is
+intended for end use, let alone whether the version control system is
+tracking it or not.
+
+Therefore it seems clear that ignore lists provided by version control
+systems do not provide sufficient information for Stow to determine
+which files and directories to stow, and so it makes sense for Stow to
+support independent ignore lists.
+
+@c ===========================================================================
+@node Installing Packages, Deleting Packages, Ignore Lists, Top
 @chapter Installing Packages
 
 @cindex installation
@@ -532,7 +689,7 @@ package.
 
 @c ===========================================================================
 @node Conflicts, Deferred Operation, Deleting Packages, Top
-@section Conflicts
+@chapter Conflicts
 
 If, during installation, a file or symlink exists in the target tree and
 has the same name as something Stow needs to create, and if the
@@ -766,10 +923,10 @@ The details of stowing some specific packages are described in the
 following sections.
 
 @menu
-* GNU Emacs::
-* Other FSF Software::
-* Cygnus Software::
-* Perl and Perl 5 Modules::
+* GNU Emacs::                   
+* Other FSF Software::          
+* Cygnus Software::             
+* Perl and Perl 5 Modules::     
 @end menu
 
 @c ---------------------------------------------------------------------------

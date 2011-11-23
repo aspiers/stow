@@ -10,6 +10,8 @@ dist_pm_DATA = lib/Stow.pm
 pmstowdir = $(pmdir)/Stow
 dist_pmstow_DATA = lib/Stow/Util.pm
 
+DEFAULT_IGNORE_LIST = default-ignore-list
+
 TESTS_ENVIRONMENT=$(PERL) -I $(top_srcdir)
 TESTS = \
 	t/cleanup_invalid_links.t  \
@@ -17,7 +19,7 @@ TESTS = \
 	t/examples.t               \
 	t/find_stowed_path.t       \
 	t/foldable.t               \
-	t/join_paths.t             \
+	t/ignore.t                 \
 	t/parent.t                 \
 	t/stow_contents.t          \
 	t/stow.t                   \
@@ -31,6 +33,7 @@ EXTRA_DIST = \
 	bin/stow.in bin/chkstow.in lib/Stow.pm.in \
 	$(TESTS) t/testutil.pm \
 	$(TEXINFO_TEX) \
+	default-ignore-list \
 	$(CPAN_FILES)
 CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
 
@@ -50,8 +53,8 @@ bin/chkstow: bin/chkstow.in Makefile
 	$(edit) < $< > $@
 	chmod +x $@
 
-lib/Stow.pm: lib/Stow.pm.in Makefile
-	$(edit) < $< > $@
+lib/Stow.pm: lib/Stow.pm.in Makefile $(DEFAULT_IGNORE_LIST)
+	( $(edit) < $<; cat $(DEFAULT_IGNORE_LIST) ) > $@
 
 # The rules for manual.html and manual.texi are only used by
 # the developer

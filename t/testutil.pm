@@ -10,14 +10,17 @@ use warnings;
 use Stow;
 use Stow::Util qw(parent);
 
-sub make_fresh_stow_and_target_dirs {
+sub init_test_dirs {
     die "t/ didn't exist; are you running the tests from the root of the tree?\n"
         unless -d 't';
 
     for my $dir ('t/target', 't/stow') {
-        eval { remove_dir($dir); };
+        -d $dir and remove_dir($dir);
         make_dir($dir);
     }
+
+    # Don't let user's ~/.stow-global-ignore affect test results
+    $ENV{HOME} = '/tmp/fake/home';
 }
 
 sub new_Stow {
@@ -90,22 +93,22 @@ sub make_dir {
 # Name      : create_file()
 # Purpose   : create an empty file
 # Parameters: $path => proposed path to the file
+#           : $contents => (optional) contents to write to file
 # Returns   : n/a
 # Throws    : fatal error if the file could not be created
 # Comments  : detects clash with an existing non-file
 #============================================================================
 sub make_file {
-    my ($path) =@_;
+    my ($path, $contents) =@_;
 
-    if (not -e $path) {
-        open my $FILE ,'>', $path
-            or die "could not create file: $path ($!)\n";
-        close $FILE;
-    }
-    elsif (not -f $path) {
+    if (-e $path and ! -f $path) {
         die "a non-file already exists at $path\n";
     }
-    return;
+
+    open my $FILE ,'>', $path
+        or die "could not create file: $path ($!)\n";
+    print $FILE $contents if defined $contents;
+    close $FILE;
 }
 
 #===== SUBROUTINE ===========================================================
@@ -168,7 +171,7 @@ sub remove_dir {
         next NODE if $node eq '..';
 
         my $path = "$dir/$node";
-        if (-l $path or -z $path) {
+        if (-l $path or -z $path or $node eq $Stow::LOCAL_IGNORE_FILE) {
             unlink $path or die "cannot unlink $path ($!)\n";
         }
         elsif (-d "$path") {
