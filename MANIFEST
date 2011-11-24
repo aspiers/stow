@@ -1,9 +1,4 @@
-aclocal.m4
 AUTHORS
-automake/install-sh
-automake/mdate-sh
-automake/missing
-automake/stamp-vti
 bin/chkstow
 bin/chkstow.in
 bin/stow
@@ -13,6 +8,10 @@ ChangeLog
 configure
 configure.ac
 COPYING
+default-ignore-list
+doc/ChangeLog.OLD
+doc/manual.html
+doc/manual.pdf
 doc/stow.8
 doc/stow.info
 doc/stow.texi
@@ -33,6 +32,7 @@ t/defer.t
 t/examples.t
 t/find_stowed_path.t
 t/foldable.t
+t/ignore.t
 t/join_paths.t
 t/parent.t
 t/stow.t
