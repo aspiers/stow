@@ -1,5 +1,21 @@
 News file for Stow.
 
+* Changes in version 2.1.0
+** Major refactoring of code into separate Stow and Stow::Util Perl modules.
+** Added support for ignore list files.
+** Added support for CPAN-style installation and distribution via Module::Build.
+** Introduced `make test' target and significantly tightened up test suite.
+** Very large number of code and documentation fixes (over 80 commits since version 2.0.1).
+** The '--conflicts' option has been removed.
+
+Stow will always show conflicts if they are found during the scanning
+phase.
+
+** Improved debugging output.
+** Converted man page to POD format.
+** Fixed code style consistency issues.
+** Running configure from outside the source tree now works.
+** `make distcheck' now works.
 * Changes in version 2.0.1
 ** Defer operations until all potential conflicts have been assessed.
 
