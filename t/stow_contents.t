@@ -18,7 +18,7 @@ init_test_dirs();
 cd("$OUT_DIR/target");
 
 my $stow;
-my @conflicts;
+my %conflicts;
 
 # Note that each of the following tests use a distinct set of files
 
@@ -84,9 +84,10 @@ make_file('bin4'); # this is a file but named like a directory
 make_dir('../stow/pkg4/bin4'); 
 make_file('../stow/pkg4/bin4/file4'); 
 $stow->plan_stow('pkg4');
-@conflicts = $stow->get_conflicts();
+%conflicts = $stow->get_conflicts();
 like(
-    $conflicts[-1], qr(CONFLICT:.*existing target is neither a link nor a directory)
+    $conflicts{stow}{pkg4}[-1],
+    qr(existing target is neither a link nor a directory)
     => 'link to new dir conflicts with existing non-directory'
 );
 
@@ -99,9 +100,10 @@ make_dir('bin5');
 make_link('bin5/file5','../../empty');
 make_dir('../stow/pkg5/bin5/file5'); 
 $stow->plan_stow('pkg5');
-@conflicts = $stow->get_conflicts();
+%conflicts = $stow->get_conflicts();
 like( 
-    $conflicts[-1], qr(CONFLICT:.*not owned by stow) 
+    $conflicts{stow}{pkg5}[-1],
+    qr(not owned by stow)
     => 'target already exists but is not owned by stow'
 );
 
@@ -134,9 +136,10 @@ make_link('bin7/node7','../../stow/pkg7a/bin7/node7');
 make_dir('../stow/pkg7b/bin7/node7');
 make_file('../stow/pkg7b/bin7/node7/file7');
 $stow->plan_stow('pkg7b');
-@conflicts = $stow->get_conflicts();
+%conflicts = $stow->get_conflicts();
 like(
-    $conflicts[-1], qr(CONFLICT:.*existing target is stowed to a different package)
+    $conflicts{stow}{pkg7b}[-1],
+    qr(existing target is stowed to a different package)
     => 'link to new dir conflicts with existing stowed non-directory'
 );
 
