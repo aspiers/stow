@@ -3,7 +3,10 @@
 dist_bin_SCRIPTS = bin/stow bin/chkstow
 info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
-dist_doc_DATA = README doc/manual.html doc/manual.pdf
+dist_doc_DATA = \
+	README \
+	doc/manual.html doc/manual.pdf \
+	ChangeLog doc/ChangeLog.OLD
 
 # Would be nice to include the split page HTML version of the manual
 # in the distribution, but automake doesn't support wildcards and I'm
@@ -129,3 +132,17 @@ doc/stow.8: bin/stow Makefile
 	[ -d doc ] || mkdir doc # required in vpath mode
 	pod2man $< > $@
 
+
+ChangeLog: doc/ChangeLog.OLD Makefile
+	@if [ -d .git ]; then \
+	    ( \
+	        git log \
+		    --format="format:%ad  %aN <%aE>%n%n    * %w(70,0,4)%s%+b%n" \
+		    --name-status \
+		    v2.0.2..HEAD \
+                | sed 's/^\([A-Z]\)\t/      \1 /'; \
+	        cat $< \
+	    ) > $@; \
+	else \
+	    echo "Not in a git repository; can't update ChangeLog."; \
+	fi
