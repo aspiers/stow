@@ -66,13 +66,16 @@
 ^MANIFEST\.SKIP
 
 # Avoid archives of this distribution
-\bStow-[\d\.\_]+
+\b[sS]tow-[\d\.\_]+
 
 # Avoid autotools stuff
+^aclocal.m4$
+^automake/
 ^autom4te\.cache/.+$
 ^config\.(log|status)$
 ^doc/\.dirstamp$
 ^doc/stamp-vti$
+^doc/manual.texi
 
 # Avoid test files
-^t/(stow|target)/.+$
+^tmp-testing-trees
