@@ -125,7 +125,7 @@ sub new {
             join(", ", keys %opts), "\n";
     }
 
-    $opts{'simulate'} = 1 if $opts{'conflicts'};
+    $opts{simulate} = 1 if $opts{conflicts};
 
     set_debug_level($new->get_verbosity());
     set_test_mode($new->{test_mode});
@@ -239,7 +239,7 @@ sub plan_unstow {
                 error("The given package name ($package) is not in your stow path $self->{stow_path}");
             }
             debug(2, "Planning unstow of package $package...");
-            if ($self->{'compat'}) {
+            if ($self->{compat}) {
                 $self->unstow_contents_orig(
                     $self->{stow_path},
                     $package,
@@ -302,8 +302,8 @@ sub within_target_do {
     my ($code) = @_;
 
     my $cwd = getcwd();
-    chdir($self->{'target'})
-        or error("Cannot chdir to target tree: $self->{'target'}");
+    chdir($self->{target})
+        or error("Cannot chdir to target tree: $self->{target}");
     debug(3, "cwd now $self->{target}");
 
     $self->$code();
@@ -1099,7 +1099,7 @@ sub ignore {
     internal_error(__PACKAGE__ . "::ignore() called with empty target")
         unless length $target;
 
-    for my $suffix (@{ $self->{'ignore'} }) {
+    for my $suffix (@{ $self->{ignore} }) {
         return 1 if $target =~ m/$suffix/;
     }
 
@@ -1276,7 +1276,7 @@ sub defer {
     my $self = shift;
     my ($path) = @_;
 
-    for my $prefix (@{ $self->{'defer'} }) {
+    for my $prefix (@{ $self->{defer} }) {
         return 1 if $path =~ m/$prefix/;
     }
     return 0;
@@ -1294,7 +1294,7 @@ sub override {
     my $self = shift;
     my ($path) = @_;
 
-    for my $regex (@{ $self->{'override'} }) {
+    for my $regex (@{ $self->{override} }) {
         return 1 if $path =~ m/$regex/;
     }
     return 0;
@@ -1320,13 +1320,13 @@ sub process_tasks {
 
     debug(2, "Processing tasks...");
 
-    if ($self->{'simulate'}) {
+    if ($self->{simulate}) {
         warn "WARNING: simulating so all operations are deferred.\n";
         return;
     }
 
     # Strip out all tasks with a skip action
-    $self->{tasks} = [ grep { $_->{'action'} ne 'skip' } @{ $self->{tasks} } ];
+    $self->{tasks} = [ grep { $_->{action} ne 'skip' } @{ $self->{tasks} } ];
 
     if (not @{ $self->{tasks} }) {
         warn "There are no outstanding operations to perform.\n";
@@ -1356,38 +1356,38 @@ sub process_task {
     my $self = shift;
     my ($task) = @_;
 
-    if ($task->{'action'} eq 'create') {
-        if ($task->{'type'} eq 'dir') {
-            mkdir($task->{'path'}, 0777)
-                or error(qq(Could not create directory: $task->{'path'}));
+    if ($task->{action} eq 'create') {
+        if ($task->{type} eq 'dir') {
+            mkdir($task->{path}, 0777)
+                or error(qq(Could not create directory: $task->{path}));
         }
-        elsif ($task->{'type'} eq 'link') {
-            symlink $task->{'source'}, $task->{'path'}
+        elsif ($task->{type} eq 'link') {
+            symlink $task->{source}, $task->{path}
                 or error(
                     q(Could not create symlink: %s => %s),
-                    $task->{'path'},
-                    $task->{'source'}
+                    $task->{path},
+                    $task->{source}
             );
         }
         else {
-            internal_error(qq(bad task type: $task->{'type'}));
+            internal_error(qq(bad task type: $task->{type}));
         }
     }
-    elsif ($task->{'action'} eq 'remove') {
-        if ($task->{'type'} eq 'dir') {
-            rmdir $task->{'path'}
-                or error(qq(Could not remove directory: $task->{'path'}));
+    elsif ($task->{action} eq 'remove') {
+        if ($task->{type} eq 'dir') {
+            rmdir $task->{path}
+                or error(qq(Could not remove directory: $task->{path}));
         }
-        elsif ($task->{'type'} eq 'link') {
-            unlink $task->{'path'}
-                or error(qq(Could not remove link: $task->{'path'}));
+        elsif ($task->{type} eq 'link') {
+            unlink $task->{path}
+                or error(qq(Could not remove link: $task->{path}));
         }
         else {
-            internal_error(qq(bad task type: $task->{'type'}));
+            internal_error(qq(bad task type: $task->{type}));
         }
     }
     else {
-        internal_error(qq(bad task action: $task->{'action'}));
+        internal_error(qq(bad task action: $task->{action}));
     }
 }
 
@@ -1408,7 +1408,7 @@ sub link_task_action {
         return '';
     }
 
-    my $action = $self->{link_task_for}{$path}->{'action'};
+    my $action = $self->{link_task_for}{$path}->{action};
     internal_error("bad task action: $action")
         unless $action eq 'remove' or $action eq 'create';
 
@@ -1433,7 +1433,7 @@ sub dir_task_action {
         return '';
     }
 
-    my $action = $self->{dir_task_for}{$path}->{'action'};
+    my $action = $self->{dir_task_for}{$path}->{action};
     internal_error("bad task action: $action")
         unless $action eq 'remove' or $action eq 'create';
 
@@ -1459,7 +1459,7 @@ sub parent_link_scheduled_for_removal {
         $prefix = join_paths($prefix, $part);
         debug(4, "    parent_link_scheduled_for_removal($path): prefix $prefix");
         if (exists $self->{link_task_for}{$prefix} and
-             $self->{link_task_for}{$prefix}->{'action'} eq 'remove') {
+             $self->{link_task_for}{$prefix}->{action} eq 'remove') {
             debug(4, "    parent_link_scheduled_for_removal($path): link scheduled for removal");
             return 1;
         }
@@ -1627,7 +1627,7 @@ sub read_a_link {
         debug(4, "  read_a_link($path): task exists with action $action");
 
         if ($action eq 'create') {
-            return $self->{link_task_for}{$path}->{'source'};
+            return $self->{link_task_for}{$path}->{source};
         }
         elsif ($action eq 'remove') {
             internal_error(
@@ -1659,8 +1659,8 @@ sub do_link {
     if (exists $self->{dir_task_for}{$newfile}) {
         my $task_ref = $self->{dir_task_for}{$newfile};
 
-        if ($task_ref->{'action'} eq 'create') {
-            if ($task_ref->{'type'} eq 'dir') {
+        if ($task_ref->{action} eq 'create') {
+            if ($task_ref->{type} eq 'dir') {
                 internal_error(
                     "new link (%s => %s) clashes with planned new directory",
                     $newfile,
@@ -1668,23 +1668,23 @@ sub do_link {
                 );
             }
         }
-        elsif ($task_ref->{'action'} eq 'remove') {
+        elsif ($task_ref->{action} eq 'remove') {
             # We may need to remove a directory before creating a link so continue.
         }
         else {
-            internal_error("bad task action: $task_ref->{'action'}");
+            internal_error("bad task action: $task_ref->{action}");
         }
     }
 
     if (exists $self->{link_task_for}{$newfile}) {
         my $task_ref = $self->{link_task_for}{$newfile};
 
-        if ($task_ref->{'action'} eq 'create') {
-            if ($task_ref->{'source'} ne $oldfile) {
+        if ($task_ref->{action} eq 'create') {
+            if ($task_ref->{source} ne $oldfile) {
                 internal_error(
                     "new link clashes with planned new link: %s => %s",
-                    $task_ref->{'path'},
-                    $task_ref->{'source'},
+                    $task_ref->{path},
+                    $task_ref->{source},
                 )
             }
             else {
@@ -1692,18 +1692,18 @@ sub do_link {
                 return;
             }
         }
-        elsif ($task_ref->{'action'} eq 'remove') {
-            if ($task_ref->{'source'} eq $oldfile) {
+        elsif ($task_ref->{action} eq 'remove') {
+            if ($task_ref->{source} eq $oldfile) {
                 # No need to remove a link we are going to recreate
                 debug(1, "LINK: $newfile => $oldfile (reverts previous action)");
-                $self->{link_task_for}{$newfile}->{'action'} = 'skip';
+                $self->{link_task_for}{$newfile}->{action} = 'skip';
                 delete $self->{link_task_for}{$newfile};
                 return;
             }
             # We may need to remove a link to replace it so continue
         }
         else {
-            internal_error("bad task action: $task_ref->{'action'}");
+            internal_error("bad task action: $task_ref->{action}");
         }
     }
 
@@ -1735,26 +1735,26 @@ sub do_unlink {
 
     if (exists $self->{link_task_for}{$file}) {
         my $task_ref = $self->{link_task_for}{$file};
-        if ($task_ref->{'action'} eq 'remove') {
+        if ($task_ref->{action} eq 'remove') {
             debug(1, "UNLINK: $file (duplicates previous action)");
             return;
         }
-        elsif ($task_ref->{'action'} eq 'create') {
+        elsif ($task_ref->{action} eq 'create') {
             # Do need to create a link then remove it
             debug(1, "UNLINK: $file (reverts previous action)");
-            $self->{link_task_for}{$file}->{'action'} = 'skip';
+            $self->{link_task_for}{$file}->{action} = 'skip';
             delete $self->{link_task_for}{$file};
             return;
         }
         else {
-            internal_error("bad task action: $task_ref->{'action'}");
+            internal_error("bad task action: $task_ref->{action}");
         }
     }
 
     if (exists $self->{dir_task_for}{$file} and $self->{dir_task_for}{$file} eq 'create') {
         internal_error(
             "new unlink operation clashes with planned operation: %s dir %s",
-            $self->{dir_task_for}{$file}->{'action'},
+            $self->{dir_task_for}{$file}->{action},
             $file
         );
     }
@@ -1793,36 +1793,36 @@ sub do_mkdir {
     if (exists $self->{link_task_for}{$dir}) {
         my $task_ref = $self->{link_task_for}{$dir};
 
-        if ($task_ref->{'action'} eq 'create') {
+        if ($task_ref->{action} eq 'create') {
             internal_error(
                 "new dir clashes with planned new link (%s => %s)",
-                $task_ref->{'path'},
-                $task_ref->{'source'},
+                $task_ref->{path},
+                $task_ref->{source},
             );
         }
-        elsif ($task_ref->{'action'} eq 'remove') {
+        elsif ($task_ref->{action} eq 'remove') {
             # May need to remove a link before creating a directory so continue
         }
         else {
-            internal_error("bad task action: $task_ref->{'action'}");
+            internal_error("bad task action: $task_ref->{action}");
         }
     }
 
     if (exists $self->{dir_task_for}{$dir}) {
         my $task_ref = $self->{dir_task_for}{$dir};
 
-        if ($task_ref->{'action'} eq 'create') {
+        if ($task_ref->{action} eq 'create') {
             debug(1, "MKDIR: $dir (duplicates previous action)");
             return;
         }
-        elsif ($task_ref->{'action'} eq 'remove') {
+        elsif ($task_ref->{action} eq 'remove') {
             debug(1, "MKDIR: $dir (reverts previous action)");
-            $self->{dir_task_for}{$dir}->{'action'} = 'skip';
+            $self->{dir_task_for}{$dir}->{action} = 'skip';
             delete $self->{dir_task_for}{$dir};
             return;
         }
         else {
-            internal_error("bad task action: $task_ref->{'action'}");
+            internal_error("bad task action: $task_ref->{action}");
         }
     }
 
@@ -1856,27 +1856,27 @@ sub do_rmdir {
         my $task_ref = $self->{link_task_for}{$dir};
         internal_error(
             "rmdir clashes with planned operation: %s link %s => %s",
-            $task_ref->{'action'},
-            $task_ref->{'path'},
-            $task_ref->{'source'}
+            $task_ref->{action},
+            $task_ref->{path},
+            $task_ref->{source}
         );
     }
 
     if (exists $self->{dir_task_for}{$dir}) {
         my $task_ref = $self->{link_task_for}{$dir};
 
-        if ($task_ref->{'action'} eq 'remove') {
+        if ($task_ref->{action} eq 'remove') {
             debug(1, "RMDIR $dir (duplicates previous action)");
             return;
         }
-        elsif ($task_ref->{'action'} eq 'create') {
+        elsif ($task_ref->{action} eq 'create') {
             debug(1, "MKDIR $dir (reverts previous action)");
-            $self->{link_task_for}{$dir}->{'action'} = 'skip';
+            $self->{link_task_for}{$dir}->{action} = 'skip';
             delete $self->{link_task_for}{$dir};
             return;
         }
         else {
-            internal_error("bad task action: $task_ref->{'action'}");
+            internal_error("bad task action: $task_ref->{action}");
         }
     }
 

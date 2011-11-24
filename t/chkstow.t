@@ -70,7 +70,7 @@ stderr_like(
     "Skip directories containing .stow");
       
 # squelch warn so that check_stow doesn't carp about skipping .stow all the time
-$SIG{'__WARN__'} = sub { };
+$SIG{__WARN__} = sub { };
 
 @ARGV = ('-t', '.', '-l');
 stdout_like(
