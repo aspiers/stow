@@ -4,6 +4,12 @@ dist_bin_SCRIPTS = bin/stow bin/chkstow
 info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
 dist_doc_DATA = README doc/manual.html doc/manual.pdf
+
+# Would be nice to include the split page HTML version of the manual
+# in the distribution, but automake doesn't support wildcards and I'm
+# loathe to explicitly list every single page here :-(
+#nobase_dist_doc_DATA = doc/stow.html/*.html
+
 pmdir = $(libdir)/perl5
 dist_pm_DATA = lib/Stow.pm
 pmstowdir = $(pmdir)/Stow
@@ -34,8 +40,6 @@ TESTS_ENVIRONMENT = $(PERL) -I$(srcdir)/bin -I$(srcdir)/lib -I$(TESTS_DIR)
 # so it doesn't really matter what it's set to, as long as it already
 # exists (otherwise automake will try to build it).
 TESTS = t
-
-AUTOMAKE_OPTIONS = dist-shar
 
 # GNU autotools standardised on the 'check' target, but CPAN (and the
 # rest of the world) standardised on the 'test' target.
@@ -76,7 +80,7 @@ EXTRA_DIST = \
 	$(CPAN_FILES)
 CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
 
-# clean up files left behind by test suite
+# clean up auto-generated files
 clean-local:
 	-rm -rf $(TESTS_OUT) \
 		bin/stow bin/chkstow doc/stow.8 ChangeLog \

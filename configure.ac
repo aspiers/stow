@@ -6,7 +6,7 @@ AC_CONFIG_AUX_DIR([automake])
 # Unfortunately we have to disable warnings for overrides, because we
 # need to override the built-in `check' rule and also the TEXI2DVI
 # variable.
-AM_INIT_AUTOMAKE([-Wall -Werror -Wno-override])
+AM_INIT_AUTOMAKE([-Wall -Werror -Wno-override dist-bzip2])
 AC_PROG_INSTALL
 
 AM_MAINTAINER_MODE([enable])
