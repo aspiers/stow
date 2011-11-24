@@ -4,8 +4,10 @@
 # Testing parent()
 #
 
-# load as a library
-BEGIN { use lib qw(. ..); require "stow"; }
+use strict;
+use warnings;
+
+use Stow::Util qw(parent);
 
 use Test::More tests => 5;
 

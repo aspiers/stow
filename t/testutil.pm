@@ -7,22 +7,31 @@
 use strict;
 use warnings;
 
+use Stow;
+use Stow::Util qw(parent);
 
-#===== SUBROUTINE ===========================================================
-# Name      : reset_state()
-# Purpose   : reset internal state machine
-# Parameters: none
-# Returns   : n/a
-# Throws    : n/a
-# Comments  : none
-#============================================================================
-sub reset_state {
-    @::Tasks          = ();
-    @::Conflicts      = ();
-    %::Link_Task_For  = ();
-    %::Dir_Task_For   = ();
-    %::Option         = ( testmode => 1 );
-    return;
+sub make_fresh_stow_and_target_dirs {
+    die "t/ didn't exist; are you running the tests from the root of the tree?\n"
+        unless -d 't';
+
+    for my $dir ('t/target', 't/stow') {
+        eval { remove_dir($dir); };
+        make_dir($dir);
+    }
+}
+
+sub new_Stow {
+    my %opts = @_;
+    $opts{dir}    ||= '../stow';
+    $opts{target} ||= '.';
+    $opts{test_mode} = 1;
+    return new Stow(%opts);
+}
+
+sub new_compat_Stow {
+    my %opts = @_;
+    $opts{compat} = 1;
+    return new_Stow(%opts);
 }
 
 #===== SUBROUTINE ===========================================================
@@ -38,13 +47,13 @@ sub make_link {
     my ($target, $source) = @_;
 
     if (-l $target) {
-        my $old_source = readlink join('/',parent($target),$source) 
+        my $old_source = readlink join('/', parent($target), $source) 
             or die "could not read link $target/$source";
         if ($old_source ne $source) {
             die "$target already exists but points elsewhere\n";
         }
     }
-    elsif (-e $target ) {
+    elsif (-e $target) {
         die "$target already exists and is not a link\n";
     }
     else {
@@ -56,7 +65,7 @@ sub make_link {
 
 #===== SUBROUTINE ===========================================================
 # Name      : make_dir()
-# Purpose   : create a directory and any requiste parents
+# Purpose   : create a directory and any requisite parents
 # Parameters: $dir => path to the new directory
 # Returns   : n/a
 # Throws    : fatal error if the directory or any of its parents cannot be
@@ -174,4 +183,23 @@ sub remove_dir {
     return;
 }
 
+#===== SUBROUTINE ===========================================================
+# Name      : cd()
+# Purpose   : wrapper around chdir
+# Parameters: $dir => path to chdir to
+# Returns   : n/a
+# Throws    : fatal error if the chdir fails
+# Comments  : none
+#============================================================================
+sub cd {
+    my ($dir) = @_;
+    chdir $dir or die "Failed to chdir($dir): $!\n";
+}
+
 1;
+
+# Local variables:
+# mode: perl
+# cperl-indent-level: 4
+# end:
+# vim: ft=perl

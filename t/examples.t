@@ -4,18 +4,18 @@
 # Testing examples from the documentation
 #
 
-# load as a library
-BEGIN { use lib qw(.); require "t/util.pm"; require "stow"; }
+use strict;
+use warnings;
 
-use Test::More tests => 4;
+use testutil;
+
+use Test::More tests => 10;
 use English qw(-no_match_vars);
 
-### setup 
-eval { remove_dir('t/target'); };
-make_dir('t/target/stow');
+make_fresh_stow_and_target_dirs();
+cd('t/target');
 
-chdir 't/target';
-$Stow_Path= 'stow';
+my $stow;
 
 ## set up some fake packages to stow
 
@@ -42,8 +42,6 @@ make_file('stow/emacs/man/man1/emacs.1');
 #
 # stow perl into an empty target
 # 
-reset_state();
-
 make_dir('stow/perl/bin');
 make_file('stow/perl/bin/perl');
 make_file('stow/perl/bin/a2p');
@@ -52,10 +50,11 @@ make_dir('stow/perl/lib/perl');
 make_dir('stow/perl/man/man1');
 make_file('stow/perl/man/man1/perl.1');
 
-stow_contents('stow/perl','./','stow/perl');
-process_tasks();
+$stow = new_Stow(dir => 'stow');
+$stow->plan_stow('perl');
+$stow->process_tasks();
 ok(
-    scalar(@Conflicts) == 0 &&
+    scalar($stow->get_conflicts) == 0 &&
     -l 'bin' && -l 'info' && -l 'lib' && -l 'man' &&
     readlink('bin')  eq 'stow/perl/bin' &&
     readlink('info') eq 'stow/perl/info' &&
@@ -64,11 +63,9 @@ ok(
     => 'stow perl into an empty target' 
 );
 
-
 #
 # stow perl into a non-empty target
 #
-reset_state();
 
 # clean up previous stow
 remove_link('bin');
@@ -80,10 +77,11 @@ make_dir('bin');
 make_dir('lib');
 make_dir('man/man1');
 
-stow_contents('stow/perl','./','stow/perl');
-process_tasks();
+$stow = new_Stow(dir => 'stow');
+$stow->plan_stow('perl');
+$stow->process_tasks();
 ok(
-    scalar(@Conflicts) == 0 &&
+    scalar($stow->get_conflicts) == 0 &&
     -d 'bin' && -d 'lib' && -d 'man' && -d 'man/man1' &&
     -l 'info' && -l 'bin/perl' && -l 'bin/a2p' && 
     -l 'lib/perl' && -l 'man/man1/perl.1' &&
@@ -99,7 +97,6 @@ ok(
 #
 # Install perl into an empty target and then install emacs
 #
-reset_state();
 
 # clean up previous stow
 remove_link('info');
@@ -107,11 +104,11 @@ remove_dir('bin');
 remove_dir('lib');
 remove_dir('man');
 
-stow_contents('stow/perl', './','stow/perl');
-stow_contents('stow/emacs','./','stow/emacs');
-process_tasks();
+$stow = new_Stow(dir => 'stow');
+$stow->plan_stow('perl', 'emacs');
+$stow->process_tasks();
+is(scalar($stow->get_conflicts), 0, 'no conflicts');
 ok(
-    scalar(@Conflicts) == 0 &&
     -d 'bin'        && 
     -l 'bin/perl'   && 
     -l 'bin/emacs'  && 
@@ -151,30 +148,22 @@ ok(
 # Q. the original empty directory should remain 
 # behaviour is the same as if the empty directory had nothing to do with stow
 #
-reset_state();
 
 make_dir('stow/pkg1a/bin1');
 make_dir('stow/pkg1b/bin1');
 make_file('stow/pkg1b/bin1/file1b');
 
-stow_contents('stow/pkg1a',   './', 'stow/pkg1a');
-stow_contents('stow/pkg1b',   './', 'stow/pkg1b');
-unstow_contents('stow/pkg1b', './', 'stow/pkg1b');
-process_tasks();
-
-ok(
-    scalar(@Conflicts) == 0 &&
-    -d 'bin1'
-    => 'bug 1: stowing empty dirs'
-);
-
+$stow = new_Stow(dir => 'stow');
+$stow->plan_stow('pkg1a', 'pkg1b');
+$stow->plan_unstow('pkg1b');
+$stow->process_tasks();
+is(scalar($stow->get_conflicts), 0, 'no conflicts stowing empty dirs');
+ok(-d 'bin1' => 'bug 1: stowing empty dirs');
 
 #
 # BUG 2: split open tree-folding symlinks pointing inside different stow
 # directories
 #
-reset_state();
-
 make_dir('stow2a/pkg2a/bin2');
 make_file('stow2a/pkg2a/bin2/file2a');
 make_file('stow2a/.stow');
@@ -182,8 +171,15 @@ make_dir('stow2b/pkg2b/bin2');
 make_file('stow2b/pkg2b/bin2/file2b');
 make_file('stow2b/.stow');
 
-stow_contents('stow2a/pkg2a','./', 'stow2a/pkg2a');
-stow_contents('stow2b/pkg2b','./', 'stow2b/pkg2b');
-process_tasks();
+$stow = new_Stow(dir => 'stow2a');
+$stow->plan_stow('pkg2a');
+$stow->set_stow_dir('stow2b');
+$stow->plan_stow('pkg2b');
+$stow->process_tasks();
+
+is(scalar($stow->get_conflicts), 0, 'no conflicts splitting tree-folding symlinks');
+ok(-d 'bin2' => 'tree got split by packages from multiple stow directories');
+ok(-f 'bin2/file2a' => 'file from 1st stow dir');
+ok(-f 'bin2/file2b' => 'file from 2nd stow dir');
 
 ## Finish this test

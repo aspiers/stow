@@ -4,19 +4,23 @@
 # Testing defer().
 #
 
-# load as a library
-BEGIN { use lib qw(. ..); require "stow"; }
+use strict;
+use warnings;
+
+use testutil;
 
 use Test::More tests => 4;
 
-$Option{'defer'} = [ 'man' ];
-ok(defer('man/man1/file.1') => 'simple success');
+my $stow;
 
-$Option{'defer'} = [ 'lib' ];
-ok(!defer('man/man1/file.1') => 'simple failure');
+$stow = new_Stow(defer => [ 'man' ]);
+ok($stow->defer('man/man1/file.1') => 'simple success');
 
-$Option{'defer'} = [ 'lib', 'man', 'share' ];
-ok(defer('man/man1/file.1') => 'complex success');
+$stow = new_Stow(defer => [ 'lib' ]);
+ok(! $stow->defer('man/man1/file.1') => 'simple failure');
 
-$Option{'defer'} = [ 'lib', 'man', 'share' ];
-ok(!defer('bin/file') => 'complex failure');
+$stow = new_Stow(defer => [ 'lib', 'man', 'share' ]);
+ok($stow->defer('man/man1/file.1') => 'complex success');
+
+$stow = new_Stow(defer => [ 'lib', 'man', 'share' ]);
+ok(! $stow->defer('bin/file') => 'complex failure');

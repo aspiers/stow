@@ -4,8 +4,10 @@
 # Testing join_paths();
 #
 
-# load as a library
-BEGIN { use lib qw(. ..); require "stow"; }
+use strict;
+use warnings;
+
+use Stow::Util qw(join_paths);
 
 use Test::More tests => 13;
 

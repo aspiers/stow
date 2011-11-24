@@ -4,6 +4,8 @@ bin_SCRIPTS = stow chkstow
 info_TEXINFOS = stow.texi
 dist_man_MANS = stow.8
 dist_doc_DATA = README
+pmdir = $(libdir)/perl5
+pm_DATA = lib/Stow.pm lib/Stow/Util.pm
 
 TESTS_ENVIRONMENT=$(PERL) -I $(top_srcdir)
 TESTS = \
@@ -21,7 +23,7 @@ TESTS = \
 	t/chkstow.t
 
 AUTOMAKE_OPTIONS = dist-shar
-EXTRA_DIST = $(TESTS) t/util.pm stow.in
+EXTRA_DIST = $(TESTS) t/testutil.pm
 CLEANFILES = $(bin_SCRIPTS)
 
 # clean up files left behind by test suite
@@ -30,7 +32,6 @@ clean-local:
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
-	   -e 's|[@]PACKAGE[@]|$(PACKAGE)|g' \
 	   -e 's|[@]VERSION[@]|$(VERSION)|g'
 
 stow: stow.in Makefile
@@ -40,6 +41,9 @@ stow: stow.in Makefile
 chkstow: chkstow.in Makefile
 	$(edit) < $< > $@
 	chmod +x $@
+
+lib/Stow.pm: lib/Stow.pm.in
+	$(edit) < $< > $@
 
 # The rules for manual.html and manual.texi are only used by
 # the developer
@@ -51,5 +55,7 @@ manual.texi: stow.texi
 	-rm -f $@
 	cp $< $@
 
-test: stow chkstow
-	perl -MTest::Harness -e 'runtests(@ARGV)' t/*.t
+MODULES = lib/Stow.pm lib/Stow/Util.pm
+
+test: stow chkstow $(MODULES)
+	perl -MTest::Harness -Ilib -It -Ibin -e 'runtests(@ARGV)' t/*.t

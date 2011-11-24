@@ -9,3 +9,4 @@ stamp-vti
 stow.info
 t/target/
 version.texi
+lib/Stow.pm

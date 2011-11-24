@@ -15,5 +15,11 @@ then
   AC_MSG_WARN([WARNING: Perl not found; you must edit line 1 of 'stow'])
 fi
 
+AC_ARG_WITH(
+    pmdir,
+    [  --with-pmdir=DIR        perl modules are in DIR [[LIBDIR/perl5]]],
+    [PMDIR=${withval}], [PMDIR=${libdir}/perl5]
+)
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

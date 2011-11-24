@@ -4,22 +4,18 @@
 # Testing cleanup_invalid_links()
 #
 
-# load as a library
-BEGIN { 
-    use lib qw(.); 
-    require "t/util.pm";
-    require "chkstow";
-}
+use strict;
+use warnings;
+
+use testutil;
+require "chkstow";
 
 use Test::More tests => 7;
 use Test::Output;
 use English qw(-no_match_vars);
 
-### setup 
-eval { remove_dir('t/target'); };
-make_dir('t/target');
-
-chdir 't/target';
+make_fresh_stow_and_target_dirs();
+cd('t/target');
 
 # setup stow directory
 make_dir('stow');
@@ -111,5 +107,6 @@ stdout_like(
 
 @ARGV = ('-b',);
 process_options();
-ok($::Target == q{/usr/local},
+our $Target;
+ok($Target == q{/usr/local},
     "Default target is /usr/local/");

@@ -1,5 +1,3 @@
-* Split core code into Stow.pm
-* Add use strict / warnings to tests
 * Honour .no-stow-folding and --no-folding
 * Support ignore lists in files
 *** Implement.
