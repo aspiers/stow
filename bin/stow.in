@@ -433,7 +433,7 @@ sub main {
 
     if (scalar @conflicts) {
         warn "WARNING: conflicts detected.\n";
-        if ($options->{'conflicts'}) {
+        if ($options->{conflicts}) {
             warn $_ foreach @conflicts;
         }
         warn "WARNING: all operations aborted.\n";
@@ -472,19 +472,19 @@ sub process_options {
         sub {
             # FIXME: do we really need strip_quotes here?
             my $regex = strip_quotes($_[1]);
-            push @{$options{'ignore'}}, qr($regex\z);
+            push @{$options{ignore}}, qr($regex\z);
         },
 
         'override=s' =>
         sub {
             my $regex = strip_quotes($_[1]);
-            push @{$options{'override'}}, qr(\A$regex);
+            push @{$options{override}}, qr(\A$regex);
         },
 
         'defer=s' =>
         sub {
             my $regex = strip_quotes($_[1]);
-            push @{$options{'defer'}}, qr(\A$regex);
+            push @{$options{defer}}, qr(\A$regex);
         },
 
         # a little craziness so we can do different actions on the same line:
@@ -510,8 +510,8 @@ sub process_options {
         },
     ) or usage();
 
-    usage()   if $options{'help'};
-    version() if $options{'version'};
+    usage()   if $options{help};
+    version() if $options{version};
 
     sanitize_path_options(\%options);
     check_packages(\@pkgs_to_unstow, \@pkgs_to_stow);
@@ -522,20 +522,20 @@ sub process_options {
 sub sanitize_path_options {
     my ($options) = @_;
 
-    if (exists $options->{'dir'}) {
-        $options->{'dir'}    =~ s/\A +//;
-        $options->{'dir'}    =~ s/ +\z//;
+    if (exists $options->{dir}) {
+        $options->{dir}    =~ s/\A +//;
+        $options->{dir}    =~ s/ +\z//;
     }
     else {
-        $options->{'dir'} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
+        $options->{dir} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
 
-    if (exists $options->{'target'}) {
-        $options->{'target'} =~ s/\A +//;
-        $options->{'target'} =~ s/ +\z//;
+    if (exists $options->{target}) {
+        $options->{target} =~ s/\A +//;
+        $options->{target} =~ s/ +\z//;
     }
     else {
-        $options->{'target'} = parent($options->{'dir'});
+        $options->{target} = parent($options->{dir});
     }
 }
 
@@ -568,7 +568,7 @@ sub check_packages {
 #=============================================================================
 sub get_config_file_options {
     my @defaults = ();
-    for my $file ("$ENV{'HOME'}/.stowrc", '.stowrc') {
+    for my $file ("$ENV{HOME}/.stowrc", '.stowrc') {
         if (-r $file) {
             warn "Loading defaults from $file\n";
             open my $FILE, '<', $file
