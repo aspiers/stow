@@ -20,7 +20,7 @@ cd("$OUT_DIR/target");
 # Note that each of the following tests use a distinct set of files
 
 my $stow;
-my @conflicts;
+my %conflicts;
 
 #
 # unstow a simple tree minimally
@@ -106,9 +106,10 @@ make_dir('../stow/pkg5/bin5');
 make_link('bin5', '../not-stow');
 
 $stow->plan_unstow('pkg5');
-@conflicts = $stow->get_conflicts;
+%conflicts = $stow->get_conflicts;
 like(
-    $conflicts[-1], qr(CONFLICT:.*existing target is not owned by stow)
+    $conflicts{unstow}{pkg5}[-1],
+    qr(existing target is not owned by stow)
     => q(existing link not owned by stow)
 );
 
@@ -300,10 +301,11 @@ stderr_like(
   qr/There are no outstanding operations to perform/,
   'no tasks to process when unstowing pkg12 for third time'
 );
-@conflicts = $stow->get_conflicts;
+%conflicts = $stow->get_conflicts;
 ok(
-    @conflicts == 1 &&
-    $conflicts[0] =~ m!existing target is neither a link nor a directory: man12/man1/file12\.1!
+    $stow->get_conflict_count == 1 &&
+    $conflicts{unstow}{pkg12}[0]
+        =~ m!existing target is neither a link nor a directory: man12/man1/file12\.1!
     => 'unstow pkg12 for third time'
 );
 
@@ -320,7 +322,7 @@ make_link("$OUT_DIR/target/bin13", '../stow/pkg13/bin13');
 $stow->plan_unstow('pkg13');
 $stow->process_tasks();
 ok(
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     -f "$OUT_DIR/stow/pkg13/bin13/file13" && ! -e "$OUT_DIR/target/bin13"
     => 'unstow a simple tree' 
 );
