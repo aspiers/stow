@@ -11,6 +11,11 @@ t/target/
 version.texi
 lib/Stow.pm
 doc/stow.8
+doc/stow.pdf
+doc/manual.pdf
+doc/manual.texi
+doc/manual.html
+doc/stow.html
 .dirstamp
 stamp-vti
 MYMETA.json

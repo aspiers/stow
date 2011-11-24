@@ -2,13 +2,15 @@
 
 dist_bin_SCRIPTS = bin/stow bin/chkstow
 info_TEXINFOS = doc/stow.texi
-TEXINFO_TEX = doc/texinfo.tex
 dist_man_MANS = doc/stow.8
-dist_doc_DATA = README
+dist_doc_DATA = README doc/manual.html doc/manual.pdf
 pmdir = $(libdir)/perl5
 dist_pm_DATA = lib/Stow.pm
 pmstowdir = $(pmdir)/Stow
 dist_pmstow_DATA = lib/Stow/Util.pm
+
+TEXINFO_TEX = doc/texinfo.tex
+export TEXI2DVI_BUILD_MODE = clean
 
 DEFAULT_IGNORE_LIST = default-ignore-list
 
@@ -39,7 +41,9 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
 
 # clean up files left behind by test suite
 clean-local:
-	-rm -rf t/target t/stow
+	-rm -rf t/target t/stow \
+		bin/stow bin/chkstow doc/stow.8 ChangeLog \
+		doc/manual.*
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
@@ -56,20 +60,33 @@ bin/chkstow: bin/chkstow.in Makefile
 lib/Stow.pm: lib/Stow.pm.in Makefile $(DEFAULT_IGNORE_LIST)
 	( $(edit) < $<; cat $(DEFAULT_IGNORE_LIST) ) > $@
 
-# The rules for manual.html and manual.texi are only used by
-# the developer
+##############################################################################
+# The below rules are only used by the developer.
+##############################################################################
+
+# It's conventional to generate $project.info, but it's also nicer to
+# generate manual.html and manual.pdf (which ultimately go somewhere
+# like /usr/share/doc/stow/) rather than stow.html and stow.pdf, to
+# make it obvious that these files contain the manual.  So we have to
+# jump through a few extra hoops.
+doc/manual.texi: doc/stow.texi doc/version.texi
+	[ -d doc ] || mkdir doc # required in vpath mode
+	cp -p $< $@
+
+doc/manual.pdf: doc/stow.pdf doc/version.texi
+	[ -d doc ] || mkdir doc # required in vpath mode
+	cp -p $< $@
+
+# It's easier to calculate the absolute path to $(srcdir) rather than
+# the relative path to it from the doc/ build subdirectory.
 doc/manual.html: doc/manual.texi
 	-rm -f $@
-	texi2html -expandinfo -menu -monolithic -verbose $<
-
-doc/manual.texi: doc/stow.texi
-	-rm -f $@
-	cp $< $@
+	srcdir=$$( cd $(srcdir); pwd ); \
+	cd doc && texi2html -I $$srcdir -expandinfo -menu -monolithic -verbose manual.texi
 
 doc/stow.8: bin/stow Makefile
 	pod2man $< > $@
 
 MODULES = lib/Stow.pm lib/Stow/Util.pm
-
 test: bin/stow bin/chkstow $(MODULES)
 	perl -MTest::Harness -Ilib -It -Ibin -e 'runtests(@ARGV)' t/*.t
