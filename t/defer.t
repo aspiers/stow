@@ -11,6 +11,9 @@ use testutil;
 
 use Test::More tests => 4;
 
+init_test_dirs();
+cd("$OUT_DIR/target");
+
 my $stow;
 
 $stow = new_Stow(defer => [ 'man' ]);

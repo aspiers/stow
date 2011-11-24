@@ -3,7 +3,10 @@ dnl Process this file with Autoconf to produce configure dnl
 AC_INIT([stow], [2.0.2], [bug-stow@gnu.org])
 AC_PREREQ([2.61])
 AC_CONFIG_AUX_DIR([automake])
-AM_INIT_AUTOMAKE([-Wall -Werror])
+# Unfortunately we have to disable warnings for overrides, because we
+# need to override the built-in `check' rule and also the TEXI2DVI
+# variable.
+AM_INIT_AUTOMAKE([-Wall -Werror -Wno-override])
 AC_PROG_INSTALL
 
 AM_MAINTAINER_MODE([enable])
