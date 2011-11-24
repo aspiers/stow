@@ -1323,11 +1323,6 @@ sub process_tasks {
 
     debug(2, "Processing tasks...");
 
-    if ($self->{simulate}) {
-        warn "WARNING: simulating so all operations are deferred.\n";
-        return;
-    }
-
     # Strip out all tasks with a skip action
     $self->{tasks} = [ grep { $_->{action} ne 'skip' } @{ $self->{tasks} } ];
 

@@ -107,7 +107,6 @@ the installation of software packages.
 * Installing Packages::         Using Stow to install.
 * Deleting Packages::           Using Stow to uninstall.
 * Conflicts::                   When Stow can't stow.
-* Deferred Operation::          Using two passes to stow.
 * Mixing Operations::           Multiple actions per invocation.
 * Multiple Stow Directories::   Further segregating software.
 * Target Maintenance::          Cleaning up mistakes.
@@ -417,18 +416,6 @@ directory.
 The following options are deprecated:
 @end table
 
-The following options are deprecated as of Stow version 2:
-@table @samp
-@item -c
-@itemx --conflicts
-Print any conflicts that are encountered.  This option
-implies @samp{-n}, and is used to search for all conflicts that might
-arise from an actual Stow operation.
-
-This option is deprecated as conflicts are now printed by default and no
-operations will be performed if any conflicts are detected.
-@end table
-
 @xref{Resource Files}, for a way to set default values for any of these
 options.
 
@@ -699,7 +686,7 @@ package.
 
 
 @c ===========================================================================
-@node Conflicts, Deferred Operation, Deleting Packages, Top
+@node Conflicts, Mixing Operations, Deleting Packages, Top
 @chapter Conflicts
 
 If, during installation, a file or symlink exists in the target tree and
@@ -711,37 +698,28 @@ other hand, if the existing name is merely a symlink that already points
 where Stow needs it to, then no conflict has occurred.  (Thus it
 is harmless to install a package that has already been installed.)
 
-A conflict causes Stow to exit immediately and print a warning
-(unless @samp{-c} is given), even if that means aborting an installation
-in mid-package.
+For complex packages, scanning the stow and target trees in tandem,
+and deciding whether to make directories or links, split-open or fold
+directories, can actually take a long time (a number of seconds).
+Moreover, an accurate analysis of potential conflicts requires us to
+take into account all of these operations.
 
-@cindex false conflict
-When running Stow with the @samp{-n} or @samp{-c} options, no actual
-filesystem-modifying operations take place.  Thus if a folded tree would
-have been split open, but instead was left in place because @samp{-n} or
-@samp{-c} was used, then Stow will report a @dfn{false conflict}, since
-the directory that Stow was expecting to populate has remained an
-un-populatable symlink.
+@anchor{Deferred Operation}
+@section Deferred Operation
 
-@c ===========================================================================
-@node Deferred Operation, Mixing Operations, Conflicts, Top
-@chapter Deferred Operation
+Since version 2.0, Stow now adopts a two-phase algorithm, first
+scanning for any potential conflicts before any stowing or unstowing
+operations are performed.  If any conflicts are found, they are
+displayed and then Stow terminates without making any modifications to
+the filesystem.  This means that there is much less risk of a package
+being partially stowed or unstowed due to conflicts.
 
-For complex packages, scanning the stow and target trees in tandem, and
-deciding whether to make directories or links, split-open or fold directories,
-can actually take a long time (a number of seconds).  Moreover, an accurate
-analysis of potential conflicts requires us to take into account all of
-these operations.
-
-Since version 2.0, Stow now adopts a two-phase algorithm, first scanning
-for any potential conflicts before any stowing or unstowing operations
-are performed.  This means that there is much less risk of a package
-being partially stowed or unstowed due to conflicts.  Prior to version
-2.0, if a conflict was discovered, the stow or unstow operation could be
-aborted mid-flow, leaving the target tree in an inconsistent state.
+Prior to version 2.0, if a conflict was discovered, the stow or unstow
+operation could be aborted mid-flow, leaving the target tree in an
+inconsistent state.
 
 @c ===========================================================================
-@node Mixing Operations, Multiple Stow Directories, Deferred Operation, Top
+@node Mixing Operations, Multiple Stow Directories, Conflicts, Top
 @chapter Mixing Operations
 
 Since version 2.0, multiple distinct actions can be specified in a single
