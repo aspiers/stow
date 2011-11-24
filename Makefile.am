@@ -50,7 +50,7 @@ bin/chkstow: bin/chkstow.in Makefile
 	$(edit) < $< > $@
 	chmod +x $@
 
-lib/Stow.pm: lib/Stow.pm.in
+lib/Stow.pm: lib/Stow.pm.in Makefile
 	$(edit) < $< > $@
 
 # The rules for manual.html and manual.texi are only used by
@@ -62,6 +62,9 @@ doc/manual.html: doc/manual.texi
 doc/manual.texi: doc/stow.texi
 	-rm -f $@
 	cp $< $@
+
+doc/stow.8: bin/stow Makefile
+	pod2man $< > $@
 
 MODULES = lib/Stow.pm lib/Stow/Util.pm
 
