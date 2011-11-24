@@ -131,20 +131,7 @@ C<-D>).
 =item --no
 
 Do not perform any operations that modify the filesystem; merely show
-what would happen. Since no actual operations are performed, C<stow
--n> could report conflicts when none would actually take place (see
-"Conflicts" in the info manual); but it won't fail to report
-conflicts that B<would> take place.
-
-=item -c
-
-=item --conflicts
-
-Do not exit immediately when a conflict is encountered. This option
-implies C<-n>, and is used to search for all conflicts that might
-arise from an actual Stow operation. As with C<-n>, however, false
-conflicts might be reported (see the "Conflicts" section in the info
-manual).
+what would happen.
 
 =item -d DIR
 
@@ -429,16 +416,19 @@ sub main {
 
     # --verbose:   tell me what you are planning to do
     # --simulate:  don't execute planned operations
-    # --conflicts: just list any detected conflicts
 
     if (scalar @conflicts) {
-        warn "WARNING: conflicts detected.\n";
-        if ($options->{conflicts}) {
-            warn $_ foreach @conflicts;
-        }
+        warn "WARNING: conflicts detected:\n";
+        warn $_ foreach @conflicts;
         warn "WARNING: all operations aborted.\n";
+        exit 1;
     }
     else {
+        if ($options->{simulate}) {
+            warn "WARNING: in simulation mode so not modifying filesystem.\n";
+            return;
+        }
+
         $stow->process_tasks();
     }
 }
@@ -464,7 +454,7 @@ sub process_options {
     Getopt::Long::config('no_ignore_case', 'bundling', 'permute');
     GetOptions(
         \%options,
-        'verbose|v:+', 'help|h', 'simulate|n|no', 'conflicts|c',
+        'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
 
         # clean and pre-compile any regex's at parse time
@@ -608,7 +598,6 @@ SYNOPSIS:
 OPTIONS:
 
     -n, --no              Do not actually make any filesystem changes
-    -c, --conflicts       Scan for and print any conflicts, implies -n
     -d DIR, --dir=DIR     Set stow dir to DIR (default is current dir)
     -t DIR, --target=DIR  Set target to DIR (default is parent of stow dir)
     -v, --verbose[=N]     Increase verbosity (levels are 0,1,2,3;
