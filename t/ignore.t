@@ -14,7 +14,7 @@ use testutil;
 use Stow::Util qw(join_paths);
 
 init_test_dirs();
-cd('t/target');
+cd("$OUT_DIR/target");
 
 my $stow = new_Stow();
 

@@ -17,15 +17,15 @@ init_test_dirs();
 
 local @ARGV = (
     '-v',
-    '-d t/stow',
-    '-t t/target',
+    "-d $OUT_DIR/stow",
+    "-t $OUT_DIR/target",
     'dummy'
 );
 
 my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 
 is($options->{verbose}, 1, 'verbose option');
-is($options->{dir}, 't/stow', 'stow dir option');
+is($options->{dir}, "$OUT_DIR/stow", 'stow dir option');
 
 my $stow = new_Stow(%$options);
 

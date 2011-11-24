@@ -15,7 +15,7 @@ use testutil;
 use Stow::Util qw(canon_path);
 
 init_test_dirs();
-cd('t/target');
+cd("$OUT_DIR/target");
 
 # Note that each of the following tests use a distinct set of files
 
@@ -273,8 +273,8 @@ ok(
 # Unstow a never stowed package
 #
 
-eval { remove_dir('t/target'); };
-mkdir('t/target');
+eval { remove_dir("$OUT_DIR/target"); };
+mkdir("$OUT_DIR/target");
 
 $stow = new_Stow();
 $stow->plan_unstow('pkg12');
@@ -311,17 +311,17 @@ ok(
 # unstow a simple tree minimally when cwd isn't target
 # 
 cd('../..');
-$stow = new_Stow(dir => 't/stow', target => 't/target');
+$stow = new_Stow(dir => "$OUT_DIR/stow", target => "$OUT_DIR/target");
 
-make_dir('t/stow/pkg13/bin13');
-make_file('t/stow/pkg13/bin13/file13');
-make_link('t/target/bin13', '../stow/pkg13/bin13');
+make_dir("$OUT_DIR/stow/pkg13/bin13");
+make_file("$OUT_DIR/stow/pkg13/bin13/file13");
+make_link("$OUT_DIR/target/bin13", '../stow/pkg13/bin13');
 
 $stow->plan_unstow('pkg13');
 $stow->process_tasks();
 ok(
     scalar($stow->get_conflicts) == 0 &&
-    -f 't/stow/pkg13/bin13/file13' && ! -e 't/target/bin13'
+    -f "$OUT_DIR/stow/pkg13/bin13/file13" && ! -e "$OUT_DIR/target/bin13"
     => 'unstow a simple tree' 
 );
 
@@ -329,18 +329,18 @@ ok(
 # unstow a simple tree minimally with absolute stow dir when cwd isn't
 # target
 #
-$stow = new_Stow(dir    => canon_path('t/stow'),
-                 target => 't/target');
+$stow = new_Stow(dir    => canon_path("$OUT_DIR/stow"),
+                 target => "$OUT_DIR/target");
 
-make_dir('t/stow/pkg14/bin14');
-make_file('t/stow/pkg14/bin14/file14');
-make_link('t/target/bin14', '../stow/pkg14/bin14');
+make_dir("$OUT_DIR/stow/pkg14/bin14");
+make_file("$OUT_DIR/stow/pkg14/bin14/file14");
+make_link("$OUT_DIR/target/bin14", '../stow/pkg14/bin14');
 
 $stow->plan_unstow('pkg14');
 $stow->process_tasks();
 ok(
     scalar($stow->get_conflicts) == 0 &&
-    -f 't/stow/pkg14/bin14/file14' && ! -e 't/target/bin14'
+    -f "$OUT_DIR/stow/pkg14/bin14/file14" && ! -e "$OUT_DIR/target/bin14"
     => 'unstow a simple tree with absolute stow dir'
 );
 
@@ -348,18 +348,18 @@ ok(
 # unstow a simple tree minimally with absolute stow AND target dirs
 # when cwd isn't target
 #
-$stow = new_Stow(dir    => canon_path('t/stow'),
-                 target => canon_path('t/target'));
+$stow = new_Stow(dir    => canon_path("$OUT_DIR/stow"),
+                 target => canon_path("$OUT_DIR/target"));
 
-make_dir('t/stow/pkg15/bin15');
-make_file('t/stow/pkg15/bin15/file15');
-make_link('t/target/bin15', '../stow/pkg15/bin15');
+make_dir("$OUT_DIR/stow/pkg15/bin15");
+make_file("$OUT_DIR/stow/pkg15/bin15/file15");
+make_link("$OUT_DIR/target/bin15", '../stow/pkg15/bin15');
 
 $stow->plan_unstow('pkg15');
 $stow->process_tasks();
 ok(
     scalar($stow->get_conflicts) == 0 &&
-    -f 't/stow/pkg15/bin15/file15' && ! -e 't/target/bin15'
+    -f "$OUT_DIR/stow/pkg15/bin15/file15" && ! -e "$OUT_DIR/target/bin15"
     => 'unstow a simple tree with absolute stow and target dirs'
 );
 
