@@ -412,15 +412,20 @@ sub main {
     $stow->plan_unstow(@$pkgs_to_unstow);
     $stow->plan_stow  (@$pkgs_to_stow);
 
-    my @conflicts = $stow->get_conflicts;
+    my %conflicts = $stow->get_conflicts;
 
-    # --verbose:   tell me what you are planning to do
-    # --simulate:  don't execute planned operations
-
-    if (scalar @conflicts) {
-        warn "WARNING: conflicts detected:\n";
-        warn $_ foreach @conflicts;
-        warn "WARNING: all operations aborted.\n";
+    if (%conflicts) {
+        foreach my $action ('unstow', 'stow') {
+            next unless $conflicts{$action};
+            foreach my $package (sort keys %{ $conflicts{$action} }) {
+                warn "WARNING! ${action}ing $package would cause conflicts:\n";
+                    #if $stow->get_action_count > 1;
+                foreach my $message (sort @{ $conflicts{$action}{$package} }) {
+                    warn "  * $message\n";
+                }
+            }
+        }
+        warn "All operations aborted.\n";
         exit 1;
     }
     else {

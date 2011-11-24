@@ -13,8 +13,8 @@ Stow - manage the installation of multiple software packages
     $stow->plan_unstow(@pkgs_to_unstow);
     $stow->plan_stow  (@pkgs_to_stow);
 
-    my @conflicts = $stow->get_conflicts;
-    $stow->process_tasks() unless @conflicts;
+    my %conflicts = $stow->get_conflicts;
+    $stow->process_tasks() unless %conflicts;
 
 =head1 DESCRIPTION
 
@@ -109,6 +109,8 @@ sub new {
 
     my $new = bless { }, $class;
 
+    $new->{action_count} = 0;
+
     for my $required_arg (qw(dir target)) {
         croak "$class->new() called without '$required_arg' parameter\n"
             unless exists $opts{$required_arg};
@@ -124,8 +126,6 @@ sub new {
         croak "$class->new() called with unrecognised parameter(s): ",
             join(", ", keys %opts), "\n";
     }
-
-    $opts{simulate} = 1 if $opts{conflicts};
 
     set_debug_level($new->get_verbosity());
     set_test_mode($new->{test_mode});
@@ -182,7 +182,8 @@ sub init_state {
     my $self = shift;
 
     # Store conflicts during pre-processing
-    $self->{conflicts} = [];
+    $self->{conflicts}      = {};
+    $self->{conflict_count} = 0;
 
     # Store command line packages to stow (-S and -R)
     $self->{pkgs_to_stow}   = [];
@@ -236,7 +237,7 @@ sub plan_unstow {
     $self->within_target_do(sub {
         for my $package (@packages) {
             if (not -d join_paths($self->{stow_path}, $package)) {
-                error("The given package name ($package) is not in your stow path $self->{stow_path}");
+                error("The stow directory $self->{dir} does not contain package $package");
             }
             debug(2, "Planning unstow of package $package...");
             if ($self->{compat}) {
@@ -254,6 +255,7 @@ sub plan_unstow {
                 );
             }
             debug(2, "Planning unstow of package $package... done");
+            $self->{action_count}++;
         }
     });
 }
@@ -273,7 +275,7 @@ sub plan_stow {
     $self->within_target_do(sub {
         for my $package (@packages) {
             if (not -d join_paths($self->{stow_path}, $package)) {
-                error("The given package name ($package) is not in your stow path $self->{stow_path}");
+                error("The stow directory $self->{dir} does not contain package $package");
             }
             debug(2, "Planning stow of package $package...");
             $self->stow_contents(
@@ -283,6 +285,7 @@ sub plan_stow {
                 join_paths($self->{stow_path}, $package), # source from target
             );
             debug(2, "Planning stow of package $package... done");
+            $self->{action_count}++;
         }
     });
 }
@@ -387,14 +390,18 @@ sub stow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(2, "Stowing from $path");
+    debug(2, "Stowing $path");
     debug(3, "--- $target => $source");
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
         my $second_source = $self->read_a_link($source);
         if ($second_source =~ m{\A/}) {
-            $self->conflict("source is an absolute symlink $source => $second_source");
+            $self->conflict(
+                'stow',
+                $package,
+                "source is an absolute symlink $source => $second_source"
+            );
             debug(3, "absolute symlinks cannot be unstowed");
             return;
         }
@@ -413,7 +420,11 @@ sub stow_node {
         my ($existing_path, $existing_stow_path, $existing_package) =
             $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
-            $self->conflict("existing target is not owned by stow: $target");
+            $self->conflict(
+                'stow',
+                $package,
+                "existing target is not owned by stow: $target"
+            );
             return; # XXX #
         }
 
@@ -455,9 +466,10 @@ sub stow_node {
             }
             else {
                 $self->conflict(
-                    q{existing target is stowed to a different package: %s => %s},
-                    $target,
-                    $existing_source,
+                    'stow',
+                    $package,
+                    "existing target is stowed to a different package: "
+                    . "$target => $existing_source"
                 );
             }
         }
@@ -480,7 +492,9 @@ sub stow_node {
         }
         else {
             $self->conflict(
-                qq{existing target is neither a link nor a directory: $target}
+                'stow',
+                $package,
+                "existing target is neither a link nor a directory: $target"
             );
         }
     }
@@ -643,7 +657,9 @@ sub unstow_node_orig {
     }
     elsif (-e $target) {
         $self->conflict(
-            qq{existing target is neither a link nor a directory: $target},
+            'unstow',
+            $package,
+            "existing target is neither a link nor a directory: $target",
         );
     }
     else {
@@ -744,7 +760,9 @@ sub unstow_node {
             $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
              $self->conflict(
-                 qq{existing target is not owned by stow: $target => $existing_source}
+                 'unstow',
+                 $package,
+                 "existing target is not owned by stow: $target => $existing_source"
              );
             return; # XXX #
         }
@@ -768,9 +786,10 @@ sub unstow_node {
             #}
             #else {
             #    $self->conflict(
-            #        q{existing target is stowed to a different package: %s => %s},
-            #        $target,
-            #        $existing_source
+            #        'unstow',
+            #        $package,
+            #        "existing target is stowed to a different package: "
+            #        . "$target => $existing_source"
             #    );
             #}
         }
@@ -791,7 +810,9 @@ sub unstow_node {
         }
         else {
             $self->conflict(
-                qq{existing target is neither a link nor a directory: $target},
+                'unstow',
+                $package,
+                "existing target is neither a link nor a directory: $target",
             );
         }
     }
@@ -1042,32 +1063,56 @@ sub fold_tree {
 #===== METHOD ===============================================================
 # Name      : conflict()
 # Purpose   : handle conflicts in stow operations
-# Parameters: $format => message printf format
-#           : @args   => paths that conflict
+# Parameters: $package => the package involved with the conflicting operation
+#           : $message => a description of the conflict
 # Returns   : n/a
-# Throws    : fatal exception unless 'conflicts' option is set
-# Comments  : indicates what type of conflict it is
+# Throws    : none
+# Comments  : none
 #============================================================================
 sub conflict {
     my $self = shift;
-    my ($format, @args) = @_;
+    my ($action, $package, $message) = @_;
 
-    my $message = sprintf($format, @args);
+    debug(2, "CONFLICT when ${action}ing $package: $message");
+    $self->{conflicts}{$action}{$package} ||= [];
+    push @{ $self->{conflicts}{$action}{$package} }, $message;
+    $self->{conflict_count}++;
 
-    debug(1, "CONFLICT: $message");
-    push @{ $self->{conflicts} }, "CONFLICT: $message\n";
     return;
 }
 
 =head2 get_conflicts()
 
-Returns a list of all potential conflicts discovered.
+Returns a nested hash of all potential conflicts discovered: the keys
+are actions ('stow' or 'unstow'), and the values are hashrefs whose
+keys are stow package names and whose values are conflict
+descriptions, e.g.:
+
+    (
+        stow => {
+            perl => [
+                "existing target is not owned by stow: bin/a2p"
+                "existing target is neither a link nor a directory: bin/perl"
+            ]
+        }
+    )
 
 =cut
 
 sub get_conflicts {
     my $self = shift;
-    return @{ $self->{conflicts} };
+    return %{ $self->{conflicts} };
+}
+
+=head2 get_conflict_count()
+
+Returns the number of conflicts found.
+
+=cut
+
+sub get_conflict_count {
+    my $self = shift;
+    return $self->{conflict_count};
 }
 
 =head2 get_tasks()
@@ -1079,6 +1124,17 @@ Returns a list of all symlink/directory creation/removal tasks.
 sub get_tasks {
     my $self = shift;
     return @{ $self->{tasks} };
+}
+
+=head2 get_action_count()
+
+Returns the number of actions planned for this Stow instance.
+
+=cut
+
+sub get_action_count {
+    my $self = shift;
+    return $self->{action_count};
 }
 
 #===== METHOD ================================================================
