@@ -262,7 +262,7 @@ The following options are supported:
 @item -d @var{dir}
 @itemx --dir=@var{dir}
 Set the stow directory to @var{dir}.  Defaults to the value of the environment
-variable @code{STOW_DIR} if set, or the current directory otherwise.
+variable @env{STOW_DIR} if set, or the current directory otherwise.
 
 @item -t @var{dir}
 @itemx --target=@var{dir}
@@ -294,10 +294,10 @@ regular expression, if that file is already stowed by another package.
 This is effectively the opposite of @code{--override}.
 
 (N.B. the name @code{--defer} was chosen in the sense that the package
-currently being stowed is treated with lower precedence than any already
-installed package, not in the sense that the operation is being
-postponed to be run at a later point in time; do not confuse this
-nomenclature with the wording used in @xref{Deferred Operation}.)
+currently being stowed is treated with lower precedence than any
+already installed package, not in the sense that the operation is
+being postponed to be run at a later point in time; do not confuse
+this nomenclature with the wording used in @ref{Deferred Operation}.)
 
 For example, the following options
 
@@ -308,8 +308,8 @@ For example, the following options
 @noindent
 will cause stow to skip over pre-existing man and info pages.
 
-Equivalently, you could use --defer='man|info' since the argument is just
-a Perl regex.
+Equivalently, you could use @code{--defer='man|info'} since the
+argument is just a Perl regex.
 
 Note that the regular expression is anchored to the beginning of the path
 relative to the target directory, because this is what you will want to do most
@@ -379,10 +379,11 @@ number of times.
 
 @item -S
 @item --stow
-explictly stow the package name(s) that follow this option.  May be omitted if
-you are not using the @samp{-D} or @samp{-R} options in the same invocation.
-See @xref{Mixing Operations}, for details of when you might like to use this
-feature. This option may be repeated any number of times.
+explictly stow the package name(s) that follow this option.  May be
+omitted if you are not using the @samp{-D} or @samp{-R} options in the
+same invocation.  @xref{Mixing Operations}, for details of when you
+might like to use this feature. This option may be repeated any number
+of times.
 @end table
 
 The following options are useful for cleaning up your target tree:
@@ -418,7 +419,7 @@ This option is deprecated as conflicts are now printed by default and no
 operations will be performed if any conflicts are detected.
 @end table
 
-@ref{Resource Files} for a way to set default values for any of these
+@xref{Resource Files}, for a way to set default values for any of these
 options.
 
 @c ===========================================================================
@@ -744,11 +745,11 @@ stow -D emacs-21.3 -S emacs-21.4a
 @noindent
 which will replace emacs-21.3 with emacs-21.4a using a single invocation.
 
-This is much faster and cleaner than performing two separate invocations of
-stow, because redundant folding/unfolding operations can be factored out.  In
-addition, all the operations are calculated and merged before being executed
-@pxref{Deferred Operation}, so the amount of of time in which GNU Emacs is
-unavailable is minimised.
+This is much faster and cleaner than performing two separate
+invocations of stow, because redundant folding/unfolding operations
+can be factored out.  In addition, all the operations are calculated
+and merged before being executed (@pxref{Deferred Operation}), so the
+amount of of time in which GNU Emacs is unavailable is minimised.
 
 You can mix and match any number of actions, for example,
 
@@ -872,11 +873,11 @@ must place it in the stow tree.
 
 Some software packages allow you to specify, at compile-time, separate
 locations for installation and for run-time.  Perl is one such package;
-@xref{Perl and Perl 5 Modules}.  Others allow you to compile the
+see @ref{Perl and Perl 5 Modules}.  Others allow you to compile the
 package, then give a different destination in the @samp{make install}
 step without causing the binaries or other files to get rebuilt.  Most
 GNU software falls into this category; Emacs is a notable exception.
-See @ref{GNU Emacs}, and @ref{Other FSF Software}.
+@xref{GNU Emacs}, and @ref{Other FSF Software}.
 
 Still other software packages cannot abide the idea of separate
 installation and run-time locations at all.  If you try to @samp{make
