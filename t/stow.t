@@ -58,7 +58,7 @@ local @ARGV = (
     'dummy'
 );
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is_deeply($options->{'defer'}, [ qr(\Aman), qr(\Ainfo) ] => 'defer man and info');
+is_deeply($options->{defer}, [ qr(\Aman), qr(\Ainfo) ] => 'defer man and info');
 
 #
 # Check setting override paths
@@ -69,7 +69,7 @@ local @ARGV = (
     'dummy'
 );
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is_deeply($options->{'override'}, [qr(\Aman), qr(\Ainfo)] => 'override man and info');
+is_deeply($options->{override}, [qr(\Aman), qr(\Ainfo)] => 'override man and info');
 
 #
 # Check stripping any matched quotes
@@ -80,7 +80,7 @@ local @ARGV = (
     'dummy'
 );
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is_deeply($options->{'override'}, [qr(\Aman), qr(\Ainfo)] => 'strip shell quoting');
+is_deeply($options->{override}, [qr(\Aman), qr(\Ainfo)] => 'strip shell quoting');
 
 #
 # Check setting ignored paths
@@ -91,7 +91,7 @@ local @ARGV = (
     'dummy'
 );
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is_deeply($options->{'ignore'}, [ qr(~\z), qr(\.#.*\z) ] => 'ignore temp files');
+is_deeply($options->{ignore}, [ qr(~\z), qr(\.#.*\z) ] => 'ignore temp files');
 
 
 # vim:ft=perl
