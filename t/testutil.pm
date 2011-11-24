@@ -4,17 +4,31 @@
 # Utilities shared by test scripts
 #
 
+package testutil;
+
 use strict;
 use warnings;
 
 use Stow;
-use Stow::Util qw(parent);
+use Stow::Util qw(parent canon_path);
+
+use base qw(Exporter);
+our @EXPORT = qw(
+    $OUT_DIR
+    init_test_dirs
+    cd
+    new_Stow new_compat_Stow
+    make_dir make_link make_file
+    remove_dir remove_link
+);
+
+our $OUT_DIR = 'tmp-testing-trees';
 
 sub init_test_dirs {
-    die "t/ didn't exist; are you running the tests from the root of the tree?\n"
-        unless -d 't';
+    die "$OUT_DIR/ didn't exist; are you running the tests from the root of the tree?\n"
+        unless -d $OUT_DIR;
 
-    for my $dir ('t/target', 't/stow') {
+    for my $dir ("$OUT_DIR/target", "$OUT_DIR/stow") {
         -d $dir and remove_dir($dir);
         make_dir($dir);
     }
