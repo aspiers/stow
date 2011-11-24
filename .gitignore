@@ -19,4 +19,11 @@ doc/stow.html
 stamp-vti
 MYMETA.json
 MYMETA.yml
+autom4te.cache/
+blib/
+Build
+_build/
 tmp-testing-trees/
+
+stow-[0-9].[0-9].[0-9].tar.*
+stow-[0-9].[0-9].[0-9]/
