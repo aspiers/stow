@@ -1,6 +1,11 @@
 stow
 chkstow
 Makefile
+Makefile.in
 config.log
 config.status
+configure
+stamp-vti
+stow.info
 t/target/
+version.texi
