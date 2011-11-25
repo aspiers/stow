@@ -355,12 +355,14 @@ doing.  Verbosity levels are 0, 1, 2, and 3; 0 is the default.  Using
 
 @item -p
 @itemx --compat
-Scan the whole target tree when unstowing.  By default, only directories
-specified in the @dfn{installation image} are scanned during an unstow
-operation.  Scanning the whole tree can be prohibitive if your target tree is
-very large.  This option restores the legacy behaviour; however, the
-@samp{--badlinks} option may be a better way of ensuring that your
-installation does not have any dangling symlinks.
+Scan the whole target tree when unstowing.  By default, only
+directories specified in the @dfn{installation image} are scanned
+during an unstow operation.  Scanning the whole tree can be
+prohibitive if your target tree is very large.  This option restores
+the legacy behaviour; however, the @samp{--badlinks} option to the
+@command{chkstow} utility may be a better way of ensuring that your
+installation does not have any dangling symlinks (@pxref{Target
+Maintenance}).
 
 @item -V
 @itemx --version
@@ -395,29 +397,6 @@ might like to use this feature. This option may be repeated any number
 of times.
 @end table
 
-The following options are useful for cleaning up your target tree:
-
-@table @samp
-@item -b
-@itemx --badlinks
-Checks target directory for bogus symbolic links. That is, links that point to
-non-existent files.
-
-@item -a
-@itemx --aliens
-Checks for files in the target directory that are not symbolic links. The
-target directory should be managed by stow alone, except for directories that
-contain a @file{.stow} file.
-
-@item -l
-@itemx --list
-Will display the target package for every symbolic link in the stow target
-directory.
-The following options are deprecated:
-@end table
-
-@xref{Resource Files}, for a way to set default values for any of these
-options.
 
 @c ===========================================================================
 @node Ignore Lists, Installing Packages, Invoking Stow, Top
@@ -779,19 +758,46 @@ symlink, and thus cannot remove it).
 @node Target Maintenance, Resource Files, Multiple Stow Directories, Top
 @chapter Target Maintenance
 
-From time to time you will need to clean up your target tree.
-Stow includes three operational modes that performs checks that
-would generally be too expensive to performed during normal stow
+From time to time you will need to clean up your target tree.  Since
+version 2, Stow provides a new utility @command{chkstow} to help with
+this.  It includes three operational modes which performs checks that
+would generally be too expensive to be performed during normal stow
 execution.
 
-I've added a -l option to chkstow
-which will give you a listing of every package name that has already been stowed
-should be able to diff this with your directory listing
+The syntax of the @code{chkstow} command is:
 
-bash
-cd build/scripts
-diff <(../bin/chkstow -l) <(ls -1)
+@example
+chkstow [@var{options}]
+@end example
 
+@noindent
+The following options are supported:
+
+@table @samp
+
+@item -t @var{dir}
+@itemx --target=@var{dir}
+Set the target directory to @var{dir} instead of the parent of the stow
+directory.  Defaults to the parent of the stow directory, so it is typical to
+execute @code{stow} from the directory @file{/usr/local/stow}.
+
+@item -b
+@itemx --badlinks
+Checks target directory for bogus symbolic links. That is, links that point to
+non-existent files.
+
+@item -a
+@itemx --aliens
+Checks for files in the target directory that are not symbolic links. The
+target directory should be managed by stow alone, except for directories that
+contain a @file{.stow} file.
+
+@item -l
+@itemx --list
+Will display the target package for every symbolic link in the stow target
+directory.
+
+@end table
 
 @c ===========================================================================
 @node Resource Files, Compile-time vs Install-time, Target Maintenance, Top
