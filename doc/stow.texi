@@ -739,20 +739,18 @@ software separately, or if there is any other reason to want two or more
 stow directories, it can be done by creating a file named @file{.stow}
 in each stow directory.  The presence of @file{/usr/local/foo/.stow}
 informs Stow that, though @file{foo} is not the current stow
-directory, and though it is a subdirectory of the target directory,
+directory, even if it is a subdirectory of the target directory,
 nevertheless it is @emph{a} stow directory and as such Stow
 doesn't ``own'' anything in it (@pxref{Installing Packages}).  This will
 protect the contents of @file{foo} from a @samp{stow -D}, for instance.
 
-XXX is this still true? XXX
+@c There is a test for the following case in t/examples.t:
 
-When multiple stow directories share a target tree, the effectiveness
-of Stow is reduced.  If a tree-folding symlink is encountered and
-needs to be split open during an installation, but the symlink points
-into the wrong stow directory, Stow will report a conflict rather
-than split open the tree (because it doesn't consider itself to own the
-symlink, and thus cannot remove it).
-
+When multiple stow directories share a target tree, if a tree-folding
+symlink is encountered and needs to be split open during an
+installation, as long as the top-level stow directory into which the
+existing symlink points contains @file{.stow}, Stow knows how to split
+open the tree in the correct manner.
 
 @c ===========================================================================
 @node Target Maintenance, Resource Files, Multiple Stow Directories, Top
