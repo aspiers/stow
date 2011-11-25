@@ -416,7 +416,7 @@ sub stow_node {
         }
         debug(3, "--- Evaluate existing link: $target => $existing_source");
 
-        # Does it point to a node under our stow directory?
+        # Does it point to a node under any stow directory?
         my ($existing_path, $existing_stow_path, $existing_package) =
             $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
@@ -620,7 +620,7 @@ sub unstow_node_orig {
             error("Could not read link: $target");
         }
 
-        # Does it point to a node under our stow directory?
+        # Does it point to a node under any stow directory?
         my ($existing_path, $existing_stow_path, $existing_package) =
             $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
@@ -755,7 +755,7 @@ sub unstow_node {
             return; # XXX #
         }
 
-        # Does it point to a node under our stow directory?
+        # Does it point to a node under any stow directory?
         my ($existing_path, $existing_stow_path, $existing_package) =
             $self->find_stowed_path($target, $existing_source);
         if (not $existing_path) {
