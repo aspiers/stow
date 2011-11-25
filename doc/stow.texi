@@ -516,6 +516,9 @@ contain a @samp{/}, and if so, ignores the file or directory.
 Otherwise, the file or directory is not ignored.
 @end enumerate
 
+@c N.B. if you change the examples below, please also consider
+@c updating test_examples_in_manual() in t/ignore.t.
+
 For example, if a file @file{bazqux} is in the @file{foo/bar}
 subdirectory of the package directory, Stow would use
 @code{/foo/bar/bazqux} as the text for matching against regular
