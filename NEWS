@@ -125,6 +125,8 @@ already been stowed.  Doing that on a live system is somewhat crazy and
 hopefully rare.  We provide an option '-p|--compat' to enable the old
 behaviour for those needing to patch up mistakes.
 
+** New chkstow utility for checking the integrity of the target directory.
+
 ** Implement a test suite and support code.  
 
 This was built before implementing any of the extra features so I could
