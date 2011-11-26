@@ -1,0 +1,40 @@
+How to make a new release of GNU Stow
+=====================================
+
+  - Ensure NEWS contains the latest changes.
+
+  - Ensure configure.ac contains the new version number.
+
+  - Check CPAN distribution will work via Module::Build:
+
+      - Run perl Build.PL.
+      - Run ./Build test
+      - Run ./Build install
+      - Run ./Build distcheck
+      - Run ./Build distmeta and check META.* have the new version number.
+
+  - Ensure all changes are committed to git.
+
+  - Run make distcheck and ensure that everything looks good.
+    It should generate the distribution files for you.
+
+  - Tag the current git HEAD with the new version number:
+
+      git tag v7.8.9
+
+  - Upload to ftp.gnu.org.  This is easiest using gnupload:
+
+      - git clone git://git.savannah.gnu.org/gnulib.git
+      - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
+      - Run gnupload --to ftp.gnu.org:gnu/stow --symlink-regex stow-7.8.9.tar.*
+
+  - Send release announcements to 
+
+      - info-gnu@gnu.org
+      - info-stow@gnu.org
+      - https://savannah.gnu.org/news/?group=stow
+
+    See http://www.gnu.org/prep/maintain/html_node/Announcements.html for
+    more on making release announcements.
+
+  - Upload to CPAN via https://pause.perl.org/
