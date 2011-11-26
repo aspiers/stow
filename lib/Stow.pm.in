@@ -339,11 +339,10 @@ sub stow_contents {
     return if $self->should_skip_target_which_is_stow_dir($target);
 
     my $cwd = getcwd();
-    my $msg = "Stowing contents of $path in package $package "
-            . "(cwd=$cwd, stow dir=$self->{stow_path})";
-    $msg =~ s!$ENV{HOME}/!~/!g;
-    debug(2, $msg);
-    debug(3, "--- $target => $source");
+    my $msg = "Stowing contents of $path (cwd=$cwd)";
+    $msg =~ s!$ENV{HOME}(/|$)!~$1!g;
+    debug(3, $msg);
+    debug(4, "  => $source");
 
     error("stow_contents() called with non-directory path: $path")
         unless -d $path;
@@ -390,8 +389,8 @@ sub stow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(2, "Stowing $path");
-    debug(3, "--- $target => $source");
+    debug(3, "Stowing $path");
+    debug(4, "  => $source");
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
@@ -402,7 +401,7 @@ sub stow_node {
                 $package,
                 "source is an absolute symlink $source => $second_source"
             );
-            debug(3, "absolute symlinks cannot be unstowed");
+            debug(3, "Absolute symlinks cannot be unstowed");
             return;
         }
     }
@@ -414,7 +413,7 @@ sub stow_node {
         if (not $existing_source) {
             error("Could not read link: $target");
         }
-        debug(3, "--- Evaluate existing link: $target => $existing_source");
+        debug(4, "  Evaluate existing link: $target => $existing_source");
 
         # Does it point to a node under any stow directory?
         my ($existing_path, $existing_stow_path, $existing_package) =
@@ -431,13 +430,13 @@ sub stow_node {
         # Does the existing $target actually point to anything?
         if ($self->is_a_node($existing_path)) {
             if ($existing_source eq $source) {
-                debug(3, "--- Skipping $target as it already points to $source");
+                debug(2, "--- Skipping $target as it already points to $source");
             }
             elsif ($self->defer($target)) {
-                debug(3, "--- deferring installation of: $target");
+                debug(2, "--- Deferring installation of: $target");
             }
             elsif ($self->override($target)) {
-                debug(3, "--- overriding installation of: $target");
+                debug(2, "--- Overriding installation of: $target");
                 $self->do_unlink($target);
                 $self->do_link($source, $target);
             }
@@ -448,7 +447,7 @@ sub stow_node {
                 # and the proposed new link points to a directory,
                 # then we can unfold (split open) the tree at that point
 
-                debug(3, "--- Unfolding $target which was already owned by $existing_package");
+                debug(2, "--- Unfolding $target which was already owned by $existing_package");
                 $self->do_unlink($target);
                 $self->do_mkdir($target);
                 $self->stow_contents(
@@ -475,13 +474,13 @@ sub stow_node {
         }
         else {
             # The existing link is invalid, so replace it with a good link
-            debug(3, "--- replacing invalid link: $path");
+            debug(2, "--- replacing invalid link: $path");
             $self->do_unlink($target);
             $self->do_link($source, $target);
         }
     }
     elsif ($self->is_a_node($target)) {
-        debug(3, "--- Evaluate existing node: $target");
+        debug(4, "  Evaluate existing node: $target");
         if ($self->is_a_dir($target)) {
             $self->stow_contents(
                 $self->{stow_path},
@@ -566,9 +565,9 @@ sub unstow_contents_orig {
 
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (compat mode, cwd=$cwd, stow dir=$self->{stow_path})";
-    $msg =~ s!$ENV{HOME}/!~/!g;
-    debug(2, $msg);
-    debug(3, "--- source path is $path");
+    $msg =~ s!$ENV{HOME}(/|$)!~$1!g;
+    debug(3, $msg);
+    debug(4, "  source path is $path");
     # In compat mode we traverse the target tree not the source tree,
     # so we're unstowing the contents of /target/foo, there's no
     # guarantee that the corresponding /stow/mypkg/foo exists.
@@ -607,12 +606,12 @@ sub unstow_node_orig {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(2, "Unstowing $target (compat mode)");
-    debug(3, "--- source path is $path");
+    debug(3, "Unstowing $target (compat mode)");
+    debug(4, "  source path is $path");
 
     # Does the target exist?
     if ($self->is_a_link($target)) {
-        debug(3, "Evaluate existing link: $target");
+        debug(4, "  Evaluate existing link: $target");
 
         # Where is the link pointing?
         my $existing_source = $self->read_a_link($target);
@@ -637,13 +636,13 @@ sub unstow_node_orig {
                 $self->do_unlink($target);
             }
             elsif ($self->override($target)) {
-                debug(3, "--- overriding installation of: $target");
+                debug(2, "--- overriding installation of: $target");
                 $self->do_unlink($target);
             }
             # else leave it alone
         }
         else {
-            debug(3, "--- removing invalid link into a stow directory: $path");
+            debug(2, "--- removing invalid link into a stow directory: $path");
             $self->do_unlink($target);
         }
     }
@@ -663,7 +662,7 @@ sub unstow_node_orig {
         );
     }
     else {
-        debug(3, "$target did not exist to be unstowed");
+        debug(2, "$target did not exist to be unstowed");
     }
     return;
 }
@@ -691,8 +690,8 @@ sub unstow_contents {
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (cwd=$cwd, stow dir=$self->{stow_path})";
     $msg =~ s!$ENV{HOME}/!~/!g;
-    debug(2, $msg);
-    debug(3, "--- source path is $path");
+    debug(3, $msg);
+    debug(4, "  source path is $path");
     # We traverse the source tree not the target tree, so $path must exist.
     error("unstow_contents() called with non-directory path: $path")
         unless -d $path;
@@ -737,12 +736,12 @@ sub unstow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(2, "Unstowing $path");
-    debug(3, "--- target is $target");
+    debug(3, "Unstowing $path");
+    debug(4, "  target is $target");
 
     # Does the target exist?
     if ($self->is_a_link($target)) {
-        debug(3, "Evaluate existing link: $target");
+        debug(4, "  Evaluate existing link: $target");
 
         # Where is the link pointing?
         my $existing_source = $self->read_a_link($target);
@@ -778,10 +777,10 @@ sub unstow_node {
             # package.
 
             #elsif (defer($target)) {
-            #    debug(3, "--- deferring to installation of: $target");
+            #    debug(2, "--- deferring to installation of: $target");
             #}
             #elsif ($self->override($target)) {
-            #    debug(3, "--- overriding installation of: $target");
+            #    debug(2, "--- overriding installation of: $target");
             #    $self->do_unlink($target);
             #}
             #else {
@@ -794,12 +793,12 @@ sub unstow_node {
             #}
         }
         else {
-            debug(3, "--- removing invalid link into a stow directory: $path");
+            debug(2, "--- removing invalid link into a stow directory: $path");
             $self->do_unlink($target);
         }
     }
     elsif (-e $target) {
-        debug(3, "Evaluate existing node: $target");
+        debug(4, "  Evaluate existing node: $target");
         if (-d $target) {
             $self->unstow_contents($stow_path, $package, $target);
 
@@ -817,7 +816,7 @@ sub unstow_node {
         }
     }
     else {
-        debug(3, "$target did not exist to be unstowed");
+        debug(2, "$target did not exist to be unstowed");
     }
     return;
 }
@@ -951,7 +950,7 @@ sub cleanup_invalid_links {
                 not -e join_paths($dir, $source) and  # bad link
                 $self->path_owned_by_package($node_path, $source) # owned by stow
             ){
-                debug(3, "--- removing stale link: $node_path => " .
+                debug(2, "--- removing stale link: $node_path => " .
                           join_paths($dir, $source));
                 $self->do_unlink($node_path);
             }
@@ -1165,9 +1164,9 @@ sub ignore {
     my $package_dir = join_paths($stow_path, $package);
     my ($path_regexp, $segment_regexp) =
         $self->get_ignore_regexps($package_dir);
-    debug(3, "    Ignore list regexp for paths:    " .
+    debug(5, "    Ignore list regexp for paths:    " .
              (defined $path_regexp ? "/$path_regexp/" : "none"));
-    debug(3, "    Ignore list regexp for segments: " .
+    debug(5, "    Ignore list regexp for segments: " .
              (defined $segment_regexp ? "/$segment_regexp/" : "none"));
 
     if (defined $path_regexp and "/$target" =~ $path_regexp) {
@@ -1201,11 +1200,11 @@ sub get_ignore_regexps {
 
     for my $file ($local_stow_ignore, $global_stow_ignore) {
         if (-e $file) {
-            debug(3, "  Using ignore file: $file");
+            debug(5, "  Using ignore file: $file");
             return $self->get_ignore_regexps_from_file($file);
         }
         else {
-            debug(4, "  $file didn't exist");
+            debug(5, "  $file didn't exist");
         }
     }
 

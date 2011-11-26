@@ -93,11 +93,16 @@ Verbosity rules:
 
 =item >= 1: print operations: LINK/UNLINK/MKDIR/RMDIR
 
-=item >= 2: print trace: stow/unstow package/contents/node
+=item >= 2: print operation exceptions
 
-=item >= 3: print trace detail: "_this_ already points to _that_"
+e.g. "_this_ already points to _that_", skipping, deferring,
+overriding, fixing invalid links
+
+=item >= 3: print trace detail: trace: stow/unstow/package/contents/node
 
 =item >= 4: debug helper routines
+
+=item >= 5: debug ignore lists
 
 =back
 
