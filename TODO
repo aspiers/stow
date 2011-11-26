@@ -1,3 +1,9 @@
+* Distinguish between .stow and (undocumented) .nonstow
+** .stow is for marking stow directories - avoids altering them
+   but also allows --override to work
+** .nonstow should be only for protecting non-stow directories against modification by stow
+   but currently allows modification via --override.
+** Documentation needs to be clear on this.
 * Prevent folding of directories which contain ignored files
 * Honour .no-stow-folding and --no-folding
 * Add semi-automatic conflict resolution
