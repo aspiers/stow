@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 9;
 
 use testutil;
 
@@ -72,22 +72,11 @@ local @ARGV = (
 is_deeply($options->{override}, [qr(\Aman), qr(\Ainfo)] => 'override man and info');
 
 #
-# Check stripping any matched quotes
-#
-local @ARGV = (
-    "--override='man'",
-    '--override="info"',
-    'dummy'
-);
-($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is_deeply($options->{override}, [qr(\Aman), qr(\Ainfo)] => 'strip shell quoting');
-
-#
 # Check setting ignored paths
 #
 local @ARGV = (
-    '--ignore="~"',
-    '--ignore="\.#.*"',
+    '--ignore=~',
+    '--ignore=\.#.*',
     'dummy'
 );
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();

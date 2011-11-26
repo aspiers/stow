@@ -465,20 +465,19 @@ sub process_options {
         # clean and pre-compile any regex's at parse time
         'ignore=s' =>
         sub {
-            # FIXME: do we really need strip_quotes here?
-            my $regex = strip_quotes($_[1]);
+            my $regex = $_[1];
             push @{$options{ignore}}, qr($regex\z);
         },
 
         'override=s' =>
         sub {
-            my $regex = strip_quotes($_[1]);
+            my $regex = $_[1];
             push @{$options{override}}, qr(\A$regex);
         },
 
         'defer=s' =>
         sub {
-            my $regex = strip_quotes($_[1]);
+            my $regex = $_[1];
             push @{$options{defer}}, qr(\A$regex);
         },
 
@@ -627,26 +626,6 @@ EOT
 sub version {
     print "$ProgramName (GNU Stow) version $Stow::VERSION\n";
     exit 0;
-}
-
-#===== METHOD ================================================================
-# Name      : strip_quotes
-# Purpose   : remove matching outer quotes from the given string
-# Parameters: none
-# Returns   : n/a
-# Throws    : no exceptions
-# Comments  : none
-#=============================================================================
-sub strip_quotes {
-    my ($string) = @_;
-
-    if ($string =~ m{\A\s*'(.*)'\s*\z}) {
-        return $1;
-    }
-    elsif ($string =~ m{\A\s*"(.*)"\s*\z}) {
-        return $1
-    }
-    return $string;
 }
 
 
