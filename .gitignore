@@ -27,3 +27,4 @@ configure
 stamp-vti
 stow-[0-9].[0-9].[0-9].tar.*
 stow-[0-9].[0-9].[0-9]/
+Stow-v[0-9].[0-9].[0-9].tar.*
