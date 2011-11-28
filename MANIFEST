@@ -1,4 +1,8 @@
 AUTHORS
+aclocal.m4
+automake/install-sh
+automake/mdate-sh
+automake/missing
 bin/chkstow
 bin/chkstow.in
 bin/stow
@@ -24,6 +28,7 @@ lib/Stow/Util.pm
 Makefile.am
 Makefile.in
 MANIFEST			This list of files
+MANIFEST.SKIP
 NEWS
 README
 t/chkstow.t
