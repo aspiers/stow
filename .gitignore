@@ -20,6 +20,7 @@ configure
 /doc/manual.html
 /doc/manual.pdf
 /doc/manual.texi
+/doc/stow.html
 /doc/stow.pdf
 /doc/stow.8
 /lib/Stow.pm
