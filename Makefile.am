@@ -5,8 +5,9 @@ info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
 dist_doc_DATA = \
 	README \
-	doc/manual.html doc/manual.pdf \
+	doc/manual.html \
 	ChangeLog doc/ChangeLog.OLD
+doc_DATA = doc/manual.pdf
 
 # Would be nice to include the split page HTML version of the manual
 # in the distribution, but automake doesn't support wildcards and I'm
@@ -77,6 +78,7 @@ $(TESTS_OUT):
 CPAN_FILES = MANIFEST MANIFEST.SKIP Build.PL META.yml META.json
 EXTRA_DIST = \
 	bin/stow.in bin/chkstow.in lib/Stow.pm.in \
+	doc/stow.pdf \
 	$(TESTS) t/testutil.pm \
 	$(TEXINFO_TEX) \
 	$(DEFAULT_IGNORE_LIST) \
@@ -87,7 +89,7 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
 clean-local:
 	-rm -rf $(TESTS_OUT) \
 		bin/stow bin/chkstow doc/stow.8 ChangeLog \
-		doc/manual.*
+		doc/manual.html doc/manual.pdf
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
@@ -115,22 +117,14 @@ lib/Stow.pm: lib/Stow.pm.in Makefile $(DEFAULT_IGNORE_LIST)
 # generate manual.html and manual.pdf (which ultimately go somewhere
 # like /usr/share/doc/stow/) rather than stow.html and stow.pdf, to
 # make it obvious that these files contain the manual.  So we have to
-# jump through a few extra hoops.  We preserve timestamps to avoid any
-# unnecessary rebuilds, since not everyone has texinfo installed.
-doc/manual.texi: doc/stow.texi doc/version.texi
+# jump through a few extra hoops.
+doc/manual.pdf: doc/stow.pdf
 	[ -d doc ] || mkdir doc # required in vpath mode
-	cp --preserve=timestamps $< $@
+	cp $< $@
 
-doc/manual.pdf: doc/stow.pdf doc/version.texi
-	[ -d doc ] || mkdir doc # required in vpath mode
-	cp --preserve=timestamps $< $@
-
-# It's easier to calculate the absolute path to $(srcdir) rather than
-# the relative path to it from the doc/ build subdirectory.
-doc/manual.html: doc/manual.texi
+doc/manual.html: doc/stow.texi
 	-rm -f $@
-	srcdir=$$( cd $(srcdir); pwd ); \
-	cd doc && texi2html -I $$srcdir -expandinfo -menu -monolithic -verbose manual.texi
+	texi2html --P=$(srcdir) --output=$@ -expandinfo -menu -monolithic -verbose $<
 
 doc/stow.8: bin/stow Makefile
 	[ -d doc ] || mkdir doc # required in vpath mode

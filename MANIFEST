@@ -11,9 +11,9 @@ COPYING
 default-ignore-list
 doc/ChangeLog.OLD
 doc/manual.html
-doc/manual.pdf
 doc/stow.8
 doc/stow.info
+doc/stow.pdf
 doc/stow.texi
 doc/texinfo.tex
 doc/version.texi

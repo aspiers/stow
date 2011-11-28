@@ -76,7 +76,7 @@
 ^doc/\.dirstamp$
 ^doc/stamp-vti$
 ^doc/manual.texi
-^doc/stow.pdf
+^doc/manual.pdf$
 
 # Avoid test files
 ^tmp-testing-trees
