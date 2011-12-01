@@ -5,7 +5,7 @@ info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
 dist_doc_DATA = \
 	README \
-	doc/stow.html doc/stow.pdf \
+	doc/stow.html doc/stow.pdf doc/version.texi \
 	ChangeLog doc/ChangeLog.OLD
 
 # Would be nice to include the split page HTML version of the manual
