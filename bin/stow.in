@@ -529,7 +529,7 @@ sub sanitize_path_options {
         $options->{target} =~ s/ +\z//;
     }
     else {
-        $options->{target} = parent($options->{dir});
+        $options->{target} = parent($options->{dir}) || '.';
     }
 }
 
