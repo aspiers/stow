@@ -5,14 +5,13 @@ info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
 dist_doc_DATA = \
 	README \
-	doc/manual.html \
+	doc/stow.html doc/stow.pdf \
 	ChangeLog doc/ChangeLog.OLD
-doc_DATA = doc/manual.pdf
 
 # Would be nice to include the split page HTML version of the manual
 # in the distribution, but automake doesn't support wildcards and I'm
 # loathe to explicitly list every single page here :-(
-#nobase_dist_doc_DATA = doc/stow.html/*.html
+#nobase_dist_doc_DATA = doc/manual-split/*.html
 
 pmdir = $(libdir)/perl5
 dist_pm_DATA = lib/Stow.pm
@@ -89,7 +88,7 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
 clean-local:
 	-rm -rf $(TESTS_OUT) \
 		bin/stow bin/chkstow doc/stow.8 ChangeLog \
-		doc/manual.html doc/manual.pdf
+		doc/stow.html doc/stow.pdf
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
@@ -110,19 +109,11 @@ lib/Stow.pm: lib/Stow.pm.in Makefile $(DEFAULT_IGNORE_LIST)
 	( $(edit) < $<; cat $(DEFAULT_IGNORE_LIST) ) > $@
 
 ##############################################################################
-# The below rules are only used by the developer.
+# The below rules should only be needed by developers.
 ##############################################################################
 
-# It's conventional to generate $project.info, but it's also nicer to
-# generate manual.html and manual.pdf (which ultimately go somewhere
-# like /usr/share/doc/stow/) rather than stow.html and stow.pdf, to
-# make it obvious that these files contain the manual.  So we have to
-# jump through a few extra hoops.
-doc/manual.pdf: doc/stow.pdf
+doc/stow.html: doc/stow.texi
 	[ -d doc ] || mkdir doc # required in vpath mode
-	cp $< $@
-
-doc/manual.html: doc/stow.texi
 	-rm -f $@
 	texi2html --P=$(srcdir) --output=$@ -expandinfo -menu -monolithic -verbose $<
 
@@ -130,6 +121,18 @@ doc/stow.8: bin/stow Makefile
 	[ -d doc ] || mkdir doc # required in vpath mode
 	pod2man $< > $@
 
+# It's conventional to generate $project.info, but it's also nicer to
+# generate manual.html and manual.pdf (which ultimately go somewhere
+# like /usr/share/doc/stow/) rather than stow.html and stow.pdf, to
+# make it obvious that these files contain the manual.  So we have to
+# jump through a few extra hoops.
+install-data-hook:
+	cd $(DESTDIR)$(docdir)      && \
+	mv -f stow.html manual.html && \
+	mv -f stow.pdf  manual.pdf
+
+uninstall-hook:
+	rm -f $(DESTDIR)$(docdir)/manual.{html,pdf}
 
 ChangeLog: doc/ChangeLog.OLD Makefile
 	@if [ -d .git ]; then \

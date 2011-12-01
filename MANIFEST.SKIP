@@ -78,7 +78,7 @@
 ^doc/manual.texi$
 ^doc/manual.pdf$
 ^doc/HOWTO-RELEASE$
-^doc/stow\.html/.+\.html$
+^doc/manual\.html\b
 
 # Avoid test files
 ^tmp-testing-trees
