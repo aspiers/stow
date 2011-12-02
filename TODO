@@ -1,3 +1,5 @@
+* Import a debian/ tree from an older package and update it.
+* Import a .spec file from somewhere and update it.
 * Distinguish between .stow and (undocumented) .nonstow
 ** .stow is for marking stow directories - avoids altering them
    but also allows --override to work
