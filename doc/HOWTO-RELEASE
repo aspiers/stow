@@ -22,6 +22,38 @@ How to make a new release of GNU Stow
 
       git tag v7.8.9
 
+  - Push HEAD and tag to savannah
+
+      git push
+      git push --tags
+
+  - Regenerate the documentation for the website:
+
+      # First check out texinfo CVS repository via:
+      # cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/texinfo co texinfo
+
+      # and stow-web CVS repository via the instructions here:
+      # https://savannah.gnu.org/cvs/?group=stow
+
+      # Set paths:
+      stow_repo=/path/to/stow/git/repo
+      stow_web_repo=/path/to/stow-web/CVS/working/dir
+      texinfo_repo=/path/to/texinfo/git/repo
+
+      cd $stow_repo
+      export GENDOCS_TEMPLATE_DIR=$texinfo_repo/util
+      $texinfo_repo/util/gendocs.sh \
+          -s doc/stow.texi \
+          -o $stow_web_repo/manual \
+          --email bug-stow@gnu.org \
+          stow "GNU Stow manual"
+
+      cd $stow_web_repo
+      # Check that the changes look OK
+      cvs diff
+      # Then commit
+      cvs commit
+
   - Upload to ftp.gnu.org.  This is easiest using gnupload:
 
       - git clone git://git.savannah.gnu.org/gnulib.git
