@@ -1147,7 +1147,7 @@ perl/bin/perl stow/bin/stow -vv *
 @node Reporting Bugs, Known Bugs, Bootstrapping, Top
 @chapter Reporting Bugs
 
-Please send bug reports to the current maintainer, Troy Will, by electronic
+Please send bug reports to the current maintainers by electronic
 mail.  The address to use is @samp{<bug-stow@@gnu.org>}.  Please
 include:
 

@@ -37,4 +37,4 @@ Stow.pm and Stow/Util.pm modules providing an OO interface, tightened
 up the test suite, added support for ignore lists, `make test', and
 distribution via CPAN, and cleaned up numerous other minor issues.
 
-Stow is currently maintained by Troy Mill.
+Stow is currently co-maintained by Adam Spiers and Troy Mill.
