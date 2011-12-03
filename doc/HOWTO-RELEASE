@@ -30,8 +30,9 @@ How to make a new release of GNU Stow
 
   - Send release announcements to 
 
-      - info-gnu@gnu.org
       - info-stow@gnu.org
+      - stow-devel@gnu.org
+      - info-gnu@gnu.org
       - https://savannah.gnu.org/news/?group=stow
 
     See http://www.gnu.org/prep/maintain/html_node/Announcements.html for
