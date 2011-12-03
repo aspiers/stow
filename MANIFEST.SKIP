@@ -74,12 +74,9 @@
 ^autom4te\.cache/.+$
 ^config\.(log|status)$
 ^doc/\.dirstamp$
+^doc/manual-split/
 ^doc/stamp-vti$
-^doc/manual.texi$
-^doc/manual.pdf$
-^doc/stow.pdf$
 ^doc/HOWTO-RELEASE$
-^doc/manual\.html\b
 
 # Avoid test files
 ^tmp-testing-trees

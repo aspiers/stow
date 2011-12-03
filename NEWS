@@ -13,6 +13,7 @@ phase.
 
 ** Improved debugging output.
 ** Converted man page to POD format.
+** Include PDF, and both split- and single-page HTML versions of manual in the distribution.
 ** Fixed code style consistency issues.
 ** Running configure from outside the source tree now works.
 ** `make distcheck' now works.

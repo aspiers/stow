@@ -14,7 +14,8 @@ configure.ac
 COPYING
 default-ignore-list
 doc/ChangeLog.OLD
-doc/stow.html
+doc/manual-single.html
+doc/manual.pdf
 doc/stow.8
 doc/stow.info
 doc/stow.texi
