@@ -66,7 +66,7 @@
 ^MANIFEST\.SKIP
 
 # Avoid archives of this distribution
-\b[sS]tow-[\d\.\_]+
+\b[sS]tow-v?[\d\.\_]+
 
 # Avoid autotools stuff
 ^aclocal.m4$
