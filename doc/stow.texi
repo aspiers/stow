@@ -186,7 +186,7 @@ directory (e.g., @file{/usr/local/stow/emacs}), so it's always possible
 to rebuild the target tree (e.g., @file{/usr/local}).
 
 For information about the latest version of Stow, you can refer to
-http://www.gnu.org/software/stow/.
+@uref{http://www.gnu.org/software/stow/}.
 
 
 @c ===========================================================================
