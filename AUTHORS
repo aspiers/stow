@@ -15,7 +15,7 @@ the generation of wrong links if there are links in the stow directory.
 Stow was maintained by Guillaume Morin <gmorin@gnu.org> up to November 2007.
 
 Kahlil (Kal) Hodgson <kahlil@internode.on.net> performed a major rewrite
-inorder to implement:
+in order to implement:
 
     1. defered operations,
     2. option parsing via Getopt::Long,
