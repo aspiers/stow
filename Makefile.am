@@ -5,7 +5,7 @@ info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
 dist_doc_DATA = \
 	README \
-	doc/stow.html doc/stow.pdf doc/version.texi \
+	doc/stow.html doc/version.texi \
 	ChangeLog doc/ChangeLog.OLD
 
 # Would be nice to include the split page HTML version of the manual
@@ -128,8 +128,8 @@ doc/stow.8: bin/stow Makefile
 # jump through a few extra hoops.
 install-data-hook:
 	cd $(DESTDIR)$(docdir)      && \
-	mv -f stow.html manual.html && \
-	mv -f stow.pdf  manual.pdf
+	mv -f stow.html manual.html
+	cp $(srcdir)/doc/stow.pdf $(DESTDIR)$(docdir)/manual.pdf
 
 uninstall-hook:
 	rm -f $(DESTDIR)$(docdir)/manual.{html,pdf}
@@ -147,3 +147,16 @@ ChangeLog: doc/ChangeLog.OLD Makefile
 	else \
 	    echo "Not in a git repository; can't update ChangeLog."; \
 	fi
+
+# For website only; cannot currently be included in dist_doc_DATA
+# because of:
+#
+# http://article.gmane.org/gmane.comp.sysutils.automake.general/13192
+#
+# This means that it is still included in the distribution and
+# installed, but is only automatically (re)built when making a new
+# distribution - if stow.texi changes during development, it has to be
+# rebuilt manually via 'make pdf'.
+dist-hook: pdf
+
+pdf: doc/stow.pdf

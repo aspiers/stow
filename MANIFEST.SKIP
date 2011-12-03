@@ -77,6 +77,7 @@
 ^doc/stamp-vti$
 ^doc/manual.texi$
 ^doc/manual.pdf$
+^doc/stow.pdf$
 ^doc/HOWTO-RELEASE$
 ^doc/manual\.html\b
 
