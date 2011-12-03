@@ -26,7 +26,7 @@ How to make a new release of GNU Stow
 
       - git clone git://git.savannah.gnu.org/gnulib.git
       - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
-      - Run gnupload --to ftp.gnu.org:gnu/stow --symlink-regex stow-7.8.9.tar.*
+      - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.*
 
   - Send release announcements to 
 
