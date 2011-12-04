@@ -7,7 +7,7 @@
 @c @setchapternewpage odd
 @c @footnotestyle separate
 @c %**end of header
-@dircategory Administration
+@dircategory System administration
 @direntry
 * Stow: (stow).           GNU Stow.
 @end direntry
