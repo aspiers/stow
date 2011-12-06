@@ -9,8 +9,6 @@ AC_CONFIG_AUX_DIR([automake])
 AM_INIT_AUTOMAKE([-Wall -Werror -Wno-override dist-bzip2])
 AC_PROG_INSTALL
 
-AM_MAINTAINER_MODE([enable])
-
 dnl Check for perl on our system 
 dnl call to AC_SUBST(PERL) is implicit
 AC_PATH_PROGS([PERL], [perl] [perl5], [false])
