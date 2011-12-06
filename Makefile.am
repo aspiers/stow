@@ -3,9 +3,11 @@
 dist_bin_SCRIPTS = bin/stow bin/chkstow
 info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
+PDF = doc/manual.pdf
+HTML = doc/manual-single.html
 dist_doc_DATA = \
 	README \
-	doc/manual.pdf doc/manual-single.html doc/version.texi \
+	$(PDF) $(HTML) doc/version.texi \
 	ChangeLog doc/ChangeLog.OLD
 
 pmdir = $(PMDIR)
@@ -85,7 +87,7 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
 clean-local:
 	-rm -rf $(TESTS_OUT) \
 		bin/stow bin/chkstow doc/stow.8 ChangeLog \
-		doc/manual-split doc/manual-single.html doc/manual.pdf
+		doc/manual-split $(HTML) $(PDF)
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
@@ -129,12 +131,12 @@ doc/stow.8: bin/stow Makefile
 # install.  Instead, by overriding the built-in rules with modified
 # versions, we can kill both birds with one stone.
 
-doc/manual-single.html: $(doc_deps)
+$(HTML): $(doc_deps)
 	[ -d doc ] || mkdir doc # required in vpath mode
 	-rm -f $@
 	texi2html --P=$(srcdir) --output=$@ -expandinfo -menu -monolithic -verbose $<
 
-doc/manual.pdf: $(doc_deps)
+$(PDF): $(doc_deps)
 	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
 	MAKEINFO='$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -I doc -I $(srcdir)/doc' \
 	$(TEXI2PDF) -o $@ `test -f 'doc/stow.texi' || echo '$(srcdir)/'`doc/stow.texi
@@ -170,7 +172,7 @@ uninstall-hook:
 # rebuilt during development by a simple `make'.  A workaround hack
 # for this is to piggy-back the dependency onto manual-single.html,
 # which *is* automatically rebuilt by `make':
-doc/manual-single.html: doc/manual-split
+$(HTML): doc/manual-split
 
 # With the above hack, this probably isn't necessary but is safer to
 # keep in anyway:
