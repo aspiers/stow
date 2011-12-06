@@ -18,6 +18,8 @@ How to make a new release of GNU Stow
 
   - Ensure all changes are committed to git.
 
+  - Run `rm ChangeLog' to ensure it will get rebuilt.
+
   - Run make distcheck and ensure that everything looks good.
     It should generate the distribution files for you.
 
