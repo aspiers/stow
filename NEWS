@@ -1,5 +1,7 @@
 News file for Stow.
 
+* Changes in version 2.1.1
+** Fixed bug where ./configure --with-pmdir=X was ineffectual.
 * Changes in version 2.1.0
 ** Major refactoring of code into separate Stow and Stow::Util Perl modules.
 ** Added support for ignore list files.

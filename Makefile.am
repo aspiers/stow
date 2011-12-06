@@ -8,7 +8,7 @@ dist_doc_DATA = \
 	doc/manual.pdf doc/manual-single.html doc/version.texi \
 	ChangeLog doc/ChangeLog.OLD
 
-pmdir = $(libdir)/perl5
+pmdir = $(PMDIR)
 dist_pm_DATA = lib/Stow.pm
 pmstowdir = $(pmdir)/Stow
 dist_pmstow_DATA = lib/Stow/Util.pm

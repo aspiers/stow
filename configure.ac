@@ -24,6 +24,7 @@ AC_ARG_WITH(
     [  --with-pmdir=DIR        perl modules are in DIR [[LIBDIR/perl5]]],
     [PMDIR=${withval}], [PMDIR=${libdir}/perl5]
 )
+AC_SUBST([PMDIR])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
