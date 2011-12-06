@@ -3,6 +3,7 @@ News file for Stow.
 * Changes in version 2.1.1
 ** Fixed bug where ./configure --with-pmdir=X was ineffectual.
 ** Calculated the correct default value for pmdir based on the local Perl installation.
+** Fixed some automake issues (thanks to Stefano Lattarini for spotting these!)
 * Changes in version 2.1.0
 ** Major refactoring of code into separate Stow and Stow::Util Perl modules.
 ** Added support for ignore list files.

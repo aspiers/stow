@@ -1,6 +1,6 @@
 ## Process this file with Automake to produce Makefile.in
 
-dist_bin_SCRIPTS = bin/stow bin/chkstow
+bin_SCRIPTS = bin/stow bin/chkstow
 info_TEXINFOS = doc/stow.texi
 dist_man_MANS = doc/stow.8
 PDF = doc/manual.pdf
@@ -11,7 +11,7 @@ dist_doc_DATA = \
 	ChangeLog doc/ChangeLog.OLD
 
 pmdir = $(PMDIR)
-dist_pm_DATA = lib/Stow.pm
+pm_DATA = lib/Stow.pm
 pmstowdir = $(pmdir)/Stow
 dist_pmstow_DATA = lib/Stow/Util.pm
 
@@ -35,7 +35,7 @@ DEFAULT_IGNORE_LIST = $(srcdir)/default-ignore-list
 
 TESTS_DIR = $(srcdir)/t
 TESTS_OUT = tmp-testing-trees
-TESTS_ENVIRONMENT = $(PERL) -I$(srcdir)/bin -I$(srcdir)/lib -I$(TESTS_DIR)
+TESTS_ENVIRONMENT = $(PERL) -Ibin -Ilib -I$(TESTS_DIR)
 
 # This is a kind of hack; TESTS needs to be set to ensure that the
 # `check-am' target makes check-TESTS, but we override check-TESTS
@@ -81,13 +81,14 @@ EXTRA_DIST = \
 	$(TEXINFO_TEX) \
 	$(DEFAULT_IGNORE_LIST) \
 	$(CPAN_FILES)
-CLEANFILES = $(bin_SCRIPTS) $(dist_pm_DATA)
+CLEANFILES = $(bin_SCRIPTS) $(pm_DATA) $(dist_man_MANS) $(HTML) $(PDF) ChangeLog
+
 
 # clean up auto-generated files
 clean-local:
-	-rm -rf $(TESTS_OUT) \
-		bin/stow bin/chkstow doc/stow.8 ChangeLog \
-		doc/manual-split $(HTML) $(PDF)
+	-rm -rf $(TESTS_OUT)
+maintainer-clean:
+	-rm -rf doc/manual-split
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
@@ -111,7 +112,7 @@ lib/Stow.pm: lib/Stow.pm.in Makefile $(DEFAULT_IGNORE_LIST)
 # The below rules should only be needed by developers.
 ##############################################################################
 
-doc/stow.8: bin/stow Makefile
+doc/stow.8: bin/stow.in
 	[ -d doc ] || mkdir doc # required in vpath mode
 	pod2man $< > $@
 
@@ -178,7 +179,9 @@ $(HTML): doc/manual-split
 # keep in anyway:
 dist-hook: doc/manual-split
 
-ChangeLog: doc/ChangeLog.OLD Makefile
+dist-hook: $(dist_man_MANS) ChangeLog
+
+ChangeLog: doc/ChangeLog.OLD
 	@if [ -d .git ]; then \
 	    ( \
 	        git log \

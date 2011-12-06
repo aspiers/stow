@@ -49,7 +49,7 @@ my $build = Module::Build->new(
         'IO::File'    => 0,
     },
     script_files => [ 'bin/stow' ],
-    all_from => 'lib/Stow.pm',
+    all_from => 'lib/Stow.pm.in',
     configure_requires => {
         'Module::Build' => 0,
     },
