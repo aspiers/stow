@@ -191,6 +191,7 @@ ChangeLog: doc/ChangeLog.OLD
                 | sed 's/^\([A-Z]\)\t/      \1 /'; \
 	        cat $< \
 	    ) > $@; \
+	    echo "Rebuilt $@ from git commit history."; \
 	else \
 	    echo "Not in a git repository; can't update ChangeLog."; \
 	fi
