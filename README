@@ -1,11 +1,11 @@
 This is GNU Stow, a program for managing the installation of software
 packages, keeping them separate (/usr/local/stow/emacs vs.
-/usr/local/stow/perl, for example) while making them appear to be installed in
-the same place (/usr/local).  Stow doesn't store an extra state between runs,
-so there's no danger of mangling directories when file hierarchies don't match
-the database. Also, stow will never delete any files, directories, or links
-that appear in a stow directory, so it is always possible to rebuild the
-target tree.
+/usr/local/stow/perl, for example) while making them appear to be
+installed in the same place (/usr/local).  Stow doesn't store an extra
+state between runs, so there's no danger of mangling directories when
+file hierarchies don't match the database. Also, stow will never
+delete any files, directories, or links that appear in a stow
+directory, so it is always possible to rebuild the target tree.
 
 See INSTALL for installation instructions.
 
