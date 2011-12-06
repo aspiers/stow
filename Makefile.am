@@ -81,8 +81,8 @@ EXTRA_DIST = \
 	$(TEXINFO_TEX) \
 	$(DEFAULT_IGNORE_LIST) \
 	$(CPAN_FILES)
-CLEANFILES = $(bin_SCRIPTS) $(pm_DATA) $(dist_man_MANS) $(HTML) $(PDF) ChangeLog
-
+CLEANFILES = $(bin_SCRIPTS) $(pm_DATA)
+MAINTAINERCLEANFILES = $(dist_man_MANS) $(HTML) $(PDF) ChangeLog
 
 # clean up auto-generated files
 clean-local:
