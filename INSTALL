@@ -1,3 +1,12 @@
+Prerequisites
+=============
+
+Stow is a collection of Perl scripts and modules.  You must have Perl
+5.6.1 or later in order for it to run.  The test suite also requires
+the Test::More and Test::Output modules which can be obtained from
+CPAN.  They are also available as packages in some of the GNU/Linux
+distributions.
+
 Basic Installation
 ==================
 
