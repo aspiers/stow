@@ -45,7 +45,6 @@ my $build = Module::Build->new(
     requires => {
         'perl'        => '5.006',
         'Carp'        => 0,
-        'File::Slurp' => 0,
         'IO::File'    => 0,
     },
     script_files => [ 'bin/stow' ],

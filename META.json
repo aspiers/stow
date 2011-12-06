@@ -28,7 +28,6 @@
       "runtime" : {
          "requires" : {
             "Carp" : 0,
-            "File::Slurp" : 0,
             "IO::File" : 0,
             "perl" : "5.006"
          }
