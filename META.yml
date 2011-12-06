@@ -17,7 +17,7 @@ name: Stow
 provides:
   Stow:
     file: lib/Stow.pm
-    version: v2.1.1
+    version: v2.1.2
   Stow::Util:
     file: lib/Stow/Util.pm
     version: 0
@@ -29,4 +29,4 @@ resources:
   homepage: https://savannah.gnu.org/projects/stow
   license: http://www.gnu.org/licenses/gpl-2.0.html
   repository: http://github.com/aspiers/stow
-version: v2.1.1
+version: v2.1.2

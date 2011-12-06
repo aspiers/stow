@@ -36,7 +36,7 @@
    "provides" : {
       "Stow" : {
          "file" : "lib/Stow.pm",
-         "version" : "v2.1.1"
+         "version" : "v2.1.2"
       },
       "Stow::Util" : {
          "file" : "lib/Stow/Util.pm",
@@ -53,5 +53,5 @@
          "url" : "http://github.com/aspiers/stow"
       }
    },
-   "version" : "v2.1.1"
+   "version" : "v2.1.2"
 }
