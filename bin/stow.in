@@ -619,6 +619,10 @@ OPTIONS:
                           if the file is already stowed to another package
     -V, --version         Show stow version number
     -h, --help            Show this help
+
+Report bugs to: bug-stow\@gnu.org
+Stow home page: <http://www.gnu.org/software/stow/>
+General help using GNU software: <http://www.gnu.org/gethelp/>
 EOT
     exit defined $msg ? 1 : 0;
 }
