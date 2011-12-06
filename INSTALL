@@ -7,25 +7,56 @@ the Test::More and Test::Output modules which can be obtained from
 CPAN.  They are also available as packages in some of the GNU/Linux
 distributions.
 
-Basic Installation
-==================
+Installation methods
+====================
 
-Stow is a Perl script.  You must have Perl 5.005 or later in order for 
-it to run.
+Stow can either be installed via the standard GNU Autotools procedure
+(./configure, make install) or since 2.1.0, via CPAN-style via
+Module::Build.
 
-The steps in building stow are:
+Advantages of the Autotools approach:
 
-1.  `cd' to the directory containing the source code (and this file)
-    and type `./configure' to configure stow for your system.  This
+  - It's arguably more flexible.
+
+  - It will install the documentation in Info, HTML, man, and PDF
+    formats.
+
+Advantages of the Module::Build approach:
+
+  - It's more in keeping with the standard way to distribute CPAN
+    modules.
+
+  - It performs dependency checking to ensure you have the necessary
+    Perl modules installed.
+
+Basic Installation via Module::Build
+====================================
+
+The steps in building Stow are:
+
+1.  `cd' to the directory containing the source code (and this file).
+
+2.  If you are building from an official GNU release tarball, type
+    `./configure && make' to configure stow for your system.  If you
+    are building from a CPAN tarball, this step can be skipped.
+
+3.  Type `perl Build.PL'.
+
+4.  Type `./Build install' to install the various files.  As noted
+    above, this installs fewer files than the Autotools installation.
+
+Basic Installation via Autotools
+================================
+
+The steps in building Stow are:
+
+1.  `cd' to the directory containing the source code (and this file).
+
+2.  Type `./configure' to configure stow for your system.  This
     step will attempt to locate your copy of perl and set its location
-    `Makefile.in'.
+    in `Makefile.in'.
 
-2.  Type `make' to create `stow' and `'stow.info'. If perl could not
-    be found by `./configure', you'll have to edit line 1 of `stow' 
-    from `#!false' to `#!/path/to/perl' (where /path/to/perl is wherever
-    perl will be found when stow runs).
-
-3.  Type `make install' to install `stow' and `stow.info'.
+3.  Type `make install' to install the various files.
 
 4.  You can remove the generated files from the source code directory
     by typing `make clean'.  To also remove the files that `configure'
