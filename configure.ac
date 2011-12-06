@@ -21,9 +21,11 @@ fi
 
 AC_ARG_WITH(
     pmdir,
-    [  --with-pmdir=DIR        perl modules are in DIR [[LIBDIR/perl5]]],
-    [PMDIR=${withval}], [PMDIR=${libdir}/perl5]
-)
+    [  --with-pmdir=DIR        Perl modules are in DIR [[LIBDIR/perl5]]],
+    [PMDIR=${withval}],
+    [eval `$PERL -V:installsitelib -V:siteprefix`
+  PMDIR='${prefix}'/"${installsitelib#$siteprefix/}"])
+AC_CONFIG_COMMANDS_POST([eval echo "Perl modules will be installed to $PMDIR"])
 AC_SUBST([PMDIR])
 
 AC_CONFIG_FILES([Makefile])
