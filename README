@@ -7,9 +7,7 @@ the database. Also, stow will never delete any files, directories, or links
 that appear in a stow directory, so it is always possible to rebuild the
 target tree.
 
-Stow is a Perl script which should run correctly under Perl 5.6.1 or
-newer.  You must install Perl before running Stow.  For more
-information about Perl, see http://www.perl.com/perl/.
+See INSTALL for installation instructions.
 
 You can get the latest information about Stow from
 http://www.gnu.org/software/stow/stow.html
@@ -24,8 +22,6 @@ possible to rebuild the target tree (e.g., /usr/local).
 
 Stow is free software, licensed under the GNU General Public License, which
 can be found in the file COPYING.
-
-See INSTALL for installation instructions.
 
 Please mail comments, questions, and criticisms to the current maintainers
 via help-stow@gnu.org or bug-stow@gnu.org.
