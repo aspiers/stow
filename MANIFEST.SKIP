@@ -42,6 +42,7 @@
 \.tmp$
 \.#
 \.rej$
+\.orig$
 
 # Avoid OS-specific files/dirs
 # Mac OSX metadata
