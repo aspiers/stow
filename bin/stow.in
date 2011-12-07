@@ -610,12 +610,12 @@ OPTIONS:
     -S, --stow            Stow the package names that follow this option
     -D, --delete          Unstow the package names that follow this option
     -R, --restow          Restow (like stow -D followed by stow -S)
-    -p, --compat          use legacy algorithm for unstowing
+    -p, --compat          Use legacy algorithm for unstowing
 
-    --ignore=REGEX        ignore files ending in this perl regex
-    --defer=REGEX         don't stow files beginning with this perl regex
+    --ignore=REGEX        Ignore files ending in this Perl regex
+    --defer=REGEX         Don't stow files beginning with this Perl regex
                           if the file is already stowed to another package
-    --override=REGEX      force stowing files beginning with this perl regex
+    --override=REGEX      Force stowing files beginning with this Perl regex
                           if the file is already stowed to another package
     -V, --version         Show stow version number
     -h, --help            Show this help
