@@ -40,7 +40,7 @@ AC_ARG_WITH(
     [pmdir],
     AS_HELP_STRING(
       [--with-pmdir=DIR],
-      [Install Perl modules in DIR]),
+      [Install Perl modules in DIR @<:@PREFIX/${pmdir_relative_path}@:>@]),
     [PMDIR=${withval}],
     [PMDIR='${prefix}'/"$pmdir_relative_path"])
 AC_CONFIG_COMMANDS_POST([[
