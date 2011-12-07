@@ -87,7 +87,7 @@ MAINTAINERCLEANFILES = $(dist_man_MANS) $(HTML) $(PDF) ChangeLog
 # clean up auto-generated files
 clean-local:
 	-rm -rf $(TESTS_OUT)
-maintainer-clean:
+maintainer-clean-local:
 	-rm -rf doc/manual-split
 
 # this is more explicit and reliable than the config file trick
