@@ -91,22 +91,54 @@ maintainer-clean-local:
 	-rm -rf doc/manual-split
 
 # this is more explicit and reliable than the config file trick
-edit = sed -e 's|[@]PERL[@]|$(PERL)|g' \
-	   -e 's|[@]VERSION[@]|$(VERSION)|g'
+edit = sed -e 's|[@]PERL[@]|$(PERL)|g'       \
+	   -e 's|[@]VERSION[@]|$(VERSION)|g' \
+	   -e "s|[@]USE_LIB_PMDIR[@]|$$use_lib_pmdir|g"
+
+pmdir_in_INC = \
+	PERL5LIB= $(PERL) -V | \
+	    awk '/@INC/ {p=1; next} p==1 {print $$1}' | \
+	    grep -q "$(pmdir)"
+
+calc_use_lib_pmdir = \
+	if $(pmdir_in_INC); then \
+	    use_lib_pmdir=""; \
+	else \
+	    use_lib_pmdir="use lib \"$(pmdir)\";"; \
+	fi
+
+check_pmdir = \
+	echo; \
+	echo "\# Perl modules will be installed to $(pmdir)"; \
+	echo "\# "; \
+	if $(pmdir_in_INC); then \
+	    echo "\# This is in $(PERL)'s built-in @INC, so everything"; \
+	    echo "\# should work fine with no extra effort."; \
+	else \
+	    echo "\# This is not in $(PERL)'s built-in @INC, so the"; \
+	    echo "\# front-end scripts will have an appropriate \"use lib\""; \
+	    echo "\# line inserted to compensate."; \
+	fi; \
+	echo
 
 bin/stow: bin/stow.in Makefile
 	[ -d bin ] || mkdir bin # required in vpath mode
+	@$(check_pmdir)
+	@$(calc_use_lib_pmdir); \
 	$(edit) < $< > $@
+	@echo "Generated $@ from $<"
 	chmod +x $@
 
 bin/chkstow: bin/chkstow.in Makefile
-	[ -d bin ] || mkdir bin # required in vpath mode
-	$(edit) < $< > $@
+	@[ -d bin ] || mkdir bin # required in vpath mode
+	@$(edit) < $< > $@
+	@echo "Generated $@ from $<"
 	chmod +x $@
 
-lib/Stow.pm: lib/Stow.pm.in Makefile $(DEFAULT_IGNORE_LIST)
-	[ -d lib ] || mkdir lib # required in vpath mode
-	( $(edit) < $<; cat $(DEFAULT_IGNORE_LIST) ) > $@
+lib/Stow.pm: lib/Stow.pm.in $(DEFAULT_IGNORE_LIST) Makefile
+	@[ -d lib ] || mkdir lib # required in vpath mode
+	@( $(edit) < $<; cat $(DEFAULT_IGNORE_LIST) ) > $@
+	@echo "Generated $@ from $< and $(DEFAULT_IGNORE_LIST)"
 
 ##############################################################################
 # The below rules should only be needed by developers.

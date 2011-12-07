@@ -1,9 +1,23 @@
 News file for Stow.
 
 * Changes in version 2.1.2
+  Many thanks to Stefano Lattarini for help with numerous autoconf and
+  automake issues which are addressed in this release.
+** Significantly improve the handling of --with-pmdir.
+*** Calculation of the default value for --with-pmdir is now done safely in Perl.
+    Previously non-POSIX-compliant shells could cause issues.
+*** The output of ./configure and make are now much more helpful.
+*** The Makefile will now check whether pmdir is in Perl's built-in @INC.
+    If not, it will insert a
+
+      use lib "...";
+
+    line into the generated stow script to ensure that it can always
+    locate the Perl modules without needing to manually set PERL5LIB.
+*** Updated INSTALL and HOWTO-RELEASE accordingly.
 ** ./configure now aborts if Perl isn't found.
 ** Ensured the ChangeLog is up-to-date when making a new distribution.
-   Thanks to Stefano Lattarini for this suggestion.
+** Fixed bug with `make clean' removing files which the user may not be able to rebuild.
 * Changes in version 2.1.1
 ** Fixed bug where ./configure --with-pmdir=X was ineffectual.
 ** Calculated the correct default value for pmdir based on the local Perl installation.

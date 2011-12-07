@@ -395,6 +395,7 @@ require 5.6.1;
 use POSIX qw(getcwd);
 use Getopt::Long;
 
+@USE_LIB_PMDIR@
 use Stow;
 use Stow::Util qw(parent);
 

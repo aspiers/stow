@@ -17,13 +17,49 @@ then
   AC_MSG_ERROR([Perl not found; check your \$PATH.])
 fi
 
+# N.B. ${var#pattern} will not work with some shells, such as
+# Solaris 10's /bin/sh :-(
+#
+#   http://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
+#
+#   eval `$PERL -V:siteprefix -V:installsitelib`
+#   pmdir_relative_path="${installsitelib#$siteprefix/}"
+#
+# This will work:
+#
+#   pmdir_relative_path=`echo "${installsitelib}" | sed -e "s!^$siteprefix/!!"`
+#
+# but this is cleaner:
+pmdir_relative_path=`\
+  $PERL -MConfig \
+        -wle '($_ = $Config{installsitelib})
+              =~ s!^\Q$Config{siteprefix}/!!; \
+              print'`
+
 AC_ARG_WITH(
-    pmdir,
-    [  --with-pmdir=DIR        Perl modules are in DIR [[LIBDIR/perl5]]],
+    [pmdir],
+    AS_HELP_STRING(
+      [--with-pmdir=DIR],
+      [Install Perl modules in DIR]),
     [PMDIR=${withval}],
-    [eval `$PERL -V:installsitelib -V:siteprefix`
-  PMDIR='${prefix}'/"${installsitelib#$siteprefix/}"])
-AC_CONFIG_COMMANDS_POST([eval echo "Perl modules will be installed to $PMDIR"])
+    [PMDIR='${prefix}'/"$pmdir_relative_path"])
+AC_CONFIG_COMMANDS_POST([[
+  eval pmdir="$PMDIR"
+  cat <<EOF
+
+# Perl modules will be installed to $PMDIR
+EOF
+  if [ "$pmdir" != "$PMDIR" ]; then
+    cat <<EOF
+# which will expand to
+#
+#   $pmdir
+#
+# unless you override the value of prefix at make-time.
+EOF
+    echo
+  fi
+]])
 AC_SUBST([PMDIR])
 
 AC_CONFIG_FILES([Makefile])

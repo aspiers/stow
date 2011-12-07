@@ -40,6 +40,14 @@ The steps in building Stow are:
     `./configure && make' to configure stow for your system.  If you
     are building from a CPAN tarball, this step can be skipped.
 
+    If `make' warns that the Perl module installation directory is
+    not in @INC, then you should run:
+
+      eval `perl -V:siteprefix`
+      ./configure --prefix=$siteprefix && make
+
+    to avoid a superfluous "use lib" line in your stow executable.
+
 3.  Type `perl Build.PL'.
 
 4.  Type `./Build install' to install the various files.  As noted
@@ -52,11 +60,27 @@ The steps in building Stow are:
 
 1.  `cd' to the directory containing the source code (and this file).
 
-2.  Type `./configure' to configure stow for your system.  This
-    step will attempt to locate your copy of perl and set its location
-    in `Makefile.in'.
+2.  Type `./configure' to configure stow for your system.  This step
+    will attempt to locate your copy of perl and set its location in
+    `Makefile.in'.  You can use the normal arguments to change the
+    default installation paths (see below); additionally you can use
+    the
 
-3.  Type `make install' to install the various files.
+      --with-pmdir=/path/to/perl/modules
+
+    option to manually choose where the Perl modules get installed.
+    However, if you don't, the configure script will go to great
+    lengths to try to choose a sensible default.
+
+3.  Type `make install' to install the various files.  If the chosen
+    installation directory for Perl modules is not included in Perl's
+    built-in @INC search path, the Makefile rules will automatically
+    insert a
+
+      use lib "...";
+
+    line into the generated stow script to ensure that it can always
+    locate the Perl modules without needing to manually set PERL5LIB.
 
 4.  You can remove the generated files from the source code directory
     by typing `make clean'.  To also remove the files that `configure'
