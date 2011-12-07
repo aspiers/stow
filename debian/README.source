@@ -1,0 +1,14 @@
+Debian stow README.source
+-------------------------
+
+This package uses CDBS simple-patchsys to manage changes to the upstream
+source.  To put it simply, all the changes are stored as patches in the
+debian/patches directory, with the number prefix indicating the order of
+their applications.
+
+  Apply the patches: type "debian/rules patch"
+  Un-apply the patches: type "debian/rules unpatch"
+
+To save your own modifications, add the patches into debian/rules.
+
+ -- Chuan-kai Lin <cklin@debian.org>, Wed, 23 Sep 2009 16:38:33 -0700

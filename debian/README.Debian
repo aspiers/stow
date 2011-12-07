@@ -1,0 +1,14 @@
+README for GNU Stow in Debian
+-----------------------------
+
+The most common way to use GNU Stow is to install your local packages in
+/usr/local/stow/<package-name> and then use the stow command to install
+symlinks into /usr/local.  Previous versions of the Debian stow package,
+when installed, creates the /usr/local/stow directory as a hint to new
+system administrators on where to put things.
+
+Alas, it appears that doing so violates FHS and Debian Policy 9.1.2 (see
+bug #528023), so we are not doing that anymore.  Take it upon yourself
+to create /usr/local/stow yourself, and everything will be fine again.
+
+ -- Chuan-kai Lin <cklin@debian.org>, Wed, 23 Sep 2009 15:13:10 -0700

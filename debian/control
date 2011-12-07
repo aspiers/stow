@@ -1,0 +1,18 @@
+Source: stow
+Section: admin
+Priority: optional
+Maintainer: Chuan-kai Lin <cklin@debian.org>
+Build-Depends: cdbs, debhelper (>= 7)
+Build-Depends-Indep: perl, autotools-dev, texi2html
+Standards-Version: 3.8.3
+Homepage: http://www.gnu.org/software/stow/
+
+Package: stow
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends}
+Suggests: doc-base
+Description: Organizer for /usr/local software packages
+ GNU Stow is a software installation manager for /usr/local.  Using
+ symbolic links, GNU Stow helps you keep the installations separate
+ (/usr/local/stow/emacs vs. /usr/local/stow/perl, for example) while
+ maintaining the illusion that they are all under /usr/local.

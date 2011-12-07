@@ -1,0 +1,187 @@
+stow (1.3.3-3.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Fix package-contains-info-dir-file usr/share/info/dir.gz by
+    removing the file in the install-stow target in debian/rules
+
+ -- Micah Anderson <micah@debian.org>  Sun, 31 Jan 2010 00:35:43 -0500
+
+stow (1.3.3-3.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Apply patch to fix FTBS from Michael Bienia (Closes: #552917) 
+
+ -- Micah Anderson <micah@debian.org>  Sat, 30 Jan 2010 23:30:11 -0500
+
+stow (1.3.3-3) unstable; urgency=low
+
+  * New maintainer (closes: #547243)
+  * Update to Standards-Version 3.8.3
+  * Move debian/rules to CDBS
+  * Stop creating /usr/local/stow in postinst in compliance with Policy
+    9.1.2 and FHS (closes: #528023)
+  * Use debhelper to install HTML manual (closes: #447307)
+  * Use upstream manpage, which has the right version (closes: #150234)
+  * Correct GPL license file pathname in upstream stow.8
+
+ -- Chuan-kai Lin <cklin@debian.org>  Wed, 23 Sep 2009 15:51:06 -0700
+
+stow (1.3.3-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Use an auxiliar directory to execute texi2html to avoid the name
+    conflict. (closes: #318559)
+
+ -- Miguel Gea Milvaques <debian@miguelgea.com>  Mon,  8 Aug 2005 03:38:41 +0300
+
+stow (1.3.3-2) unstable; urgency=low
+
+  * Don't install /usr/share/info/dir.gz when built with a buggy automake
+    Thanks to Andreas Metzler <ametzler@logic.univie.ac.at> for his
+    detailed bug report and patch. (closes: #219990)
+  * Raised Standards-Version to 3.6.1.0.
+
+ -- Guillaume Morin <gemorin@debian.org>  Tue, 23 Mar 2004 10:58:52 -0500
+
+stow (1.3.3-1) unstable; urgency=low
+
+  * New upstream release (closes: #100305,#98734)
+  * Raised Standards-version to 3.5.6.0
+  * control: Build-Depends -> Build-Depends-Indep
+  * Build-Depends on perl instead of perl5
+  * Use DH_COMPAT=3
+  * Removed README.Debian
+  * Updated copyright
+
+ -- Guillaume Morin <gemorin@debian.org>  Sun, 30 Dec 2001 20:29:26 +0100
+
+stow (1.3.2-14) unstable; urgency=low
+
+  * Purging stow now removes /usr/local/stow if empty (closes: #93038)
+  * Updated standards to 3.5.2.0
+
+ -- Guillaume Morin <gemorin@debian.org>  Thu,  5 Apr 2001 22:38:50 +0200
+
+stow (1.3.2-13) unstable; urgency=low
+
+  * Patched stow when "CommonParent" between target and module is /
+    (closes: #81258)
+
+ -- Guillaume Morin <gemorin@debian.org>  Sat, 13 Jan 2001 14:33:57 +0100
+
+stow (1.3.2-12) unstable; urgency=low
+
+  * New maintainer
+  * Updated standards-version to 3.1.1.1
+  * Converted package management to debhelper
+  * Added doc-base support
+  * Minor correction in the manpage to reflect the current GPL location
+  * Moved stow.8 to the debian directory
+  * Added Build-Depends and Depends in control
+  * Suggests doc-base
+  * Modified stow.info for install-info
+  * Stow now calls POSIX::getcwd instead of its hardcoded buggy fastcwd
+    (closes: #72692)
+  * Switch from /usr/doc/ to /usr/share/doc/
+  * Removed unnecessary menu file
+  * Patched stow to prevent the creation of bad links when --dir is a
+    soft link (closes: #62122)
+  * Removed unused dwww-index
+  * stow_1.3.2.orig.tar.gz now create stow-1.3.2
+  * Updated copyright to reflect current location of the GPL
+
+ -- Guillaume Morin <gemorin@debian.org>  Sat,  4 Nov 2000 16:17:42 +0100
+
+stow (1.3.2-11) unstable; urgency=low
+
+  * Removed redundant "icon=none" from menu file.
+  * Updated debian/rules.
+  * Updated standards-version to 2.4.1 (no changes required).
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Tue,  6 Oct 1998 02:30:31 +0100
+
+Old Changelog:
+stow (1.3.2-10) frozen unstable; urgency=medium, closes=24093
+
+  * Three-line patch to prevent stow -D / stow -R from removing
+    initially-empty directories from the target tree.  We make stow
+    consider an empty directory not to be "pure", so it doesn't try
+    coalescing.  This should be safe to install into hamm, since it does
+    nothing but turn off an optimisation under certain circumstances.
+    (Fixes Bug#24093: stow -D deletes unrelated empty directories.)
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Tue, 14 Jul 1998 05:35:12 +0100
+
+stow (1.3.2-9) frozen unstable; urgency=low
+
+  * No longer try to remove /usr/local/stow when upgrading.
+  * Do not change ownership and permissions of /usr/local/stow unless
+    we just created it.
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Sat,  4 Apr 1998 23:21:02 +0100
+
+stow (1.3.2-8) frozen unstable; urgency=low
+
+  * Wrote and included a man page for stow(8).
+  * Fixed maintainer scripts not to output spurious messages about
+    subdirectories of /usr/local.
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Sat, 28 Mar 1998 14:12:47 +0000
+
+stow (1.3.2-7) unstable; urgency=low
+
+  * Updated to standards version 2.4.0.0 (no changes required).
+  * Fix spelling error in package description.  (Fixes:bug#18960)
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Thu, 12 Mar 1998 02:20:38 +0000
+
+stow (1.3.2-6) unstable; urgency=low
+
+  * Remove dpkg-geninfo from debian directory and remove call to it
+    from debian/rules following debian-policy discussion on `md5sums'
+    and `du' files.
+  * Install relative, not absolute, symlink to `undocumented' man page.
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Fri, 20 Feb 1998 02:55:55 +0000
+
+stow (1.3.2-5) unstable; urgency=low
+
+  * Symlink nonexistent man page to undocumented.7; bug reported.
+    Thanks, lintian.
+  * copyright file now refers to uncompressed GPL file.  Ditto.
+
+  * Added my name and email address to copyright file.
+  * New version of debian/rules.  Added debian/dpkg-geninfo.
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Mon,  9 Feb 1998 21:50:41 +0000
+
+stow (1.3.2-4) unstable; urgency=low
+
+  * Make /usr/local/stow be 2775 root.staff (Closes:bug#15597)
+  * Updated to policy version 2.3.0.1
+  * Use my debian.org email address in "maintainer" field.
+
+ -- Charles Briscoe-Smith <cpbs@debian.org>  Wed,  3 Dec 1997 21:14:23 +0000
+
+stow (1.3.2-3) unstable; urgency=low
+
+  * Fixed bug no. 11622: call to dwww-build in post{inst,rm} was wrong;
+    stow would not install if dwww wasn't installed.
+  * Remove calls to dwww-build.  Seemed to be causing problems on my
+    system (quite apart from the previous foul-up).
+  * Add dwww support via menu file.
+
+ -- Charles Briscoe-Smith <cpb4@ukc.ac.uk>  Sat, 2 Aug 1997 19:12:21 +0100
+
+stow (1.3.2-2) unstable; urgency=low
+
+  * Used texi2html to generate HTML documentation.
+  * Added dwww-index; call dwww-build --default in postinst/postrm.
+
+ -- Charles Briscoe-Smith <cpb4@ukc.ac.uk>  Mon, 28 Jul 1997 09:18:42 +0100
+
+stow (1.3.2-1) unstable; urgency=low
+
+  * First Debian version
+
+ -- Charles Briscoe-Smith <cpb4@ukc.ac.uk>  Sat, 14 Jun 1997 20:47:17 +0100

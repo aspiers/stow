@@ -1,0 +1,21 @@
+diff -r e0fe058ddbbf Makefile.in
+--- a/Makefile.in	Wed Sep 23 15:46:00 2009 -0700
++++ b/Makefile.in	Wed Sep 23 15:47:56 2009 -0700
+@@ -185,7 +185,7 @@
+ uninstall-info-am:
+ 	$(PRE_UNINSTALL)
+ 	@if (install-info --version && \
+-	     install-info --version | fgrep -i -v debian) >/dev/null 2>&1; then \
++	     install-info --version 2>&1 | sed 1q | fgrep -i -v debian) >/dev/null 2>&1; then \
+ 	  list='$(INFO_DEPS)'; \
+ 	  for file in $$list; do \
+ 	    echo " install-info --info-dir=$(DESTDIR)$(infodir) --remove $(DESTDIR)$(infodir)/$$file"; \
+@@ -412,7 +412,7 @@
+ 	done
+ 	@$(POST_INSTALL)
+ 	@if (install-info --version && \
+-	     install-info --version | fgrep -i -v debian) >/dev/null 2>&1; then \
++	     install-info --version 2>&1 | sed 1q | fgrep -i -v debian) >/dev/null 2>&1; then \
+ 	  list='$(INFO_DEPS)'; \
+ 	  for file in $$list; do \
+ 	    echo " install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file";\

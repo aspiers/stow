@@ -1,0 +1,10 @@
+Document: stow
+Title: GNU Stow Manual
+Author: Bob Glickstein
+Abstract: This manual describes what stow is
+ and how it can be used to manage /usr/local on Debian systems.
+Section: System/Administration
+
+Format: HTML
+Index: /usr/share/doc/stow/html/stow_toc.html
+Files: /usr/share/doc/stow/html/*.html

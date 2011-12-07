@@ -1,0 +1,12 @@
+diff -r e0fe058ddbbf stow.8
+--- a/stow.8	Wed Sep 23 15:46:00 2009 -0700
++++ b/stow.8	Wed Sep 23 15:49:55 2009 -0700
+@@ -423,7 +423,7 @@
+ notice, which, as it says, applied to this manual page, too. The text
+ of the section entitled ``GNU General Public License'' can be found in
+ the file
+-.I /usr/share/common-licenses/GPL
++.I /usr/share/common-licenses/GPL-2
+ on any Debian GNU/Linux system. If you don't have access to a Debian
+ system, or the GPL is not there, write to the Free Software Foundation,
+ Inc., 59 Temple Place, Suite 330, Boston, MA, 02111-1307, USA.
