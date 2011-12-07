@@ -1,6 +1,7 @@
 News file for Stow.
 
 * Changes in version 2.1.2
+** ./configure now aborts if Perl isn't found.
 ** Ensured the ChangeLog is up-to-date when making a new distribution.
    Thanks to Stefano Lattarini for this suggestion.
 * Changes in version 2.1.1

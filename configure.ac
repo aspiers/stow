@@ -9,12 +9,12 @@ AC_CONFIG_AUX_DIR([automake])
 AM_INIT_AUTOMAKE([-Wall -Werror -Wno-override dist-bzip2])
 AC_PROG_INSTALL
 
-dnl Check for perl on our system 
-dnl call to AC_SUBST(PERL) is implicit
+dnl Check for perl on our system.
+dnl Call to AC_SUBST(PERL) is implicit
 AC_PATH_PROGS([PERL], [perl] [perl5], [false])
 if test "x$PERL" = xfalse
 then
-  AC_MSG_WARN([WARNING: Perl not found; you must edit line 1 of 'stow'])
+  AC_MSG_ERROR([Perl not found; check your \$PATH.])
 fi
 
 AC_ARG_WITH(
