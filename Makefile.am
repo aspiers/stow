@@ -179,7 +179,14 @@ $(HTML): doc/manual-split
 # keep in anyway:
 dist-hook: doc/manual-split
 
-dist-hook: $(dist_man_MANS) ChangeLog
+dist-hook: $(dist_man_MANS)
+## If we are creating a distribution from a git checkout, ensure
+## the ChangeLog file is in sync the git repository.
+	if test -d $(top_srcdir)/.git; then \
+	  rm -f ChangeLog \
+	    && $(MAKE) $(AM_MAKEFLAGS) ChangeLog \
+	    && cp -f ChangeLog $(distdir)/ChangeLog; \
+	fi
 
 ChangeLog: doc/ChangeLog.OLD
 	@if [ -d .git ]; then \

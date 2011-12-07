@@ -1,5 +1,8 @@
 News file for Stow.
 
+* Changes in version 2.1.2
+** Ensured the ChangeLog is up-to-date when making a new distribution.
+   Thanks to Stefano Lattarini for this suggestion.
 * Changes in version 2.1.1
 ** Fixed bug where ./configure --with-pmdir=X was ineffectual.
 ** Calculated the correct default value for pmdir based on the local Perl installation.
