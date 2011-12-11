@@ -633,6 +633,7 @@ sub version {
     exit 0;
 }
 
+1; # This file is required by t/stow.t
 
 # Local variables:
 # mode: perl
