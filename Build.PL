@@ -58,4 +58,30 @@ my $build = Module::Build->new(
     },
 );
 
+if (system('grep', '-q', '^use lib ', 'bin/stow') >> 8 == 0) {
+  die <<'EOF';
+
+ERROR: bin/stow contains 'use lib' line which could interfere
+with CPAN-style installation via Module::Build.  To avoid this,
+you should run ./configure with parameters which result in
+--with-pmdir's value being in Perl's built-in @INC, and then run
+'make' (NOT 'make install') to regenerate bin/stow, e.g.
+
+    eval `perl -V:siteprefix`
+    ./configure --prefix=$siteprefix && make
+
+or
+
+    ./configure --with-pmdir=`PERL5LIB= perl -le 'print $INC[0]'` && make
+
+Then re-run this script.
+
+Note that these parameters are chosen purely to regenerate
+bin/stow without a 'use lib' line, so don't run 'make install'
+while Stow is configured in this way unless you really want an
+installation using these parameters.
+
+EOF
+}
+
 $build->create_build_script();

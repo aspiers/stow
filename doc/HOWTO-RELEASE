@@ -15,15 +15,6 @@ How to make a new release of GNU Stow
         (N.B. the CPAN distribution will contain these files, whereas
         the GNU distribution will not.)
 
-      - Make sure bin/stow does not contain a "use lib" line.  This
-        should only happen if the installation directory for Perl
-        modules (--with-pmdir's default value) is not in Perl's
-        built-in @INC, which would be caused by ./configure's default
-        prefix (/usr/local) not matching your Perl's siteprefix, but
-        the above --prefix should prevent that, as would:
-
-          ./configure --with-pmdir=`perl -le 'print $INC[0]'`
-
       - Make sure all the following commands all run successfully:
 
           perl Build.PL
