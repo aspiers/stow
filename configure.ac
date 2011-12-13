@@ -17,6 +17,18 @@ then
   AC_MSG_ERROR([Perl not found; check your \$PATH.])
 fi
 
+missing_test_deps=
+for mod in Test::More Test::Output; do
+  AC_MSG_CHECKING([$mod])
+  if $PERL -M$mod -e 1 2>/dev/null
+  then
+    AC_MSG_RESULT([yes])
+  else
+    AC_MSG_RESULT([no])
+    missing_test_deps="$missing_test_deps $mod"
+  fi
+done
+
 # N.B. ${var#pattern} will not work with some shells, such as
 # Solaris 10's /bin/sh :-(
 #
@@ -58,6 +70,23 @@ EOF
 # unless you override the value of prefix at make-time.
 EOF
     echo
+  fi
+
+  if test -n "$missing_test_deps"; then
+    cat <<EOF >&2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! WARNING!  $PERL was missing modules:
+!
+!   $missing_test_deps
+!
+! The test suite will fail.  'make install' may still render
+! a working installation, but this cannot be guaranteed.
+!
+! Please (re-)read INSTALL, then install the missing modules
+! and try again.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+
+EOF
   fi
 ]])
 AC_SUBST([PMDIR])
