@@ -50,7 +50,7 @@
          "http://www.gnu.org/licenses/gpl-2.0.html"
       ],
       "repository" : {
-         "url" : "http://github.com/aspiers/stow"
+         "url" : "git://git.savannah.gnu.org/stow.git"
       }
    },
    "version" : "v2.1.2"

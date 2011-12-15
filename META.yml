@@ -28,5 +28,5 @@ requires:
 resources:
   homepage: https://savannah.gnu.org/projects/stow
   license: http://www.gnu.org/licenses/gpl-2.0.html
-  repository: http://github.com/aspiers/stow
+  repository: git://git.savannah.gnu.org/stow.git
 version: v2.1.2

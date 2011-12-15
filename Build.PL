@@ -27,19 +27,18 @@ my $build = Module::Build->new(
             # https://rt.cpan.org/Ticket/Display.html?id=71502
             # bugtracker => {
             #     web    => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Stow',
-            #     mailto => 'mysqldiff@adamspiers.org',
+            #     mailto => 'stow-devel@gnu.org',
             # },
             #bugtracker => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Stow',
 
             # Module::Build forces us to use v1.4 of the CPAN Meta Spec:
             # https://rt.cpan.org/Ticket/Display.html?id=71502
             # repository => {
-            #     url  => 'git:github.com/aspiers/stow.git',
-            #     web  => 'http://github.com/aspiers/stow',
+            #     url  => 'git://git.savannah.gnu.org/stow.git',
+            #     web  => 'https://savannah.gnu.org/git/?group=stow',
             #     type => 'git',
             # },
-            repository => 'http://github.com/aspiers/stow',
-            #repository => 'https://savannah.gnu.org/git/?group=stow',
+            repository => 'git://git.savannah.gnu.org/stow.git',
         },
     },
     requires => {
