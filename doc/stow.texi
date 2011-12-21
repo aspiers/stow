@@ -505,11 +505,11 @@ expressions which contain @samp{/}, and @code{bazqux} as the text for
 matching against regular expressions which don't contain @samp{/}.
 Then regular expressions @code{bazqux}, @code{baz.*}, @code{.*qux},
 @code{bar/.*x}, and @code{^/foo/.*qux} would all match (causing the
-file to be ignored), whereas @code{bar}, @code{baz}, and @code{qux}
-would not (although @code{bar} would cause its parent directory to be
-ignored and prevent Stow from recursing into that anyway, in which
-case the file @file{bazqux} would not even be considered for
-stowing).
+file to be ignored), whereas @code{bar}, @code{baz}, @code{qux}, and
+@code{o/bar/b} would not (although @code{bar} would cause its parent
+directory to be ignored and prevent Stow from recursing into that
+anyway, in which case the file @file{bazqux} would not even be
+considered for stowing).
 
 As a special exception to the above algorithm, any
 @file{.stow-local-ignore} present in the top-level package directory

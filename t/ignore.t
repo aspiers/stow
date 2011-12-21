@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 use File::Temp qw(tempdir);
-use Test::More tests => 286;
+use Test::More tests => 287;
 
 use testutil;
 use Stow::Util qw(join_paths);
@@ -235,7 +235,7 @@ sub test_examples_in_manual {
         );
     }
 
-    for my $re ('bar', 'baz', 'qux') {
+    for my $re ('bar', 'baz', 'qux', 'o/bar/b') {
         my $local_ignore = setup_package_local_list($stow_path, $package, "$re\n");
         test_ignores(
             $stow_path, $package, $context,
