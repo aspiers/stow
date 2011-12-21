@@ -477,9 +477,9 @@ regular expression is anchored at the beginning and end, in contrast
 to unanchored regular expressions which will match a substring.} match
 a subpath@footnote{In this context, ``subpath'' means a contiguous
 subset of path segments; e.g for the relative path
-@file{one/two/three/four}, the following are examples of valid
-subpaths: @file{one}, @file{two}, @file{two/three},
-@file{two/three/four}.} of this relative path, then the file or
+@file{one/two/three}, there are six valid subpaths: @file{one},
+@file{two}, @file{three}, @file{one/two}, @file{two/three},
+@file{one/two/three}.} of this relative path, then the file or
 directory will be ignored.
 
 @item
