@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl 
 
 #
-# Testing core application
+# Test processing of CLI options.
 #
 
 use strict;

@@ -33,6 +33,7 @@ NEWS
 README
 t/chkstow.t
 t/cleanup_invalid_links.t
+t/cli_options.t
 t/defer.t
 t/examples.t
 t/find_stowed_path.t
@@ -40,7 +41,6 @@ t/foldable.t
 t/ignore.t
 t/join_paths.t
 t/parent.t
-t/stow.t
 t/stow_contents.t
 t/testutil.pm
 t/unstow_contents.t
