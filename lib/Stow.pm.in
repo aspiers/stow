@@ -1963,8 +1963,12 @@ sub do_rmdir {
 #============================================================================
 sub internal_error {
     my ($format, @args) = @_;
-    die "$ProgramName: INTERNAL ERROR: " . sprintf($format, @args) . "\n",
-        "This _is_ a bug. Please submit a bug report so we can fix it:-)\n";
+    my $error = sprintf($format, @args);
+    die <<EOF;
+$ProgramName: INTERNAL ERROR: $error
+This _is_ a bug. Please submit a bug report so we can fix it! :-)
+See http://www.gnu.org/software/stow/ for how to do this.
+EOF
 }
 
 =head1 BUGS
