@@ -198,8 +198,8 @@ sub init_state {
     # $self->{tasks}:  list of operations to be performed (in order)
     # each element is a hash ref of the form
     #   {
-    #       action => ...
-    #       type   => ...
+    #       action => ...  ('create' or 'remove')
+    #       type   => ...  ('link' or 'dir')
     #       path   => ...  (unique)
     #       source => ...  (only for links)
     #   }
@@ -823,7 +823,7 @@ sub unstow_node {
 
 #===== METHOD ===============================================================
 # Name      : path_owned_by_package()
-# Purpose   : determine if the given link points to a member of a
+# Purpose   : determine whether the given link points to a member of a
 #           : stowed package
 # Parameters: $target => path to a symbolic link under current directory
 #           : $source => where that link points to
@@ -842,7 +842,7 @@ sub path_owned_by_package {
 
 #===== METHOD ===============================================================
 # Name      : find_stowed_path()
-# Purpose   : determine if the given link points to a member of a
+# Purpose   : determine whether the given link points to a member of a
 #           : stowed package
 # Parameters: $target => path to a symbolic link under current directory
 #           : $source => where that link points to (needed because link
@@ -962,7 +962,7 @@ sub cleanup_invalid_links {
 
 #===== METHOD ===============================================================
 # Name      : foldable()
-# Purpose   : determine if a tree can be folded
+# Purpose   : determine whether a tree can be folded
 # Parameters: $target => path to a directory
 # Returns   : path to the parent dir iff the tree can be safely folded
 # Throws    : n/a
@@ -1496,7 +1496,7 @@ sub dir_task_action {
 
 #===== METHOD ===============================================================
 # Name      : parent_link_scheduled_for_removal()
-# Purpose   : determines whether the given path or any parent thereof
+# Purpose   : determine whether the given path or any parent thereof
 #           : is a link scheduled for removal
 # Parameters: $path
 # Returns   : Boolean
@@ -1524,7 +1524,7 @@ sub parent_link_scheduled_for_removal {
 
 #===== METHOD ===============================================================
 # Name      : is_a_link()
-# Purpose   : is the given path a current or planned link
+# Purpose   : determine if the given path is a current or planned link
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : none
@@ -1558,7 +1558,7 @@ sub is_a_link {
 
 #===== METHOD ===============================================================
 # Name      : is_a_dir()
-# Purpose   : is the given path a current or planned directory
+# Purpose   : determine if the given path is a current or planned directory
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : none
@@ -1593,7 +1593,7 @@ sub is_a_dir {
 
 #===== METHOD ===============================================================
 # Name      : is_a_node()
-# Purpose   : is the given path a current or planned node
+# Purpose   : determine whether the given path is a current or planned node
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : none
