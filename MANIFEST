@@ -41,10 +41,10 @@ t/foldable.t
 t/ignore.t
 t/join_paths.t
 t/parent.t
-t/stow_contents.t
+t/stow.t
 t/testutil.pm
-t/unstow_contents.t
-t/unstow_contents_orig.t
+t/unstow.t
+t/unstow_orig.t
 THANKS
 TODO
 META.yml

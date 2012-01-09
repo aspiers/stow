@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 
 #
-# Testing unstow_contents()
+# Test unstowing packages in compat mode
 #
 
 use strict;
@@ -25,7 +25,8 @@ my %conflicts;
 #
 # unstow a simple tree minimally
 # 
-$stow = new_Stow();
+
+$stow = new_compat_Stow();
 
 make_dir('../stow/pkg1/bin1');
 make_file('../stow/pkg1/bin1/file1');
@@ -42,7 +43,7 @@ ok(
 #
 # unstow a simple tree from an existing directory
 #
-$stow = new_Stow();
+$stow = new_compat_Stow();
 
 make_dir('lib2');
 make_dir('../stow/pkg2/lib2');
@@ -59,7 +60,7 @@ ok(
 #
 # fold tree after unstowing
 #
-$stow = new_Stow();
+$stow = new_compat_Stow();
 
 make_dir('bin3');
 
@@ -82,7 +83,7 @@ ok(
 #
 # existing link is owned by stow but is invalid so it gets removed anyway
 #
-$stow = new_Stow();
+$stow = new_compat_Stow();
 
 make_dir('bin4');
 make_dir('../stow/pkg4/bin4');
@@ -100,23 +101,28 @@ ok(
 #
 # Existing link is not owned by stow
 #
-$stow = new_Stow();
+$stow = new_compat_Stow();
 
 make_dir('../stow/pkg5/bin5');
 make_link('bin5', '../not-stow');
 
 $stow->plan_unstow('pkg5');
-%conflicts = $stow->get_conflicts;
-like(
-    $conflicts{unstow}{pkg5}[-1],
-    qr(existing target is not owned by stow)
+# Unlike the corresponding stow_contents.t test, this doesn't
+# cause any conflicts.
+#
+#like(
+#    $Conflicts[-1], qr(can't unlink.*not owned by stow)
+#    => q(existing link not owned by stow)
+#);
+ok(
+    -l 'bin5' && readlink('bin5') eq '../not-stow'
     => q(existing link not owned by stow)
 );
 
 #
 # Target already exists, is owned by stow, but points to a different package
 #
-$stow = new_Stow();
+$stow = new_compat_Stow();
 
 make_dir('bin6');
 make_dir('../stow/pkg6a/bin6');
@@ -138,7 +144,7 @@ ok(
 # Don't unlink anything under the stow directory
 #
 make_dir('stow'); # make out stow dir a subdir of target
-$stow = new_Stow(dir => 'stow');
+$stow = new_compat_Stow(dir => 'stow');
 
 # emulate stowing into ourself (bizarre corner case or accident)
 make_dir('stow/pkg7a/stow/pkg7b');
@@ -161,7 +167,7 @@ ok(
 #
 # Don't unlink any nodes under another stow directory
 #
-$stow = new_Stow(dir => 'stow');
+$stow = new_compat_Stow(dir => 'stow');
 
 make_dir('stow2'); # make our alternate stow dir a subdir of target
 make_file('stow2/.stow');
@@ -187,7 +193,7 @@ ok(
 #
 # overriding already stowed documentation
 #
-$stow = new_Stow(override => ['man9', 'info9']);
+$stow = new_compat_Stow(override => ['man9', 'info9']);
 make_file('stow/.stow');
 
 make_dir('../stow/pkg9a/man9/man1');
@@ -208,7 +214,7 @@ ok(
 #
 # deferring to already stowed documentation
 #
-$stow = new_Stow(defer => ['man10', 'info10']);
+$stow = new_compat_Stow(defer => ['man10', 'info10']);
 
 make_dir('../stow/pkg10a/man10/man1');
 make_file('../stow/pkg10a/man10/man1/file10a.1');
@@ -238,7 +244,7 @@ ok(
 #
 # Ignore temp files
 #
-$stow = new_Stow(ignore => ['~', '\.#.*']);
+$stow = new_compat_Stow(ignore => ['~', '\.#.*']);
 
 make_dir('../stow/pkg12/man12/man1');
 make_file('../stow/pkg12/man12/man1/file12.1');
@@ -258,7 +264,7 @@ ok(
 #
 # Unstow an already unstowed package
 #
-$stow = new_Stow();
+$stow = new_compat_Stow();
 $stow->plan_unstow('pkg12');
 stderr_like(
   sub { $stow->process_tasks(); },
@@ -277,7 +283,7 @@ ok(
 eval { remove_dir("$OUT_DIR/target"); };
 mkdir("$OUT_DIR/target");
 
-$stow = new_Stow();
+$stow = new_compat_Stow();
 $stow->plan_unstow('pkg12');
 stderr_like(
   sub { $stow->process_tasks(); },
@@ -294,7 +300,7 @@ ok(
 #
 make_file('man12/man1/file12.1');
 
-$stow = new_Stow();
+$stow = new_compat_Stow();
 $stow->plan_unstow('pkg12');
 stderr_like(
   sub { $stow->process_tasks(); },
@@ -311,7 +317,7 @@ ok(
 
 #
 # unstow a simple tree minimally when cwd isn't target
-# 
+#
 cd('../..');
 $stow = new_Stow(dir => "$OUT_DIR/stow", target => "$OUT_DIR/target");
 

@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 
 #
-# Testing stow_contents()
+# Test stowing packages.
 #
 
 use strict;
