@@ -157,7 +157,7 @@ make_file('../stow/pkg8b/0/file8b');
 $stow->plan_stow('pkg8b');
 $stow->process_tasks();
 ok( 
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     -d '0' &&
     readlink('0/file8a') eq '../../stow/pkg8a/0/file8a'  &&
     readlink('0/file8b') eq '../../stow/pkg8b/0/file8b' 
@@ -179,7 +179,7 @@ make_file('../stow/pkg9b/man9/man1/file9.1');
 $stow->plan_stow('pkg9b');
 $stow->process_tasks();
 ok( 
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     readlink('man9/man1/file9.1') eq '../../../stow/pkg9b/man9/man1/file9.1' 
     => 'overriding existing documentation files'
 );
@@ -204,7 +204,7 @@ stderr_like(
   'no tasks to process'
 );
 ok( 
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     readlink('man10/man1/file10.1') eq '../../../stow/pkg10a/man10/man1/file10.1' 
     => 'defer to existing documentation files'
 );
@@ -223,7 +223,7 @@ make_dir('man11/man1');
 $stow->plan_stow('pkg11');
 $stow->process_tasks();
 ok( 
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     readlink('man11/man1/file11.1') eq '../../../stow/pkg11/man11/man1/file11.1' &&
     !-e 'man11/man1/file11.1~' && 
     !-e 'man11/man1/.#file11.1'
@@ -243,7 +243,7 @@ make_dir('lib12/');
 $stow->plan_stow('pkg12');
 $stow->process_tasks();
 ok( 
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     readlink('lib12/lib.so.1') eq '../../stow/pkg12/lib12/lib.so.1' 
     => 'stow links to libraries'
 );
@@ -265,7 +265,7 @@ make_link('../stow/pkg13b/lib13/libb.so.1', 'libb.so');
 $stow->plan_stow('pkg13b');
 $stow->process_tasks();
 ok( 
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     readlink('lib13/liba.so.1') eq '../../stow/pkg13a/lib13/liba.so.1'  &&
     readlink('lib13/libb.so.1') eq '../../stow/pkg13b/lib13/libb.so.1'  
     => 'unfolding to stow links to libraries'
@@ -287,7 +287,7 @@ stderr_like(
   'no tasks to process'
 );
 ok(
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     ! -l 'stow/pkg15'
     => "stowing to stow dir should fail"
 );

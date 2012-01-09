@@ -54,7 +54,7 @@ $stow = new_Stow(dir => 'stow');
 $stow->plan_stow('perl');
 $stow->process_tasks();
 ok(
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     -l 'bin' && -l 'info' && -l 'lib' && -l 'man' &&
     readlink('bin')  eq 'stow/perl/bin' &&
     readlink('info') eq 'stow/perl/info' &&
@@ -81,7 +81,7 @@ $stow = new_Stow(dir => 'stow');
 $stow->plan_stow('perl');
 $stow->process_tasks();
 ok(
-    scalar($stow->get_conflicts) == 0 &&
+    $stow->get_conflict_count == 0 &&
     -d 'bin' && -d 'lib' && -d 'man' && -d 'man/man1' &&
     -l 'info' && -l 'bin/perl' && -l 'bin/a2p' && 
     -l 'lib/perl' && -l 'man/man1/perl.1' &&
@@ -107,7 +107,7 @@ remove_dir('man');
 $stow = new_Stow(dir => 'stow');
 $stow->plan_stow('perl', 'emacs');
 $stow->process_tasks();
-is(scalar($stow->get_conflicts), 0, 'no conflicts');
+is($stow->get_conflict_count, 0, 'no conflicts');
 ok(
     -d 'bin'        && 
     -l 'bin/perl'   && 
@@ -157,7 +157,7 @@ $stow = new_Stow(dir => 'stow');
 $stow->plan_stow('pkg1a', 'pkg1b');
 $stow->plan_unstow('pkg1b');
 $stow->process_tasks();
-is(scalar($stow->get_conflicts), 0, 'no conflicts stowing empty dirs');
+is($stow->get_conflict_count, 0, 'no conflicts stowing empty dirs');
 ok(-d 'bin1' => 'bug 1: stowing empty dirs');
 
 #
@@ -177,7 +177,7 @@ $stow->set_stow_dir('stow2b');
 $stow->plan_stow('pkg2b');
 $stow->process_tasks();
 
-is(scalar($stow->get_conflicts), 0, 'no conflicts splitting tree-folding symlinks');
+is($stow->get_conflict_count, 0, 'no conflicts splitting tree-folding symlinks');
 ok(-d 'bin2' => 'tree got split by packages from multiple stow directories');
 ok(-f 'bin2/file2a' => 'file from 1st stow dir');
 ok(-f 'bin2/file2b' => 'file from 2nd stow dir');

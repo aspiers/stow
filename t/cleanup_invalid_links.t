@@ -46,7 +46,7 @@ make_link('bin2/file2b', '../../stow/pkg2/bin2/file2b');
 
 $stow = new_Stow();
 $stow->cleanup_invalid_links('bin2');
-is(scalar($stow->get_conflicts), 0, 'no conflicts cleaning up bad link');
+is($stow->get_conflict_count, 0, 'no conflicts cleaning up bad link');
 is(scalar($stow->get_tasks),     1, 'one task cleaning up bad link');
 is($stow->link_task_action('bin2/file2b'), 'remove', 'removal task for bad link');
 
@@ -62,5 +62,5 @@ make_link('bin3/file3b', '../../empty');
 
 $stow = new_Stow();
 $stow->cleanup_invalid_links('bin3');
-is(scalar($stow->get_conflicts), 0, 'no conflicts cleaning up bad link not owned by stow');
+is($stow->get_conflict_count, 0, 'no conflicts cleaning up bad link not owned by stow');
 is(scalar($stow->get_tasks),     0, 'no tasks cleaning up bad link not owned by stow');
