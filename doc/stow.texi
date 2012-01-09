@@ -340,6 +340,29 @@ pages that are owned by stow and would otherwise cause a conflict.
 The regular expression is anchored to the beginning of the path relative to
 the target directory, because this is what you will want to do most of the time.
 
+@item -a
+@itemx --adopt
+@strong{Warning!} This behaviour is specifically intended to alter the
+contents of your stow directory.  If you do not want that, this option
+is not for you.
+
+When stowing, if a target is encountered which already exists but is a
+plain file (and hence not owned by any existing stow package), then
+normally Stow will register this as a conflict and refuse to proceed.
+This option changes that behaviour so that the file is moved to the
+same relative place within the package's installation image within the
+stow directory, and then stowing proceeds as before.  So effectively,
+the file becomes adopted by the stow package, without its contents
+changing.
+
+This is particularly useful when the stow package is under the control
+of a version control system, because it allows files in the target
+tree, with potentially different contents to the equivalent versions
+in the stow package's installation image, to be adopted into the
+package, then compared by running something like @samp{git diff ...}
+inside the stow package, and finally either kept (e.g. via @samp{git
+commit ...}) or discarded (@samp{git checkout HEAD ...}).
+
 @item -n
 @itemx --no
 @itemx --simulate

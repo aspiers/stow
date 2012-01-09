@@ -36,6 +36,7 @@ use strict;
 use warnings;
 
 use Carp qw(carp cluck croak confess longmess);
+use File::Copy qw(move);
 use File::Spec;
 use POSIX qw(getcwd);
 
@@ -59,6 +60,7 @@ our %DEFAULT_OPTIONS = (
     paranoid   => 0,
     compat     => 0,
     test_mode  => 0,
+    adopt      => 0,
     ignore     => [],
     override   => [],
     defer      => [],
@@ -198,10 +200,11 @@ sub init_state {
     # $self->{tasks}:  list of operations to be performed (in order)
     # each element is a hash ref of the form
     #   {
-    #       action => ...  ('create' or 'remove')
-    #       type   => ...  ('link' or 'dir')
+    #       action => ...  ('create' or 'remove' or 'move')
+    #       type   => ...  ('link' or 'dir' or 'file')
     #       path   => ...  (unique)
     #       source => ...  (only for links)
+    #       dest   => ...  (only for moving files)
     #   }
     $self->{tasks} = [];
 
@@ -490,11 +493,17 @@ sub stow_node {
             );
         }
         else {
-            $self->conflict(
-                'stow',
-                $package,
-                "existing target is neither a link nor a directory: $target"
-            );
+            if ($self->{adopt}) {
+                $self->do_mv($target, $path);
+                $self->do_link($source, $target);
+            }
+            else {
+                $self->conflict(
+                    'stow',
+                    $package,
+                    "existing target is neither a link nor a directory: $target"
+                );
+            }
         }
     }
     else {
@@ -1413,6 +1422,7 @@ sub process_task {
         if ($task->{type} eq 'dir') {
             mkdir($task->{path}, 0777)
                 or error(qq(Could not create directory: $task->{path}));
+            return;
         }
         elsif ($task->{type} eq 'link') {
             symlink $task->{source}, $task->{path}
@@ -1421,27 +1431,33 @@ sub process_task {
                     $task->{path},
                     $task->{source}
             );
-        }
-        else {
-            internal_error(qq(bad task type: $task->{type}));
+            return;
         }
     }
     elsif ($task->{action} eq 'remove') {
         if ($task->{type} eq 'dir') {
             rmdir $task->{path}
                 or error(qq(Could not remove directory: $task->{path}));
+            return;
         }
         elsif ($task->{type} eq 'link') {
             unlink $task->{path}
                 or error(qq(Could not remove link: $task->{path}));
-        }
-        else {
-            internal_error(qq(bad task type: $task->{type}));
+            return;
         }
     }
-    else {
-        internal_error(qq(bad task action: $task->{action}));
+    elsif ($task->{action} eq 'move') {
+        if ($task->{type} eq 'file') {
+            # rename() not good enough, since the stow directory
+            # might be on a different filesystem to the target.
+            move $task->{path}, $task->{dest}
+                or error(qq(Could not move $task->{path} -> $task->{dest}));
+            return;
+        }
     }
+
+    # Should never happen.
+    internal_error(qq(bad task action: $task->{action}));
 }
 
 #===== METHOD ===============================================================
@@ -1942,6 +1958,53 @@ sub do_rmdir {
     };
     push @{ $self->{tasks} }, $task;
     $self->{dir_task_for}{$dir} = $task;
+
+    return;
+}
+
+#===== METHOD ===============================================================
+# Name      : do_mv()
+# Purpose   : wrap 'move' operation for later processing
+# Parameters: $src => the file to move
+#           : $dst => the path to move it to
+# Returns   : n/a
+# Throws    : error if this clashes with an existing planned operation
+# Comments  : alters contents of package installation image in stow dir
+#============================================================================
+sub do_mv {
+    my $self = shift;
+    my ($src, $dst) = @_;
+
+    if (exists $self->{link_task_for}{$src}) {
+        # I don't *think* this should ever happen, but I'm not
+        # 100% sure.
+        my $task_ref = $self->{link_task_for}{$src};
+        internal_error(
+            "do_mv: pre-existing link task for $src; action: %s, source: %s",
+            $task_ref->{action}, $task_ref->{source}
+        );
+    }
+    elsif (exists $self->{dir_task_for}{$src}) {
+        my $task_ref = $self->{dir_task_for}{$src};
+        internal_error(
+            "do_mv: pre-existing dir task for %s?! action: %s",
+            $src, $task_ref->{action}
+        );
+    }
+
+    # Remove the link
+    debug(1, "MV: $src -> $dst");
+
+    my $task = {
+        action  => 'move',
+        type    => 'file',
+        path    => $src,
+        dest    => $dst,
+    };
+    push @{ $self->{tasks} }, $task;
+
+    # FIXME: do we need this for anything?
+    #$self->{mv_task_for}{$file} = $task;
 
     return;
 }

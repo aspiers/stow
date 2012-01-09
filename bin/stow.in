@@ -181,6 +181,23 @@ Restow packages (first unstow, then stow again). This is useful
 for pruning obsolete symlinks from the target tree after updating
 the software in a package.
 
+=item -a
+
+=item --adopt
+
+B<Warning!>  This behaviour is specifically intended to alter the
+contents of your stow directory.  If you do not want that, this option
+is not for you.
+
+When stowing, if a target is encountered which already exists but is a
+plain file (and hence not owned by any existing stow package), then
+normally Stow will register this as a conflict and refuse to proceed.
+This option changes that behaviour so that the file is moved to the
+same relative place within the package's installation image within the
+stow directory, and then stowing proceeds as before.  So effectively,
+the file becomes adopted by the stow package, without its contents
+changing.
+
 =item --ignore=REGEX
 
 Ignore files ending in this Perl regex.
@@ -462,6 +479,7 @@ sub process_options {
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
+        'adopt|a',
 
         # clean and pre-compile any regex's at parse time
         'ignore=s' =>

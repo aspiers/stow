@@ -2,6 +2,11 @@ News file for Stow.
 
 * Changes in version 2.1.3
 
+** New --adopt / -a option
+
+   This allows plain files in the target to be "adopted" into the
+   package being stowed.  See the manual has more details.
+
 ** ./configure now checks for Perl modules required by the test suite.
 
 * Changes in version 2.1.2

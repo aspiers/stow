@@ -91,7 +91,7 @@ Verbosity rules:
 
 =item    0: errors only
 
-=item >= 1: print operations: LINK/UNLINK/MKDIR/RMDIR
+=item >= 1: print operations: LINK/UNLINK/MKDIR/RMDIR/MV
 
 =item >= 2: print operation exceptions
 

@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 23;
+use Test::More tests => 35;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -47,6 +47,7 @@ $stow = new_Stow();
 make_dir('../stow/pkg2/lib2');
 make_file('../stow/pkg2/lib2/file2');
 make_dir('lib2');
+
 $stow->plan_stow('pkg2');
 $stow->process_tasks();
 is( 
@@ -66,6 +67,7 @@ make_link('bin3' => '../stow/pkg3a/bin3'); # emulate stow
 
 make_dir('../stow/pkg3b/bin3');
 make_file('../stow/pkg3b/bin3/file3b');
+
 $stow->plan_stow('pkg3b');
 $stow->process_tasks();
 ok( 
@@ -76,21 +78,103 @@ ok(
 );
 
 #
-# Link to a new dir conflicts with existing non-dir (can't unfold)
+# Link to a new dir 'bin4' conflicts with existing non-dir so can't
+# unfold
 #
 $stow = new_Stow();
 
 make_file('bin4'); # this is a file but named like a directory
 make_dir('../stow/pkg4/bin4'); 
 make_file('../stow/pkg4/bin4/file4'); 
+
 $stow->plan_stow('pkg4');
 %conflicts = $stow->get_conflicts();
-like(
-    $conflicts{stow}{pkg4}[-1],
-    qr(existing target is neither a link nor a directory)
-    => 'link to new dir conflicts with existing non-directory'
+ok(
+    $stow->get_conflict_count == 1 &&
+    $conflicts{stow}{pkg4}[0] =~
+    qr/existing target is neither a link nor a directory/
+    => 'link to new dir bin4 conflicts with existing non-directory'
 );
 
+#
+# Link to a new dir 'bin4a' conflicts with existing non-dir so can't
+# unfold even with --adopt
+#
+#$stow = new_Stow(adopt => 1);
+$stow = new_Stow();
+
+make_file('bin4a'); # this is a file but named like a directory
+make_dir('../stow/pkg4a/bin4a'); 
+make_file('../stow/pkg4a/bin4a/file4a'); 
+
+$stow->plan_stow('pkg4a');
+%conflicts = $stow->get_conflicts();
+ok(
+    $stow->get_conflict_count == 1 &&
+    $conflicts{stow}{pkg4a}[0] =~ 
+    qr/existing target is neither a link nor a directory/
+    => 'link to new dir bin4a conflicts with existing non-directory'
+);
+
+#
+# Link to files 'file4b' and 'bin4b' conflict with existing files
+# without --adopt
+#
+$stow = new_Stow();
+
+# Populate target
+make_file('file4b',       'file4b - version originally in target');
+make_dir ('bin4b'); 
+make_file('bin4b/file4b', 'bin4b/file4b - version originally in target');
+
+# Populate
+make_dir ('../stow/pkg4b/bin4b'); 
+make_file('../stow/pkg4b/file4b',       'file4b - version originally in stow package');
+make_file('../stow/pkg4b/bin4b/file4b', 'bin4b/file4b - version originally in stow package');
+
+$stow->plan_stow('pkg4b');
+%conflicts = $stow->get_conflicts();
+is($stow->get_conflict_count, 2 => 'conflict per file');
+for my $i (0, 1) {
+    like(
+        $conflicts{stow}{pkg4b}[$i],
+        qr/existing target is neither a link nor a directory/
+        => 'link to file4b conflicts with existing non-directory'
+    );
+}
+
+#
+# Link to files 'file4b' and 'bin4b' do not conflict with existing
+# files when --adopt is given
+#
+$stow = new_Stow(adopt => 1);
+
+# Populate target
+make_file('file4c',       "file4c - version originally in target\n");
+make_dir ('bin4c'); 
+make_file('bin4c/file4c', "bin4c/file4c - version originally in target\n");
+
+# Populate
+make_dir ('../stow/pkg4c/bin4c'); 
+make_file('../stow/pkg4c/file4c',       "file4c - version originally in stow package\n");
+make_file('../stow/pkg4c/bin4c/file4c', "bin4c/file4c - version originally in stow package\n");
+
+$stow->plan_stow('pkg4c');
+is($stow->get_conflict_count, 0 => 'no conflicts with --adopt');
+my @tasks = $stow->get_tasks;
+is(@tasks, 4 => 'two tasks per file');
+$stow->process_tasks();
+for my $file ('file4c', 'bin4c/file4c') {
+    ok(-l $file, "$file turned into a symlink");
+    is(
+        readlink $file,
+        (index($file, '/') == -1 ? '' : '../' )
+        . "../stow/pkg4c/$file" => "$file points to right place"
+    );
+    is(cat_file($file), "$file - version originally in target\n" => "$file has right contents");
+}
+
+  
 #
 # Target already exists but is not owned by stow
 #
@@ -99,11 +183,12 @@ $stow = new_Stow();
 make_dir('bin5'); 
 make_link('bin5/file5','../../empty');
 make_dir('../stow/pkg5/bin5/file5'); 
+
 $stow->plan_stow('pkg5');
 %conflicts = $stow->get_conflicts();
 like( 
     $conflicts{stow}{pkg5}[-1],
-    qr(not owned by stow)
+    qr/not owned by stow/
     => 'target already exists but is not owned by stow'
 );
 
@@ -115,6 +200,7 @@ $stow = new_Stow();
 make_link('file6','../stow/path-does-not-exist');
 make_dir('../stow/pkg6');
 make_file('../stow/pkg6/file6');
+
 $stow->plan_stow('pkg6');
 $stow->process_tasks();
 is( 
@@ -135,11 +221,12 @@ make_file('../stow/pkg7a/bin7/node7');
 make_link('bin7/node7','../../stow/pkg7a/bin7/node7');
 make_dir('../stow/pkg7b/bin7/node7');
 make_file('../stow/pkg7b/bin7/node7/file7');
+
 $stow->plan_stow('pkg7b');
 %conflicts = $stow->get_conflicts();
 like(
     $conflicts{stow}{pkg7b}[-1],
-    qr(existing target is stowed to a different package)
+    qr/existing target is stowed to a different package/
     => 'link to new dir conflicts with existing stowed non-directory'
 );
 
@@ -154,6 +241,7 @@ make_link('0' => '../stow/pkg8a/0'); # emulate stow
 
 make_dir('../stow/pkg8b/0');
 make_file('../stow/pkg8b/0/file8b');
+
 $stow->plan_stow('pkg8b');
 $stow->process_tasks();
 ok( 
@@ -176,6 +264,7 @@ make_link('man9/man1/file9.1' => '../../../stow/pkg9a/man9/man1/file9.1'); # emu
 
 make_dir('../stow/pkg9b/man9/man1');
 make_file('../stow/pkg9b/man9/man1/file9.1');
+
 $stow->plan_stow('pkg9b');
 $stow->process_tasks();
 ok( 
@@ -196,8 +285,8 @@ make_link('man10/man1/file10.1' => '../../../stow/pkg10a/man10/man1/file10.1'); 
 
 make_dir('../stow/pkg10b/man10/man1');
 make_file('../stow/pkg10b/man10/man1/file10.1');
-$stow->plan_stow('pkg10b');
 
+$stow->plan_stow('pkg10b');
 stderr_like(
   sub { $stow->process_tasks(); },
   qr/There are no outstanding operations to perform/,
@@ -240,6 +329,7 @@ make_file('../stow/pkg12/lib12/lib.so');
 make_link('../stow/pkg12/lib12/lib.so.1','lib.so');
 
 make_dir('lib12/');
+
 $stow->plan_stow('pkg12');
 $stow->process_tasks();
 ok( 
@@ -347,3 +437,4 @@ is(
     '../stow/pkg18/bin18',
     => "minimal stow of a simple tree with absolute stow and target dirs"
 );
+

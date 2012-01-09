@@ -9,6 +9,8 @@ package testutil;
 use strict;
 use warnings;
 
+use File::Path qw(remove_tree);
+
 use Stow;
 use Stow::Util qw(parent canon_path);
 
@@ -20,13 +22,14 @@ our @EXPORT = qw(
     new_Stow new_compat_Stow
     make_dir make_link make_file
     remove_dir remove_link
+    cat_file
 );
 
 our $OUT_DIR = 'tmp-testing-trees';
 
 sub init_test_dirs {
     for my $dir ("$OUT_DIR/target", "$OUT_DIR/stow") {
-        -d $dir and remove_dir($dir);
+        -d $dir and remove_tree($dir);
         make_dir($dir);
     }
 
@@ -110,7 +113,7 @@ sub make_dir {
 # Comments  : detects clash with an existing non-file
 #============================================================================
 sub make_file {
-    my ($path, $contents) =@_;
+    my ($path, $contents) = @_;
 
     if (-e $path and ! -f $path) {
         die "a non-file already exists at $path\n";
@@ -208,6 +211,22 @@ sub remove_dir {
 sub cd {
     my ($dir) = @_;
     chdir $dir or die "Failed to chdir($dir): $!\n";
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : cat_file()
+# Purpose   : return file contents
+# Parameters: $file => file to read
+# Returns   : n/a
+# Throws    : fatal error if the open fails
+# Comments  : none
+#============================================================================
+sub cat_file {
+    my ($file) = @_;
+    open F, $file or die "Failed to open($file): $!\n";
+    my $contents = join '', <F>;
+    close(F);
+    return $contents;
 }
 
 1;
