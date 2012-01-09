@@ -17,7 +17,7 @@ How to make a new release of GNU Stow
 
       - Make sure all the following commands all run successfully:
 
-          perl Build.PL
+          perl Build.PL --prefix=/tmp/stow-test
           ./Build test
           ./Build install
           ./Build distcheck
