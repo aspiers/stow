@@ -35,7 +35,7 @@ rebuild the target tree.
 use strict;
 use warnings;
 
-use Carp qw(carp cluck croak confess);
+use Carp qw(carp cluck croak confess longmess);
 use File::Spec;
 use POSIX qw(getcwd);
 
@@ -1964,8 +1964,11 @@ sub do_rmdir {
 sub internal_error {
     my ($format, @args) = @_;
     my $error = sprintf($format, @args);
+    my $stacktrace = Carp::longmess();
     die <<EOF;
-$ProgramName: INTERNAL ERROR: $error
+
+$ProgramName: INTERNAL ERROR: $error$stacktrace
+
 This _is_ a bug. Please submit a bug report so we can fix it! :-)
 See http://www.gnu.org/software/stow/ for how to do this.
 EOF
