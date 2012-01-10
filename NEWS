@@ -9,7 +9,7 @@ News file for Stow.
 
 ** ./configure now checks for Perl modules required by the test suite.
 
-* Changes in version 2.1.3
+* Changes in version 2.1.2
 
   Many thanks to Stefano Lattarini for help with numerous autoconf and
   automake issues which are addressed in this release.
