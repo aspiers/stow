@@ -1391,7 +1391,6 @@ sub process_tasks {
     $self->{tasks} = [ grep { $_->{action} ne 'skip' } @{ $self->{tasks} } ];
 
     if (not @{ $self->{tasks} }) {
-        warn "There are no outstanding operations to perform.\n";
         return;
     }
 

@@ -161,8 +161,7 @@ make_file('../stow/pkg4c/bin4c/file4c', "bin4c/file4c - version originally in st
 
 $stow->plan_stow('pkg4c');
 is($stow->get_conflict_count, 0 => 'no conflicts with --adopt');
-my @tasks = $stow->get_tasks;
-is(@tasks, 4 => 'two tasks per file');
+is($stow->get_tasks, 4 => 'two tasks per file');
 $stow->process_tasks();
 for my $file ('file4c', 'bin4c/file4c') {
     ok(-l $file, "$file turned into a symlink");
@@ -287,11 +286,7 @@ make_dir('../stow/pkg10b/man10/man1');
 make_file('../stow/pkg10b/man10/man1/file10.1');
 
 $stow->plan_stow('pkg10b');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process'
-);
+is($stow->get_tasks, 0, 'no tasks to process');
 ok( 
     $stow->get_conflict_count == 0 &&
     readlink('man10/man1/file10.1') eq '../../../stow/pkg10a/man10/man1/file10.1' 
@@ -371,11 +366,7 @@ make_dir('stow/pkg14/stow/pkg15');
 make_file('stow/pkg14/stow/pkg15/node15');
 
 $stow->plan_stow('pkg14');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process'
-);
+is($stow->get_tasks, 0, 'no tasks to process');
 ok(
     $stow->get_conflict_count == 0 &&
     ! -l 'stow/pkg15'

@@ -152,11 +152,7 @@ make_file('stow/pkg7a/stow/pkg7b/file7b');
 make_link('stow/pkg7b', '../stow/pkg7a/stow/pkg7b');
 
 $stow->plan_unstow('pkg7b');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process when unstowing pkg7b'
-);
+is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg7b');
 ok(
     $stow->get_conflict_count == 0 &&
     -l 'stow/pkg7b' &&
@@ -178,11 +174,7 @@ make_file('stow/pkg8a/stow2/pkg8b/file8b');
 make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
 
 $stow->plan_unstow('pkg8a');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process when unstowing pkg8a'
-);
+is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg8a');
 ok(
     $stow->get_conflict_count == 0 &&
     -l 'stow2/pkg8b' &&
@@ -230,11 +222,7 @@ make_link('man10/man1/file10b.1'  => '../../../stow/pkg10b/man10/man1/file10b.1'
 make_dir('../stow/pkg10c/man10/man1');
 make_file('../stow/pkg10c/man10/man1/file10a.1');
 $stow->plan_unstow('pkg10c');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process when unstowing pkg10c'
-);
+is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg10c');
 ok( 
     $stow->get_conflict_count == 0 &&
     readlink('man10/man1/file10a.1') eq '../../../stow/pkg10a/man10/man1/file10a.1' 
@@ -266,11 +254,7 @@ ok(
 #
 $stow = new_compat_Stow();
 $stow->plan_unstow('pkg12');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process when unstowing pkg12'
-);
+is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12');
 ok(
     $stow->get_conflict_count == 0
     => 'unstow already unstowed package pkg12'
@@ -285,11 +269,7 @@ mkdir("$OUT_DIR/target");
 
 $stow = new_compat_Stow();
 $stow->plan_unstow('pkg12');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process when unstowing pkg12 which was never stowed'
-);
+is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 which was never stowed');
 ok(
     $stow->get_conflict_count == 0
     => 'unstow never stowed package pkg12'
@@ -302,11 +282,7 @@ make_file('man12/man1/file12.1');
 
 $stow = new_compat_Stow();
 $stow->plan_unstow('pkg12');
-stderr_like(
-  sub { $stow->process_tasks(); },
-  qr/There are no outstanding operations to perform/,
-  'no tasks to process when unstowing pkg12 for third time'
-);
+is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 for third time');
 %conflicts = $stow->get_conflicts;
 ok(
     $stow->get_conflict_count == 1 &&
