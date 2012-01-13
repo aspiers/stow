@@ -142,6 +142,7 @@ sub get_verbosity {
 
     return $self->{verbose} unless $self->{test_mode};
 
+    return 0 unless exists $ENV{TEST_VERBOSE};
     return 0 unless length $ENV{TEST_VERBOSE};
 
     # Convert TEST_VERBOSE=y into numeric value
