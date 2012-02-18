@@ -1199,7 +1199,8 @@ adding @samp{--verbose=3} to the Stow command line).
 @end itemize
 
 If you are really keen, consider developing a minimal test case and
-creating a new test.  See the @file{t/} for lots of examples.
+creating a new test.  See the @file{t/} directory in the source for
+lots of examples.
 
 Before reporting a bug, please read the manual carefully, especially
 @ref{Known Bugs}, to see whether you're encountering
@@ -1210,17 +1211,13 @@ something that doesn't need reporting.
 @node Known Bugs, GNU General Public License, Reporting Bugs, Top
 @chapter Known Bugs
 
-@itemize @bullet
-@item
-When using multiple stow directories (@pxref{Multiple Stow
-Directories}), Stow fails to ``split open'' tree-folding symlinks
-(@pxref{Installing Packages}) that point into a stow directory which is
-not the one in use by the current Stow command.  Before failing, it
-should search the target of the link to see whether any element of the
-path contains a @file{.stow} file.  If it finds one, it can ``learn''
-about the cooperating stow directory to short-circuit the @file{.stow}
-search the next time it encounters a tree-folding symlink.
-@end itemize
+There are no known bugs in Stow version @value{VERSION}!
+If you think you have found one, please @pxref{Reporting Bugs}.
+
+@c @itemize @bullet
+@c @item
+@c Put known bugs here
+@c @end itemize
 
 @c ===========================================================================
 @node GNU General Public License, Index, Known Bugs, Top
