@@ -82,6 +82,8 @@ our %DEFAULT_OPTIONS = (
 
 =head3 Non-mandatory options
 
+See the documentation for the F<stow> CLI front-end for information on these.
+
 =over 4
 
 =item * conflicts
@@ -91,6 +93,12 @@ our %DEFAULT_OPTIONS = (
 =item * verbose
 
 =item * paranoid
+
+=item * compat
+
+=item * test_mode
+
+=item * adopt
 
 =item * ignore
 
