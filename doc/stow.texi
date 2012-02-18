@@ -279,7 +279,7 @@ Set the target directory to @var{dir} instead of the parent of the stow
 directory.  Defaults to the parent of the stow directory, so it is typical to
 execute @code{stow} from the directory @file{/usr/local/stow}.
 
-@item --ignore='<regex>'
+@item --ignore=@var{regexp}
 This (repeatable) option lets you suppress acting on files that match the
 given perl regular expression.  For example, using the options
 
@@ -297,7 +297,7 @@ Also note that by default Stow automatically ignores a ``sensible''
 built-in list of files and directories such as @file{CVS}, editor
 backup files, and so on.  @xref{Ignore Lists}, for more details.
 
-@item --defer='<regex>'
+@item --defer=@var{regexp}
 This (repeatable) option avoids stowing a file matching the given
 regular expression, if that file is already stowed by another package.
 This is effectively the opposite of @code{--override}.
@@ -324,7 +324,7 @@ Note that the regular expression is anchored to the beginning of the path
 relative to the target directory, because this is what you will want to do most
 of the time.
 
-@item --override='<regex>'
+@item --override=@var{regexp}
 This (repeatable) option forces any file matching the regular expression to be
 stowed, even if the file is already stowed to another package. For example,
 the following options
