@@ -248,8 +248,9 @@ sub plan_unstow {
 
     $self->within_target_do(sub {
         for my $package (@packages) {
-            if (not -d join_paths($self->{stow_path}, $package)) {
-                error("The stow directory $self->{dir} does not contain package $package");
+            my $path = join_paths($self->{stow_path}, $package);
+            if (not -d $path) {
+                error("The stow directory $self->{stow_path} does not contain package $package");
             }
             debug(2, "Planning unstow of package $package...");
             if ($self->{compat}) {
@@ -286,15 +287,16 @@ sub plan_stow {
 
     $self->within_target_do(sub {
         for my $package (@packages) {
-            if (not -d join_paths($self->{stow_path}, $package)) {
-                error("The stow directory $self->{dir} does not contain package $package");
+            my $path = join_paths($self->{stow_path}, $package);
+            if (not -d $path) {
+                error("The stow directory $self->{stow_path} does not contain package $package");
             }
             debug(2, "Planning stow of package $package...");
             $self->stow_contents(
                 $self->{stow_path},
                 $package,
                 '.',
-                join_paths($self->{stow_path}, $package), # source from target
+                $path, # source from target
             );
             debug(2, "Planning stow of package $package... done");
             $self->{action_count}++;

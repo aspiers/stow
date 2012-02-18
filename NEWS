@@ -2,6 +2,12 @@ News file for Stow.
 
 * Changes in version 2.1.4
 
+** Improve error message when stow package is not found.
+
+   The error message displayed a path to the missing stow package
+   which was relative to the target directory rather than the cwd,
+   which was confusing for the user.
+
 ** Test suite improvements
 
    The test suite has been tightened up slightly.
