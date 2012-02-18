@@ -311,7 +311,7 @@ this nomenclature with the wording used in @ref{Deferred Operation}.)
 For example, the following options
 
 @example
---defer='man' --defer='info'
+--defer=man --defer=info
 @end example
 
 @noindent
@@ -330,7 +330,7 @@ stowed, even if the file is already stowed to another package. For example,
 the following options
 
 @example
---override='man' --override='info'
+--override=man --override=info
 @end example
 
 @noindent
@@ -837,15 +837,15 @@ directory.
 @node Resource Files, Compile-time vs Install-time, Target Maintenance, Top
 @chapter Resource Files
 
-Default command line options may be set in `.stowrc' (current directory) or
-`~/.stowrc' (home directory). These are parsed in that order, and effectively
+Default command line options may be set in @file{.stowrc} (current directory) or
+@file{~/.stowrc} (home directory). These are parsed in that order, and effectively
 prepended to you command line.  This feature can be used for some interesting
 effects.
 
 For example, suppose your site uses more than one stow directory, perhaps in
 order to share around responsibilities with a number of systems
 administrators. One of the administrators might have the following in there
-`~/.stowrc' file:
+@file{~/.stowrc} file:
 
 @example
 --dir=/usr/local/stow2
@@ -854,13 +854,13 @@ administrators. One of the administrators might have the following in there
 --ignore='^CVS'
 @end example
 
-so that the `stow' command will default to operating on the @file{/usr/local/stow2}
-directory, with @file{/usr/local} as the target, and ignoring vi backup files
-and CVS directories.
+so that the @command{stow} command will default to operating on the
+@file{/usr/local/stow2} directory, with @file{/usr/local} as the
+target, and ignoring vi backup files and CVS directories.
 
-If you had a stow directory `/usr/local/stow/perl-extras' that was only used
-for Perl modules, then you might place the following in
-`/usr/local/stow/perl-extras/.stowrc':
+If you had a stow directory @file{/usr/local/stow/perl-extras} that
+was only used for Perl modules, then you might place the following in
+@file{/usr/local/stow/perl-extras/.stowrc}:
 
 @example
 --dir=/usr/local/stow/perl-extras
@@ -872,11 +872,12 @@ for Perl modules, then you might place the following in
 --ignore='\.bs'
 @end example
 
-so that the when your are in the @file{/usr/local/stow/perl-extras} directory,
-`stow' will regard any subdirectories as stow packages, with @file{/usr/local}
-as the target (rather than the immediate parent directoy
-@file{/usr/local/stow}), overriding any pre-existing links to bin files or man
-pages, and ignoring some cruft that gets installed by default.
+so that the when your are in the @file{/usr/local/stow/perl-extras}
+directory, @command{stow} will regard any subdirectories as stow
+packages, with @file{/usr/local} as the target (rather than the
+immediate parent directory @file{/usr/local/stow}), overriding any
+pre-existing links to bin files or man pages, and ignoring some cruft
+that gets installed by default.
 
 
 @c ===========================================================================
@@ -929,10 +930,10 @@ script using the same shell that @samp{make install} would have used.
 @enumerate
 @item
 Replace all lines matching @samp{make[@var{n}]: Entering directory
-`@var{dir}'} with @samp{pushd @var{dir}}.
+@var{dir}} with @samp{pushd @var{dir}}.
 @item
 Replace all lines matching @samp{make[@var{n}]: Leaving directory
-`@var{dir}'} with @samp{popd}.
+@var{dir}} with @samp{popd}.
 @item
 Delete all lines matching @samp{make[@var{n}]: Nothing to be done for
 @var{rule}}.
