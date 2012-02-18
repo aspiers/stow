@@ -98,7 +98,7 @@ stdout_like(
     qr{Unstowed\ file:\ ./bin/alien}xms,
     "Aliens exist");
 
-make_link('bin/link', 'ireallyhopethisfiledoesn/t.exist');
+make_invalid_link('bin/link', 'ireallyhopethisfiledoesn/t.exist');
 @ARGV = ('-t', '.', '-b');
 stdout_like(
     \&run_chkstow,

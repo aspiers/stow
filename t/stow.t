@@ -180,7 +180,7 @@ for my $file ('file4c', 'bin4c/file4c') {
 $stow = new_Stow();
 
 make_dir('bin5'); 
-make_link('bin5/file5','../../empty');
+make_invalid_link('bin5/file5','../../empty');
 make_dir('../stow/pkg5/bin5/file5'); 
 
 $stow->plan_stow('pkg5');
@@ -196,7 +196,7 @@ like(
 #
 $stow = new_Stow();
 
-make_link('file6','../stow/path-does-not-exist');
+make_invalid_link('file6','../stow/path-does-not-exist');
 make_dir('../stow/pkg6');
 make_file('../stow/pkg6/file6');
 

@@ -2,6 +2,10 @@ News file for Stow.
 
 * Changes in version 2.1.4
 
+** Test suite improvements
+
+   The test suite has been tightened up slightly.
+
 ** Documentation improvements
 
    Various fixes and cosmetic improvements have been made in the manual.

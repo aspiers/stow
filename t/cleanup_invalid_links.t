@@ -42,7 +42,7 @@ make_dir('bin2');
 make_dir('../stow/pkg2/bin2');
 make_file('../stow/pkg2/bin2/file2a');
 make_link('bin2/file2a', '../../stow/pkg2/bin2/file2a');
-make_link('bin2/file2b', '../../stow/pkg2/bin2/file2b');
+make_invalid_link('bin2/file2b', '../../stow/pkg2/bin2/file2b');
 
 $stow = new_Stow();
 $stow->cleanup_invalid_links('bin2');
@@ -58,7 +58,7 @@ make_dir('bin3');
 make_dir('../stow/pkg3/bin3');
 make_file('../stow/pkg3/bin3/file3a');
 make_link('bin3/file3a', '../../stow/pkg3/bin3/file3a');
-make_link('bin3/file3b', '../../empty');
+make_invalid_link('bin3/file3b', '../../empty');
 
 $stow = new_Stow();
 $stow->cleanup_invalid_links('bin3');

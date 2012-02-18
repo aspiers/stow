@@ -9,7 +9,10 @@ package testutil;
 use strict;
 use warnings;
 
+use Carp qw(croak);
+use File::Basename;
 use File::Path qw(remove_tree);
+use File::Spec;
 
 use Stow;
 use Stow::Util qw(parent canon_path);
@@ -20,7 +23,7 @@ our @EXPORT = qw(
     init_test_dirs
     cd
     new_Stow new_compat_Stow
-    make_dir make_link make_file
+    make_dir make_link make_invalid_link make_file
     remove_dir remove_link
     cat_file
 );
@@ -56,28 +59,50 @@ sub new_compat_Stow {
 # Purpose   : safely create a link
 # Parameters: $target => path to the link
 #           : $source => where the new link should point
+#           : $invalid => true iff $source refers to non-existent file
 # Returns   : n/a
 # Throws    : fatal error if the link can not be safely created
 # Comments  : checks for existing nodes
 #============================================================================
 sub make_link {
-    my ($target, $source) = @_;
+    my ($target, $source, $invalid) = @_;
 
     if (-l $target) {
         my $old_source = readlink join('/', parent($target), $source) 
-            or die "could not read link $target/$source";
+            or die "$target is already a link but could not read link $target/$source";
         if ($old_source ne $source) {
             die "$target already exists but points elsewhere\n";
         }
     }
-    elsif (-e $target) {
-        die "$target already exists and is not a link\n";
+    die "$target already exists and is not a link\n" if -e $target;
+    my $abs_target = File::Spec->rel2abs($target);
+    my $target_container = dirname($abs_target);
+    my $abs_source = File::Spec->rel2abs($source, $target_container);
+    #warn "t $target c $target_container as $abs_source";
+    if (-e $abs_source) {
+        croak "Won't make invalid link pointing to existing $abs_target"
+            if $invalid;
     }
     else {
-        symlink $source, $target
-            or die "could not create link $target => $source ($!)\n";
+        croak "Won't make link pointing to non-existent $abs_target"
+            unless $invalid;
     }
-    return;
+    symlink $source, $target
+        or die "could not create link $target => $source ($!)\n";
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : make_invalid_link()
+# Purpose   : safely create an invalid link
+# Parameters: $target => path to the link
+#           : $source => the non-existent source where the new link should point
+# Returns   : n/a
+# Throws    : fatal error if the link can not be safely created
+# Comments  : checks for existing nodes
+#============================================================================
+sub make_invalid_link {
+    my ($target, $source, $allow_invalid) = @_;
+    make_link($target, $source, 1);
 }
 
 #===== SUBROUTINE ===========================================================

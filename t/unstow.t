@@ -87,7 +87,7 @@ $stow = new_Stow();
 make_dir('bin4');
 make_dir('../stow/pkg4/bin4');
 make_file('../stow/pkg4/bin4/file4');
-make_link('bin4/file4', '../../stow/pkg4/bin4/does-not-exist');
+make_invalid_link('bin4/file4', '../../stow/pkg4/bin4/does-not-exist');
 
 $stow->plan_unstow('pkg4');
 $stow->process_tasks();
@@ -103,7 +103,7 @@ ok(
 $stow = new_Stow();
 
 make_dir('../stow/pkg5/bin5');
-make_link('bin5', '../not-stow');
+make_invalid_link('bin5', '../not-stow');
 
 $stow->plan_unstow('pkg5');
 %conflicts = $stow->get_conflicts;
