@@ -320,8 +320,8 @@ ok(
 $stow = new_Stow();
 
 make_dir('../stow/pkg12/lib12/');
-make_file('../stow/pkg12/lib12/lib.so');
-make_link('../stow/pkg12/lib12/lib.so.1','lib.so');
+make_file('../stow/pkg12/lib12/lib.so.1');
+make_link('../stow/pkg12/lib12/lib.so', 'lib.so.1');
 
 make_dir('lib12/');
 
@@ -329,7 +329,8 @@ $stow->plan_stow('pkg12');
 $stow->process_tasks();
 ok( 
     $stow->get_conflict_count == 0 &&
-    readlink('lib12/lib.so.1') eq '../../stow/pkg12/lib12/lib.so.1' 
+    readlink('lib12/lib.so.1') eq '../../stow/pkg12/lib12/lib.so.1' &&
+    readlink('lib12/lib.so'  ) eq '../../stow/pkg12/lib12/lib.so'
     => 'stow links to libraries'
 );
 
@@ -339,20 +340,22 @@ ok(
 $stow = new_Stow();
 
 make_dir('../stow/pkg13a/lib13/');
-make_file('../stow/pkg13a/lib13/liba.so');
-make_link('../stow/pkg13a/lib13/liba.so.1', 'liba.so');
+make_file('../stow/pkg13a/lib13/liba.so.1');
+make_link('../stow/pkg13a/lib13/liba.so', 'liba.so.1');
 make_link('lib13','../stow/pkg13a/lib13');
 
 make_dir('../stow/pkg13b/lib13/');
-make_file('../stow/pkg13b/lib13/libb.so');
-make_link('../stow/pkg13b/lib13/libb.so.1', 'libb.so');
+make_file('../stow/pkg13b/lib13/libb.so.1');
+make_link('../stow/pkg13b/lib13/libb.so', 'libb.so.1');
 
 $stow->plan_stow('pkg13b');
 $stow->process_tasks();
 ok( 
     $stow->get_conflict_count == 0 &&
     readlink('lib13/liba.so.1') eq '../../stow/pkg13a/lib13/liba.so.1'  &&
-    readlink('lib13/libb.so.1') eq '../../stow/pkg13b/lib13/libb.so.1'  
+    readlink('lib13/liba.so'  ) eq '../../stow/pkg13a/lib13/liba.so'    &&
+    readlink('lib13/libb.so.1') eq '../../stow/pkg13b/lib13/libb.so.1'  && 
+    readlink('lib13/libb.so'  ) eq '../../stow/pkg13b/lib13/libb.so'  
     => 'unfolding to stow links to libraries'
 );
 
