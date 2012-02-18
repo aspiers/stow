@@ -127,7 +127,7 @@ Ignore Lists
 * Types And Syntax Of Ignore Lists::  
 * Justification For Yet Another Set Of Ignore Files::  
 
-Compile-time vs Install-time
+Advice on changing compilation and installation parameters
 
 * GNU Emacs::                   
 * Other FSF Software::          
@@ -580,6 +580,8 @@ Stow can create a single symlink that points to an entire subtree within
 the package tree, it will choose to do that rather than create a
 directory in the target tree and populate it with symlinks.
 
+@anchor{tree folding}
+@section Tree folding
 @cindex tree folding
 @cindex directory folding
 @cindex folding trees
@@ -616,6 +618,8 @@ tree-folding symlink @file{perl} pointing to
 descends as far as necessary into the target tree when it can create a
 tree-folding symlink.
 
+@anchor{Tree unfolding}
+@section Tree unfolding
 @cindex splitting open folded trees
 @cindex unfolding trees
 The time often comes when a tree-folding symlink has to be undone
@@ -638,6 +642,7 @@ directory @file{/usr/local/bin} is created; links are made from
 @file{/usr/local/bin} to @file{../stow/perl/bin/perl} and
 @file{../stow/perl/bin/a2p}.
 
+@section Ownership
 @cindex ownership
 When splitting open a folded tree, Stow makes sure that the
 symlink it is about to remove points inside a valid package in the
@@ -649,6 +654,7 @@ the stow directory, or directories that only contain symlinks that stow
 ``owns''.   Note that by this definition, Stow doesn't ``own'' anything
 @emph{in} the stow directory or in any of the packages.
 
+@section Conflicts during installation
 @cindex conflict
 If Stow needs to create a directory or a symlink in the target
 tree and it cannot because that name is already in use and is not owned
@@ -889,6 +895,7 @@ This means that when you compile a package, you must tell it the
 location of the run-time, or target tree; but when you install it, you
 must place it in the stow tree.
 
+@section Advice on changing compilation and installation parameters
 Some software packages allow you to specify, at compile-time, separate
 locations for installation and for run-time.  Perl is one such package;
 see @ref{Perl and Perl 5 Modules}.  Others allow you to compile the
