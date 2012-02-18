@@ -2,6 +2,11 @@ News file for Stow.
 
 * Changes in version 2.1.4
 
+** New --no-folding option
+
+   Disables folding of newly stowed directories when stowing, and
+   refolding of newly foldable directories when unstowing.
+
 ** Remove -a option (--adopt still available)
 
    As --adopt is the only option which allows stow to modify files, it

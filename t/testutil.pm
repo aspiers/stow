@@ -13,6 +13,7 @@ use Carp qw(croak);
 use File::Basename;
 use File::Path qw(remove_tree);
 use File::Spec;
+use Test::More;
 
 use Stow;
 use Stow::Util qw(parent canon_path);
@@ -26,6 +27,7 @@ our @EXPORT = qw(
     make_dir make_link make_invalid_link make_file
     remove_dir remove_link
     cat_file
+    is_link is_dir_not_symlink is_nonexistent_path
 );
 
 our $OUT_DIR = 'tmp-testing-trees';
@@ -253,6 +255,41 @@ sub cat_file {
     close(F);
     return $contents;
 }
+
+#===== SUBROUTINE ===========================================================
+# Name      : is_link()
+# Purpose   : assert path is a symlink
+# Parameters: $path => path to check
+#           : $dest => target symlink should point to
+#============================================================================
+sub is_link {
+    my ($path, $dest) = @_;
+    ok(-l $path => "$path should be symlink");
+    is(readlink $path, $dest => "$path symlinks to $dest");
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : is_dir_not_symlink()
+# Purpose   : assert path is a directory not a symlink
+# Parameters: $path => path to check
+#============================================================================
+sub is_dir_not_symlink {
+    my ($path) = @_;
+    ok(! -l $path => "$path should not be symlink");
+    ok(-d _       => "$path should be a directory");
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : is_nonexistent_path()
+# Purpose   : assert path does not exist
+# Parameters: $path => path to check
+#============================================================================
+sub is_nonexistent_path {
+    my ($path) = @_;
+    ok(! -l $path => "$path should not be symlink");
+    ok(! -e _     => "$path should not exist");
+}
+
 
 1;
 

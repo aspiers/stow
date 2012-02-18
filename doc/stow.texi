@@ -327,6 +327,16 @@ pages that are owned by stow and would otherwise cause a conflict.
 The regular expression is anchored to the beginning of the path relative to
 the target directory, because this is what you will want to do most of the time.
 
+@item --no-folding
+
+This disables any further @ref{tree folding} or @ref{tree refolding}.
+If a new subdirectory is encountered whilst stowing a new package, the
+subdirectory is created within the target, and its contents are
+symlinked, rather than just creating a symlink for the directory.  If
+removal of symlinks whilst unstowing a package causes a subtree to be
+foldable (i.e. only containing symlinks to a single package), that
+subtree will not be removed and replaced with a symlink.
+
 @cindex adopting existing files
 @item --adopt
 @strong{Warning!} This behaviour is specifically intended to alter the
@@ -606,7 +616,8 @@ and it will descend into @file{/usr/local/lib} and create the
 tree-folding symlink @file{perl} pointing to
 @file{../stow/perl/lib/perl}, and so on.  As a rule, Stow only
 descends as far as necessary into the target tree when it can create a
-tree-folding symlink.
+tree-folding symlink.  However, this behaviour can be changed via
+the @option{--no-folding} option; @pxref{Invoking Stow}.
 
 @anchor{Tree unfolding}
 @section Tree unfolding
@@ -681,13 +692,20 @@ directory and a @file{man} directory at the top level, then we only scan
 @file{/usr/local/lib} or @file{/usr/local/share}, or for that matter
 @file{/usr/local/stow}.  Any symlink it finds that points into the package
 being deleted is removed.  Any directory that contained only symlinks to the
-package being deleted is removed.  Any directory that, after removing symlinks
-and empty subdirectories, contains only symlinks to a single other package, is
-considered to be a previously ``folded'' tree that was ``split open.''  Stow
-will re-fold the tree by removing the symlinks to the surviving package,
-removing the directory, then linking the directory back to the surviving
-package.
+package being deleted is removed.
 
+@anchor{tree refolding}
+@section Refolding ``foldable'' trees.
+@cindex refolding trees
+@cindex tree refolding
+
+After removing symlinks and empty subdirectories, any directory that
+contains only symlinks to a single other package is considered to be a
+previously ``folded'' tree that was ``split open.''  Stow will refold
+the tree by removing the symlinks to the surviving package, removing
+the directory, then linking the directory back to the surviving
+package.  However, this behaviour can be prevented via the
+@option{--no-folding} option; @pxref{Invoking Stow}.
 
 @c ===========================================================================
 @node Conflicts, Mixing Operations, Deleting Packages, Top

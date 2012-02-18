@@ -195,6 +195,11 @@ stow directory, and then stowing proceeds as before.  So effectively,
 the file becomes adopted by the stow package, without its contents
 changing.
 
+=item --no-folding
+
+Disable folding of newly stowed directories when stowing, and
+refolding of newly foldable directories when unstowing.
+
 =item --ignore=REGEX
 
 Ignore files ending in this Perl regex.
@@ -476,7 +481,7 @@ sub process_options {
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
-        'adopt',
+        'adopt', 'no-folding',
 
         # clean and pre-compile any regex's at parse time
         'ignore=s' =>

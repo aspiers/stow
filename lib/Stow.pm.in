@@ -54,16 +54,17 @@ our @default_global_ignore_regexps =
 
 # These are the default options for each Stow instance.
 our %DEFAULT_OPTIONS = (
-    conflicts  => 0,
-    simulate   => 0,
-    verbose    => 0,
-    paranoid   => 0,
-    compat     => 0,
-    test_mode  => 0,
-    adopt      => 0,
-    ignore     => [],
-    override   => [],
-    defer      => [],
+    conflicts    => 0,
+    simulate     => 0,
+    verbose      => 0,
+    paranoid     => 0,
+    compat       => 0,
+    test_mode    => 0,
+    adopt        => 0,
+    'no-folding' => 0,
+    ignore       => [],
+    override     => [],
+    defer        => [],
 );
 
 =head1 CONSTRUCTORS
@@ -99,6 +100,8 @@ See the documentation for the F<stow> CLI front-end for information on these.
 =item * test_mode
 
 =item * adopt
+
+=item * no-folding
 
 =item * ignore
 
@@ -516,6 +519,15 @@ sub stow_node {
                 );
             }
         }
+    }
+    elsif ($self->{'no-folding'} && -d $path) {
+        $self->do_mkdir($target);
+        $self->stow_contents(
+            $self->{stow_path},
+            $package,
+            $target,
+            join_paths('..', $source),
+        );
     }
     else {
         $self->do_link($source, $target);
@@ -994,6 +1006,10 @@ sub foldable {
     my ($target) = @_;
 
     debug(3, "--- Is $target foldable?");
+    if ($self->{'no-folding'}) {
+        debug(3, "--- no because --no-folding enabled");
+        return '';
+    }
 
     opendir my $DIR, $target
         or error(qq{Cannot read directory "$target" ($!)\n});

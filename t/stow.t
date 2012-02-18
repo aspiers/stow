@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 35;
+use Test::More tests => 111;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -32,7 +32,7 @@ make_file('../stow/pkg1/bin1/file1');
 
 $stow->plan_stow('pkg1');
 $stow->process_tasks();
-is($stow->get_conflicts(), 0, 'no conflicts with minimal stow');
+is_deeply([ $stow->get_conflicts ], [], 'no conflicts with minimal stow');
 is( 
     readlink('bin1'),  
     '../stow/pkg1/bin1', 
@@ -387,7 +387,7 @@ make_file("$OUT_DIR/stow/pkg16/bin16/file16");
 
 $stow->plan_stow('pkg16');
 $stow->process_tasks();
-is($stow->get_conflicts(), 0, 'no conflicts with minimal stow');
+is_deeply([ $stow->get_conflicts ], [], 'no conflicts with minimal stow');
 is(
     readlink("$OUT_DIR/target/bin16"),
     '../stow/pkg16/bin16',
@@ -406,7 +406,7 @@ make_file("$OUT_DIR/stow/pkg17/bin17/file17");
 
 $stow->plan_stow('pkg17');
 $stow->process_tasks();
-is($stow->get_conflicts(), 0, 'no conflicts with minimal stow');
+is_deeply([ $stow->get_conflicts ], [], 'no conflicts with minimal stow');
 is(
     readlink("$OUT_DIR/target/bin17"),
     '../stow/pkg17/bin17',
@@ -425,10 +425,108 @@ make_file("$OUT_DIR/stow/pkg18/bin18/file18");
 
 $stow->plan_stow('pkg18');
 $stow->process_tasks();
-is($stow->get_conflicts(), 0, 'no conflicts with minimal stow');
+is_deeply([ $stow->get_conflicts ], [], 'no conflicts with minimal stow');
 is(
     readlink("$OUT_DIR/target/bin18"),
     '../stow/pkg18/bin18',
     => "minimal stow of a simple tree with absolute stow and target dirs"
 );
 
+#
+# stow a tree with no-folding enabled -
+# no new folded directories should be created, and existing
+# folded directories should be split open (unfolded) where
+# (and only where) necessary
+#
+cd("$OUT_DIR/target");
+
+sub create_pkg {
+    my ($id, $pkg) = @_;
+
+    my $stow_pkg = "../stow/$id-$pkg";
+    make_dir ($stow_pkg);
+    make_file("$stow_pkg/$id-file-$pkg");
+
+    # create a shallow hierarchy specific to this package which isn't
+    # yet stowed
+    make_dir ("$stow_pkg/$id-$pkg-only-new");
+    make_file("$stow_pkg/$id-$pkg-only-new/$id-file-$pkg");
+
+    # create a deeper hierarchy specific to this package which isn't
+    # yet stowed
+    make_dir ("$stow_pkg/$id-$pkg-only-new2/subdir");
+    make_file("$stow_pkg/$id-$pkg-only-new2/subdir/$id-file-$pkg");
+
+    # create a hierarchy specific to this package which is already
+    # stowed via a folded tree
+    make_dir ("$stow_pkg/$id-$pkg-only-old");
+    make_link("$id-$pkg-only-old", "$stow_pkg/$id-$pkg-only-old");
+    make_file("$stow_pkg/$id-$pkg-only-old/$id-file-$pkg");
+
+    # create a shared hierarchy which this package uses
+    make_dir ("$stow_pkg/$id-shared");
+    make_file("$stow_pkg/$id-shared/$id-file-$pkg");
+
+    # create a partially shared hierarchy which this package uses
+    make_dir ("$stow_pkg/$id-shared2/subdir-$pkg");
+    make_file("$stow_pkg/$id-shared2/$id-file-$pkg");
+    make_file("$stow_pkg/$id-shared2/subdir-$pkg/$id-file-$pkg");
+}
+
+foreach my $pkg (qw{a b}) {
+    create_pkg('no-folding', $pkg);
+}
+
+$stow = new_Stow('no-folding' => 1);
+$stow->plan_stow('no-folding-a');
+is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
+my @tasks = $stow->get_tasks;
+use Data::Dumper;
+is(scalar(@tasks), 12 => "6 dirs, 6 links") || warn Dumper(\@tasks);
+$stow->process_tasks();
+
+sub check_no_folding {
+    my ($pkg) = @_;
+    my $stow_pkg = "../stow/no-folding-$pkg";
+    is_link("no-folding-file-$pkg", "$stow_pkg/no-folding-file-$pkg");
+
+    # check existing folded tree is untouched
+    is_link("no-folding-$pkg-only-old", "$stow_pkg/no-folding-$pkg-only-old");
+
+    # check newly stowed shallow tree is not folded
+    is_dir_not_symlink("no-folding-$pkg-only-new");
+    is_link("no-folding-$pkg-only-new/no-folding-file-$pkg",
+            "../$stow_pkg/no-folding-$pkg-only-new/no-folding-file-$pkg");
+
+    # check newly stowed deeper tree is not folded
+    is_dir_not_symlink("no-folding-$pkg-only-new2");
+    is_dir_not_symlink("no-folding-$pkg-only-new2/subdir");
+    is_link("no-folding-$pkg-only-new2/subdir/no-folding-file-$pkg",
+            "../../$stow_pkg/no-folding-$pkg-only-new2/subdir/no-folding-file-$pkg");
+
+    # check shared tree is not folded. first time round this will be
+    # newly stowed.
+    is_dir_not_symlink('no-folding-shared');
+    is_link("no-folding-shared/no-folding-file-$pkg",
+            "../$stow_pkg/no-folding-shared/no-folding-file-$pkg");
+
+    # check partially shared tree is not folded. first time round this
+    # will be newly stowed.
+    is_dir_not_symlink('no-folding-shared2');
+    is_link("no-folding-shared2/no-folding-file-$pkg",
+            "../$stow_pkg/no-folding-shared2/no-folding-file-$pkg");
+    is_link("no-folding-shared2/no-folding-file-$pkg",
+            "../$stow_pkg/no-folding-shared2/no-folding-file-$pkg");
+}
+
+check_no_folding('a');
+
+$stow = new_Stow('no-folding' => 1);
+$stow->plan_stow('no-folding-b');
+is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
+@tasks = $stow->get_tasks;
+is(scalar(@tasks), 10 => '4 dirs, 6 links') || warn Dumper(\@tasks);
+$stow->process_tasks();
+
+check_no_folding('a');
+check_no_folding('b');

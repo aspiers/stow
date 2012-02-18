@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 23;
+use Test::More tests => 38;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -341,8 +341,89 @@ ok(
     => 'unstow a simple tree with absolute stow and target dirs'
 );
 
+#
+# unstow a tree with no-folding enabled -
+# no refolding should take place
+#
+cd("$OUT_DIR/target");
+
+sub create_and_stow_pkg {
+    my ($id, $pkg) = @_;
+
+    my $stow_pkg = "../stow/$id-$pkg";
+    make_dir ($stow_pkg);
+    make_file("$stow_pkg/$id-file-$pkg");
+
+    # create a shallow hierarchy specific to this package and stow
+    # via folding
+    make_dir ("$stow_pkg/$id-$pkg-only-folded");
+    make_file("$stow_pkg/$id-$pkg-only-folded/file-$pkg");
+    make_link("$id-$pkg-only-folded", "$stow_pkg/$id-$pkg-only-folded");
+
+    # create a deeper hierarchy specific to this package and stow
+    # via folding
+    make_dir ("$stow_pkg/$id-$pkg-only-folded2/subdir");
+    make_file("$stow_pkg/$id-$pkg-only-folded2/subdir/file-$pkg");
+    make_link("$id-$pkg-only-folded2",
+              "$stow_pkg/$id-$pkg-only-folded2");
+
+    # create a shallow hierarchy specific to this package and stow
+    # without folding
+    make_dir ("$stow_pkg/$id-$pkg-only-unfolded");
+    make_file("$stow_pkg/$id-$pkg-only-unfolded/file-$pkg");
+    make_dir ("$id-$pkg-only-unfolded");
+    make_link("$id-$pkg-only-unfolded/file-$pkg",
+              "../$stow_pkg/$id-$pkg-only-unfolded/file-$pkg");
+
+    # create a deeper hierarchy specific to this package and stow
+    # without folding
+    make_dir ("$stow_pkg/$id-$pkg-only-unfolded2/subdir");
+    make_file("$stow_pkg/$id-$pkg-only-unfolded2/subdir/file-$pkg");
+    make_dir ("$id-$pkg-only-unfolded2/subdir");
+    make_link("$id-$pkg-only-unfolded2/subdir/file-$pkg",
+              "../../$stow_pkg/$id-$pkg-only-unfolded2/subdir/file-$pkg");
+
+    # create a shallow shared hierarchy which this package uses, and stow
+    # its contents without folding
+    make_dir ("$stow_pkg/$id-shared");
+    make_file("$stow_pkg/$id-shared/file-$pkg");
+    make_dir ("$id-shared");
+    make_link("$id-shared/file-$pkg",
+              "../$stow_pkg/$id-shared/file-$pkg");
+
+    # create a deeper shared hierarchy which this package uses, and stow
+    # its contents without folding
+    make_dir ("$stow_pkg/$id-shared2/subdir");
+    make_file("$stow_pkg/$id-shared2/file-$pkg");
+    make_file("$stow_pkg/$id-shared2/subdir/file-$pkg");
+    make_dir ("$id-shared2/subdir");
+    make_link("$id-shared2/file-$pkg",
+              "../$stow_pkg/$id-shared2/file-$pkg");
+    make_link("$id-shared2/subdir/file-$pkg",
+              "../../$stow_pkg/$id-shared2/subdir/file-$pkg");
+}
+
+foreach my $pkg (qw{a b}) {
+    create_and_stow_pkg('no-folding', $pkg);
+}
+
+$stow = new_Stow('no-folding' => 1);
+$stow->plan_unstow('no-folding-b');
+is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
+use Data::Dumper;
+#warn Dumper($stow->get_tasks);
+
+$stow->process_tasks();
+
+is_nonexistent_path('no-folding-b-only-folded');
+is_nonexistent_path('no-folding-b-only-folded2');
+is_nonexistent_path('no-folding-b-only-unfolded/file-b');
+is_nonexistent_path('no-folding-b-only-unfolded2/subdir/file-b');
+is_dir_not_symlink('no-folding-shared');
+is_dir_not_symlink('no-folding-shared2');
+is_dir_not_symlink('no-folding-shared2/subdir');
+
 
 # Todo
 #
 # Test cleaning up subdirs with --paranoid option
-
