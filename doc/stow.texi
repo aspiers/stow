@@ -328,8 +328,7 @@ The regular expression is anchored to the beginning of the path relative to
 the target directory, because this is what you will want to do most of the time.
 
 @cindex adopting existing files
-@item -a
-@itemx --adopt
+@item --adopt
 @strong{Warning!} This behaviour is specifically intended to alter the
 contents of your stow directory.  If you do not want that, this option
 is not for you.

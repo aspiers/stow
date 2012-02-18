@@ -2,6 +2,15 @@ News file for Stow.
 
 * Changes in version 2.1.4
 
+** Remove -a option (--adopt still available)
+
+   As --adopt is the only option which allows stow to modify files, it
+   is considered potentially dangerous (especially for stow package
+   directories which are not managed by a version control system).
+   Therefore it seems prudent to require a bit more effort from the
+   user to enable this option, minimising the change of enabling it
+   via a typo.
+
 ** Improve error message when stow package is not found.
 
    The error message displayed a path to the missing stow package

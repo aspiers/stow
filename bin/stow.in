@@ -180,8 +180,6 @@ Restow packages (first unstow, then stow again). This is useful
 for pruning obsolete symlinks from the target tree after updating
 the software in a package.
 
-=item -a
-
 =item --adopt
 
 B<Warning!>  This behaviour is specifically intended to alter the
@@ -478,7 +476,7 @@ sub process_options {
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
-        'adopt|a',
+        'adopt',
 
         # clean and pre-compile any regex's at parse time
         'ignore=s' =>
@@ -631,7 +629,7 @@ OPTIONS:
                           if the file is already stowed to another package
     --override=REGEX      Force stowing files beginning with this Perl regex
                           if the file is already stowed to another package
-    -a, --adopt           (Use with care!)  Import existing files into stow package
+    --adopt               (Use with care!)  Import existing files into stow package
                           from target.  Please read docs before using.
     -p, --compat          Use legacy algorithm for unstowing
 
