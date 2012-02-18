@@ -340,6 +340,7 @@ pages that are owned by stow and would otherwise cause a conflict.
 The regular expression is anchored to the beginning of the path relative to
 the target directory, because this is what you will want to do most of the time.
 
+@cindex adopting existing files
 @item -a
 @itemx --adopt
 @strong{Warning!} This behaviour is specifically intended to alter the
@@ -363,12 +364,15 @@ package, then compared by running something like @samp{git diff ...}
 inside the stow package, and finally either kept (e.g. via @samp{git
 commit ...}) or discarded (@samp{git checkout HEAD ...}).
 
+@cindex dry run
+@cindex simulated run
 @item -n
 @itemx --no
 @itemx --simulate
 Do not perform any operations that modify the file system; in combination with
 @option{-v} can be used to merely show what would happen.
 
+@cindex verbosity levels
 @item -v
 @itemx --verbose[=@var{n}]
 Send verbose output to standard error describing what Stow is
@@ -622,6 +626,8 @@ tree-folding symlink.
 @section Tree unfolding
 @cindex splitting open folded trees
 @cindex unfolding trees
+@cindex tree unfolding
+@cindex tree unsplitting
 The time often comes when a tree-folding symlink has to be undone
 because another package uses one or more of the folded subdirectories in
 its installation image.  This operation is called @dfn{splitting open} or
@@ -655,7 +661,8 @@ the stow directory, or directories that only contain symlinks that stow
 @emph{in} the stow directory or in any of the packages.
 
 @section Conflicts during installation
-@cindex conflict
+@cindex conflicts
+@cindex installation conflicts
 If Stow needs to create a directory or a symlink in the target
 tree and it cannot because that name is already in use and is not owned
 by Stow, then a @dfn{conflict} has arisen.  @xref{Conflicts}.
