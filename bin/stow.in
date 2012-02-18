@@ -619,22 +619,23 @@ SYNOPSIS:
 
 OPTIONS:
 
-    -n, --no, --simulate  Do not actually make any filesystem changes
     -d DIR, --dir=DIR     Set stow dir to DIR (default is current dir)
     -t DIR, --target=DIR  Set target to DIR (default is parent of stow dir)
-    -v, --verbose[=N]     Increase verbosity (levels are 0,1,2,3;
-                            -v or --verbose adds 1; --verbose=N sets level)
 
     -S, --stow            Stow the package names that follow this option
     -D, --delete          Unstow the package names that follow this option
     -R, --restow          Restow (like stow -D followed by stow -S)
-    -p, --compat          Use legacy algorithm for unstowing
 
     --ignore=REGEX        Ignore files ending in this Perl regex
     --defer=REGEX         Don't stow files beginning with this Perl regex
                           if the file is already stowed to another package
     --override=REGEX      Force stowing files beginning with this Perl regex
                           if the file is already stowed to another package
+    -p, --compat          Use legacy algorithm for unstowing
+
+    -n, --no, --simulate  Do not actually make any filesystem changes
+    -v, --verbose[=N]     Increase verbosity (levels are 0,1,2,3;
+                            -v or --verbose adds 1; --verbose=N sets level)
     -V, --version         Show stow version number
     -h, --help            Show this help
 
