@@ -251,7 +251,7 @@ creates relative symlinks.
 @node Invoking Stow, Ignore Lists, Terminology, Top
 @chapter Invoking Stow
 
-The syntax of the @code{stow} command is:
+The syntax of the @command{stow} command is:
 
 @example
 stow [@var{options}] [@var{action flag}] @var{package @dots{}}
@@ -277,7 +277,7 @@ variable @env{STOW_DIR} if set, or the current directory otherwise.
 @itemx --target=@var{dir}
 Set the target directory to @var{dir} instead of the parent of the stow
 directory.  Defaults to the parent of the stow directory, so it is typical to
-execute @code{stow} from the directory @file{/usr/local/stow}.
+execute @command{stow} from the directory @file{/usr/local/stow}.
 
 @item --ignore=@var{regexp}
 This (repeatable) option lets you suppress acting on files that match the
@@ -300,9 +300,9 @@ backup files, and so on.  @xref{Ignore Lists}, for more details.
 @item --defer=@var{regexp}
 This (repeatable) option avoids stowing a file matching the given
 regular expression, if that file is already stowed by another package.
-This is effectively the opposite of @code{--override}.
+This is effectively the opposite of @option{--override}.
 
-(N.B. the name @code{--defer} was chosen in the sense that the package
+(N.B. the name @option{--defer} was chosen in the sense that the package
 currently being stowed is treated with lower precedence than any
 already installed package, not in the sense that the operation is
 being postponed to be run at a later point in time; do not confuse
@@ -317,7 +317,7 @@ For example, the following options
 @noindent
 will cause stow to skip over pre-existing man and info pages.
 
-Equivalently, you could use @code{--defer='man|info'} since the
+Equivalently, you could use @samp{--defer='man|info'} since the
 argument is just a Perl regex.
 
 Note that the regular expression is anchored to the beginning of the path
@@ -367,13 +367,13 @@ commit ...}) or discarded (@samp{git checkout HEAD ...}).
 @itemx --no
 @itemx --simulate
 Do not perform any operations that modify the file system; in combination with
-@samp{-v} can be used to merely show what would happen.
+@option{-v} can be used to merely show what would happen.
 
 @item -v
 @itemx --verbose[=@var{n}]
 Send verbose output to standard error describing what Stow is
 doing.  Verbosity levels are 0, 1, 2, and 3; 0 is the default.  Using
-@samp{-v} or @samp{--verbose} increases the verbosity by one; using
+@option{-v} or @option{--verbose} increases the verbosity by one; using
 @samp{--verbose=@var{n}} sets it to @var{n}.
 
 @item -p
@@ -382,7 +382,7 @@ Scan the whole target tree when unstowing.  By default, only
 directories specified in the @dfn{installation image} are scanned
 during an unstow operation.  Scanning the whole tree can be
 prohibitive if your target tree is very large.  This option restores
-the legacy behaviour; however, the @samp{--badlinks} option to the
+the legacy behaviour; however, the @option{--badlinks} option to the
 @command{chkstow} utility may be a better way of ensuring that your
 installation does not have any dangling symlinks (@pxref{Target
 Maintenance}).
@@ -414,7 +414,7 @@ number of times.
 @item -S
 @item --stow
 explictly stow the package name(s) that follow this option.  May be
-omitted if you are not using the @samp{-D} or @samp{-R} options in the
+omitted if you are not using the @option{-D} or @option{-R} options in the
 same invocation.  @xref{Mixing Operations}, for details of when you
 might like to use this feature. This option may be repeated any number
 of times.
@@ -447,9 +447,9 @@ may be files or directories relating to the build of the package which
 are not needed at run-time.
 
 In these cases, it can be rather cumbersome to specify a
-@samp{--ignore} parameter for each file or directory to be ignored.
+@option{--ignore} parameter for each file or directory to be ignored.
 This could be worked around by ensuring the existence of
-@file{~/.stowrc} containing multiple @samp{--ignore} lines, or if a
+@file{~/.stowrc} containing multiple @option{--ignore} lines, or if a
 different set of files/directories should be ignored depending on
 which stow package is involved, a @file{.stowrc} file for each stow
 package, but this would require the user to ensure that they were in
@@ -460,7 +460,7 @@ table with excessively long parameter lists, or even worse, exceed the
 operating system's limit for process arguments.
 
 @cindex ignore lists
-Therefore in addition to @samp{--ignore} parameters, Stow provides a
+Therefore in addition to @option{--ignore} parameters, Stow provides a
 way to specify lists of files and directories to ignore.
 
 @c ===========================================================================
@@ -523,13 +523,13 @@ Otherwise, the file or directory is not ignored.
 
 For example, if a file @file{bazqux} is in the @file{foo/bar}
 subdirectory of the package directory, Stow would use
-@code{/foo/bar/bazqux} as the text for matching against regular
-expressions which contain @samp{/}, and @code{bazqux} as the text for
+@samp{/foo/bar/bazqux} as the text for matching against regular
+expressions which contain @samp{/}, and @samp{bazqux} as the text for
 matching against regular expressions which don't contain @samp{/}.
-Then regular expressions @code{bazqux}, @code{baz.*}, @code{.*qux},
-@code{bar/.*x}, and @code{^/foo/.*qux} would all match (causing the
-file to be ignored), whereas @code{bar}, @code{baz}, @code{qux}, and
-@code{o/bar/b} would not (although @code{bar} would cause its parent
+Then regular expressions @samp{bazqux}, @samp{baz.*}, @samp{.*qux},
+@samp{bar/.*x}, and @samp{^/foo/.*qux} would all match (causing the
+file to be ignored), whereas @samp{bar}, @samp{baz}, @samp{qux}, and
+@samp{o/bar/b} would not (although @samp{bar} would cause its parent
 directory to be ignored and prevent Stow from recursing into that
 anyway, in which case the file @file{bazqux} would not even be
 considered for stowing).
@@ -544,10 +544,10 @@ list, because this file serves no purpose outside the stow directory.
 @section Justification For Yet Another Set Of Ignore Files
 
 The reader may note that this format is very similar to existing
-ignore list file formats, such as those for @code{CVS}, @code{git},
-@code{rsync} etc., and wonder if another set of ignore lists is
+ignore list file formats, such as those for @command{cvs}, @command{git},
+@command{rsync} etc., and wonder if another set of ignore lists is
 justified.  However there are good reasons why Stow does not simply
-check for the presence of say, @code{.cvsignore}, and use that if it
+check for the presence of say, @file{.cvsignore}, and use that if it
 exists.  Firstly, there is no guarantee that a stow package would
 contain any version control meta-data, or permit introducing this if
 it didn't already exist.  
@@ -660,7 +660,7 @@ by Stow, then a @dfn{conflict} has arisen.  @xref{Conflicts}.
 @chapter Deleting Packages
 
 @cindex deletion
-When the @samp{-D} option is given, the action of Stow is to
+When the @option{-D} option is given, the action of Stow is to
 delete a package from the target tree.  Note that Stow will not
 delete anything it doesn't ``own''.  Deleting a package does @emph{not}
 mean removing it from the stow directory or discarding the package
@@ -673,8 +673,8 @@ target tree was scanned and stow directories were explicitly omitted.  This
 became problematic when dealing with very large installations.  The only
 situation where this is useful is if you accidentally delete a directory in
 the package tree, leaving you with a whole bunch of dangling links.  Note that
-you can enable the old approach with the @samp{-p} option.  Alternatively, you can
-use the @samp{--badlinks} option get stow to search for dangling links in your target tree and remove the offenders manually.}
+you can enable the old approach with the @option{-p} option.  Alternatively, you can
+use the @option{--badlinks} option get stow to search for dangling links in your target tree and remove the offenders manually.}
 For example, if the target directory is @file{/usr/local} and the
 installation image for the package being deleted has only a @file{bin}
 directory and a @file{man} directory at the top level, then we only scan
@@ -785,7 +785,7 @@ this.  It includes three operational modes which performs checks that
 would generally be too expensive to be performed during normal stow
 execution.
 
-The syntax of the @code{chkstow} command is:
+The syntax of the @command{chkstow} command is:
 
 @example
 chkstow [@var{options}]
@@ -800,7 +800,7 @@ The following options are supported:
 @itemx --target=@var{dir}
 Set the target directory to @var{dir} instead of the parent of the stow
 directory.  Defaults to the parent of the stow directory, so it is typical to
-execute @code{stow} from the directory @file{/usr/local/stow}.
+execute @command{stow} from the directory @file{/usr/local/stow}.
 
 @item -b
 @itemx --badlinks
@@ -910,21 +910,21 @@ shell script in place of @samp{make install}.  Be sure to execute the
 script using the same shell that @samp{make install} would have used.
 
 (If you use GNU Make and a shell [such as GNU bash] that understands
-@code{pushd} and @code{popd}, you can do the following:
+@command{pushd} and @command{popd}, you can do the following:
 
 @enumerate
 @item
 Replace all lines matching @samp{make[@var{n}]: Entering directory
-`@var{dir}'} with @code{pushd @var{dir}}.
+`@var{dir}'} with @samp{pushd @var{dir}}.
 @item
 Replace all lines matching @samp{make[@var{n}]: Leaving directory
-`@var{dir}'} with @code{popd}.
+`@var{dir}'} with @samp{popd}.
 @item
 Delete all lines matching @samp{make[@var{n}]: Nothing to be done for
 @var{rule}}.
 @end enumerate
 
-Then find other lines in the output containing @code{cd} or @code{make}
+Then find other lines in the output containing @command{cd} or @command{make}
 commands and rewrite or delete them.  In particular, you should be able
 to delete sections of the script that resemble this:
 
@@ -963,9 +963,9 @@ make install prefix=/usr/local/stow/@var{package}
 @end example
 
 @noindent
-If you try this with Emacs, then the new value for @code{prefix} in the
+If you try this with Emacs, then the new value for @var{prefix} in the
 @samp{make install} step will cause some files to get recompiled with
-the new value of @code{prefix} wired into them.  In Emacs 19.23 and
+the new value of @var{prefix} wired into them.  In Emacs 19.23 and
 later,@footnote{As I write this, the current version of Emacs is 19.31.}
 the way to work around this problem is:
 
@@ -1149,7 +1149,7 @@ stow -vv *
 @end example
 
 @noindent
-but @code{stow} is not yet in your @code{PATH}.  Nor can you do this:
+but @command{stow} is not yet in your @env{PATH}.  Nor can you do this:
 
 @example
 cd /usr/local/stow
@@ -1157,7 +1157,7 @@ stow/bin/stow -vv *
 @end example
 
 @noindent
-because the @samp{#!} line at the beginning of @code{stow} tries to
+because the @samp{#!} line at the beginning of @command{stow} tries to
 locate Perl (usually in @file{/usr/local/bin/perl}), and that won't be
 found.  The solution you must use is:
 
