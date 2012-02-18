@@ -1,34 +1,36 @@
 * Next release should be under GPL v3
+
 * Get permission for next documentation release to be under FDL 1.3
+
 * Import a debian/ tree from an older package and update it.
+
 * Import a .spec file from somewhere and update it.
-* Distinguish between .stow and (undocumented) .nonstow
+
+* Distinguish between .stow and (undocumented) .nonstow / .notstowed
+
 ** .stow is for marking stow directories - avoids altering them
+
    but also allows --override to work
+
 ** .nonstow should be only for protecting non-stow directories against modification by stow
-   but currently allows modification via --override.
+
+   but currently allows modification via --override
+
+** .notstowed is only honoured by chkstow
+
 ** Documentation needs to be clear on this.
+
 * Prevent folding of directories which contain ignored files
+
 * Honour .no-stow-folding and --no-folding
+
 * Add semi-automatic conflict resolution
+
+  (This idea is possibly obsoleted via --override and --adopt.)
+
 *** STOW_RESOLVE_CONFLICTS="non_stow_symlinks=t stow_symlinks=r"
+
 *** Add documentation about conflict resolution
-* get account on fencepost.gnu.org (email accounts@gnu.org) 
-  set up copyright papers? 
-  'assign.future' and 'request-assign.future.manual'
-
-* Figure out what needs the files '.nonstow' and '.notstowed'. Can they be removed?
-
-* Update http://directory.fsf.org/project/stow/
-
-* Update savannah CVS
-
-* Check that all email addresses are working: need an account on fenchpost for
-  this bug-stow@gnu.org, help-stow@gnu.org
-
-* Get some pre-testers: need to find appropriate mailing list?
-
-* Announce release on info-gnu@gnu.org.
 
 * Autodetect "foreign" stow directories
 
