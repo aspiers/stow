@@ -619,7 +619,7 @@ SYNOPSIS:
 
 OPTIONS:
 
-    -n, --no              Do not actually make any filesystem changes
+    -n, --no, --simulate  Do not actually make any filesystem changes
     -d DIR, --dir=DIR     Set stow dir to DIR (default is current dir)
     -t DIR, --target=DIR  Set target to DIR (default is parent of stow dir)
     -v, --verbose[=N]     Increase verbosity (levels are 0,1,2,3;
