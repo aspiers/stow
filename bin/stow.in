@@ -631,6 +631,8 @@ OPTIONS:
                           if the file is already stowed to another package
     --override=REGEX      Force stowing files beginning with this Perl regex
                           if the file is already stowed to another package
+    -a, --adopt           (Use with care!)  Import existing files into stow package
+                          from target.  Please read docs before using.
     -p, --compat          Use legacy algorithm for unstowing
 
     -n, --no, --simulate  Do not actually make any filesystem changes
