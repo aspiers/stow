@@ -36,7 +36,7 @@
    "provides" : {
       "Stow" : {
          "file" : "lib/Stow.pm",
-         "version" : "v2.1.3"
+         "version" : "v2.2.0"
       },
       "Stow::Util" : {
          "file" : "lib/Stow/Util.pm",
@@ -53,5 +53,5 @@
          "url" : "git://git.savannah.gnu.org/stow.git"
       }
    },
-   "version" : "v2.1.3"
+   "version" : "v2.2.0"
 }
