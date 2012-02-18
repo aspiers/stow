@@ -64,7 +64,7 @@ How to make a new release of GNU Stow
       # Check that the changes look OK
       cvs diff
       # Then commit
-      cvs commit
+      cvs commit -m 'Update manual to v7.8.9'
 
   - Run ./Build dist
 
