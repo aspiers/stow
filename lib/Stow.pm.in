@@ -46,6 +46,8 @@ use Stow::Util qw(set_debug_level debug error set_test_mode
 our $ProgramName = 'stow';
 our $VERSION = '@VERSION@';
 
+our $LOCAL_NO_FOLDING_FILE = '.no-stow-folding';
+
 our $LOCAL_IGNORE_FILE  = '.stow-local-ignore';
 our $GLOBAL_IGNORE_FILE = '.stow-global-ignore';
 
@@ -520,7 +522,7 @@ sub stow_node {
             }
         }
     }
-    elsif ($self->{'no-folding'} && -d $path) {
+    elsif ($self->folding_disabled($package) && -d $path) {
         $self->do_mkdir($target);
         $self->stow_contents(
             $self->{stow_path},
@@ -995,6 +997,33 @@ sub cleanup_invalid_links {
 
 
 #===== METHOD ===============================================================
+# Name      : folding_disabled()
+# Purpose   : determine whether folding is disabled for the current run
+# Parameters: $pkg => package for which current operation is being planned
+# Returns   : true if folding is disabled
+# Throws    : n/a
+# Comments  :
+#============================================================================
+sub folding_disabled {
+    my $self = shift;
+    my ($pkg) = @_;
+
+    if ($self->{'no-folding'}) {
+        debug(3, '--- folding disabled via option');
+        return 1;
+    }
+
+    my $file = join_paths($self->{dir}, $pkg, $LOCAL_NO_FOLDING_FILE);
+    if (-e $file) {
+        debug(3, "--- folding disabled via $file");
+        return 1;
+    }
+
+    return 0;
+}
+
+
+#===== METHOD ===============================================================
 # Name      : foldable()
 # Purpose   : determine whether a tree can be folded
 # Parameters: $target => path to a directory
@@ -1005,13 +1034,7 @@ sub cleanup_invalid_links {
 #============================================================================
 sub foldable {
     my $self = shift;
-    my ($target) = @_;
-
-    debug(3, "--- Is $target foldable?");
-    if ($self->{'no-folding'}) {
-        debug(3, "--- no because --no-folding enabled");
-        return '';
-    }
+    my ($target, $package) = @_;
 
     opendir my $DIR, $target
         or error(qq{Cannot read directory "$target" ($!)\n});
@@ -1055,8 +1078,12 @@ sub foldable {
     $parent =~ s{\A\.\./}{};
 
     # If the resulting path is owned by stow, we can fold it
-    if ($self->path_owned_by_package($target, $parent)) {
+    if (my $package = $self->path_owned_by_package($target, $parent)) {
         debug(3, "--- $target is foldable");
+        if ($self->folding_disabled($package)) {
+            return '';
+        }
+
         return $parent;
     }
     else {
@@ -1312,6 +1339,7 @@ sub get_ignore_regexps_from_fh {
     # Local ignore lists should *always* stay within the stow directory,
     # because this is the only place stow looks for them.
     $regexps{"^/\Q$LOCAL_IGNORE_FILE\E\$"}++;
+    $regexps{"^/\Q$LOCAL_NO_FOLDING_FILE\E\$"}++;
 
     return $self->compile_ignore_regexps(%regexps);
 }

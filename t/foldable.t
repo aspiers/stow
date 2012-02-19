@@ -9,7 +9,7 @@ use warnings;
 
 use testutil;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use English qw(-no_match_vars);
 
 init_test_dirs();
@@ -29,6 +29,12 @@ make_dir('bin1');
 make_link('bin1/file1','../../stow/pkg1/bin1/file1');
 
 is( $stow->foldable('bin1'), '../stow/pkg1/bin1' => q(can fold a simple tree) );
+
+#
+# can't fold if .no-stow-folding is present
+#
+make_file('../stow/pkg1/.no-stow-folding');
+is( $stow->foldable('bin1'), '' => q(.no-stow-folding disables folding) );
 
 #
 # can't fold an empty directory 

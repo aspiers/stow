@@ -77,7 +77,7 @@ approved by the Free Software Foundation.
 
 @c ==========================================================================
 @ifnottex
-@node Top
+@node Top, Introduction, (dir), (dir)
 @top
 
 @ifinfo
@@ -93,6 +93,7 @@ program for managing the installation of software packages.
 * Ignore Lists::                Controlling what gets stowed.
 * Installing Packages::         Using Stow to install.
 * Deleting Packages::           Using Stow to uninstall.
+* Disabling Folding::           How to prevent tree (re)folding.
 * Conflicts::                   When Stow can't stow.
 * Mixing Operations::           Multiple actions per invocation.
 * Multiple Stow Directories::   Further segregating software.
@@ -234,6 +235,11 @@ is, one not starting from @file{/}.  The target of a relative symlink is
 computed starting from the symlink's own directory.  Stow only
 creates relative symlinks.
 
+@cindex foldable subtree
+@anchor{foldable subtree}
+A @dfn{foldable subtree} is subtree within the target directory which
+consists of nothing but symlinks to a single stow package.
+
 @c ===========================================================================
 @node Invoking Stow, Ignore Lists, Terminology, Top
 @chapter Invoking Stow
@@ -327,15 +333,17 @@ pages that are owned by stow and would otherwise cause a conflict.
 The regular expression is anchored to the beginning of the path relative to
 the target directory, because this is what you will want to do most of the time.
 
+@anchor{--no-folding option}
 @item --no-folding
 
-This disables any further @ref{tree folding} or @ref{tree refolding}.
-If a new subdirectory is encountered whilst stowing a new package, the
-subdirectory is created within the target, and its contents are
-symlinked, rather than just creating a symlink for the directory.  If
-removal of symlinks whilst unstowing a package causes a subtree to be
-foldable (i.e. only containing symlinks to a single package), that
-subtree will not be removed and replaced with a symlink.
+@cindex tree folding
+@cindex tree refolding
+@cindex refolding trees
+@cindex folding trees
+@cindex folding, disabling
+@cindex disabling folding
+This disables any further tree folding or refolding; @pxref{Disabling
+Folding}.
 
 @cindex adopting existing files
 @item --adopt
@@ -404,6 +412,8 @@ The following @var{action flags} are supported:
 Delete (unstow) the package name(s) that follow this option from the @dfn{target
 directory}. This option may be repeated any number of times.
 
+@anchor{restowing}
+@cindex restowing packages
 @item -R
 @itemx --restow
 Restow (first unstow, then stow again) the package names that follow this
@@ -534,10 +544,18 @@ directory to be ignored and prevent Stow from recursing into that
 anyway, in which case the file @file{bazqux} would not even be
 considered for stowing).
 
-As a special exception to the above algorithm, any
-@file{.stow-local-ignore} present in the top-level package directory
-is @emph{always} ignored, regardless of the contents of any ignore
-list, because this file serves no purpose outside the stow directory.
+As a special exception to the above algorithm, two files are both
+@emph{always} ignored if present in the top-level package directory,
+regardless of the contents of any ignore list:
+
+@itemize @bullet
+@item @file{.stow-local-ignore}
+@cindex disabling folding
+@item @file{.no-stow-folding} (@pxref{Disabling Folding})
+@end itemize
+
+This is because these files serve no purpose outside the stow
+directory.
 
 @c ===========================================================================
 @node Justification For Yet Another Set Of Ignore Files,  , Types And Syntax Of Ignore Lists, Ignore Lists
@@ -581,7 +599,7 @@ the package tree, it will choose to do that rather than create a
 directory in the target tree and populate it with symlinks.
 
 @anchor{tree folding}
-@section Tree folding
+@section Tree Folding
 @cindex tree folding
 @cindex directory folding
 @cindex folding trees
@@ -616,11 +634,11 @@ and it will descend into @file{/usr/local/lib} and create the
 tree-folding symlink @file{perl} pointing to
 @file{../stow/perl/lib/perl}, and so on.  As a rule, Stow only
 descends as far as necessary into the target tree when it can create a
-tree-folding symlink.  However, this behaviour can be changed via
-the @option{--no-folding} option; @pxref{Invoking Stow}.
+tree-folding symlink.  However, this behaviour can be changed;
+@pxref{Disabling Folding}.
 
-@anchor{Tree unfolding}
-@section Tree unfolding
+@anchor{Tree Unfolding}
+@section Tree Unfolding
 @cindex splitting open folded trees
 @cindex unfolding trees
 @cindex tree unfolding
@@ -666,7 +684,7 @@ by Stow, then a @dfn{conflict} has arisen.  @xref{Conflicts}.
 
 
 @c ===========================================================================
-@node Deleting Packages, Conflicts, Installing Packages, Top
+@node Deleting Packages, Disabling Folding, Installing Packages, Top
 @chapter Deleting Packages
 
 @cindex deletion
@@ -704,11 +722,48 @@ contains only symlinks to a single other package is considered to be a
 previously ``folded'' tree that was ``split open.''  Stow will refold
 the tree by removing the symlinks to the surviving package, removing
 the directory, then linking the directory back to the surviving
-package.  However, this behaviour can be prevented via the
-@option{--no-folding} option; @pxref{Invoking Stow}.
+package.  However, this behaviour can be prevented; @pxref{Disabling
+Folding}.
 
 @c ===========================================================================
-@node Conflicts, Mixing Operations, Deleting Packages, Top
+@node Disabling Folding, Conflicts, Deleting Packages, Top
+@chapter Disabling Folding
+
+@cindex disabling folding
+@cindex folding, disabling
+As already explained, if Stow performs an operation which will result
+in a foldable subtree (@pxref{foldable subtree}), by default Stow will
+ensure that that subtree is replaced by a single symlink to the
+corresponding subtree within the stow package's installation image.
+This applies both when stowing a new package (@pxref{Installing
+Packages}), and unstowing a package which would leave a foldable
+subtree behind (@pxref{Deleting Packages}).
+
+However, in certain usage scenarios, this can be undesirable.
+Therefore Stow provides two ways to disable folding during stowing and
+unstowing: either globally via the @option{--no-folding} option
+(@pxref{Invoking Stow}), or via the presence of a file
+@file{.no-stow-folding} within the top-level directory of the
+package's installation image within the stow directory.
+
+Once disabled, if a new subdirectory is encountered whilst stowing a
+new package, the subdirectory is created within the target, and its
+contents are symlinked, rather than just creating a symlink for the
+subdirectory.  Similarly, if removal of symlinks whilst unstowing a
+package causes a subtree to be foldable, that subtree will not be
+removed and replaced with a symlink.
+
+@cindex splitting open folded trees
+@cindex unfolding trees
+@cindex tree unfolding
+@cindex tree unsplitting
+Note that when stowing with folding disabled, existing folded trees
+from a previously stowed package will @emph{not} be unfolded (``split
+open'').  To achieve this effect you can restow the package
+(@pxref{restowing}) with folding disabled.
+
+@c ===========================================================================
+@node Conflicts, Mixing Operations, Disabling Folding, Top
 @chapter Conflicts
 
 @cindex conflicts

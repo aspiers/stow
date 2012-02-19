@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 61;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -346,13 +346,13 @@ ok(
 # no refolding should take place
 #
 cd("$OUT_DIR/target");
+my $stow_path = "../stow";
 
 sub create_and_stow_pkg {
     my ($id, $pkg) = @_;
 
-    my $stow_pkg = "../stow/$id-$pkg";
+    my $stow_pkg = "$stow_path/$id-$pkg";
     make_dir ($stow_pkg);
-    make_file("$stow_pkg/$id-file-$pkg");
 
     # create a shallow hierarchy specific to this package and stow
     # via folding
@@ -403,25 +403,38 @@ sub create_and_stow_pkg {
               "../../$stow_pkg/$id-shared2/subdir/file-$pkg");
 }
 
-foreach my $pkg (qw{a b}) {
-    create_and_stow_pkg('no-folding', $pkg);
+sub test_no_folding {
+    my ($id, %opts) = @_;
+
+    $stow = new_Stow(%opts);
+    $stow->plan_unstow("$id-b");
+    is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
+    use Data::Dumper;
+    #warn Dumper($stow->get_tasks);
+
+    $stow->process_tasks();
+
+    is_nonexistent_path("$id-b-only-folded");
+    is_nonexistent_path("$id-b-only-folded2");
+    is_nonexistent_path("$id-b-only-unfolded/file-b");
+    is_nonexistent_path("$id-b-only-unfolded2/subdir/file-b");
+    is_dir_not_symlink("$id-shared");
+    is_nonexistent_path("$id-shared/file-b");
+    is_dir_not_symlink("$id-shared2");
+    is_dir_not_symlink("$id-shared2/subdir");
+    is_nonexistent_path("$id-shared/subdir/file-b");
 }
 
-$stow = new_Stow('no-folding' => 1);
-$stow->plan_unstow('no-folding-b');
-is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
-use Data::Dumper;
-#warn Dumper($stow->get_tasks);
+foreach my $pkg (qw{a b}) {
+    create_and_stow_pkg('no-folding-opt', $pkg);
+}
+test_no_folding('no-folding-opt', 'no-folding' => 1);
 
-$stow->process_tasks();
-
-is_nonexistent_path('no-folding-b-only-folded');
-is_nonexistent_path('no-folding-b-only-folded2');
-is_nonexistent_path('no-folding-b-only-unfolded/file-b');
-is_nonexistent_path('no-folding-b-only-unfolded2/subdir/file-b');
-is_dir_not_symlink('no-folding-shared');
-is_dir_not_symlink('no-folding-shared2');
-is_dir_not_symlink('no-folding-shared2/subdir');
+foreach my $pkg (qw{a b}) {
+    create_and_stow_pkg('no-folding-file', $pkg);
+}
+make_file("$stow_path/no-folding-file-a/.no-stow-folding");
+test_no_folding('no-folding-file');
 
 
 # Todo
