@@ -881,7 +881,9 @@ sub path_owned_by_package {
 #           :            might not exist yet due to two-phase approach,
 #           :            so we can't just call readlink())
 # Returns   : ($path, $stow_path, $package) where $path and $stow_path are
-#           : relative from the current (i.e. target) directory
+#           : relative from the current (i.e. target) directory.  $path
+#           : is the full relative path, $stow_path is the relative path
+#           : to the stow directory, and $package is the name of the package.
 #           : or ('', '', '') if link is not owned by stow
 # Throws    : n/a
 # Comments  : Needs 
