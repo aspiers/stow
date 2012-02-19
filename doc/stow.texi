@@ -771,6 +771,57 @@ from a previously stowed package will @emph{not} be unfolded (``split
 open'').  To achieve this effect you can restow the package
 (@pxref{restowing}) with folding disabled.
 
+@section Preventing folding in selected parts of the target directory
+
+In many usage scenarios, it's likely that your target directory will
+contain certain subtrees which you would never want folded.  For
+example, here's a list of directory paths relative to the top of the
+installation image which would typically be used by multiple stow
+packages:
+
+@itemize
+@item @code{bin}
+@item @code{lib}
+@item @code{libexec}
+@item @code{etc}
+@item @code{share}
+@item @code{share/doc}
+@item @code{share/info}
+@item @code{share/man}
+@item @code{share/man/man[1-8]}
+@end itemize
+
+So usually you would want to ensure that these are all real
+directories rather than folded symlinks.  This is particularly
+important if you cannot guarantee that files will only ever be placed
+within the target directory via Stow, since if for example
+@file{$target/share/man/man1} was a folded symlink to say, the
+@file{emacs} stow package, if anything other than Stow were to place a
+file unrelated to @file{emacs} within @file{$target/share/man/man1},
+it would accidentally end up polluting the @file{emacs} installation
+image.
+
+Fortunately, there is a nice trick which can prevent certain subtrees
+within the target directory ever from being folded - create a dummy
+Stow package specifically for this purpose, populate it with those
+subtrees, place @file{.no-stow-folding} within its top-level
+directory, and then stow it.  For example:
+
+@example
+@verbatim
+cd $stow_directory
+for dir in "" bin lib libexec etc share share/{man{,/man1},info}; do
+  mkdir ANTIFOLD/$dir
+  touch ANTIFOLD/$dir/.no-stow-folding
+done
+stow -d . -t $target_directory ANTIFOLD
+@end verbatim
+@end example
+
+Due to Stow's tree unfolding (or ``splitting'') feature, this trick
+can even be applied retroactively when there are already undesired
+folded trees within the target directory.
+
 @c ===========================================================================
 @node Conflicts, Mixing Operations, Disabling Folding, Top
 @chapter Conflicts

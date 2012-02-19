@@ -9,9 +9,11 @@ use warnings;
 
 use testutil;
 
-use Test::More tests => 67;
+use Cwd;
+use Test::More tests => 171;
 use English qw(-no_match_vars);
 
+my $orig_cwd = getcwd();
 init_test_dirs();
 cd("$OUT_DIR/target");
 
@@ -161,5 +163,71 @@ is($stow->get_conflict_count, 0, 'no conflicts splitting tree-folding symlinks')
 is_dir_not_symlink('bin2' => 'tree got split by packages from multiple stow directories');
 ok(-f 'bin2/file2a' => 'file from 1st stow dir');
 ok(-f 'bin2/file2b' => 'file from 2nd stow dir');
+
+#
+# ANTIFOLD trick
+#
+
+sub antifold_setup {
+    # set up fresh stow and target directories
+    cd($orig_cwd);
+    init_test_dirs();
+    cd("$OUT_DIR/stow");
+
+    system <<'EOSHELL';
+for dir in "" bin lib libexec etc share share/{man{,/man1},info}; do
+  mkdir ANTIFOLD/$dir
+  touch ANTIFOLD/$dir/.no-stow-folding
+done
+EOSHELL
+    setup_perl('.');
+}
+
+sub check_antifold {
+    my ($stow_path) = @_;
+    for my $dir (qw{bin lib libexec etc share share/info share/man share/man/man1}) {
+        is_dir_not_symlink($dir);
+        my $depth = ($dir =~ tr,/,/,) + 1;
+        is_link("$dir/.no-stow-folding", '../' x $depth . "$stow_path/ANTIFOLD/$dir/.no-stow-folding");
+    }
+}
+
+sub check_perl {
+    my ($stow_path) = @_;
+    is_link('share/man/man1/perl.1', "../../../$stow_path/perl/share/man/man1/perl.1");
+    is_link('share/info/perl', "../../$stow_path/perl/share/info/perl");
+}
+
+# test it works with ANTIFOLD being set up first
+antifold_setup();
+
+cd("../target");
+my $stow_path = '../stow';
+$stow = new_Stow(dir => $stow_path);
+$stow->plan_stow('ANTIFOLD');
+$stow->process_tasks();
+check_antifold($stow_path);
+
+$stow = new_Stow(dir => $stow_path);
+$stow->plan_stow('perl');
+$stow->process_tasks();
+check_antifold($stow_path);
+check_perl($stow_path);
+
+# test it works with ANTIFOLD being set up retroactively
+antifold_setup();
+
+cd("../target");
+$stow = new_Stow(dir => $stow_path);
+$stow->plan_stow('perl');
+$stow->process_tasks();
+
+$stow = new_Stow(dir => $stow_path);
+$stow->plan_stow('ANTIFOLD');
+$stow->process_tasks();
+check_antifold($stow_path);
+check_perl($stow_path);
+
+
 
 ## Finish this test
