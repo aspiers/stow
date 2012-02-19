@@ -42,13 +42,6 @@ make_file('stow/emacs/man/man1/emacs.1');
 #
 # stow perl into an empty target
 # 
-make_dir('stow/perl/bin');
-make_file('stow/perl/bin/perl');
-make_file('stow/perl/bin/a2p');
-make_dir('stow/perl/info');
-make_dir('stow/perl/lib/perl');
-make_dir('stow/perl/man/man1');
-make_file('stow/perl/man/man1/perl.1');
 
 $stow = new_Stow(dir => 'stow');
 $stow->plan_stow('perl');
