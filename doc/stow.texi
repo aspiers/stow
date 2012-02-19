@@ -711,6 +711,7 @@ package.  However, this behaviour can be prevented via the
 @node Conflicts, Mixing Operations, Deleting Packages, Top
 @chapter Conflicts
 
+@cindex conflicts
 If, during installation, a file or symlink exists in the target tree and
 has the same name as something Stow needs to create, and if the
 existing name is not a folded tree that can be split open, then a
@@ -728,6 +729,7 @@ take into account all of these operations.
 
 @anchor{Deferred Operation}
 @section Deferred Operation
+@cindex deferred operation
 
 Since version 2.0, Stow now adopts a two-phase algorithm, first
 scanning for any potential conflicts before any stowing or unstowing
@@ -743,6 +745,7 @@ inconsistent state.
 @c ===========================================================================
 @node Mixing Operations, Multiple Stow Directories, Conflicts, Top
 @chapter Mixing Operations
+@cindex mixing operations
 
 Since version 2.0, multiple distinct actions can be specified in a single
 invocation of GNU Stow.  For example, to update an installation of Emacs from
@@ -755,6 +758,7 @@ stow -D emacs-21.3 -S emacs-21.4a
 @noindent
 which will replace emacs-21.3 with emacs-21.4a using a single invocation.
 
+@cindex deferred operation
 This is much faster and cleaner than performing two separate
 invocations of stow, because redundant folding/unfolding operations
 can be factored out.  In addition, all the operations are calculated
@@ -796,6 +800,7 @@ open the tree in the correct manner.
 @node Target Maintenance, Resource Files, Multiple Stow Directories, Top
 @chapter Target Maintenance
 
+@cindex maintenance
 From time to time you will need to clean up your target tree.  Since
 version 2, Stow provides a new utility @command{chkstow} to help with
 this.  It includes three operational modes which performs checks that
