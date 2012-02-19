@@ -881,7 +881,7 @@ was only used for Perl modules, then you might place the following in
 --ignore='\.bs'
 @end example
 
-so that the when your are in the @file{/usr/local/stow/perl-extras}
+so that when you are in the @file{/usr/local/stow/perl-extras}
 directory, @command{stow} will regard any subdirectories as stow
 packages, with @file{/usr/local} as the target (rather than the
 immediate parent directory @file{/usr/local/stow}), overriding any
