@@ -130,17 +130,24 @@ Advice on changing compilation and installation parameters
 @chapter Introduction
 
 Stow is a tool for managing the installation of multiple software
-packages in the same run-time directory tree.  One historical difficulty
-of this task has been the need to administer, upgrade, install, and
-remove files in independent packages without confusing them with other
-files sharing the same file system space.  For instance, it is common to
-install Perl and Emacs in @file{/usr/local}.  When one does so, one
-winds up with the following files@footnote{As of Perl 4.036 and Emacs
-19.22.} in @file{/usr/local/man/man1}:
+packages in the same run-time directory tree.  One historical
+difficulty of this task has been the need to administer, upgrade,
+install, and remove files in independent packages without confusing
+them with other files sharing the same file system space.  For
+instance, it is common to install Perl and Emacs in @file{/usr/local}.
+When one does so, one winds up with files including the
+following@footnote{As of Perl 5.12.4 and Emacs 23.3.1.} in
+@file{/usr/local/share/man/man1}:
 
 @example
-a2p.1
-ctags.1
+a2p.1.gz
+c2ph.1.gz
+dprofpp.1.gz
+find2perl.1.gz
+h2ph.1.gz
+perl.1.gz
+...
+
 emacs.1
 etags.1
 h2ph.1
@@ -161,7 +168,7 @@ package's private tree in isolation from clutter from other packages.
 Stow can then be used to update the symbolic links.  The structure
 of each private tree should reflect the desired structure in the common
 tree; i.e. (in the typical case) there should be a @file{bin} directory
-containing executables, a @file{man/man1} directory containing section 1
+containing executables, a @file{share/man/man1} directory containing section 1
 man pages, and so on.
 
 Stow was inspired by Carnegie Mellon's Depot program, but is
@@ -186,7 +193,7 @@ For information about the latest version of Stow, you can refer to
 A @dfn{package} is a related collection of files and directories that
 you wish to administer as a unit --- e.g., Perl or Emacs --- and that needs
 to be installed in a particular directory structure --- e.g., with
-@file{bin}, @file{lib}, and @file{man} subdirectories.
+@file{bin}, @file{lib}, and @file{share} subdirectories.
 
 @cindex target directory
 A @dfn{target directory} is the root of a tree in which one or more
@@ -206,9 +213,9 @@ and @file{/usr/local/stow/emacs}.
 An @dfn{installation image} is the layout of files and directories
 required by a package, relative to the target directory.  Thus, the
 installation image for Perl includes: a @file{bin} directory containing
-@file{perl} and @file{a2p} (among others); an @file{info} directory
-containing Texinfo documentation; a @file{lib/perl} directory containing
-Perl libraries; and a @file{man/man1} directory containing man pages.
+@file{perl} and @file{a2p} (among others); a @file{share/info} directory
+containing Texinfo documentation; a @file{lib/perl5} directory containing
+Perl libraries; and a @file{share/man/man1} directory containing man pages.
 
 @cindex package directory
 @cindex package name
@@ -274,7 +281,7 @@ execute @command{stow} from the directory @file{/usr/local/stow}.
 
 @item --ignore=@var{regexp}
 This (repeatable) option lets you suppress acting on files that match the
-given perl regular expression.  For example, using the options
+given Perl regular expression.  For example, using the options
 
 @example
 --ignore='*.orig' --ignore='*.dist'
@@ -304,14 +311,14 @@ this nomenclature with the wording used in @ref{Deferred Operation}.)
 For example, the following options
 
 @example
---defer=man --defer=info
+--defer=man --defer=share/info
 @end example
 
 @noindent
 will cause stow to skip over pre-existing man and info pages.
 
-Equivalently, you could use @samp{--defer='man|info'} since the
-argument is just a Perl regex.
+Equivalently, you could use @samp{--defer='share/(man|info)'} since the
+argument is just a Perl regular expression.
 
 Note that the regular expression is anchored to the beginning of the path
 relative to the target directory, because this is what you will want to do most
@@ -323,7 +330,7 @@ stowed, even if the file is already stowed to another package. For example,
 the following options
 
 @example
---override=man --override=info
+--override=share/man --override=share/info
 @end example
 
 @noindent
@@ -607,7 +614,7 @@ For example, suppose that no packages have yet been installed in
 @file{/usr/local}; it's completely empty (except for the @file{stow}
 subdirectory, of course).  Now suppose the Perl package is installed.
 Recall that it includes the following directories in its installation
-image:  @file{bin}; @file{info}; @file{lib/perl}; @file{man/man1}.
+image:  @file{bin}; @file{share/info}; @file{lib/perl}; @file{share/man/man1}.
 Rather than creating the directory @file{/usr/local/bin} and populating
 it with symlinks to @file{../stow/perl/bin/perl} and
 @file{../stow/perl/bin/a2p} (and so on), Stow will create a
@@ -618,17 +625,17 @@ symlinks have been created.  This is called @dfn{tree folding}, since an
 entire subtree is ``folded'' into a single symlink.
 
 To complete this example, Stow will also create the symlink
-@file{/usr/local/info} pointing to @file{stow/perl/info}; the symlink
-@file{/usr/local/lib} pointing to @file{stow/perl/lib}; and the symlink
-@file{/usr/local/man} pointing to @file{stow/perl/man}.
+@file{/usr/local/share} pointing to @file{stow/perl/share}; and the
+symlink @file{/usr/local/lib} pointing to @file{stow/perl/lib}.
 
 Now suppose that instead of installing the Perl package into an empty
 target tree, the target tree is not empty to begin with.  Instead, it
 contains several files and directories installed under a different
-system-administration philosophy.  In particular, @file{/usr/local/bin}
-already exists and is a directory, as are @file{/usr/local/lib} and
-@file{/usr/local/man/man1}.  In this case, Stow will descend into
-@file{/usr/local/bin} and create symlinks to
+system-administration philosophy.  In particular,
+@file{/usr/local/bin} already exists and is a directory, as are
+@file{/usr/local/lib}, @file{/usr/local/share/info}, and
+@file{/usr/local/share/man/man1}.  In this case, Stow will descend
+into @file{/usr/local/bin} and create symlinks to
 @file{../stow/perl/bin/perl} and @file{../stow/perl/bin/a2p} (etc.),
 and it will descend into @file{/usr/local/lib} and create the
 tree-folding symlink @file{perl} pointing to
@@ -694,23 +701,25 @@ delete anything it doesn't ``own''.  Deleting a package does @emph{not}
 mean removing it from the stow directory or discarding the package
 tree.
 
-To delete a package, Stow recursively scans the target tree, skipping over any
-directory that is not included in the installation image.@footnote{This
-approach was introduced in version 2 of GNU Stow.  Previously, the whole
-target tree was scanned and stow directories were explicitly omitted.  This
-became problematic when dealing with very large installations.  The only
-situation where this is useful is if you accidentally delete a directory in
-the package tree, leaving you with a whole bunch of dangling links.  Note that
-you can enable the old approach with the @option{-p} option.  Alternatively, you can
-use the @option{--badlinks} option get stow to search for dangling links in your target tree and remove the offenders manually.}
-For example, if the target directory is @file{/usr/local} and the
+To delete a package, Stow recursively scans the target tree, skipping
+over any directory that is not included in the installation
+image.@footnote{This approach was introduced in version 2 of GNU Stow.
+Previously, the whole target tree was scanned and stow directories
+were explicitly omitted.  This became problematic when dealing with
+very large installations.  The only situation where this is useful is
+if you accidentally delete a directory in the package tree, leaving
+you with a whole bunch of dangling links.  Note that you can enable
+the old approach with the @option{-p} option.  Alternatively, you can
+use the @option{--badlinks} option get stow to search for dangling
+links in your target tree and remove the offenders manually.}  For
+example, if the target directory is @file{/usr/local} and the
 installation image for the package being deleted has only a @file{bin}
-directory and a @file{man} directory at the top level, then we only scan
-@file{/usr/local/bin} and  @file{/usr/local/bin/man}, and not
-@file{/usr/local/lib} or @file{/usr/local/share}, or for that matter
-@file{/usr/local/stow}.  Any symlink it finds that points into the package
-being deleted is removed.  Any directory that contained only symlinks to the
-package being deleted is removed.
+directory and a @file{share} directory at the top level, then we only
+scan @file{/usr/local/bin} and @file{/usr/local/share}, and not
+@file{/usr/local/lib}, or for that matter @file{/usr/local/stow}.  Any
+symlink it finds that points into the package being deleted is
+removed.  Any directory that contained only symlinks to the package
+being deleted is removed.
 
 @anchor{tree refolding}
 @section Refolding ``foldable'' trees.
@@ -930,7 +939,7 @@ was only used for Perl modules, then you might place the following in
 --dir=/usr/local/stow/perl-extras
 --target=/usr/local
 --override=bin
---override=man
+--override=share/man
 --ignore='perllocal\.pod'
 --ignore='\.packlist'
 --ignore='\.bs'
