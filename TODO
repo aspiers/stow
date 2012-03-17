@@ -1,3 +1,5 @@
+* Support no-folding list of regexes a bit like ignore list
+
 * Allow .stowrc per stow directory
 
   This would require changing the API so that options can be set for
