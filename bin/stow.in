@@ -409,7 +409,7 @@ translation approved by the Free Software Foundation.
 use strict;
 use warnings;
 
-require 5.6.1;
+require 5.006_001;
 
 use POSIX qw(getcwd);
 use Getopt::Long;
