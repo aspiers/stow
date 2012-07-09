@@ -323,7 +323,7 @@ sub within_target_do {
 
     my $cwd = getcwd();
     chdir($self->{target})
-        or error("Cannot chdir to target tree: $self->{target}");
+        or error("Cannot chdir to target tree: $self->{target} ($!)");
     debug(3, "cwd now $self->{target}");
 
     $self->$code();
@@ -367,7 +367,7 @@ sub stow_contents {
         unless $self->is_a_node($target);
 
     opendir my $DIR, $path
-        or error("cannot read directory: $path");
+        or error("cannot read directory: $path ($!)");
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -607,7 +607,7 @@ sub unstow_contents_orig {
         unless -d $target;
 
     opendir my $DIR, $target
-        or error("cannot read directory: $target");
+        or error("cannot read directory: $target ($!)");
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -734,7 +734,7 @@ sub unstow_contents {
         unless $self->is_a_node($target);
 
     opendir my $DIR, $path
-        or error("cannot read directory: $path");
+        or error("cannot read directory: $path ($!)");
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -960,7 +960,7 @@ sub cleanup_invalid_links {
     }
 
     opendir my $DIR, $dir
-        or error("cannot read directory: $dir");
+        or error("cannot read directory: $dir ($!)");
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -1449,13 +1449,13 @@ sub process_task {
     if ($task->{action} eq 'create') {
         if ($task->{type} eq 'dir') {
             mkdir($task->{path}, 0777)
-                or error(qq(Could not create directory: $task->{path}));
+                or error("Could not create directory: $task->{path} ($!)");
             return;
         }
         elsif ($task->{type} eq 'link') {
             symlink $task->{source}, $task->{path}
                 or error(
-                    q(Could not create symlink: %s => %s),
+                    "Could not create symlink: %s => %s ($!)",
                     $task->{path},
                     $task->{source}
             );
@@ -1465,12 +1465,12 @@ sub process_task {
     elsif ($task->{action} eq 'remove') {
         if ($task->{type} eq 'dir') {
             rmdir $task->{path}
-                or error(qq(Could not remove directory: $task->{path}));
+                or error("Could not remove directory: $task->{path} ($!)");
             return;
         }
         elsif ($task->{type} eq 'link') {
             unlink $task->{path}
-                or error(qq(Could not remove link: $task->{path}));
+                or error("Could not remove link: $task->{path} ($!)");
             return;
         }
     }
@@ -1479,13 +1479,13 @@ sub process_task {
             # rename() not good enough, since the stow directory
             # might be on a different filesystem to the target.
             move $task->{path}, $task->{dest}
-                or error(qq(Could not move $task->{path} -> $task->{dest}));
+                or error("Could not move $task->{path} -> $task->{dest} ($!)");
             return;
         }
     }
 
     # Should never happen.
-    internal_error(qq(bad task action: $task->{action}));
+    internal_error("bad task action: $task->{action}");
 }
 
 #===== METHOD ===============================================================
@@ -1735,7 +1735,7 @@ sub read_a_link {
     elsif (-l $path) {
         debug(4, "  read_a_link($path): real link");
         return readlink $path
-            or error("Could not read link: $path");
+            or error("Could not read link: $path ($!)");
     }
     internal_error("read_a_link() passed a non link path: $path\n");
 }
@@ -1859,7 +1859,7 @@ sub do_unlink {
     # Remove the link
     debug(1, "UNLINK: $file");
 
-    my $source = readlink $file or error("could not readlink $file");
+    my $source = readlink $file or error("could not readlink $file ($!)");
 
     my $task = {
         action  => 'remove',

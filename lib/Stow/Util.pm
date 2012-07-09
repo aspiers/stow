@@ -43,7 +43,7 @@ Outputs an error message in a consistent form and then dies.
 
 sub error {
     my ($format, @args) = @_;
-    die "$ProgramName: ERROR: " . sprintf($format, @args) . " ($!)\n";
+    die "$ProgramName: ERROR: " . sprintf($format, @args) . "\n";
 }
 
 =head2 set_debug_level($level)
