@@ -416,7 +416,7 @@ use Getopt::Long;
 
 @USE_LIB_PMDIR@
 use Stow;
-use Stow::Util qw(parent);
+use Stow::Util qw(parent error);
 
 my $ProgramName = $0;
 $ProgramName =~ s{.*/}{};
