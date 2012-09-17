@@ -853,7 +853,7 @@ effects.
 
 For example, suppose your site uses more than one stow directory, perhaps in
 order to share around responsibilities with a number of systems
-administrators. One of the administrators might have the following in there
+administrators. One of the administrators might have the following in their
 @file{~/.stowrc} file:
 
 @example
