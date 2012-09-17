@@ -845,6 +845,8 @@ directory.
 @c ===========================================================================
 @node Resource Files, Compile-time vs Install-time, Target Maintenance, Top
 @chapter Resource Files
+@cindex resource files
+@cindex configuration files
 
 Default command line options may be set in @file{.stowrc} (current directory) or
 @file{~/.stowrc} (home directory). These are parsed in that order, and effectively
