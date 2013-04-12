@@ -185,11 +185,11 @@ sub set_stow_dir {
     }
 
     my $stow_dir = canon_path($self->{dir});
-
-    $self->{stow_path} = File::Spec->abs2rel($stow_dir, $self->{target});
+    my $target = canon_path($self->{target});
+    $self->{stow_path} = File::Spec->abs2rel($stow_dir, $target);
 
     debug(2, "stow dir is $stow_dir");
-    debug(2, "stow dir path relative to target $self->{target} is $self->{stow_path}");
+    debug(2, "stow dir path relative to target $target is $self->{stow_path}");
 }
 
 sub init_state {
