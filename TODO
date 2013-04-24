@@ -1,3 +1,11 @@
+* Add support for pre/post-(un)install hooks
+
+  This would allow correct handling of the Info dir file via
+  install-info, amongst other things:
+
+*** http://unix.stackexchange.com/questions/73426/dealing-with-gnu-stow-conflicts
+*** http://article.gmane.org/gmane.comp.gnu.stow.general/6661
+
 * Next release should be under GPL v3
 
 * Get permission for next documentation release to be under FDL 1.3
