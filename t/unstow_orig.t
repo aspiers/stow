@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 23;
+use Test::More tests => 37;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -151,6 +151,7 @@ make_dir('stow/pkg7a/stow/pkg7b');
 make_file('stow/pkg7a/stow/pkg7b/file7b');
 make_link('stow/pkg7b', '../stow/pkg7a/stow/pkg7b');
 
+capture_stderr();
 $stow->plan_unstow('pkg7b');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg7b');
 ok(
@@ -159,6 +160,10 @@ ok(
     readlink('stow/pkg7b') eq '../stow/pkg7a/stow/pkg7b'
     => q(don't unlink any nodes under the stow directory)
 );
+like($stderr,
+     qr/WARNING: skipping target which was current stow directory stow/
+     => "warn when unstowing from ourself");
+uncapture_stderr();
 
 #
 # Don't unlink any nodes under another stow directory
@@ -173,6 +178,7 @@ make_dir('stow/pkg8a/stow2/pkg8b');
 make_file('stow/pkg8a/stow2/pkg8b/file8b');
 make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
 
+capture_stderr();
 $stow->plan_unstow('pkg8a');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg8a');
 ok(
@@ -181,10 +187,25 @@ ok(
     readlink('stow2/pkg8b') eq '../stow/pkg8a/stow2/pkg8b'
     => q(don't unlink any nodes under another stow directory)
 );
+like($stderr,
+     qr/WARNING: skipping target which was current stow directory stow/
+     => "warn when skipping unstowing");
+uncapture_stderr();
 
 #
 # overriding already stowed documentation
 #
+
+# This will be used by this and subsequent tests
+sub check_protected_dirs_skipped {
+    for my $dir (qw{stow stow2}) {
+        like($stderr,
+            qr/WARNING: skipping protected directory $dir/
+            => "warn when skipping protected directory $dir");
+    }
+    uncapture_stderr();
+}
+
 $stow = new_compat_Stow(override => ['man9', 'info9']);
 make_file('stow/.stow');
 
@@ -195,6 +216,7 @@ make_link('man9/man1/file9.1' => '../../../stow/pkg9a/man9/man1/file9.1'); # emu
 
 make_dir('../stow/pkg9b/man9/man1');
 make_file('../stow/pkg9b/man9/man1/file9.1');
+capture_stderr();
 $stow->plan_unstow('pkg9b');
 $stow->process_tasks();
 ok( 
@@ -202,6 +224,7 @@ ok(
     !-l 'man9/man1/file9.1'
     => 'overriding existing documentation files'
 );
+check_protected_dirs_skipped();
 
 #
 # deferring to already stowed documentation
@@ -221,6 +244,7 @@ make_link('man10/man1/file10b.1'  => '../../../stow/pkg10b/man10/man1/file10b.1'
 
 make_dir('../stow/pkg10c/man10/man1');
 make_file('../stow/pkg10c/man10/man1/file10a.1');
+capture_stderr();
 $stow->plan_unstow('pkg10c');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg10c');
 ok( 
@@ -228,6 +252,7 @@ ok(
     readlink('man10/man1/file10a.1') eq '../../../stow/pkg10a/man10/man1/file10a.1' 
     => 'defer to existing documentation files'
 );
+check_protected_dirs_skipped();
 
 #
 # Ignore temp files
@@ -241,6 +266,7 @@ make_file('../stow/pkg12/man12/man1/.#file12.1');
 make_dir('man12/man1');
 make_link('man12/man1/file12.1'  => '../../../stow/pkg12/man12/man1/file12.1');
 
+capture_stderr();
 $stow->plan_unstow('pkg12');
 $stow->process_tasks();
 ok( 
@@ -248,17 +274,20 @@ ok(
     !-e 'man12/man1/file12.1'
     => 'ignore temp files'
 );
+check_protected_dirs_skipped();
 
 #
 # Unstow an already unstowed package
 #
 $stow = new_compat_Stow();
+capture_stderr();
 $stow->plan_unstow('pkg12');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12');
 ok(
     $stow->get_conflict_count == 0
     => 'unstow already unstowed package pkg12'
 );
+check_protected_dirs_skipped();
 
 #
 # Unstow a never stowed package
@@ -268,12 +297,14 @@ eval { remove_dir("$OUT_DIR/target"); };
 mkdir("$OUT_DIR/target");
 
 $stow = new_compat_Stow();
+capture_stderr();
 $stow->plan_unstow('pkg12');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 which was never stowed');
 ok(
     $stow->get_conflict_count == 0
     => 'unstow never stowed package pkg12'
 );
+check_protected_dirs_skipped();
 
 #
 # Unstowing when target contains a real file shouldn't be an issue.
@@ -281,6 +312,7 @@ ok(
 make_file('man12/man1/file12.1');
 
 $stow = new_compat_Stow();
+capture_stderr();
 $stow->plan_unstow('pkg12');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 for third time');
 %conflicts = $stow->get_conflicts;
@@ -290,6 +322,7 @@ ok(
         =~ m!existing target is neither a link nor a directory: man12/man1/file12\.1!
     => 'unstow pkg12 for third time'
 );
+check_protected_dirs_skipped();
 
 #
 # unstow a simple tree minimally when cwd isn't target

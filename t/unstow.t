@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 39;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -154,6 +154,7 @@ ok(
     => q(don't unlink any nodes under the stow directory)
 );
 
+
 #
 # Don't unlink any nodes under another stow directory
 #
@@ -167,6 +168,7 @@ make_dir('stow/pkg8a/stow2/pkg8b');
 make_file('stow/pkg8a/stow2/pkg8b/file8b');
 make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
 
+capture_stderr();
 $stow->plan_unstow('pkg8a');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg8a');
 ok(
@@ -175,6 +177,10 @@ ok(
     readlink('stow2/pkg8b') eq '../stow/pkg8a/stow2/pkg8b'
     => q(don't unlink any nodes under another stow directory)
 );
+like($stderr,
+     qr/WARNING: skipping protected directory stow2/
+     => "unstowing from ourself should skip stow");
+uncapture_stderr();
 
 #
 # overriding already stowed documentation

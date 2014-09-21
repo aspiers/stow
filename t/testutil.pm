@@ -13,6 +13,7 @@ use Carp qw(croak);
 use File::Basename;
 use File::Path qw(remove_tree);
 use File::Spec;
+use IO::Scalar;
 use Test::More;
 
 use Stow;
@@ -21,6 +22,7 @@ use Stow::Util qw(parent canon_path);
 use base qw(Exporter);
 our @EXPORT = qw(
     $OUT_DIR
+    $stderr
     init_test_dirs
     cd
     new_Stow new_compat_Stow
@@ -28,9 +30,23 @@ our @EXPORT = qw(
     remove_dir remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
+    capture_stderr uncapture_stderr
 );
 
 our $OUT_DIR = 'tmp-testing-trees';
+
+our $stderr;
+my $tied_err;
+
+sub capture_stderr {
+    undef $stderr;
+    $tied_err = tie *STDERR, 'IO::Scalar', \$stderr;
+}
+
+sub uncapture_stderr {
+    undef $tied_err;
+    untie *STDERR;
+}
 
 sub init_test_dirs {
     for my $dir ("$OUT_DIR/target", "$OUT_DIR/stow") {

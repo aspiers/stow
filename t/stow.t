@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 111;
+use Test::More tests => 112;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -368,6 +368,7 @@ $stow = new_Stow(dir => 'stow');
 make_dir('stow/pkg14/stow/pkg15');
 make_file('stow/pkg14/stow/pkg15/node15');
 
+capture_stderr();
 $stow->plan_stow('pkg14');
 is($stow->get_tasks, 0, 'no tasks to process');
 ok(
@@ -375,6 +376,10 @@ ok(
     ! -l 'stow/pkg15'
     => "stowing to stow dir should fail"
 );
+like($stderr,
+     qr/WARNING: skipping target which was current stow directory stow/
+     => "stowing to stow dir should give warning");
+uncapture_stderr();
 
 #
 # stow a simple tree minimally when cwd isn't target

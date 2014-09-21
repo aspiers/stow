@@ -550,12 +550,12 @@ sub should_skip_target_which_is_stow_dir {
 
     # Don't try to remove anything under a stow directory
     if ($target eq $self->{stow_path}) {
-        debug(2, "Skipping target which was current stow directory $target");
+        warn "WARNING: skipping target which was current stow directory $target\n";
         return 1;
     }
 
     if ($self->marked_stow_dir($target)) {
-        debug(2, "Skipping protected directory $target");
+        warn "WARNING: skipping protected directory $target\n";
         return 1;
     }
 
