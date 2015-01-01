@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 112;
+use Test::More tests => 118;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -461,6 +461,7 @@ sub create_pkg {
     # yet stowed
     make_dir ("$stow_pkg/$id-$pkg-only-new2/subdir");
     make_file("$stow_pkg/$id-$pkg-only-new2/subdir/$id-file-$pkg");
+    make_link("$stow_pkg/$id-$pkg-only-new2/current", "subdir");
 
     # create a hierarchy specific to this package which is already
     # stowed via a folded tree
@@ -487,7 +488,7 @@ $stow->plan_stow('no-folding-a');
 is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
 my @tasks = $stow->get_tasks;
 use Data::Dumper;
-is(scalar(@tasks), 12 => "6 dirs, 6 links") || warn Dumper(\@tasks);
+is(scalar(@tasks), 13 => "6 dirs, 7 links") || warn Dumper(\@tasks);
 $stow->process_tasks();
 
 sub check_no_folding {
@@ -508,6 +509,8 @@ sub check_no_folding {
     is_dir_not_symlink("no-folding-$pkg-only-new2/subdir");
     is_link("no-folding-$pkg-only-new2/subdir/no-folding-file-$pkg",
             "../../$stow_pkg/no-folding-$pkg-only-new2/subdir/no-folding-file-$pkg");
+    is_link("no-folding-$pkg-only-new2/current",
+            "../$stow_pkg/no-folding-$pkg-only-new2/current");
 
     # check shared tree is not folded. first time round this will be
     # newly stowed.
@@ -530,7 +533,7 @@ $stow = new_Stow('no-folding' => 1);
 $stow->plan_stow('no-folding-b');
 is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
 @tasks = $stow->get_tasks;
-is(scalar(@tasks), 10 => '4 dirs, 6 links') || warn Dumper(\@tasks);
+is(scalar(@tasks), 11 => '4 dirs, 7 links') || warn Dumper(\@tasks);
 $stow->process_tasks();
 
 check_no_folding('a');

@@ -520,7 +520,7 @@ sub stow_node {
             }
         }
     }
-    elsif ($self->{'no-folding'} && -d $path) {
+    elsif ($self->{'no-folding'} && -d $path && ! -l $path) {
         $self->do_mkdir($target);
         $self->stow_contents(
             $self->{stow_path},
