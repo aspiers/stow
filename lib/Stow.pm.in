@@ -406,7 +406,7 @@ sub stow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(3, "Stowing $path");
+    debug(3, "Stowing $stow_path / $package / $target");
     debug(4, "  => $source");
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
@@ -1582,9 +1582,11 @@ sub is_a_link {
 
     if (my $action = $self->link_task_action($path)) {
         if ($action eq 'remove') {
+            debug(4, "  is_a_link($path): returning 0 (remove action found)");
             return 0;
         }
         elsif ($action eq 'create') {
+            debug(4, "  is_a_link($path): returning 1 (create action found)");
             return 1;
         }
     }
@@ -1596,7 +1598,7 @@ sub is_a_link {
         return $self->parent_link_scheduled_for_removal($path) ? 0 : 1;
     }
 
-    debug(4, "  is_a_link($path): returning false");
+    debug(4, "  is_a_link($path): returning 0");
     return 0;
 }
 
