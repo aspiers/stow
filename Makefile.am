@@ -144,9 +144,9 @@ lib/Stow.pm: lib/Stow.pm.in $(DEFAULT_IGNORE_LIST) Makefile
 # The below rules should only be needed by developers.
 ##############################################################################
 
-doc/stow.8: bin/stow.in
+doc/stow.8: bin/stow.in Makefile
 	[ -d doc ] || mkdir doc # required in vpath mode
-	pod2man $< > $@
+	$(edit) < $< | pod2man > $@
 
 # We use automake's built-in rule to generate stow.info.  The built-in
 # rules would also generate doc/stow.html and doc/stow.pdf, but after
