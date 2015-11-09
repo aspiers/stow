@@ -4,9 +4,9 @@
       "unknown"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.112621",
+   "generated_by" : "Module::Build version 0.4212",
    "license" : [
-      "open_source"
+      "gpl_1"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -16,19 +16,19 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Test::More" : 0,
-            "Test::Output" : 0
+            "Test::More" : "0",
+            "Test::Output" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "Module::Build" : 0
+            "Module::Build" : "0"
          }
       },
       "runtime" : {
          "requires" : {
-            "Carp" : 0,
-            "IO::File" : 0,
+            "Carp" : "0",
+            "IO::File" : "0",
             "perl" : "5.006"
          }
       }
@@ -36,11 +36,10 @@
    "provides" : {
       "Stow" : {
          "file" : "lib/Stow.pm",
-         "version" : "v2.2.0"
+         "version" : "v2.2.1"
       },
       "Stow::Util" : {
-         "file" : "lib/Stow/Util.pm",
-         "version" : 0
+         "file" : "lib/Stow/Util.pm"
       }
    },
    "release_status" : "stable",
@@ -50,8 +49,10 @@
          "http://www.gnu.org/licenses/gpl-2.0.html"
       ],
       "repository" : {
+         "type" : "git",
          "url" : "git://git.savannah.gnu.org/stow.git"
       }
    },
-   "version" : "v2.2.0"
+   "version" : "v2.2.1",
+   "x_serialization_backend" : "JSON::PP version 2.27203"
 }
