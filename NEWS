@@ -6,6 +6,9 @@ News file for Stow.
 
 * Changes in version 2.2.1
 
+Version 2.2.1 was not released since it was rejected by pause.perl.org
+due to Stow::Util missing $VERSION.
+
 ** Small improvements to documentation
 
 *** The README has been revamped.
