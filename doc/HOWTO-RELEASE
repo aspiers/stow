@@ -4,6 +4,9 @@ How to make a new release of GNU Stow
   - Ensure NEWS contains the latest changes.
 
   - Ensure configure.ac contains the new version number.
+    This should follow Semantic Versioning as described at:
+
+      http://semver.org/
 
   - Check CPAN distribution will work via Module::Build:
 
