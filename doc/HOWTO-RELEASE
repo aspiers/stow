@@ -6,96 +6,96 @@ Prerequisite reading
 
 First read the official information for maintainers of GNU software:
 
-    https://www.gnu.org/prep/maintain/
+  https://www.gnu.org/prep/maintain/
 
 Release procedure
 -----------------
 
-  - Ensure NEWS contains the latest changes.
+- Ensure NEWS contains the latest changes.
 
-  - Ensure configure.ac contains the new version number.
-    This should follow Semantic Versioning as described at:
+- Ensure configure.ac contains the new version number.
+  This should follow Semantic Versioning as described at:
 
-      http://semver.org/
+    http://semver.org/
 
-  - Check CPAN distribution will work via Module::Build:
+- Check CPAN distribution will work via Module::Build:
 
-      - Generate stow, chkstow, and lib/Stow.pm via:
+    - Generate stow, chkstow, and lib/Stow.pm via:
 
-          eval `perl -V:siteprefix`
-          automake --add-missing
-          ./configure --prefix=$siteprefix && make
+        eval `perl -V:siteprefix`
+        automake --add-missing
+        ./configure --prefix=$siteprefix && make
 
-        (N.B. the CPAN distribution will contain these files, whereas
-        the GNU distribution will not.)
+      (N.B. the CPAN distribution will contain these files, whereas
+      the GNU distribution will not.)
 
-      - Make sure all the following commands all run successfully:
+    - Make sure all the following commands all run successfully:
 
-          perl Build.PL --prefix=/tmp/stow-test
-          ./Build test
-          ./Build install
-          ./Build distcheck
-          ./Build distmeta
+        perl Build.PL --prefix=/tmp/stow-test
+        ./Build test
+        ./Build install
+        ./Build distcheck
+        ./Build distmeta
 
-      - Check META.yaml and META.json have the new version number.
+    - Check META.yaml and META.json have the new version number.
 
-  - Ensure all changes are committed to git.
+- Ensure all changes are committed to git.
 
-  - Run make distcheck and ensure that everything looks good.
-    It should generate the distribution files for you.
+- Run make distcheck and ensure that everything looks good.
+  It should generate the distribution files for you.
 
-  - Tag the current git HEAD with the new version number:
+- Tag the current git HEAD with the new version number:
 
-      git tag -s v7.8.9
+    git tag -s v7.8.9
 
-  - Push HEAD and tag to savannah
+- Push HEAD and tag to savannah
 
-      git push
-      git push --tags
+    git push
+    git push --tags
 
-  - Regenerate the documentation for the website:
+- Regenerate the documentation for the website:
 
-      # First check out gnulib repository via:
-      # git clone git://git.savannah.gnu.org/gnulib.git
+    # First check out gnulib repository via:
+    # git clone git://git.savannah.gnu.org/gnulib.git
 
-      # and stow-web CVS repository via the instructions here:
-      # https://savannah.gnu.org/cvs/?group=stow
+    # and stow-web CVS repository via the instructions here:
+    # https://savannah.gnu.org/cvs/?group=stow
 
-      # Set paths:
-      stow_repo=/path/to/stow/git/repo
-      stow_web_repo=/path/to/stow-web/CVS/working/dir
-      gnulib_repo=/path/to/gnulib/git/repo
+    # Set paths:
+    stow_repo=/path/to/stow/git/repo
+    stow_web_repo=/path/to/stow-web/CVS/working/dir
+    gnulib_repo=/path/to/gnulib/git/repo
 
-      cd $stow_repo
-      export GENDOCS_TEMPLATE_DIR=$gnulib_repo/doc
-      $gnulib_repo/util/gendocs.sh \
-          -s doc/stow.texi \
-          -o $stow_web_repo/manual \
-          --email bug-stow@gnu.org \
-          stow "GNU Stow manual"
+    cd $stow_repo
+    export GENDOCS_TEMPLATE_DIR=$gnulib_repo/doc
+    $gnulib_repo/util/gendocs.sh \
+        -s doc/stow.texi \
+        -o $stow_web_repo/manual \
+        --email bug-stow@gnu.org \
+        stow "GNU Stow manual"
 
-      cd $stow_web_repo
-      # Check that the changes look OK
-      cvs diff
-      # Then commit
-      cvs commit -m 'Update manual to v7.8.9'
+    cd $stow_web_repo
+    # Check that the changes look OK
+    cvs diff
+    # Then commit
+    cvs commit -m 'Update manual to v7.8.9'
 
-  - Run ./Build dist
+- Run ./Build dist
 
-  - Upload the resulting Stow-v7.8.9.tar.gz to CPAN via https://pause.perl.org/
+- Upload the resulting Stow-v7.8.9.tar.gz to CPAN via https://pause.perl.org/
 
-  - Upload to ftp.gnu.org.  This is easiest using gnupload:
+- Upload to ftp.gnu.org.  This is easiest using gnupload:
 
-      - git clone git://git.savannah.gnu.org/gnulib.git
-      - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
-      - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.*
+    - git clone git://git.savannah.gnu.org/gnulib.git
+    - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
+    - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.*
 
-  - Send release announcements to 
+- Send release announcements to 
 
-      - info-stow@gnu.org
-      - stow-devel@gnu.org
-      - info-gnu@gnu.org
-      - https://savannah.gnu.org/news/?group=stow
+    - info-stow@gnu.org
+    - stow-devel@gnu.org
+    - info-gnu@gnu.org
+    - https://savannah.gnu.org/news/?group=stow
 
-    See http://www.gnu.org/prep/maintain/html_node/Announcements.html for
-    more on making release announcements.
+  See http://www.gnu.org/prep/maintain/html_node/Announcements.html for
+  more on making release announcements.
