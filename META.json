@@ -39,7 +39,8 @@
          "version" : "v2.2.1"
       },
       "Stow::Util" : {
-         "file" : "lib/Stow/Util.pm"
+         "file" : "lib/Stow/Util.pm",
+         "version" : "v2.2.1"
       }
    },
    "release_status" : "stable",

@@ -24,6 +24,7 @@ configure
 /doc/stow.pdf
 /doc/stow.8
 /lib/Stow.pm
+/lib/Stow/Util.pm
 stamp-vti
 stow-[0-9].[0-9].[0-9].tar.*
 stow-[0-9].[0-9].[0-9]/

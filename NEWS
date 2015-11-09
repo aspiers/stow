@@ -1,5 +1,9 @@
 News file for Stow.
 
+* Changes in version 2.2.2
+
+** @VERSION@ substitution was set up for the Stow::Util module.
+
 * Changes in version 2.2.1
 
 ** Small improvements to documentation

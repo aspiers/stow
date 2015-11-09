@@ -25,6 +25,7 @@ INSTALL
 lib/Stow.pm
 lib/Stow.pm.in
 lib/Stow/Util.pm
+lib/Stow/Util.pm.in
 Makefile.am
 Makefile.in
 MANIFEST			This list of files

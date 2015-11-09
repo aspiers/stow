@@ -75,7 +75,7 @@ $(TESTS_OUT):
 
 CPAN_FILES = MANIFEST MANIFEST.SKIP Build.PL META.yml META.json
 EXTRA_DIST = \
-	bin/stow.in bin/chkstow.in lib/Stow.pm.in \
+	bin/stow.in bin/chkstow.in lib/Stow.pm.in lib/Stow/Util.pm.in \
 	doc/manual-split \
 	$(TESTS) t/testutil.pm \
 	$(TEXINFO_TEX) \
@@ -139,6 +139,11 @@ lib/Stow.pm: lib/Stow.pm.in $(DEFAULT_IGNORE_LIST) Makefile
 	@[ -d lib ] || mkdir lib # required in vpath mode
 	@( $(edit) < $<; cat $(DEFAULT_IGNORE_LIST) ) > $@
 	@echo "Generated $@ from $< and $(DEFAULT_IGNORE_LIST)"
+
+lib/Stow/Util.pm: lib/Stow/Util.pm.in Makefile.am
+	@[ -d lib/Stow ] || mkdir -p lib/Stow # required in vpath mode
+	@$(edit) < $< > $@
+	@echo "Generated $@ from $<"
 
 ##############################################################################
 # The below rules should only be needed by developers.
