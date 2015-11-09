@@ -10,6 +10,7 @@ How to make a new release of GNU Stow
       - Generate stow, chkstow, and lib/Stow.pm via:
 
           eval `perl -V:siteprefix`
+          automake --add-missing
           ./configure --prefix=$siteprefix && make
 
         (N.B. the CPAN distribution will contain these files, whereas
