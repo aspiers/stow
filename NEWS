@@ -119,10 +119,10 @@ News file for Stow.
    e.g., we don't want to create a link that we will later remove in order to
    create a directory.  Benefits of this approach:
 
-     1. Get to see _all_ the conflicts that are blocking an installation: 
+     1. Get to see _all_ the conflicts that are blocking an installation:
         you don't have to deal with them one at a time.
      2. No operations are be performed if _any_ conflicts are detected:
-        a failed stow will not leave you with a partially installed 
+        a failed stow will not leave you with a partially installed
         package.
      3. Minimises the set of operations that need to be performed.
      4. Operations are executed as a batch which is much faster
@@ -130,13 +130,13 @@ News file for Stow.
         where you want to minimise the amount of time when the package is
         unavailable.
 
-** The above fixes the false conflict problem mentioned in the info file. 
+** The above fixes the false conflict problem mentioned in the info file.
 
 ** It also fixes the two bugs mentioned in the man page.
 
 ** Multiple stow directories will now cooperate in folding/unfolding.
 
-** Conflict messages are more uniform and informative. 
+** Conflict messages are more uniform and informative.
 
 ** Verbosity and tracing is more extensive and uniform.
 
@@ -210,7 +210,7 @@ News file for Stow.
    /usr/local/stow/perl-5.8.8-extras.  Both stow directories contain a
    '.stow' file so that they collaborate appropriately.  I then use
    the following .stowrc file in /usr/local/stow/perl-5.8.8-extras
-  
+
         --dir=/usr/local/stow/perl-5.8.8-extras
         --target=/usr/local
         --override=bin
@@ -242,7 +242,7 @@ News file for Stow.
 
 ** New chkstow utility for checking the integrity of the target directory.
 
-** Implement a test suite and support code.  
+** Implement a test suite and support code.
 
    This was built before implementing any of the extra features so I
    could more easily check for equivalent functionality.  The initial
