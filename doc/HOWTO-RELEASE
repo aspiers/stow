@@ -42,8 +42,8 @@ How to make a new release of GNU Stow
 
   - Regenerate the documentation for the website:
 
-      # First check out texinfo CVS repository via:
-      # cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/texinfo co texinfo
+      # First check out gnulib repository via:
+      # git clone git://git.savannah.gnu.org/gnulib.git
 
       # and stow-web CVS repository via the instructions here:
       # https://savannah.gnu.org/cvs/?group=stow
@@ -51,11 +51,11 @@ How to make a new release of GNU Stow
       # Set paths:
       stow_repo=/path/to/stow/git/repo
       stow_web_repo=/path/to/stow-web/CVS/working/dir
-      texinfo_repo=/path/to/texinfo/git/repo
+      gnulib_repo=/path/to/gnulib/git/repo
 
       cd $stow_repo
-      export GENDOCS_TEMPLATE_DIR=$texinfo_repo/util
-      $texinfo_repo/util/gendocs.sh \
+      export GENDOCS_TEMPLATE_DIR=$gnulib_repo/doc
+      $gnulib_repo/util/gendocs.sh \
           -s doc/stow.texi \
           -o $stow_web_repo/manual \
           --email bug-stow@gnu.org \
