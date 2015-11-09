@@ -121,7 +121,7 @@ check_pmdir = \
 	fi; \
 	echo
 
-bin/stow: bin/stow.in Makefile
+bin/stow: bin/stow.in Makefile.am
 	[ -d bin ] || mkdir bin # required in vpath mode
 	@$(check_pmdir)
 	@$(calc_use_lib_pmdir); \
@@ -129,13 +129,13 @@ bin/stow: bin/stow.in Makefile
 	@echo "Generated $@ from $<"
 	chmod +x $@
 
-bin/chkstow: bin/chkstow.in Makefile
+bin/chkstow: bin/chkstow.in Makefile.am
 	@[ -d bin ] || mkdir bin # required in vpath mode
 	@$(edit) < $< > $@
 	@echo "Generated $@ from $<"
 	chmod +x $@
 
-lib/Stow.pm: lib/Stow.pm.in $(DEFAULT_IGNORE_LIST) Makefile
+lib/Stow.pm: lib/Stow.pm.in $(DEFAULT_IGNORE_LIST) Makefile.am
 	@[ -d lib ] || mkdir lib # required in vpath mode
 	@( $(edit) < $<; cat $(DEFAULT_IGNORE_LIST) ) > $@
 	@echo "Generated $@ from $< and $(DEFAULT_IGNORE_LIST)"
