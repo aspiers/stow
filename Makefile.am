@@ -144,7 +144,7 @@ lib/Stow.pm: lib/Stow.pm.in $(DEFAULT_IGNORE_LIST) Makefile
 # The below rules should only be needed by developers.
 ##############################################################################
 
-doc/stow.8: bin/stow.in Makefile
+doc/stow.8: bin/stow.in Makefile.am
 	[ -d doc ] || mkdir doc # required in vpath mode
 	$(edit) < $< | pod2man > $@
 
