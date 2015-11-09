@@ -1,5 +1,103 @@
 News file for Stow.
 
+* Changes in version 2.2.1
+
+** Small improvements to documentation
+
+*** The README has been revamped.
+
+*** Some index points have been added to the manual.
+
+*** Some typos were fixed.
+
+*** @VERSION@ substitution was fixed in the stow(8) man page.
+
+** Fix Perl warnings
+
+   Stow no longer emits "v-string in use/require non-portable" and
+   "Possible precedence issue with control flow operator" warnings
+   with newer Perl versions.  See https://savannah.gnu.org/bugs/?36478
+   and http://lists.gnu.org/archive/html/bug-stow/2014-06/msg00000.html
+   for full details.
+
+** Fix "Undefined subroutine &main::error" error
+
+   See https://rt.cpan.org/Public/Bug/Display.html?id=75349 for details.
+
+** Failed system calls now include error description
+
+   This should make errors easier to understand.
+
+** Default ignore list now ignores top-level README.*, LICENSE.*, and COPYING
+
+   These files are by definition specific to a given package, so if
+   they exist in the top-level directory, they should not be stowed.
+
+** Correctly handle the stow/target directories as non-canonical paths
+
+   Fix the case discovered by Hiroyuki Iwatsuki where stowing fails if
+   the stow / target directories are non-canonical paths.  For
+   example, on FreeBSD /home is a symlink pointing to 'usr/home', so
+   running with the stow directory as /home/user/local/stow and the
+   target directory as /home/user/local previously resulted in the
+   stow directory path being calculated as
+   ../../../usr/home/user/local/stow relative to the target.
+
+   See http://article.gmane.org/gmane.comp.gnu.stow.bugs/8820 for details.
+
+** Fix stowing of relative links when --no-folding is used.
+
+   With a tree like this:
+
+       .
+       |-- stow
+       |   `-- pkg
+       |       `-- lib
+       |           |-- itk-current -> itk4.0.0
+       |           `-- itk4.0.0
+       |               `-- libitk4.0.0.so
+       `-- target
+           `-- lib
+               |-- itk4.0.0 -> ../../stow/pkg/lib/itk4.0.0
+               `-- libfoo-1.2.3.so
+
+   stowing pkg with the --no-folding option resulted in itk-current
+   being "unpacked":
+
+       .
+       `-- target
+           `-- lib
+               |-- itk-current
+               |   `-- libitk4.0.0.so -> ../../../stow/pkg/lib/itk-current/libitk4.0.0.so
+               |-- itk4.0.0
+               |   `-- libitk4.0.0.so -> ../../../stow/pkg/lib/itk4.0.0/libitk4.0.0.so
+               `-- libfoo-1.2.3.so
+
+   This commit fixes it so that it gets stowed as a symlink:
+
+     .
+     `-- target
+         `-- lib
+             ...
+             |-- itk-current -> ../../stow/pkg/lib/itk-current
+             ...
+
+   Thanks to Gabriele Balducci for reporting this problem:
+
+       http://thread.gmane.org/gmane.comp.gnu.stow.general/6676
+
+** Internal code cleanups
+
+*** aclocal was updated.
+
+*** automake files were removed.
+
+*** Trailing whitespace was removed.
+
+*** Comments were added.
+
+*** Debug messages were improved.
+
 * Changes in version 2.2.0
 
 ** New --no-folding option
