@@ -1,6 +1,16 @@
 How to make a new release of GNU Stow
 =====================================
 
+Prerequisite reading
+--------------------
+
+First read the official information for maintainers of GNU software:
+
+    https://www.gnu.org/prep/maintain/
+
+Release procedure
+-----------------
+
   - Ensure NEWS contains the latest changes.
 
   - Ensure configure.ac contains the new version number.
