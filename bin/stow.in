@@ -545,6 +545,12 @@ sub sanitize_path_options {
         $options->{dir} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
 
+    # Do not allow empty stow dir
+    if (not length $options->{dir}) {
+        warn "STOW_DIR is empty, change stow dir to current directory";
+        $options->{dir} = '.';
+    }
+
     if (exists $options->{target}) {
         $options->{target} =~ s/\A +//;
         $options->{target} =~ s/ +\z//;
