@@ -542,7 +542,11 @@ sub sanitize_path_options {
         $options->{dir}    =~ s/ +\z//;
     }
     else {
-        $options->{dir} = $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
+        $options->{dir} = exists $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
+    }
+
+    if (not length $options->{dir}) {
+        $options->{dir} = getcwd();
     }
 
     if (exists $options->{target}) {
