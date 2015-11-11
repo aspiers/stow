@@ -542,12 +542,17 @@ sub sanitize_path_options {
         $options->{dir}    =~ s/ +\z//;
     }
     else {
-        $options->{dir} = $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
+        $options->{dir} = length $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
+
+    usage("--dir value '$options->{dir}' is not a valid directory")
+        unless -d $options->{dir};
 
     if (exists $options->{target}) {
         $options->{target} =~ s/\A +//;
         $options->{target} =~ s/ +\z//;
+        usage("--target value '$options->{target}' is not a valid directory")
+            unless -d $options->{target};
     }
     else {
         $options->{target} = parent($options->{dir}) || '.';
