@@ -1,0 +1,22 @@
+language: perl
+perl:
+  - "5.20"
+  - "5.18"
+  - "5.16"
+  - "5.14"
+# Can't use containers until this is accepted:
+# https://github.com/travis-ci/apt-package-whitelist/issues/1759
+#sudo: false
+addons:
+  apt:
+    packages:
+    - texinfo
+    - texlive
+    - texi2html
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq texi2html
+  - autoreconf --install
+  - eval `perl -V:siteprefix`
+  - ./configure --prefix=$siteprefix && make
+after_failure: find /home/travis/.cpanm/ -name build.log | xargs grep .
