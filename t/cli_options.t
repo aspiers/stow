@@ -17,8 +17,8 @@ init_test_dirs();
 
 local @ARGV = (
     '-v',
-    "-d $OUT_DIR/stow",
-    "-t $OUT_DIR/target",
+    '-d', "$OUT_DIR/stow",
+    '-t', "$OUT_DIR/target",
     'dummy'
 );
 

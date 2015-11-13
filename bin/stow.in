@@ -537,11 +537,7 @@ sub process_options {
 sub sanitize_path_options {
     my ($options) = @_;
 
-    if (exists $options->{dir}) {
-        $options->{dir}    =~ s/\A +//;
-        $options->{dir}    =~ s/ +\z//;
-    }
-    else {
+    unless (exists $options->{dir}) {
         $options->{dir} = length $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
 
@@ -549,8 +545,6 @@ sub sanitize_path_options {
         unless -d $options->{dir};
 
     if (exists $options->{target}) {
-        $options->{target} =~ s/\A +//;
-        $options->{target} =~ s/ +\z//;
         usage("--target value '$options->{target}' is not a valid directory")
             unless -d $options->{target};
     }
