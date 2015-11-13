@@ -3,6 +3,7 @@ abstract: 'manage the installation of multiple software packages'
 author:
   - unknown
 build_requires:
+  IO::Scalar: '0'
   Test::More: '0'
   Test::Output: '0'
 configure_requires:

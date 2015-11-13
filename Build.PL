@@ -54,6 +54,7 @@ my $build = Module::Build->new(
     build_requires => {
         'Test::More'   => 0,
         'Test::Output' => 0,
+        'IO::Scalar'   => 0,
     },
 );
 
