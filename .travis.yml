@@ -11,8 +11,11 @@ addons:
     - texinfo
     - texlive
     - texi2html
-before_install:
+install:
   - autoreconf --install
   - eval `perl -V:siteprefix`
   - ./configure --prefix=$siteprefix && make
-after_failure: find /home/travis/.cpanm/ -name build.log | xargs grep .
+  - make cpanm
+script:
+  - make distcheck
+  - perl Build.PL && ./Build distcheck

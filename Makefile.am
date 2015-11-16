@@ -147,6 +147,16 @@ lib/Stow/Util.pm: lib/Stow/Util.pm.in Makefile.am
 # The below rules should only be needed by developers.
 ##############################################################################
 
+cpanm:
+	cpanm --quiet --installdeps --notest .; \
+	CPANM_RESULT=$$?; \
+	if [ $$CPANM_RESULT != 0 ]; then \
+	    echo ---------------------------------------------------; \
+	    cat ~/.cpanm/build.log; \
+	    echo ---------------------------------------------------; \
+	    exit $$CPANM_RESULT; \
+	fi
+
 doc/stow.8: bin/stow.in Makefile.am
 	[ -d doc ] || mkdir doc # required in vpath mode
 	$(edit) < $< | pod2man > $@
