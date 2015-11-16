@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aspiers/stow.svg)](https://travis-ci.org/aspiers/stow)
+
 README for GNU Stow
 ===================
 
