@@ -4,10 +4,10 @@ README for GNU Stow
 This is GNU Stow, a symlink farm manager program which takes distinct
 packages of software and/or data located in separate directories on
 the filesystem, and makes them appear to be installed in the same
-place.  For example, /usr/local/bin could contain symlinks to files
-within /usr/local/stow/emacs/bin, /usr/local/stow/perl/bin etc., and
-likewise recursively for any other subdirectories such as .../share,
-.../man, and so on.
+place.  For example, `/usr/local/bin` could contain symlinks to files
+within `/usr/local/stow/emacs/bin`, `/usr/local/stow/perl/bin` etc., and
+likewise recursively for any other subdirectories such as `.../share`,
+`.../man`, and so on.
 
 This is particularly useful for keeping track of system-wide and
 per-user installations of software built from source, but can also
@@ -26,12 +26,12 @@ License
 -------
 
 Stow is free software, licensed under the GNU General Public License,
-which can be found in the file COPYING.
+which can be found in the file [`COPYING`](COPYING).
 
 Installation
 ------------
 
-See INSTALL for installation instructions.
+See [`INSTALL`](INSTALL) for installation instructions.
 
 Feedback
 --------
@@ -49,5 +49,5 @@ things in sync, Stow stores no extra state between runs, so there's no
 danger (as there is in Depot) of mangling directories when file
 hierarchies don't match the database.  Also unlike Depot, Stow will
 never delete any files, directories, or links that appear in a Stow
-directory (e.g., /usr/local/stow/emacs), so it's always possible to
-rebuild the target tree (e.g., /usr/local).
+directory (e.g., `/usr/local/stow/emacs`), so it's always possible to
+rebuild the target tree (e.g., `/usr/local`).
