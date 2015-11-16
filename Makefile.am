@@ -6,7 +6,7 @@ dist_man_MANS = doc/stow.8
 PDF = doc/manual.pdf
 HTML = doc/manual-single.html
 dist_doc_DATA = \
-	README \
+	README.md INSTALL.md \
 	$(PDF) $(HTML) doc/version.texi \
 	ChangeLog doc/ChangeLog.OLD
 

@@ -21,7 +21,7 @@ doc/stow.info
 doc/stow.texi
 doc/texinfo.tex
 doc/version.texi
-INSTALL
+INSTALL.md
 lib/Stow.pm
 lib/Stow.pm.in
 lib/Stow/Util.pm
@@ -31,7 +31,7 @@ Makefile.in
 MANIFEST			This list of files
 MANIFEST.SKIP
 NEWS
-README
+README.md
 t/chkstow.t
 t/cleanup_invalid_links.t
 t/cli_options.t
