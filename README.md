@@ -31,7 +31,7 @@ which can be found in the file [`COPYING`](COPYING).
 Installation
 ------------
 
-See [`INSTALL`](INSTALL) for installation instructions.
+See [`INSTALL.md`](INSTALL.md) for installation instructions.
 
 Feedback
 --------
