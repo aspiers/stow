@@ -11,6 +11,8 @@ addons:
     - texinfo
     - texlive
     - texi2html
+before_install:
+  - cpanm -n Devel::Cover::Report::Coveralls
 install:
   - autoreconf --install
   - eval `perl -V:siteprefix`
@@ -18,4 +20,5 @@ install:
   - make cpanm
 script:
   - make distcheck
-  - perl Build.PL && ./Build distcheck
+  - perl Build.PL && ./Build build && cover -test -report coveralls
+  - ./Build distcheck
