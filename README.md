@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/aspiers/stow.svg)](https://travis-ci.org/aspiers/stow)
+[![Coverage Status](https://coveralls.io/repos/aspiers/stow/badge.svg?branch=master&service=github)](https://coveralls.io/github/aspiers/stow?branch=master)
 
 README for GNU Stow
 ===================
