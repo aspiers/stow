@@ -10,8 +10,12 @@ dist_doc_DATA = \
 	$(PDF) $(HTML) doc/version.texi \
 	ChangeLog doc/ChangeLog.OLD
 
+# automake magic to define where *_DATA files get installed:
 pmdir = $(PMDIR)
-pm_DATA = lib/Stow.pm lib/Stow/Util.pm
+pmstowdir = $(pmdir)/Stow
+
+pm_DATA = lib/Stow.pm
+pmstow_DATA = lib/Stow/Util.pm
 
 TEXINFO_TEX = doc/texinfo.tex
 export TEXI2DVI_BUILD_MODE = clean
@@ -79,7 +83,7 @@ EXTRA_DIST = \
 	$(TEXINFO_TEX) \
 	$(DEFAULT_IGNORE_LIST) \
 	$(CPAN_FILES)
-CLEANFILES = $(bin_SCRIPTS) $(pm_DATA)
+CLEANFILES = $(bin_SCRIPTS) $(pm_DATA) $(pmstow_DATA)
 MAINTAINERCLEANFILES = $(dist_man_MANS) $(HTML) $(PDF) ChangeLog
 
 # clean up auto-generated files
