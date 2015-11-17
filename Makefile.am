@@ -11,9 +11,7 @@ dist_doc_DATA = \
 	ChangeLog doc/ChangeLog.OLD
 
 pmdir = $(PMDIR)
-pm_DATA = lib/Stow.pm
-pmstowdir = $(pmdir)/Stow
-dist_pmstow_DATA = lib/Stow/Util.pm
+pm_DATA = lib/Stow.pm lib/Stow/Util.pm
 
 TEXINFO_TEX = doc/texinfo.tex
 export TEXI2DVI_BUILD_MODE = clean
