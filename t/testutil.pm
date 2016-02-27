@@ -228,7 +228,7 @@ sub remove_dir {
         next NODE if $node eq '..';
 
         my $path = "$dir/$node";
-        if (-l $path or -z $path or $node eq $Stow::LOCAL_IGNORE_FILE) {
+        if (-l $path or (-f $path and -z $path) or $node eq $Stow::LOCAL_IGNORE_FILE) {
             unlink $path or die "cannot unlink $path ($!)\n";
         }
         elsif (-d "$path") {
