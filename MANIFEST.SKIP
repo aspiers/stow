@@ -83,3 +83,5 @@
 # Avoid test files
 tmp-testing-trees
 .travis.yml
+^docker/
+^[a-zA-Z]*-docker.sh
