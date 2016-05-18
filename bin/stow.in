@@ -323,6 +323,28 @@ Stow will re-fold the tree by removing the symlinks to the surviving
 package, removing the directory, then linking the directory back to
 the surviving package.
 
+=head1 RESOURCE FILES
+
+F<Stow> searches for default command line options at F<.stowrc> (current
+directory) and F<~/.stowrc> (home directory) in that order. If both
+locations are present, the files are effectively appended together.
+
+The effect of options in the resource file is similar to simply prepending
+the options to the command line. For options that provide a single value,
+such as F<--target> or F<--dir>, the command line option will overwrite any
+options in the resource file. For options that can be given more than once,
+F<--ignore> for example, command line options and resource options are
+appended together.
+
+Environment variables and the tilde character (F<~>) will be expanded for
+options that take a file path.
+
+The options F<-D>, F<-R>, F<-S>, and any packages listed in the resource
+file are ignored.
+
+See the texinfo manual for more information on how stow handles resource
+file.
+
 =head1 SEE ALSO
 
 The full documentation for F<stow> is maintained as a Texinfo manual.
