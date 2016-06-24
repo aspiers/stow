@@ -432,7 +432,7 @@ use warnings;
 require 5.006_001;
 
 use POSIX qw(getcwd);
-use Getopt::Long;
+use Getopt::Long qw(GetOptionsFromArray);
 
 @USE_LIB_PMDIR@
 use Stow;
@@ -481,23 +481,49 @@ sub main {
 
 #===== SUBROUTINE ===========================================================
 # Name      : process_options()
-# Purpose   : parse command line options
+# Purpose   : Parse and process command line and .stowrc file options
 # Parameters: none
 # Returns   : (\%options, \@pkgs_to_unstow, \@pkgs_to_stow)
-# Throws    : a fatal error if a bad command line option is given
+# Throws    : a fatal error if a bad option is given
 # Comments  : checks @ARGV for valid package names
 #============================================================================
 sub process_options {
+
+    unshift @ARGV, get_config_file_options();
+    #$,="\n"; print @ARGV,"\n"; # for debugging rc file
+
+    my ($options, 
+        $pkgs_to_unstow, 
+        $pkgs_to_stow) = parse_options(@ARGV);
+
+    sanitize_path_options($options);
+    check_packages($pkgs_to_unstow, $pkgs_to_stow);
+
+    return ($options, $pkgs_to_unstow, $pkgs_to_stow);
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : parse_options()
+# Purpose   : parse command line options
+# Parameters: @arg_array => array of options to parse
+#             Example: parse_options(@ARGV)
+# Returns   : (\%options, \@pkgs_to_unstow, \@pkgs_to_stow)
+# Throws    : a fatal error if a bad command line option is given
+# Comments  : Used for parsing both command line options and rc file. Used 
+#             for parsing only. Sanity checks and post-processing belong in 
+#             process_options().
+#============================================================================
+sub parse_options {
     my %options        = ();
     my @pkgs_to_unstow = ();
     my @pkgs_to_stow   = ();
     my $action = 'stow';
 
-    unshift @ARGV, get_config_file_options();
-    #$,="\n"; print @ARGV,"\n"; # for debugging rc file
+    #$,="\n"; print @_,"\n"; # for debugging rc file
 
     Getopt::Long::config('no_ignore_case', 'bundling', 'permute');
-    GetOptions(
+    GetOptionsFromArray(
+        \@_,
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
@@ -548,12 +574,8 @@ sub process_options {
     usage()   if $options{help};
     version() if $options{version};
 
-    sanitize_path_options(\%options);
-    check_packages(\@pkgs_to_unstow, \@pkgs_to_stow);
-
     return (\%options, \@pkgs_to_unstow, \@pkgs_to_stow);
 }
-
 sub sanitize_path_options {
     my ($options) = @_;
 
