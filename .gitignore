@@ -7,6 +7,7 @@
 /Makefile.in
 /bin/chkstow
 /bin/stow
+/cover_db
 /doc/stow.info
 /doc/version.texi
 tmp-testing-trees/
