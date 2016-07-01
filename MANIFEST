@@ -43,6 +43,7 @@ t/ignore.t
 t/join_paths.t
 t/parent.t
 t/stow.t
+t/rc_options.t
 t/testutil.pm
 t/unstow.t
 t/unstow_orig.t
