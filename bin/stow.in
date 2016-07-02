@@ -438,6 +438,8 @@ use Getopt::Long qw(GetOptionsFromArray);
 use Stow;
 use Stow::Util qw(parent error);
 
+use Hash::Merge qw( merge  );
+
 my $ProgramName = $0;
 $ProgramName =~ s{.*/}{};
 
@@ -488,17 +490,29 @@ sub main {
 # Comments  : checks @ARGV for valid package names
 #============================================================================
 sub process_options {
-
-    unshift @ARGV, get_config_file_options();
-    #$,="\n"; print @ARGV,"\n"; # for debugging rc file
-
-    my ($options, 
+    # Get cli options.
+    my ($cli_options, 
         $pkgs_to_unstow, 
         $pkgs_to_stow) = parse_options(@ARGV);
 
+    # Get the .stowrc options.
+    # Note that rc_pkgs_to_unstow and rc_pkgs_to_stow are ignored.
+    my ($rc_options, 
+        $rc_pkgs_to_unstow, 
+        $rc_pkgs_to_stow) = get_config_file_options();
+
+    # Merge .stowrc and command line options.
+    # Preference is given to cli options.
+    # rc options come first in merged arrays.
+    # cli options overwrite conflicting rc options.
+    Hash::Merge::set_behavior('RIGHT_PRECEDENT');
+    my $options = merge($rc_options, $cli_options);
+
+    # Run checks on the merged options.
     sanitize_path_options($options);
     check_packages($pkgs_to_unstow, $pkgs_to_stow);
 
+    # Return merged and processed options.
     return ($options, $pkgs_to_unstow, $pkgs_to_stow);
 }
 
@@ -611,16 +625,14 @@ sub check_packages {
     }
 }
 
-
 #===== SUBROUTINE ============================================================
 # Name      : get_config_file_options()
 # Purpose   : search for default settings in any .stowrc files
 # Parameters: none
-# Returns   : a list of default options
-# Throws    : no exceptions
-# Comments  : prepends the contents of '~/.stowrc' and '.stowrc' to the command
-#           : line so they get parsed just like normal arguments. (This was
-#           : hacked in so that Emil and I could set different preferences).
+# Returns   : (\%rc_options, \@rc_pkgs_to_unstow, \@rc_pkgs_to_stow)
+# Throws    : a fatal error if a bad option is given
+# Comments  : Parses the contents of '~/.stowrc' and '.stowrc' with the same
+#             parser as the command line options.
 #=============================================================================
 sub get_config_file_options {
     my @defaults = ();
@@ -635,7 +647,7 @@ sub get_config_file_options {
             close $FILE or die "Could not close open file: $file\n";
         }
     }
-    return @defaults;
+    return parse_options(@defaults);
 }
 
 #===== SUBROUTINE ===========================================================
@@ -650,7 +662,7 @@ sub usage {
     my ($msg) = @_;
 
     if ($msg) {
-        print "$ProgramName: $msg\n\n";
+        warn "$ProgramName: $msg\n\n";
     }
 
     print <<"EOT";

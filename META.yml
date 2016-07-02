@@ -4,6 +4,7 @@ author:
   - unknown
 build_requires:
   IO::Scalar: '0'
+  Hash::Merge: '0'
   Test::More: '0'
   Test::Output: '0'
 configure_requires:
