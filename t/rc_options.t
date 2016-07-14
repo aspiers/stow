@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 17;
 
 use testutil;
 
@@ -96,6 +96,16 @@ is(expand_environment('${WITH SPACE}'), 'test string',
 delete $ENV{'WITH SPACE'};
 # Expansion with escaped $
 is(expand_environment('\$HOME/stow'), '$HOME/stow', 'expand \$HOME');
+
+#
+# Test tilde (~) expansion
+#
+# Basic expansion
+is(expand_tilde('~/path'), "$ENV{HOME}/path", 'tilde expansion to $HOME');
+# Should not expand if middle of path
+is(expand_tilde('/path/~/here'), '/path/~/here', 'middle ~ not expanded');
+# Test escaped ~
+is(expand_tilde('\~/path'), '~/path', 'escaped tilde');
 
 #
 # Test that environment variable expansion is applied.

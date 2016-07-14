@@ -666,6 +666,30 @@ sub expand_environment {
     return $path;
 }
 
+#===== SUBROUTINE ============================================================
+# Name      : expand_tilde()
+# Purpose   : Expands tilde to user's home directory path.
+# Parameters: $path => string to perform expansion on.
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : http://docstore.mik.ua/orelly/perl4/cook/ch07_04.htm
+#=============================================================================
+sub expand_tilde {
+    my ($path) = @_;
+    # Replace tilde with home path.
+	$path =~ s{ ^ ~ ( [^/]* ) }
+                  { $1
+                    ? (getpwnam($1))[7]
+                    : ( $ENV{HOME} || $ENV{LOGDIR}
+                         || (getpwuid($<))[7]
+                      )
+    }ex;
+    # Replace espaced tilde with regular tilde.
+    $path =~ s/\\~/~/g;
+	return $path
+}
+
+
 #===== SUBROUTINE ===========================================================
 # Name      : usage()
 # Purpose   : print program usage message and exit
