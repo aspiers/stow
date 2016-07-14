@@ -630,7 +630,19 @@ sub get_config_file_options {
             close $FILE or die "Could not close open file: $file\n";
         }
     }
-    return parse_options(@defaults);
+
+    # Parse the options
+    my ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow) = parse_options(@defaults);
+
+    # Expand environment variables and glob characters.
+    if (exists $rc_options->{target}) {
+        $rc_options->{target} = expand_environment($rc_options->{target});
+    }
+    if (exists $rc_options->{dir}) {
+        $rc_options->{dir} = expand_environment($rc_options->{dir});
+    }
+
+    return ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow);
 }
 
 #===== SUBROUTINE ============================================================

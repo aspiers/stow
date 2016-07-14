@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 14;
 
 use testutil;
 
@@ -96,6 +96,29 @@ is(expand_environment('${WITH SPACE}'), 'test string',
 delete $ENV{'WITH SPACE'};
 # Expansion with escaped $
 is(expand_environment('\$HOME/stow'), '$HOME/stow', 'expand \$HOME');
+
+#
+# Test that environment variable expansion is applied.
+#
+$rc_contents = <<'HERE';
+--dir=$HOME/stow
+--target=$HOME/stow
+--ignore=\$HOME
+--defer=\$HOME
+--override=\$HOME
+HERE
+make_file($RC_FILE, $rc_contents);
+($options, $pkgs_to_delete, $pkgs_to_stow) = get_config_file_options();
+is($options->{dir}, "$OUT_DIR/stow",
+    "apply environment expansion on stowrc --dir");
+is($options->{target}, "$OUT_DIR/stow",
+    "apply environment expansion on stowrc --target");
+is_deeply($options->{ignore}, [qr(\$HOME\z)],
+    "environment expansion not applied on --ignore");
+is_deeply($options->{defer}, [qr(\A\$HOME)],
+    "environment expansion not applied on --defer");
+is_deeply($options->{override}, [qr(\A\$HOME)],
+    "environment expansion not applied on --override");
 
 # Clean up files used for testing.
 #
