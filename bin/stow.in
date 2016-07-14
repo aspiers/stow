@@ -646,6 +646,25 @@ sub get_config_file_options {
 }
 
 #===== SUBROUTINE ============================================================
+# Name      : expand_filepath()
+# Purpose   : Handles expansions that need to be applied to
+#           : file paths. Currently expands environment
+#           : variables and the tilde.
+# Parameters: $path => string to perform expansion on.
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : n/a
+#=============================================================================
+sub expand_filepath {
+    my ($path) = @_;
+
+    $path = expand_environment($path);
+    $path = expand_tilde($path);
+
+    return $path;
+}
+
+#===== SUBROUTINE ============================================================
 # Name      : expand_environment()
 # Purpose   : Expands evironment variables.
 # Parameters: $path => string to perform expansion on.
