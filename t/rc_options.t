@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 9;
 
 use testutil;
 
@@ -71,6 +71,31 @@ make_file($RC_FILE, $rc_contents);
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 is_deeply($options->{defer}, [qr(\Ainfo), qr(\Aman)],
           'defer man and info');
+
+# ======== Filepath Expansion Tests ========
+# Test proper filepath expansion in rc file.
+# Expansion is only applied to options that
+# take a filepath, namely target and dir.
+# ==========================================
+
+
+#
+# Test environment variable expansion function.
+#
+# Basic expansion
+is(expand_environment('$HOME/stow'), "$OUT_DIR/stow", 'expand $HOME');
+is(expand_environment('${HOME}/stow'), "$OUT_DIR/stow", 'expand ${HOME}');
+is(expand_environment('${UNDEFINED}'), '', 'expand $UNDEFINED');
+# Expansion with a space.
+if (exists $ENV{'WITH SPACE'}) {
+    die 'Environment variable ${WITH SPACE} exists';
+}
+$ENV{'WITH SPACE'} = 'test string';
+is(expand_environment('${WITH SPACE}'), 'test string',
+    'expand ${WITH SPACE}');
+delete $ENV{'WITH SPACE'};
+# Expansion with escaped $
+is(expand_environment('\$HOME/stow'), '$HOME/stow', 'expand \$HOME');
 
 # Clean up files used for testing.
 #

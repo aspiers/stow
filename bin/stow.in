@@ -633,6 +633,27 @@ sub get_config_file_options {
     return parse_options(@defaults);
 }
 
+#===== SUBROUTINE ============================================================
+# Name      : expand_environment()
+# Purpose   : Expands evironment variables.
+# Parameters: $path => string to perform expansion on.
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : Variable replacement mostly based on SO answer
+#           : http://stackoverflow.com/a/24675093/558820
+#=============================================================================
+sub expand_environment {
+    my ($path) = @_;
+    # Replace non-escaped $VAR and ${VAR} with $ENV{VAR}
+    # If $ENV{VAR} does not exist, perl will raise a warning
+    # and then happily treat it as an empty string.
+    $path =~ s/(?<!\\)\$\{((?:\w|\s)+)\}/$ENV{$1}/g;
+    $path =~ s/(?<!\\)\$(\w+)/$ENV{$1}/g;
+    # Remove \$ escapes.
+    $path =~ s/\\\$/\$/g;
+    return $path;
+}
+
 #===== SUBROUTINE ===========================================================
 # Name      : usage()
 # Purpose   : print program usage message and exit
