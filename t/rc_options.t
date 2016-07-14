@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 23;
 
 use testutil;
 
@@ -108,6 +108,16 @@ delete $ENV{'WITH_UNDERSCORE'};
 is(expand_environment('\$HOME/stow'), '$HOME/stow', 'expand \$HOME');
 
 #
+# Test tilde (~) expansion
+#
+# Basic expansion
+is(expand_tilde('~/path'), "$ENV{HOME}/path", 'tilde expansion to $HOME');
+# Should not expand if middle of path
+is(expand_tilde('/path/~/here'), '/path/~/here', 'middle ~ not expanded');
+# Test escaped ~
+is(expand_tilde('\~/path'), '~/path', 'escaped tilde');
+
+#
 # Test that environment variable expansion is applied.
 #
 $rc_contents = <<'HERE';
@@ -128,6 +138,29 @@ is_deeply($options->{ignore}, [qr(\$HOME\z)],
 is_deeply($options->{defer}, [qr(\A\$HOME)],
     "environment expansion not applied on --defer");
 is_deeply($options->{override}, [qr(\A\$HOME)],
+    "environment expansion not applied on --override");
+
+#
+# Test that tilde expansion is applied in correct places.
+#
+$rc_contents = <<'HERE';
+--dir=~/stow
+--target=~/stow
+--ignore=~/stow
+--defer=~/stow
+--override=~/stow
+HERE
+make_file($RC_FILE, $rc_contents);
+($options, $pkgs_to_delete, $pkgs_to_stow) = get_config_file_options();
+is($options->{dir}, "$OUT_DIR/stow",
+    "apply environment expansion on stowrc --dir");
+is($options->{target}, "$OUT_DIR/stow",
+    "apply environment expansion on stowrc --target");
+is_deeply($options->{ignore}, [qr(~/stow\z)],
+    "environment expansion not applied on --ignore");
+is_deeply($options->{defer}, [qr(\A~/stow)],
+    "environment expansion not applied on --defer");
+is_deeply($options->{override}, [qr(\A~/stow)],
     "environment expansion not applied on --override");
 
 # Clean up files used for testing.

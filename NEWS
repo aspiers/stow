@@ -22,6 +22,16 @@ News file for Stow.
 
     Thanks to Joris Vankerschaver for this feature!
 
+*** Shell-like expansion in .stowrc files
+
+    For options within .stowrc files which describe file paths, "~" can
+    be included to expand to the current value of $HOME, and
+    environment variables can be referenced e.g. via "$FOO" or
+    "${FOO}".  To prevent expansion, escape with a backslash.
+
+    Thanks a lot to Charles LeDoux for his diligent work on this
+    feature!
+
 *** chkstow now honours the $STOW_DIR environment variable
 
     The stow script already honoured the $STOW_DIR environment

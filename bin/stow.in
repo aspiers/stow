@@ -343,6 +343,28 @@ Stow will re-fold the tree by removing the symlinks to the surviving
 package, removing the directory, then linking the directory back to
 the surviving package.
 
+=head1 RESOURCE FILES
+
+F<Stow> searches for default command line options at F<.stowrc> (current
+directory) and F<~/.stowrc> (home directory) in that order. If both
+locations are present, the files are effectively appended together.
+
+The effect of options in the resource file is similar to simply prepending
+the options to the command line. For options that provide a single value,
+such as F<--target> or F<--dir>, the command line option will overwrite any
+options in the resource file. For options that can be given more than once,
+F<--ignore> for example, command line options and resource options are
+appended together.
+
+Environment variables and the tilde character (F<~>) will be expanded for
+options that take a file path.
+
+The options F<-D>, F<-R>, F<-S>, and any packages listed in the resource
+file are ignored.
+
+See the info manual for more information on how stow handles resource
+file.
+
 =head1 SEE ALSO
 
 The full documentation for F<stow> is maintained as a Texinfo manual.
@@ -633,7 +655,8 @@ sub check_packages {
 # Throws    : a fatal error if a bad option is given
 # Comments  : Parses the contents of '~/.stowrc' and '.stowrc' with the same
 #             parser as the command line options. Additionally expands any
-#             environment variables in --target or --dir options.
+#             environment variables or ~ character in --target or --dir
+#             options.
 #=============================================================================
 sub get_config_file_options {
     my @defaults = ();
@@ -655,14 +678,34 @@ sub get_config_file_options {
     # Expand environment variables and glob characters.
     if (exists $rc_options->{target}) {
         $rc_options->{target} =
-            expand_environment($rc_options->{target}, '--target option');
+            expand_filepath($rc_options->{target}, '--target option');
     }
     if (exists $rc_options->{dir}) {
         $rc_options->{dir} =
-            expand_environment($rc_options->{dir}, '--dir option');
+            expand_filepath($rc_options->{dir}, '--dir option');
     }
 
     return ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow);
+}
+
+#===== SUBROUTINE ============================================================
+# Name      : expand_filepath()
+# Purpose   : Handles expansions that need to be applied to
+#           : file paths. Currently expands environment
+#           : variables and the tilde.
+# Parameters: $path => string to perform expansion on.
+#           : $source => where the string came from
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : n/a
+#=============================================================================
+sub expand_filepath {
+    my ($path, $source) = @_;
+
+    $path = expand_environment($path, $source);
+    $path = expand_tilde($path);
+
+    return $path;
 }
 
 #===== SUBROUTINE ============================================================
@@ -699,6 +742,30 @@ sub _safe_expand_env_var {
     }
     return $ENV{$var};
 }
+
+#===== SUBROUTINE ============================================================
+# Name      : expand_tilde()
+# Purpose   : Expands tilde to user's home directory path.
+# Parameters: $path => string to perform expansion on.
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : http://docstore.mik.ua/orelly/perl4/cook/ch07_04.htm
+#=============================================================================
+sub expand_tilde {
+    my ($path) = @_;
+    # Replace tilde with home path.
+	$path =~ s{ ^ ~ ( [^/]* ) }
+                  { $1
+                    ? (getpwnam($1))[7]
+                    : ( $ENV{HOME} || $ENV{LOGDIR}
+                         || (getpwuid($<))[7]
+                      )
+    }ex;
+    # Replace espaced tilde with regular tilde.
+    $path =~ s/\\~/~/g;
+	return $path
+}
+
 
 #===== SUBROUTINE ===========================================================
 # Name      : usage()
