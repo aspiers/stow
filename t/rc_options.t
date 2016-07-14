@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 4;
 
 use testutil;
 
@@ -46,6 +46,32 @@ is($options->{target},  "$OUT_DIR/target", "rc options different lines");
 is($options->{dir}, "$OUT_DIR/stow", "rc options different lines");
 
 #
+# Test that scalar cli option overwrites conflicting stowrc option.
+#
+local @ARGV = ('-d', "$OUT_DIR/stow",'dummy');
+$rc_contents = <<HERE;
+    -d bad/path
+HERE
+make_file($RC_FILE, $rc_contents);
+($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+is($options->{dir}, "$OUT_DIR/stow", "cli overwrite scalar rc option.");
+
+#
+# Test that list cli option merges with conflicting stowrc option.
+# Documentation states that stowrc options are prepended to cli options.
+#
+local @ARGV = (
+    '--defer=man',
+    'dummy'
+);
+$rc_contents = <<HERE;
+    --defer=info
+HERE
+make_file($RC_FILE, $rc_contents);
+($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+is_deeply($options->{defer}, [qr(\Ainfo), qr(\Aman)],
+          'defer man and info');
+
 # Clean up files used for testing.
 #
 unlink $RC_FILE or die "Unable to clean up $RC_FILE.\n";
