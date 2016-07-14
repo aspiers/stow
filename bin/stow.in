@@ -636,10 +636,10 @@ sub get_config_file_options {
 
     # Expand environment variables and glob characters.
     if (exists $rc_options->{target}) {
-        $rc_options->{target} = expand_environment($rc_options->{target});
+        $rc_options->{target} = expand_filepath($rc_options->{target});
     }
     if (exists $rc_options->{dir}) {
-        $rc_options->{dir} = expand_environment($rc_options->{dir});
+        $rc_options->{dir} = expand_filepath($rc_options->{dir});
     }
 
     return ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow);
