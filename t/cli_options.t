@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 use testutil;
 
@@ -82,5 +82,16 @@ local @ARGV = (
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 is_deeply($options->{ignore}, [ qr(~\z), qr(\.#.*\z) ] => 'ignore temp files');
 
+#
+# Check that expansion not applied.
+#
+local @ARGV = (
+    "--target=$OUT_DIR/".'$HOME',
+    'dummy'
+);
+make_dir("$OUT_DIR/".'$HOME');
+($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+is($options->{target}, "$OUT_DIR/".'$HOME', 'no expansion');
+remove_dir("$OUT_DIR/".'$HOME');
 
 # vim:ft=perl

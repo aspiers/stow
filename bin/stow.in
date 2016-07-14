@@ -632,7 +632,8 @@ sub check_packages {
 # Returns   : (\%rc_options, \@rc_pkgs_to_unstow, \@rc_pkgs_to_stow)
 # Throws    : a fatal error if a bad option is given
 # Comments  : Parses the contents of '~/.stowrc' and '.stowrc' with the same
-#             parser as the command line options.
+#             parser as the command line options. Additionally expands any
+#             environment variables in --target or --dir options.
 #=============================================================================
 sub get_config_file_options {
     my @defaults = ();
@@ -647,7 +648,56 @@ sub get_config_file_options {
             close $FILE or die "Could not close open file: $file\n";
         }
     }
-    return parse_options(@defaults);
+
+    # Parse the options
+    my ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow) = parse_options(@defaults);
+
+    # Expand environment variables and glob characters.
+    if (exists $rc_options->{target}) {
+        $rc_options->{target} =
+            expand_environment($rc_options->{target}, '--target option');
+    }
+    if (exists $rc_options->{dir}) {
+        $rc_options->{dir} =
+            expand_environment($rc_options->{dir}, '--dir option');
+    }
+
+    return ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow);
+}
+
+#===== SUBROUTINE ============================================================
+# Name      : expand_environment()
+# Purpose   : Expands evironment variables.
+# Parameters: $path => string to perform expansion on.
+#           : $source => where the string came from
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : Variable replacement mostly based on SO answer
+#           : http://stackoverflow.com/a/24675093/558820
+#=============================================================================
+sub expand_environment {
+    my ($path, $source) = @_;
+    # Replace non-escaped $VAR and ${VAR} with $ENV{VAR}
+    # If $ENV{VAR} does not exist, perl will raise a warning
+    # and then happily treat it as an empty string.
+    $path =~ s/(?<!\\)\$\{((?:\w|\s)+)\}/
+               _safe_expand_env_var($1, $source)
+              /ge;
+    $path =~ s/(?<!\\)\$(\w+)/
+               _safe_expand_env_var($1, $source)
+              /ge;
+    # Remove \$ escapes.
+    $path =~ s/\\\$/\$/g;
+    return $path;
+}
+
+sub _safe_expand_env_var {
+    my ($var, $source) = @_;
+    unless (exists $ENV{$var}) {
+        die "$source references undefined environment variable \$$var; " .
+            "aborting!\n";
+    }
+    return $ENV{$var};
 }
 
 #===== SUBROUTINE ===========================================================

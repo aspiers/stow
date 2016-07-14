@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 15;
 
 use testutil;
 
@@ -71,6 +71,64 @@ make_file($RC_FILE, $rc_contents);
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 is_deeply($options->{defer}, [qr(\Ainfo), qr(\Aman)],
           'defer man and info');
+
+# ======== Filepath Expansion Tests ========
+# Test proper filepath expansion in rc file.
+# Expansion is only applied to options that
+# take a filepath, namely target and dir.
+# ==========================================
+
+
+#
+# Test environment variable expansion function.
+#
+# Basic expansion
+is(expand_environment('$HOME/stow'), "$OUT_DIR/stow", 'expand $HOME');
+is(expand_environment('${HOME}/stow'), "$OUT_DIR/stow", 'expand ${HOME}');
+
+delete $ENV{UNDEFINED}; # just in case
+foreach my $var ('$UNDEFINED', '${UNDEFINED}') {
+  eval {
+    expand_environment($var, "--foo option");
+  };
+  is(
+    $@,
+    "--foo option references undefined environment variable \$UNDEFINED; " .
+    "aborting!\n",
+    "expand $var"
+  );
+}
+
+# Expansion with an underscore.
+$ENV{'WITH_UNDERSCORE'} = 'test string';
+is(expand_environment('${WITH_UNDERSCORE}'), 'test string',
+    'expand ${WITH_UNDERSCORE}');
+delete $ENV{'WITH_UNDERSCORE'};
+# Expansion with escaped $
+is(expand_environment('\$HOME/stow'), '$HOME/stow', 'expand \$HOME');
+
+#
+# Test that environment variable expansion is applied.
+#
+$rc_contents = <<'HERE';
+--dir=$HOME/stow
+--target=$HOME/stow
+--ignore=\$HOME
+--defer=\$HOME
+--override=\$HOME
+HERE
+make_file($RC_FILE, $rc_contents);
+($options, $pkgs_to_delete, $pkgs_to_stow) = get_config_file_options();
+is($options->{dir}, "$OUT_DIR/stow",
+    "apply environment expansion on stowrc --dir");
+is($options->{target}, "$OUT_DIR/stow",
+    "apply environment expansion on stowrc --target");
+is_deeply($options->{ignore}, [qr(\$HOME\z)],
+    "environment expansion not applied on --ignore");
+is_deeply($options->{defer}, [qr(\A\$HOME)],
+    "environment expansion not applied on --defer");
+is_deeply($options->{override}, [qr(\A\$HOME)],
+    "environment expansion not applied on --override");
 
 # Clean up files used for testing.
 #
