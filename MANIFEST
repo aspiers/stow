@@ -36,6 +36,7 @@ t/chkstow.t
 t/cleanup_invalid_links.t
 t/cli_options.t
 t/defer.t
+t/dotfiles.t
 t/examples.t
 t/find_stowed_path.t
 t/foldable.t

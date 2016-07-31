@@ -22,7 +22,7 @@ use POSIX qw(getcwd);
 use base qw(Exporter);
 our @EXPORT_OK = qw(
     error debug set_debug_level set_test_mode
-    join_paths parent canon_path restore_cwd
+    join_paths parent canon_path restore_cwd adjust_dotfile
 );
 
 our $ProgramName = 'stow';
@@ -191,6 +191,20 @@ sub canon_path {
 sub restore_cwd {
     my ($prev) = @_;
     chdir($prev) or error("Your current directory $prev seems to have vanished");
+}
+
+sub adjust_dotfile {
+    my ($target) = @_;
+
+    my @result = ();
+    for my $part (split m{/+}, $target) {
+        if (($part ne "dot-") && ($part ne "dot-.")) {
+            $part =~ s/^dot-/./;
+        }
+        push @result, $part;
+    }
+
+    return join '/', @result;
 }
 
 =head1 BUGS
