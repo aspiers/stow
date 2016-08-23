@@ -559,7 +559,7 @@ sub should_skip_target_which_is_stow_dir {
         return 1;
     }
 
-    debug (4, "$target not protected");
+    debug(4, "$target not protected");
     return 0;
 }
 
