@@ -163,7 +163,7 @@ cpanm:
 
 doc/stow.8: bin/stow.in Makefile.am
 	[ -d doc ] || mkdir doc # required in vpath mode
-	$(edit) < $< | pod2man > $@
+	$(edit) < $< | pod2man --name stow --section 8 > $@
 
 # We use automake's built-in rule to generate stow.info.  The built-in
 # rules would also generate doc/stow.html and doc/stow.pdf, but after
