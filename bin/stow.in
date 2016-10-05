@@ -214,6 +214,22 @@ stowed to another package.
 Force stowing files beginning with this Perl regex if the file is
 already stowed to another package.
 
+=item --dotfiles
+
+Enable special handling for "dotfiles" (files or folders whose name
+begins with a period) in the package directory. If this option is
+enabled, Stow will add a preprocessing step for each file or folder
+whose name begins with "dot-", and replace the "dot-" prefix in the
+name by a period (.). This is useful when Stow is used to manage
+collections of dotfiles, to avoid having a package directory full of
+hidden files.
+
+For example, suppose we have a package containing two files,
+F<stow/dot-bashrc> and F<stow/dot-emacs.d/init.el>. With this option,
+Stow will create symlinks from F<.bashrc> to F<stow/dot-bashrc> and
+from F<.emacs.d/init.el> to F<stow/dot-emacs.d/init.el>. Any other
+files, whose name does not begin with "dot-", will be processed as usual.
+
 =item -V
 
 =item --version
@@ -481,7 +497,7 @@ sub process_options {
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
-        'adopt', 'no-folding',
+        'adopt', 'no-folding', 'dotfiles',
 
         # clean and pre-compile any regex's at parse time
         'ignore=s' =>

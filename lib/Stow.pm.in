@@ -41,7 +41,7 @@ use File::Spec;
 use POSIX qw(getcwd);
 
 use Stow::Util qw(set_debug_level debug error set_test_mode
-                  join_paths restore_cwd canon_path parent);
+                  join_paths restore_cwd canon_path parent adjust_dotfile);
 
 our $ProgramName = 'stow';
 our $VERSION = '@VERSION@';
@@ -60,6 +60,7 @@ our %DEFAULT_OPTIONS = (
     paranoid     => 0,
     compat       => 0,
     test_mode    => 0,
+    dotfiles     => 0,
     adopt        => 0,
     'no-folding' => 0,
     ignore       => [],
@@ -377,6 +378,13 @@ sub stow_contents {
         next NODE if $node eq '..';
         my $node_target = join_paths($target, $node);
         next NODE if $self->ignore($stow_path, $package, $node_target);
+
+        if ($self->{dotfiles}) {
+            my $adj_node_target = adjust_dotfile($node_target);
+            debug(4, "  Adjusting: $node_target => $adj_node_target");
+            $node_target = $adj_node_target;
+        }
+
         $self->stow_node(
             $stow_path,
             $package,
@@ -744,6 +752,13 @@ sub unstow_contents {
         next NODE if $node eq '..';
         my $node_target = join_paths($target, $node);
         next NODE if $self->ignore($stow_path, $package, $node_target);
+
+        if ($self->{dotfiles}) {
+            my $adj_node_target = adjust_dotfile($node_target);
+            debug(4, "  Adjusting: $node_target => $adj_node_target");
+            $node_target = $adj_node_target;
+        }
+
         $self->unstow_node($stow_path, $package, $node_target);
     }
     if (-d $target) {
@@ -801,6 +816,12 @@ sub unstow_node {
         # Does the existing $target actually point to anything?
         if (-e $existing_path) {
             # Does link points to the right place?
+
+            # Adjust for dotfile if necessary.
+            if ($self->{dotfiles}) {
+                $existing_path = adjust_dotfile($existing_path);
+            }
+
             if ($existing_path eq $path) {
                 $self->do_unlink($target);
             }
