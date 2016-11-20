@@ -1,5 +1,75 @@
 News file for Stow.
 
+* Changes in version 2.3.0
+
+** New --dotfiles option
+
+   Enable special handling for "dotfiles" (files or folders whose name
+   begins with a period) in the package directory. If this option is
+   enabled, Stow will add a preprocessing step for each file or folder
+   whose name begins with "dot-", and replace the "dot-" prefix in the
+   name by a period (".").  This is useful when Stow is used to manage
+   collections of dotfiles, to avoid having a package directory full
+   of hidden files.
+
+   For example, suppose we have a package containing two files,
+   stow/dot-bashrc and stow/dot-emacs.d/init.el.  With this option,
+   Stow will create symlinks from .bashrc to stow/dot-bashrc and from
+   .emacs.d/init.el to stow/dot-emacs.d/init.el.  Any other files,
+   whose name does not begin with "dot-", will be processed as usual.
+
+   Thanks to Joris Vankerschaver for this feature!
+
+** Fixed naming of man page
+
+   The title of the generated man page was previously ending up as
+   something like:
+
+      IO::FILE=IO(0XA719C0)(1)
+
+   Thanks to @Corin-EU on GitHub highlighting this and proposing a
+   fix.
+
+** Fix for test suite on Cygwin
+
+   Thanks to Lucas Theisen for this fix!
+
+** Convert README and INSTALL to Markdown
+
+** Add Docker files for convenient testing across multiple Perl versions
+
+   This is the first release which has been tested across 5 different
+   versions of Perl prior to release!  The versions are:
+
+        perl-5.22.2
+        perl-5.20.3
+        perl-5.18.4
+        perl-5.16.3
+        perl-5.14.4
+
+   Thanks to Charles LeDoux for this!
+
+** Add Coveralls integration with GitHub
+
+   This means that test coverage analysis will be automatically be run
+   on any pull requests submitted to GitHub.
+
+** Set up continuous testing via Travis CI
+
+   This means that the test suite will be automatically run on any
+   pull requests submitted to GitHub, as well as "make distcheck"
+   and "./Build distcheck".
+
+** Miscellaneous fixes to the build and distribution process
+
+** Improve handling of directories with unusual names
+
+   Various fixes for corner cases where directories are named "0"
+   or begin with a space character, or where STOW_DIR is empty.
+
+   Thanks to Cuong Manh Le for highlighting some of the issues and
+   proposing fixes!
+
 * Changes in version 2.2.2
 
 ** @VERSION@ substitution was set up for the Stow::Util module.
