@@ -62,6 +62,11 @@ Release procedure
 
     git tag -s $version -m "Release $version"
 
+- Run the tests on various Perl versions via Docker:
+
+    ./build-docker.sh
+    ./test-docker.sh
+
 - Run ./Build dist
 
 - Upload the resulting Stow-v7.8.9.tar.gz to CPAN via https://pause.perl.org/
