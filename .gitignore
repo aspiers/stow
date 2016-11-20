@@ -16,6 +16,7 @@ blib/
 config.log
 config.status
 configure
+/cover_db/
 /doc/ChangeLog.OLD
 /doc/manual.pdf
 /doc/manual-single.html
