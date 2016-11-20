@@ -11,21 +11,20 @@ set -euf -o pipefail
 IFS=$'\n\t'
 
 for p_version in $(perlbrew list | sed 's/ //g'); do
-
     perlbrew use $p_version
 
     echo $(perl --version)
 
     # Install stow
-    autoreconf --install 
-	eval `perl -V:siteprefix`
-	./configure --prefix=$siteprefix && make
-	make cpanm
+    autoreconf --install
+    eval `perl -V:siteprefix`
+    ./configure --prefix=$siteprefix && make
+    make cpanm
 
     # Run tests
-    make distcheck 
-	perl Build.PL && ./Build build && cover -test
-	./Build distcheck
+    make distcheck
+    perl Build.PL && ./Build build && cover -test
+    ./Build distcheck
 done
 
 make distclean

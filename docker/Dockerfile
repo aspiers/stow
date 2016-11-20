@@ -1,5 +1,5 @@
 # Build docker image: `docker build -t stowtest`
-# Run tests: (from stow src directory) 
+# Run tests: (from stow src directory)
 #    `docker run --rm -it -v $(pwd):$(pwd) -w $(pwd) stowtest`
 FROM debian:jessie
 RUN DEBIAN_FRONTEND=noninteractive \
