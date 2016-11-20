@@ -9,7 +9,7 @@ build_requires:
 configure_requires:
   Module::Build: '0'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4212, CPAN::Meta::Converter version 2.150005'
+generated_by: 'Module::Build version 0.422, CPAN::Meta::Converter version 2.150010'
 license: gpl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -18,10 +18,10 @@ name: Stow
 provides:
   Stow:
     file: lib/Stow.pm
-    version: v2.2.2
+    version: v2.3.0
   Stow::Util:
     file: lib/Stow/Util.pm
-    version: v2.2.2
+    version: v2.3.0
 requires:
   Carp: '0'
   IO::File: '0'
@@ -30,5 +30,5 @@ resources:
   homepage: https://savannah.gnu.org/projects/stow
   license: http://www.gnu.org/licenses/gpl-2.0.html
   repository: git://git.savannah.gnu.org/stow.git
-version: v2.2.2
+version: v2.3.0
 x_serialization_backend: 'CPAN::Meta::YAML version 0.012'

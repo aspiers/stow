@@ -4,7 +4,7 @@
       "unknown"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4212",
+   "generated_by" : "Module::Build version 0.422",
    "license" : [
       "gpl_1"
    ],
@@ -37,11 +37,11 @@
    "provides" : {
       "Stow" : {
          "file" : "lib/Stow.pm",
-         "version" : "v2.2.2"
+         "version" : "v2.3.0"
       },
       "Stow::Util" : {
          "file" : "lib/Stow/Util.pm",
-         "version" : "v2.2.2"
+         "version" : "v2.3.0"
       }
    },
    "release_status" : "stable",
@@ -55,6 +55,6 @@
          "url" : "git://git.savannah.gnu.org/stow.git"
       }
    },
-   "version" : "v2.2.2",
-   "x_serialization_backend" : "JSON::PP version 2.27203"
+   "version" : "v2.3.0",
+   "x_serialization_backend" : "JSON::PP version 2.27300"
 }
