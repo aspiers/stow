@@ -2,6 +2,11 @@
 
 set -eu
 
+version=$( git describe --match v* --abbrev=0 )
+imagename=stowtest
+image=$imagename:$version
+
 pushd docker
-docker build -t stowtest .
+echo "Building Docker image $image ..."
+docker build -t $image .
 popd
