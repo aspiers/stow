@@ -11,8 +11,16 @@ First read the official information for maintainers of GNU software:
 Release procedure
 -----------------
 
+- Set a shell variable to the version to be released, e.g.  if the
+  final step of this document was carried out after the previous
+  release was published:
+
+    version=$( git describe --match v* --abbrev=0 )
+
 - Ensure NEWS contains the latest changes, and that any new
   contributors have been added to THANKS.
+
+- git commit -m "Prepare NEWS and THANKS for $version release"
 
 - Ensure configure.ac contains the new version number.
   This should follow Semantic Versioning as described at:
@@ -39,6 +47,11 @@ Release procedure
         ./Build distmeta
 
     - Check META.yaml and META.json have the new version number.
+      They already should if the final step of this document was
+      carried out after the previous release was published, but
+      if not:
+
+        git commit -m "Bump version to X.Y.Z"
 
 - Ensure all changes are committed to git.
 
@@ -47,7 +60,7 @@ Release procedure
 
 - Tag the current git HEAD with the new version number:
 
-    git tag -s v7.8.9
+    git tag -s $version -m "Release $version"
 
 - Push HEAD and tag to savannah
 
@@ -100,3 +113,18 @@ Release procedure
 
   See http://www.gnu.org/prep/maintain/html_node/Announcements.html for
   more on making release announcements.
+
+- Update the git repositories to the next expected version, so that anyone
+  who builds from git gets a version of Stow which is higher than the release
+  which was just cut:
+
+    - Increment the patchlevel of the version number in configure.ac.
+
+    - Repeat the same procedure listed in the Module::Build section
+      above, in order to update META.yaml and META.json.
+
+    - git commit -m "Bump version to X.Y.Z for development of next release"
+
+    - git push savannah
+
+    - git push github
