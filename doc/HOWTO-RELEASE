@@ -11,7 +11,8 @@ First read the official information for maintainers of GNU software:
 Release procedure
 -----------------
 
-- Ensure NEWS contains the latest changes.
+- Ensure NEWS contains the latest changes, and that any new
+  contributors have been added to THANKS.
 
 - Ensure configure.ac contains the new version number.
   This should follow Semantic Versioning as described at:
