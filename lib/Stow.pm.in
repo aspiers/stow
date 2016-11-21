@@ -4,7 +4,7 @@ package Stow;
 
 =head1 NAME
 
-Stow - manage the installation of multiple software packages
+Stow - manage farms of symbolic links
 
 =head1 SYNOPSIS
 
