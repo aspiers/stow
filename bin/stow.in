@@ -152,7 +152,7 @@ directory.
 =item --verbose[=N]
 
 Send verbose output to standard error describing what Stow is
-doing. Verbosity levels are 0, 1, 2, 3, and 4; 0 is the default.
+doing. Verbosity levels are from 0 to 5; 0 is the default.
 Using C<-v> or C<--verbose> increases the verbosity by one; using
 `--verbose=N' sets it to N.
 
@@ -654,7 +654,7 @@ OPTIONS:
     -p, --compat          Use legacy algorithm for unstowing
 
     -n, --no, --simulate  Do not actually make any filesystem changes
-    -v, --verbose[=N]     Increase verbosity (levels are 0,1,2,3;
+    -v, --verbose[=N]     Increase verbosity (levels are from 0 to 5;
                             -v or --verbose adds 1; --verbose=N sets level)
     -V, --version         Show stow version number
     -h, --help            Show this help
