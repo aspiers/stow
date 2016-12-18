@@ -850,7 +850,8 @@ directory.
 
 Default command line options may be set in @file{.stowrc} (current
 directory) or @file{~/.stowrc} (home directory). These are parsed in
-that order, and effectively prepended to the command line arguments.
+that order, and effectively prepended to the command line arguments
+(with the notable difference that they won't be processed by the shell).
 This feature can be used for some interesting effects.
 
 For example, suppose your site uses more than one stow directory, perhaps in
