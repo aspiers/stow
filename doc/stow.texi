@@ -688,7 +688,7 @@ use the @option{--badlinks} option get stow to search for dangling links in your
 For example, if the target directory is @file{/usr/local} and the
 installation image for the package being deleted has only a @file{bin}
 directory and a @file{man} directory at the top level, then we only scan
-@file{/usr/local/bin} and  @file{/usr/local/bin/man}, and not
+@file{/usr/local/bin} and  @file{/usr/local/man}, and not
 @file{/usr/local/lib} or @file{/usr/local/share}, or for that matter
 @file{/usr/local/stow}.  Any symlink it finds that points into the package
 being deleted is removed.  Any directory that contained only symlinks to the
