@@ -288,10 +288,10 @@ execute @command{stow} from the directory @file{/usr/local/stow}.
 
 @item --ignore=@var{regexp}
 This (repeatable) option lets you suppress acting on files that match the
-given perl regular expression.  For example, using the options
+given Perl regular expression.  For example, using the options
 
 @example
---ignore='*.orig' --ignore='*.dist'
+--ignore='.*\.orig' --ignore='.*\.dist'
 @end example
 
 @noindent
