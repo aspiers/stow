@@ -82,7 +82,10 @@ approved by the Free Software Foundation.
 
 @ifinfo
 This manual describes GNU Stow @value{VERSION} (@value{UPDATED}), a
-program for managing the installation of software packages.
+program for managing sets of symbolic links, in order to make groups
+of related files (such as distinct packages of software, or
+configuration files) in one place in the filesystem appear to be
+located in another place.
 @end ifinfo
 @end ifnottex
 
@@ -128,14 +131,19 @@ Advice on changing compilation and installation parameters
 @node Introduction, Terminology, Top, Top
 @chapter Introduction
 
-Stow is a tool for managing the installation of multiple software
-packages in the same run-time directory tree.  One historical difficulty
-of this task has been the need to administer, upgrade, install, and
-remove files in independent packages without confusing them with other
-files sharing the same file system space.  For instance, it is common to
-install Perl and Emacs in @file{/usr/local}.  When one does so, one
+Stow is a tool for managing sets of symbolic links in order to
+facilitate the installation of multiple software packages, or other
+groups of related files, such as configuration files, into a single
+directory tree.
+
+Originally Stow was born to address the need to administer, upgrade,
+install, and remove files in independent software packages without
+confusing them with other files sharing the same file system space.
+For instance, it used to be common to compile Perl and Emacs from
+source and install them in @file{/usr/local}.  When one does so, one
 winds up with the following files@footnote{As of Perl 4.036 and Emacs
-19.22.} in @file{/usr/local/man/man1}:
+19.22.  These are now ancient releases but the example still holds
+valid.} in @file{/usr/local/man/man1}:
 
 @example
 a2p.1
@@ -162,6 +170,18 @@ of each private tree should reflect the desired structure in the common
 tree; i.e. (in the typical case) there should be a @file{bin} directory
 containing executables, a @file{man/man1} directory containing section 1
 man pages, and so on.
+
+In more recent times, software packages are often managed by more
+sophisticated package management software such as
+@uref{https://en.wikipedia.org/wiki/Rpm_(software), @command{rpm}},
+@uref{https://en.wikipedia.org/wiki/Dpkg, @command{dpkg}}, and
+@uref{https://en.wikipedia.org/wiki/Nix_package_manager, Nix}.
+However Stow is still used not only for software package management,
+but also for other purposes, such as facilitating a more controlled
+approach to management of configuration files in the user's home
+directory@footnote{@uref{http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html}},
+especially when coupled with version control
+systems@footnote{@uref{http://lists.gnu.org/archive/html/info-stow/2011-12/msg00000.html}}.
 
 Stow was inspired by Carnegie Mellon's Depot program, but is
 substantially simpler and safer.  Whereas Depot required database files
