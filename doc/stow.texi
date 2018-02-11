@@ -325,7 +325,7 @@ For example, the following options
 will cause stow to skip over pre-existing man and info pages.
 
 Equivalently, you could use @samp{--defer='man|info'} since the
-argument is just a Perl regex.
+argument is just a Perl regular expression.
 
 Note that the regular expression is anchored to the beginning of the path
 relative to the target directory, because this is what you will want to do most
