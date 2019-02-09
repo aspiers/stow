@@ -8,7 +8,7 @@ require 5.006_001;
 use File::Find;
 use Getopt::Long;
 
-my $DEFAULT_TARGET = '/usr/local/';
+my $DEFAULT_TARGET = $ENV{STOW_DIR} || '/usr/local/';
 
 our $Wanted   = \&bad_links;
 our %Package  = ();
