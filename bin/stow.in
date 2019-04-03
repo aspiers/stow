@@ -598,7 +598,11 @@ sub check_packages {
 #=============================================================================
 sub get_config_file_options {
     my @defaults = ();
-    for my $file ("$ENV{HOME}/.stowrc", '.stowrc') {
+    my @dirlist = ('.stowrc');
+    if (defined($ENV{HOME})) {
+        unshift(@dirlist, "$ENV{HOME}/.stowrc");
+    }
+    for my $file (@dirlist) {
         if (-r $file) {
             warn "Loading defaults from $file\n";
             open my $FILE, '<', $file
