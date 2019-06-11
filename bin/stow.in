@@ -539,7 +539,7 @@ sub process_options {
                 push @pkgs_to_stow, $_[0];
             }
         },
-    ) or usage();
+    ) or usage(0);
 
     usage()   if $options{help};
     version() if $options{version};
