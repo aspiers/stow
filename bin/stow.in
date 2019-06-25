@@ -604,7 +604,6 @@ sub get_config_file_options {
     my @defaults = ();
     for my $file ("$ENV{HOME}/.stowrc", '.stowrc') {
         if (-r $file) {
-            warn "Loading defaults from $file\n";
             open my $FILE, '<', $file
                 or die "Could not open $file for reading\n";
             while (my $line = <$FILE>){
