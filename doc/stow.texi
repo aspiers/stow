@@ -403,7 +403,7 @@ Do not perform any operations that modify the file system; in combination with
 @item -v
 @itemx --verbose[=@var{n}]
 Send verbose output to standard error describing what Stow is
-doing.  Verbosity levels are 0, 1, 2, and 3; 0 is the default.  Using
+doing.  Verbosity levels are from 0 to 5; 0 is the default.  Using
 @option{-v} or @option{--verbose} increases the verbosity by one; using
 @samp{--verbose=@var{n}} sets it to @var{n}.
 
