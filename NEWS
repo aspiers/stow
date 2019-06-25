@@ -36,6 +36,42 @@ News file for Stow.
 
 ** Convert README and INSTALL to Markdown
 
+** Update documentation to reflect more modern use cases
+
+   The README.md, stow(8) man page, and info manual have been updated
+   to de-emphasise the package management use, since these days almost
+   everyone prefers to use modern package managers such as rpm / dpkg
+   / Nix for (system-wide) package management.
+
+   To compensate, more popular modern use cases for Stow have been
+   added, such as management of dotfiles and software compiled in the
+   user's $HOME directory.
+
+** Stow now has a non-zero exit code if option parsing failed
+
+   Thanks to Brice Waegeneire for reporting this.
+
+** chkstow now honours the $STOW_DIR environment variable
+
+   The stow script already honoured the $STOW_DIR environment
+   variable.  Now chkstow does too, for consistency.
+
+** Miscellaneous documentation fixes
+
+   - Various typos were fixed.
+
+   - The documentation for --verbose was updated to indicate that
+     verbosity levels now go up to 5.
+
+   - Erroneous glob examples in the --ignore documentation were fixed.
+
+   - The abbreviation "regex" was removed from the info manual for
+     consistency.
+
+   - INSTALL.md now also documents how to build directly from git.
+
+** aclocal.m4 was updated using aclocal 1.15.1.
+
 ** Add Docker files for convenient testing across multiple Perl versions
 
    This is the first release which has been tested across 5 different
