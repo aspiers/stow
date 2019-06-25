@@ -1,0 +1,14 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+open(CONF, "configure.ac") or die "Couldn't open configure.ac: $!\n";
+
+while (<CONF>) {
+  if (/^AC_INIT\(\[stow\], \[(.+?)\]/) {
+    print "$1\n";
+    exit 0;
+  }
+}
+
+exit 1;

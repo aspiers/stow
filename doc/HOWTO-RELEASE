@@ -11,21 +11,21 @@ First read the official information for maintainers of GNU software:
 Release procedure
 -----------------
 
-- Set a shell variable to the version to be released, e.g.  if the
-  final step of this document was carried out after the previous
-  release was published:
-
-    version=$( git describe --match v* --abbrev=0 )
-
-- Ensure NEWS contains the latest changes, and that any new
-  contributors have been added to THANKS.
-
-- git commit -m "Prepare NEWS and THANKS for $version release"
-
-- Ensure configure.ac contains the new version number.
-  This should follow Semantic Versioning as described at:
+- Ensure configure.ac contains the number of the new unreleased
+  version.  This should follow Semantic Versioning as described at:
 
     http://semver.org/
+
+- To make the following steps easier, set the $version shell variable
+  to the same version number as above, e.g.
+
+    version=$( tools/get-version ) && echo $version
+
+- Ensure NEWS contains the latest changes, and that any new
+  contributors have been added to THANKS.  If necessary, commit
+  any additions:
+
+    git commit -m "Prepare NEWS and THANKS for $version release"
 
 - Check CPAN distribution will work via Module::Build:
 
@@ -51,21 +51,25 @@ Release procedure
       carried out after the previous release was published, but
       if not:
 
-        git commit -m "Bump version to X.Y.Z"
+        git commit -m "Bump version to $version"
 
 - Ensure all changes are committed to git.
 
 - Run make distcheck and ensure that everything looks good.
   It should generate the distribution files for you.
 
-- Tag the current git HEAD with the new version number:
-
-    git tag -s $version -m "Release $version"
-
 - Run the tests on various Perl versions via Docker:
 
     ./build-docker.sh
     ./test-docker.sh
+
+  Obviously if there are any failures, they will need to be fixed
+  first, and then repeat the above steps.
+
+- At this point we have a release candidate.  Tag the current git HEAD
+  with the new version number:
+
+    git tag -s $version -m "Release $version"
 
 - Run ./Build dist
 
