@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 use File::Basename;
-use Test::More tests => 1;
+use Test::More tests => 3;
 
 use testutil;
 
@@ -46,5 +46,9 @@ my $STOW = 'bin/stow';
 
 `$STOW --help`;
 is($?, 0, "--help should return 0 exit code");
+
+my $err = `$STOW --foo 2>&1`;
+is($? >> 8, 1, "unrecognised option should return 1 exit code");
+like($err, qr/^Unknown option: foo$/m, "unrecognised option should be listed");
 
 # vim:ft=perl
