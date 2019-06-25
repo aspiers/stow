@@ -17,6 +17,7 @@
       "build" : {
          "requires" : {
             "IO::Scalar" : "0",
+            "Hash::Merge": "0",
             "Test::More" : "0",
             "Test::Output" : "0"
          }

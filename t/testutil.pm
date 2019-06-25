@@ -55,7 +55,7 @@ sub init_test_dirs {
     }
 
     # Don't let user's ~/.stow-global-ignore affect test results
-    $ENV{HOME} = '/tmp/fake/home';
+    $ENV{HOME} = $OUT_DIR;
 }
 
 sub new_Stow {

@@ -343,6 +343,28 @@ Stow will re-fold the tree by removing the symlinks to the surviving
 package, removing the directory, then linking the directory back to
 the surviving package.
 
+=head1 RESOURCE FILES
+
+F<Stow> searches for default command line options at F<.stowrc> (current
+directory) and F<~/.stowrc> (home directory) in that order. If both
+locations are present, the files are effectively appended together.
+
+The effect of options in the resource file is similar to simply prepending
+the options to the command line. For options that provide a single value,
+such as F<--target> or F<--dir>, the command line option will overwrite any
+options in the resource file. For options that can be given more than once,
+F<--ignore> for example, command line options and resource options are
+appended together.
+
+Environment variables and the tilde character (F<~>) will be expanded for
+options that take a file path.
+
+The options F<-D>, F<-R>, F<-S>, and any packages listed in the resource
+file are ignored.
+
+See the info manual for more information on how stow handles resource
+file.
+
 =head1 SEE ALSO
 
 The full documentation for F<stow> is maintained as a Texinfo manual.
@@ -432,11 +454,13 @@ use warnings;
 require 5.006_001;
 
 use POSIX qw(getcwd);
-use Getopt::Long;
+use Getopt::Long qw(GetOptionsFromArray);
 
 @USE_LIB_PMDIR@
 use Stow;
 use Stow::Util qw(parent error);
+
+use Hash::Merge qw( merge  );
 
 my $ProgramName = $0;
 $ProgramName =~ s{.*/}{};
@@ -481,23 +505,61 @@ sub main {
 
 #===== SUBROUTINE ===========================================================
 # Name      : process_options()
-# Purpose   : parse command line options
+# Purpose   : Parse and process command line and .stowrc file options
 # Parameters: none
 # Returns   : (\%options, \@pkgs_to_unstow, \@pkgs_to_stow)
-# Throws    : a fatal error if a bad command line option is given
+# Throws    : a fatal error if a bad option is given
 # Comments  : checks @ARGV for valid package names
 #============================================================================
 sub process_options {
+    # Get cli options.
+    my ($cli_options, 
+        $pkgs_to_unstow, 
+        $pkgs_to_stow) = parse_options(@ARGV);
+
+    # Get the .stowrc options.
+    # Note that rc_pkgs_to_unstow and rc_pkgs_to_stow are ignored.
+    my ($rc_options, 
+        $rc_pkgs_to_unstow, 
+        $rc_pkgs_to_stow) = get_config_file_options();
+
+    # Merge .stowrc and command line options.
+    # Preference is given to cli options.
+    # rc options come first in merged arrays.
+    # cli options overwrite conflicting rc options.
+    Hash::Merge::set_behavior('RIGHT_PRECEDENT');
+    my $options = merge($rc_options, $cli_options);
+
+    # Run checks on the merged options.
+    sanitize_path_options($options);
+    check_packages($pkgs_to_unstow, $pkgs_to_stow);
+
+    # Return merged and processed options.
+    return ($options, $pkgs_to_unstow, $pkgs_to_stow);
+}
+
+#===== SUBROUTINE ===========================================================
+# Name      : parse_options()
+# Purpose   : parse command line options
+# Parameters: @arg_array => array of options to parse
+#             Example: parse_options(@ARGV)
+# Returns   : (\%options, \@pkgs_to_unstow, \@pkgs_to_stow)
+# Throws    : a fatal error if a bad command line option is given
+# Comments  : Used for parsing both command line options and rc file. Used 
+#             for parsing only. Sanity checks and post-processing belong in 
+#             process_options().
+#============================================================================
+sub parse_options {
     my %options        = ();
     my @pkgs_to_unstow = ();
     my @pkgs_to_stow   = ();
     my $action = 'stow';
 
-    unshift @ARGV, get_config_file_options();
-    #$,="\n"; print @ARGV,"\n"; # for debugging rc file
+    #$,="\n"; print @_,"\n"; # for debugging rc file
 
     Getopt::Long::config('no_ignore_case', 'bundling', 'permute');
-    GetOptions(
+    GetOptionsFromArray(
+        \@_,
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
@@ -548,12 +610,8 @@ sub process_options {
     usage()   if $options{help};
     version() if $options{version};
 
-    sanitize_path_options(\%options);
-    check_packages(\@pkgs_to_unstow, \@pkgs_to_stow);
-
     return (\%options, \@pkgs_to_unstow, \@pkgs_to_stow);
 }
-
 sub sanitize_path_options {
     my ($options) = @_;
 
@@ -589,22 +647,21 @@ sub check_packages {
     }
 }
 
-
 #===== SUBROUTINE ============================================================
 # Name      : get_config_file_options()
 # Purpose   : search for default settings in any .stowrc files
 # Parameters: none
-# Returns   : a list of default options
-# Throws    : no exceptions
-# Comments  : prepends the contents of '~/.stowrc' and '.stowrc' to the command
-#           : line so they get parsed just like normal arguments. (This was
-#           : hacked in so that Emil and I could set different preferences).
+# Returns   : (\%rc_options, \@rc_pkgs_to_unstow, \@rc_pkgs_to_stow)
+# Throws    : a fatal error if a bad option is given
+# Comments  : Parses the contents of '~/.stowrc' and '.stowrc' with the same
+#             parser as the command line options. Additionally expands any
+#             environment variables or ~ character in --target or --dir
+#             options.
 #=============================================================================
 sub get_config_file_options {
     my @defaults = ();
     for my $file ("$ENV{HOME}/.stowrc", '.stowrc') {
         if (-r $file) {
-            warn "Loading defaults from $file\n";
             open my $FILE, '<', $file
                 or die "Could not open $file for reading\n";
             while (my $line = <$FILE>){
@@ -614,8 +671,101 @@ sub get_config_file_options {
             close $FILE or die "Could not close open file: $file\n";
         }
     }
-    return @defaults;
+
+    # Parse the options
+    my ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow) = parse_options(@defaults);
+
+    # Expand environment variables and glob characters.
+    if (exists $rc_options->{target}) {
+        $rc_options->{target} =
+            expand_filepath($rc_options->{target}, '--target option');
+    }
+    if (exists $rc_options->{dir}) {
+        $rc_options->{dir} =
+            expand_filepath($rc_options->{dir}, '--dir option');
+    }
+
+    return ($rc_options, $rc_pkgs_to_unstow, $rc_pkgs_to_stow);
 }
+
+#===== SUBROUTINE ============================================================
+# Name      : expand_filepath()
+# Purpose   : Handles expansions that need to be applied to
+#           : file paths. Currently expands environment
+#           : variables and the tilde.
+# Parameters: $path => string to perform expansion on.
+#           : $source => where the string came from
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : n/a
+#=============================================================================
+sub expand_filepath {
+    my ($path, $source) = @_;
+
+    $path = expand_environment($path, $source);
+    $path = expand_tilde($path);
+
+    return $path;
+}
+
+#===== SUBROUTINE ============================================================
+# Name      : expand_environment()
+# Purpose   : Expands evironment variables.
+# Parameters: $path => string to perform expansion on.
+#           : $source => where the string came from
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : Variable replacement mostly based on SO answer
+#           : http://stackoverflow.com/a/24675093/558820
+#=============================================================================
+sub expand_environment {
+    my ($path, $source) = @_;
+    # Replace non-escaped $VAR and ${VAR} with $ENV{VAR}
+    # If $ENV{VAR} does not exist, perl will raise a warning
+    # and then happily treat it as an empty string.
+    $path =~ s/(?<!\\)\$\{((?:\w|\s)+)\}/
+               _safe_expand_env_var($1, $source)
+              /ge;
+    $path =~ s/(?<!\\)\$(\w+)/
+               _safe_expand_env_var($1, $source)
+              /ge;
+    # Remove \$ escapes.
+    $path =~ s/\\\$/\$/g;
+    return $path;
+}
+
+sub _safe_expand_env_var {
+    my ($var, $source) = @_;
+    unless (exists $ENV{$var}) {
+        die "$source references undefined environment variable \$$var; " .
+            "aborting!\n";
+    }
+    return $ENV{$var};
+}
+
+#===== SUBROUTINE ============================================================
+# Name      : expand_tilde()
+# Purpose   : Expands tilde to user's home directory path.
+# Parameters: $path => string to perform expansion on.
+# Returns   : String with replacements performed.
+# Throws    : n/a
+# Comments  : http://docstore.mik.ua/orelly/perl4/cook/ch07_04.htm
+#=============================================================================
+sub expand_tilde {
+    my ($path) = @_;
+    # Replace tilde with home path.
+	$path =~ s{ ^ ~ ( [^/]* ) }
+                  { $1
+                    ? (getpwnam($1))[7]
+                    : ( $ENV{HOME} || $ENV{LOGDIR}
+                         || (getpwuid($<))[7]
+                      )
+    }ex;
+    # Replace espaced tilde with regular tilde.
+    $path =~ s/\\~/~/g;
+	return $path
+}
+
 
 #===== SUBROUTINE ===========================================================
 # Name      : usage()
@@ -629,7 +779,7 @@ sub usage {
     my ($msg) = @_;
 
     if ($msg) {
-        print "$ProgramName: $msg\n\n";
+        warn "$ProgramName: $msg\n\n";
     }
 
     print <<"EOT";

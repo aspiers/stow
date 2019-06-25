@@ -881,9 +881,10 @@ directory.
 
 Default command line options may be set in @file{.stowrc} (current
 directory) or @file{~/.stowrc} (home directory). These are parsed in
-that order, and effectively prepended to the command line arguments
-(with the notable difference that they won't be processed by the shell).
-This feature can be used for some interesting effects.
+that order, and are appended together if they both exist. The effect of
+the options in the resource file is similar to simply prepending the
+options to the command line. This feature can be used for some
+interesting effects.
 
 For example, suppose your site uses more than one stow directory, perhaps in
 order to share around responsibilities with a number of systems
@@ -922,6 +923,22 @@ immediate parent directory @file{/usr/local/stow}), overriding any
 pre-existing links to bin files or man pages, and ignoring some cruft
 that gets installed by default.
 
+If an option is provided both on the command line and in a resource file,
+the command line option takes precedence. For options that provide a single
+value, such as @command{--target} or @command{--dir}, the command line
+option will overwrite any options in the resource file. For options that can
+be given more than once, @command{--ignore} for example, command line
+options and resource options are appended together.
+
+For options that take a file path, environment variables and the tilde
+character (@command{~}) are expanded. An environment variable can be
+given in either the @command{$VAR} or @command{$@{VAR@}} form. To
+prevent expansion, escape the @command{$} or @command{~} with a
+backslash.
+
+The options @command{-D}, @command{-S}, and @command{-R} are ignored in
+resource files. This is also true of any package names given in the
+resource file.
 
 @c ===========================================================================
 @node Compile-time vs Install-time, Bootstrapping, Resource Files, Top
