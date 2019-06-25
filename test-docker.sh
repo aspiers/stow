@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Test Stow across multiple Perl versions, by executing the
 # Docker image built via build-docker.sh.

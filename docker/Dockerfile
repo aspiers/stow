@@ -3,7 +3,6 @@
 #    `docker run --rm -it -v $(pwd):$(pwd) -w $(pwd) stowtest`
 FROM debian:jessie
 RUN DEBIAN_FRONTEND=noninteractive \
-apt-get clean && \
 apt-get update -qq && \
 apt-get install -y -q \
     autoconf \
@@ -18,6 +17,7 @@ apt-get install -y -q \
     texinfo \
     texlive \
     texi2html \
+&& apt-get clean \
 && rm -rf /var/lib/apt/lists/*
 
 # Set up perlbrew
