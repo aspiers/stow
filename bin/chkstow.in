@@ -93,7 +93,7 @@ sub aliens  {
     !-l && !-d && print "Unstowed file: $File::Find::name\n";
 }
 
-# just list the packages in the the target directory
+# just list the packages in the target directory
 # FIXME: what if the stow dir is not called 'stow'?
 sub list {
     if (-l) {
