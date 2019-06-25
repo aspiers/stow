@@ -34,6 +34,7 @@ NEWS
 README.md
 t/chkstow.t
 t/cleanup_invalid_links.t
+t/cli.t
 t/cli_options.t
 t/defer.t
 t/dotfiles.t
