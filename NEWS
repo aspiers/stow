@@ -2,109 +2,116 @@ News file for Stow.
 
 * Changes in version 2.3.0
 
-** New --dotfiles option
+** New features / changes in behaviour
 
-   Enable special handling for "dotfiles" (files or folders whose name
-   begins with a period) in the package directory. If this option is
-   enabled, Stow will add a preprocessing step for each file or folder
-   whose name begins with "dot-", and replace the "dot-" prefix in the
-   name by a period (".").  This is useful when Stow is used to manage
-   collections of dotfiles, to avoid having a package directory full
-   of hidden files.
+*** New --dotfiles option
 
-   For example, suppose we have a package containing two files,
-   stow/dot-bashrc and stow/dot-emacs.d/init.el.  With this option,
-   Stow will create symlinks from .bashrc to stow/dot-bashrc and from
-   .emacs.d/init.el to stow/dot-emacs.d/init.el.  Any other files,
-   whose name does not begin with "dot-", will be processed as usual.
+    Enable special handling for "dotfiles" (files or folders whose name
+    begins with a period) in the package directory. If this option is
+    enabled, Stow will add a preprocessing step for each file or folder
+    whose name begins with "dot-", and replace the "dot-" prefix in the
+    name by a period (".").  This is useful when Stow is used to manage
+    collections of dotfiles, to avoid having a package directory full
+    of hidden files.
 
-   Thanks to Joris Vankerschaver for this feature!
+    For example, suppose we have a package containing two files,
+    stow/dot-bashrc and stow/dot-emacs.d/init.el.  With this option,
+    Stow will create symlinks from .bashrc to stow/dot-bashrc and from
+    .emacs.d/init.el to stow/dot-emacs.d/init.el.  Any other files,
+    whose name does not begin with "dot-", will be processed as usual.
 
-** Fixed naming of man page
+    Thanks to Joris Vankerschaver for this feature!
 
-   The title of the generated man page was previously ending up as
-   something like:
+*** chkstow now honours the $STOW_DIR environment variable
 
-      IO::FILE=IO(0XA719C0)(1)
+    The stow script already honoured the $STOW_DIR environment
+    variable.  Now chkstow does too, for consistency.
 
-   Thanks to @Corin-EU on GitHub highlighting this and proposing a
-   fix.
+*** Stow now has a non-zero exit code if option parsing failed
 
-** Fix for test suite on Cygwin
+    Thanks to Brice Waegeneire for reporting this.
 
-   Thanks to Lucas Theisen for this fix!
+** Documentation fixes and enhancements
 
-** Convert README and INSTALL to Markdown
+*** Fixed naming of man page
 
-** Update documentation to reflect more modern use cases
+    The title of the generated man page was previously ending up as
+    something like:
 
-   The README.md, stow(8) man page, and info manual have been updated
-   to de-emphasise the package management use, since these days almost
-   everyone prefers to use modern package managers such as rpm / dpkg
-   / Nix for (system-wide) package management.
+       IO::FILE=IO(0XA719C0)(1)
 
-   To compensate, more popular modern use cases for Stow have been
-   added, such as management of dotfiles and software compiled in the
-   user's $HOME directory.
+    Thanks to @Corin-EU on GitHub highlighting this and proposing a
+    fix.
 
-** Stow now has a non-zero exit code if option parsing failed
+*** Convert README and INSTALL to Markdown
 
-   Thanks to Brice Waegeneire for reporting this.
+    They are now named README.md and INSTALL.md, and render nicely
+    when viewed via git hosting services which support Markdown.
 
-** chkstow now honours the $STOW_DIR environment variable
+*** Update documentation to reflect more modern use cases
 
-   The stow script already honoured the $STOW_DIR environment
-   variable.  Now chkstow does too, for consistency.
+    The README.md, stow(8) man page, and info manual have been updated
+    to de-emphasise the package management use, since these days almost
+    everyone prefers to use modern package managers such as rpm / dpkg
+    / Nix for (system-wide) package management.
 
-** Miscellaneous documentation fixes
+    To compensate, more popular modern use cases for Stow have been
+    added, such as management of dotfiles and software compiled in the
+    user's $HOME directory.
 
-   - Various typos were fixed.
+*** Miscellaneous documentation fixes
 
-   - The documentation for --verbose was updated to indicate that
-     verbosity levels now go up to 5.
+    - Various typos were fixed.
 
-   - Erroneous glob examples in the --ignore documentation were fixed.
+    - The documentation for --verbose was updated to indicate that
+      verbosity levels now go up to 5.
 
-   - The abbreviation "regex" was removed from the info manual for
-     consistency.
+    - Erroneous glob examples in the --ignore documentation were fixed.
 
-   - INSTALL.md now also documents how to build directly from git.
+    - The abbreviation "regex" was removed from the info manual for
+      consistency.
 
-** aclocal.m4 was updated using aclocal 1.15.1.
+    - INSTALL.md now also documents how to build directly from git.
+** Fixes for bugs and technical debt
+*** Fix for test suite on Cygwin
 
-** Add Docker files for convenient testing across multiple Perl versions
+    Thanks to Lucas Theisen for this fix!
 
-   This is the first release which has been tested across 5 different
-   versions of Perl prior to release!  The versions are:
+*** aclocal.m4 was updated using aclocal 1.15.1.
 
-        perl-5.22.2
-        perl-5.20.3
-        perl-5.18.4
-        perl-5.16.3
-        perl-5.14.4
+*** Add Docker files for convenient testing across multiple Perl versions
 
-   Thanks to Charles LeDoux for this!
+    This is the first release which has been tested across 5 different
+    versions of Perl prior to release!  The versions are:
 
-** Add Coveralls integration with GitHub
+         perl-5.22.2
+         perl-5.20.3
+         perl-5.18.4
+         perl-5.16.3
+         perl-5.14.4
 
-   This means that test coverage analysis will be automatically be run
-   on any pull requests submitted to GitHub.
+    Thanks to Charles LeDoux for this!
 
-** Set up continuous testing via Travis CI
+*** Add Coveralls integration with GitHub
 
-   This means that the test suite will be automatically run on any
-   pull requests submitted to GitHub, as well as "make distcheck"
-   and "./Build distcheck".
+    This means that test coverage analysis will be automatically be run
+    on any pull requests submitted to GitHub.
 
-** Miscellaneous fixes to the build and distribution process
+*** Set up continuous testing via Travis CI
 
-** Improve handling of directories with unusual names
+    This means that the test suite will be automatically run on any
+    pull requests submitted to GitHub, as well as "make distcheck"
+    and "./Build distcheck".
 
-   Various fixes for corner cases where directories are named "0"
-   or begin with a space character, or where STOW_DIR is empty.
+*** Miscellaneous fixes to the build and distribution process
 
-   Thanks to Cuong Manh Le for highlighting some of the issues and
-   proposing fixes!
+*** Improve handling of directories with unusual names
+
+    Various fixes for corner cases where directories are named "0"
+    or begin with a space character, or where STOW_DIR is empty.
+
+    Thanks to Cuong Manh Le for highlighting some of the issues and
+    proposing fixes!
 
 * Changes in version 2.2.2
 
