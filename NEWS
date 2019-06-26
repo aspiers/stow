@@ -43,6 +43,22 @@ News file for Stow.
 
 ** Documentation fixes and enhancements
 
+*** Remove dependency on unmaintained texi2html
+
+    The dependency on the ancient and unmaintained texi2html for
+    building the single-page HTML version of the manual has been
+    removed, since it was difficult to get running on most distros
+    other than openSUSE.
+
+    Instead use the more modern "makeinfo --html --no-split" approach.
+    Rules have been kept for posterity in the Makefile for the old
+    approach and also an "in-between" approach based on texi2any;
+    however these are not triggered by default.  Run
+
+       make manual-single-html-all
+
+    to compare the three versions.
+
 *** Fixed naming of man page
 
     The title of the generated man page was previously ending up as
