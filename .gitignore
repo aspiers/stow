@@ -20,6 +20,8 @@ configure
 /doc/ChangeLog.OLD
 /doc/manual.pdf
 /doc/manual-single.html
+/doc/manual-single-old-texi2html.html
+/doc/manual-single-texi2html-wrapper.html
 /doc/manual-split/
 /doc/manual.texi
 /doc/stow.pdf

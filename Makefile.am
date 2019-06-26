@@ -181,10 +181,42 @@ doc/stow.8: bin/stow.in Makefile.am
 # install.  Instead, by overriding the built-in rules with modified
 # versions, we can kill both birds with one stone.
 
+# Generating the single-page HTML version used to be done with the old
+# texi2html, which is no longer maintained.  This rule is not used,
+# but is kept to allow comparing of results during the transition, and
+# potentially longer for posterity.
+doc/manual-single-old-texi2html.html: $(doc_deps)
+	texi2html --P=$(srcdir) --output=$@ -expandinfo -menu -monolithic -verbose $<
+
+# One alternative to the old texi2html approach is to use the texi2html
+# wrapper around texi2any which is provided as a partial drop-in replacement:
+#
+# https://www.gnu.org/software/texinfo/manual/texinfo/html_node/texi2html.html#texi2html
+#
+# Differences to the old texi2html:
+#
+#   - Doesn't wrap @file{foo} paths with quotes, which looks better.
+#   - Missing certain sections
+doc/manual-single-texi2html-wrapper.html: $(doc_deps)
+	texi2any -P $(srcdir) --output=$@ --verbose \
+		-c TEXI2HTML=1 -c SHOW_MENU=1 -c MONOLITHIC=1 $<
+
+.PHONY: manual-single-html-all
+manual-single-html-all: \
+	$(HTML) \
+	doc/manual-single-texi2html-wrapper.html \
+	doc/manual-single-old-texi2html.html
+
+# Modern approach using $(MAKEINFOHTML) --no-split
+# Differences to the older two approaches:
+#
+#   - Nicer navigation links between sections
 $(HTML): $(doc_deps)
 	[ -d doc ] || mkdir doc # required in vpath mode
 	-rm -f $@
-	texi2html --P=$(srcdir) --output=$@ -expandinfo -menu -monolithic -verbose $<
+	$(MAKEINFOHTML) $(AM_MAKEINFOHTMLFLAGS) $(MAKEINFOFLAGS) -I doc -I $(srcdir)/doc \
+		-c USE_TITLEPAGE_FOR_TITLE=1 --no-split -o $@ \
+		`test -f 'doc/stow.texi' || echo '$(srcdir)/'`doc/stow.texi
 
 $(PDF): $(doc_deps)
 	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
