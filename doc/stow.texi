@@ -63,7 +63,9 @@ approved by the Free Software Foundation.
 @title Stow @value{VERSION}
 @subtitle Managing the installation of software packages
 @author Bob Glickstein, Zanshin Software, Inc.
-@author Kahlil Hodgson, RMIT Univerity, Australia.
+@author Kahlil Hodgson, RMIT University, Australia.
+@author Guillaume Morin
+@author Adam Spiers
 @page
 @vskip 0pt plus 1filll
 @insertcopying
