@@ -111,16 +111,16 @@ appear to be installed in a single directory tree.
 
 Ignore Lists
 
-* Motivation For Ignore Lists::  
-* Types And Syntax Of Ignore Lists::  
-* Justification For Yet Another Set Of Ignore Files::  
+* Motivation For Ignore Lists::
+* Types And Syntax Of Ignore Lists::
+* Justification For Yet Another Set Of Ignore Files::
 
 Advice on changing compilation and installation parameters
 
-* GNU Emacs::                   
-* Other FSF Software::          
-* Cygnus Software::             
-* Perl and Perl 5 Modules::     
+* GNU Emacs::
+* Other FSF Software::
+* Cygnus Software::
+* Perl and Perl 5 Modules::
 
 @end detailmenu
 @end menu
@@ -460,9 +460,9 @@ of times.
 @cindex ignoring files and directories
 
 @menu
-* Motivation For Ignore Lists::  
-* Types And Syntax Of Ignore Lists::  
-* Justification For Yet Another Set Of Ignore Files::  
+* Motivation For Ignore Lists::
+* Types And Syntax Of Ignore Lists::
+* Justification For Yet Another Set Of Ignore Files::
 @end menu
 
 @c ===========================================================================
@@ -581,7 +581,7 @@ justified.  However there are good reasons why Stow does not simply
 check for the presence of say, @file{.cvsignore}, and use that if it
 exists.  Firstly, there is no guarantee that a stow package would
 contain any version control meta-data, or permit introducing this if
-it didn't already exist.  
+it didn't already exist.
 
 Secondly even if it did, version control system ignore lists generally
 reflect @emph{build-time} ignores rather than @emph{install-time}, and
@@ -1017,10 +1017,10 @@ The details of stowing some specific packages are described in the
 following sections.
 
 @menu
-* GNU Emacs::                   
-* Other FSF Software::          
-* Cygnus Software::             
-* Perl and Perl 5 Modules::     
+* GNU Emacs::
+* Other FSF Software::
+* Cygnus Software::
+* Perl and Perl 5 Modules::
 @end menu
 
 @c ---------------------------------------------------------------------------
