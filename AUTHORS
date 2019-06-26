@@ -6,7 +6,7 @@ Contributions from Gord Matzigkeit <gord@enci.ucalgary.ca>.
 John Bazik wrote `fastcwd', the Perl subroutine for computing the
 current working directory.
 
-Charles Briscoe-Smith <cpbs@debian.org> wrote the fix to prevent 
+Charles Briscoe-Smith <cpbs@debian.org> wrote the fix to prevent
 stow -D / stow -R removing initially-empty directories.
 
 Adam Lackorzynski <al10@inf.tu-dresden.de> wrote the fix to prevente
@@ -19,17 +19,17 @@ in order to implement:
 
     1. defered operations,
     2. option parsing via Getopt::Long,
-    3. options to support shared files, 
+    3. options to support shared files,
     4. support for multiple operations per invocation,
-    5. default command line arguments via '.stowrc' and '~/.stowrc' files, 
+    5. default command line arguments via '.stowrc' and '~/.stowrc' files,
     6. better cooperation between multiple stow directories,
-    7. a test suite (and support code) to ensure that everything still works.  
+    7. a test suite (and support code) to ensure that everything still works.
 
 As these changes required a dramatic reorganisation of the code, very little
 was left untouched, and so Stow's major version was bumped up to version 2.
 
 Austin Wood <austin.wood@rmit.edu.au> and Chris Hoobin
-<christopher.hoobin@rmit.edu.au> helped clean up the documentation for 
+<christopher.hoobin@rmit.edu.au> helped clean up the documentation for
 version 2 and created the texi2man script.
 
 Adam Spiers <stow@adamspiers.org> refactored the backend code into new
