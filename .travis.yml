@@ -10,7 +10,6 @@ addons:
     packages:
     - texinfo
     - texlive
-    - texi2html
 before_install:
   - cpanm -n Devel::Cover::Report::Coveralls
 install:
