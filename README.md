@@ -66,6 +66,11 @@ License
 Stow is free software, licensed under the GNU General Public License,
 which can be found in the file [`COPYING`](COPYING).
 
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
+
 Installation
 ------------
 

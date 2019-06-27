@@ -1,4 +1,19 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
+#
+# This file is part of GNU Stow.
+#
+# GNU Stow is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# GNU Stow is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see https://www.gnu.org/licenses/.
 
 #
 # Testing ignore lists.
@@ -40,7 +55,7 @@ sub test_local_ignore_list_always_ignored_at_top_level {
         $Stow::LOCAL_IGNORE_FILE             => 1,
         "subdir/" . $Stow::LOCAL_IGNORE_FILE => 0,
     );
-}    
+}
 
 sub test_built_in_list {
     my ($stow_path, $package, $context, $expect_ignores) = @_;
