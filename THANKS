@@ -7,6 +7,7 @@ Greg Fox            <fox@zanshin.com>
 David Hartmann      <davidh@zanshin.com>
 Ben Liblit          <liblit@well.com>
 Gord Matzigkeit     <gord@enci.ucalgary.ca>
+Adam Lackorzynski   <al10@inf.tu-dresden.de>
 Roland McGrath      <roland@gnu.ai.mit.edu>
 Jim Meyering        <meyering@asic.sc.ti.com>
 Fritz Mueller       <fritzm@netcom.com>
@@ -15,6 +16,7 @@ Richard Stallman    <rms@gnu.ai.mit.edu>
 Spencer Sun         <zorak@netcom.com>
 Tom Tromey          <tromey@cygnus.com>
 Steve Webster       <srw@zanshin.com>
+Kahlil Hodgson      <kahlil@internode.on.net>
 Geoffrey Giesemann  <geoffrey.giesemann@rmit.edu.au>
 Emil Mikulic        <emil.mikulic@rmit.edu.au>
 Austin Wood         <austin.wood@rmit.edu.au>
@@ -38,3 +40,7 @@ Brice Waegeneire
 Email addresses of new contributors are no longer being added by default
 for privacy reasons; however please contact the maintainer if you are
 happy for your email address to be listed here.
+
+More authorship and contribution details can be found in the AUTHORS
+and ChangeLog files, and of course also in the git version control
+history.

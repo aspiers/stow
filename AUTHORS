@@ -1,23 +1,36 @@
-Stow was written by Bob Glickstein <bobg+stow@zanshin.com>, Zanshin
-Software, Inc.
+Stow was originally written by Bob Glickstein <bobg+stow@zanshin.com>,
+Zanshin Software, Inc.
 
-Contributions from Gord Matzigkeit <gord@enci.ucalgary.ca>.
+Gord Matzigkeit <gord@enci.ucalgary.ca> made some early contributions.
 
 John Bazik wrote `fastcwd', the Perl subroutine for computing the
-current working directory.
+current working directory (later removed in 1.3.3).
 
 Charles Briscoe-Smith <cpbs@debian.org> wrote the fix to prevent
-stow -D / stow -R removing initially-empty directories.
+stow -D / stow -R removing initially-empty directories (mentioned
+in 1.3.3 section of NEWS).
 
-Adam Lackorzynski <al10@inf.tu-dresden.de> wrote the fix to prevente
+Adam Lackorzynski <al10@inf.tu-dresden.de> wrote the fix to prevent
 the generation of wrong links if there are links in the stow directory.
 
-Stow was maintained by Guillaume Morin <gmorin@gnu.org> up to November 2007.
+Stow was maintained by Guillaume Morin <gmorin@gnu.org> up to November
+2007.  Guillaume originally imported the source code into the Savannah
+CVS repository on 2001/12/24 with the tag "v1_3_2".  This history was
+later imported into git as described below.
 
-Kahlil (Kal) Hodgson <kahlil@internode.on.net> performed a major rewrite
-in order to implement:
+1.3.3 was the last release of the 1.x series.  The CVS history
+contains a few commits after 1.3.3 preparing for a 1.3.4 release which
+was never published (see the "import-cvs" tag in git).
 
-    1. defered operations,
+Between 2007 and 2009, a small team of people collaborated on a
+private in-house project on Stow:
+
+    https://lists.gnu.org/archive/html/stow-devel/2011-11/msg00003.html
+
+Kahlil (Kal) Hodgson <kahlil@internode.on.net> performed a major
+rewrite in order to implement:
+
+    1. deferred operations,
     2. option parsing via Getopt::Long,
     3. options to support shared files,
     4. support for multiple operations per invocation,
@@ -25,16 +38,38 @@ in order to implement:
     6. better cooperation between multiple stow directories,
     7. a test suite (and support code) to ensure that everything still works.
 
-As these changes required a dramatic reorganisation of the code, very little
-was left untouched, and so Stow's major version was bumped up to version 2.
+As these changes required a dramatic reorganisation of the code, very
+little was left untouched, and so Stow's major version number was
+bumped up to 2.  Austin Wood <austin.wood@rmit.edu.au> and Chris
+Hoobin <christopher.hoobin@rmit.edu.au> helped clean up the
+documentation for the new 2.x.y series, and created the texi2man
+script.
 
-Austin Wood <austin.wood@rmit.edu.au> and Chris Hoobin
-<christopher.hoobin@rmit.edu.au> helped clean up the documentation for
-version 2 and created the texi2man script.
+Kahlil obtained permission to donate these changes back to GNU.  The
+Subversion history from this period is no longer accessible, so the
+breakdown of the individual changes to the source code between 1.3.3
+and the unreleased 2.0.2 version have been lost; however some details
+are still visible in ChangeLog.OLD, which also acknowledges the
+contributions of Geoffrey Giesemann and Emil Mikulc.
 
-Adam Spiers <stow@adamspiers.org> refactored the backend code into new
-Stow.pm and Stow/Util.pm modules providing an OO interface, tightened
-up the test suite, added support for ignore lists, `make test', and
-distribution via CPAN, and cleaned up numerous other minor issues.
+Sometime after this, Troy Will took over maintainership and imported
+the unreleased 2.0.2 code base as the original root commit into
+Savannah git repository.
+
+On 25th November 2011, Adam Spiers <stow@adamspiers.org> took over
+maintainership.  He imported the CVS history into the Savannah git
+repository, grafting it onto the previous root commit imported by
+Troy, and tagged this as v2.0.2:
+
+  https://lists.gnu.org/archive/html/stow-devel/2011-11/msg00001.html
+  https://lists.gnu.org/archive/html/stow-devel/2011-11/msg00002.html
+
+refactored the backend code into new Stow.pm and Stow/Util.pm modules
+providing an OO interface, tightened up the test suite, added support
+for ignore lists, `make test', and distribution via CPAN, and cleaned
+up numerous other minor issues.
+
+These changes were included in 2.1.0, which was the first official
+release since 1.3.3 in 2002.
 
 Stow is currently maintained by Adam Spiers.
