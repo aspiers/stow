@@ -78,8 +78,8 @@ Please do send comments, questions, and constructive criticism.  The
 mailing lists and any other communication channels are detailed on the
 above home page.
 
-Brief history
--------------
+Brief history and authorship
+----------------------------
 
 Stow was inspired by Carnegie Mellon's "Depot" program, but is
 substantially simpler.  Whereas Depot requires database files to keep
@@ -89,3 +89,8 @@ hierarchies don't match the database.  Also unlike Depot, Stow will
 never delete any files, directories, or links that appear in a Stow
 directory (e.g., `/usr/local/stow/emacs`), so it's always possible to
 rebuild the target tree (e.g., `/usr/local`).
+
+For a high-level overview of the contributions of the main developers
+over the years, see [the `AUTHORS` file](AUTHORS).
+
+For a more detailed history, please see the `ChangeLog` file.
