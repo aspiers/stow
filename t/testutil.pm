@@ -36,7 +36,7 @@ use Stow::Util qw(parent canon_path);
 
 use base qw(Exporter);
 our @EXPORT = qw(
-    $OUT_DIR
+    $TEST_DIR
     $stderr
     init_test_dirs
     cd
@@ -48,7 +48,7 @@ our @EXPORT = qw(
     capture_stderr uncapture_stderr
 );
 
-our $OUT_DIR = 'tmp-testing-trees';
+our $TEST_DIR = 'tmp-testing-trees';
 
 our $stderr;
 my $tied_err;
@@ -64,13 +64,13 @@ sub uncapture_stderr {
 }
 
 sub init_test_dirs {
-    for my $dir ("$OUT_DIR/target", "$OUT_DIR/stow") {
+    for my $dir ("$TEST_DIR/target", "$TEST_DIR/stow") {
         -d $dir and remove_tree($dir);
         make_dir($dir);
     }
 
     # Don't let user's ~/.stow-global-ignore affect test results
-    $ENV{HOME} = $OUT_DIR;
+    $ENV{HOME} = $TEST_DIR;
 }
 
 sub new_Stow {

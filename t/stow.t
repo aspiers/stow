@@ -30,7 +30,7 @@ use Stow::Util qw(canon_path);
 use testutil;
 
 init_test_dirs();
-cd("$OUT_DIR/target");
+cd("$TEST_DIR/target");
 
 my $stow;
 my %conflicts;
@@ -400,16 +400,16 @@ uncapture_stderr();
 # stow a simple tree minimally when cwd isn't target
 #
 cd('../..');
-$stow = new_Stow(dir => "$OUT_DIR/stow", target => "$OUT_DIR/target");
+$stow = new_Stow(dir => "$TEST_DIR/stow", target => "$TEST_DIR/target");
 
-make_dir("$OUT_DIR/stow/pkg16/bin16");
-make_file("$OUT_DIR/stow/pkg16/bin16/file16");
+make_dir("$TEST_DIR/stow/pkg16/bin16");
+make_file("$TEST_DIR/stow/pkg16/bin16/file16");
 
 $stow->plan_stow('pkg16');
 $stow->process_tasks();
 is_deeply([ $stow->get_conflicts ], [], 'no conflicts with minimal stow');
 is(
-    readlink("$OUT_DIR/target/bin16"),
+    readlink("$TEST_DIR/target/bin16"),
     '../stow/pkg16/bin16',
     => "minimal stow of a simple tree when cwd isn't target"
 );
@@ -418,17 +418,17 @@ is(
 # stow a simple tree minimally to absolute stow dir when cwd isn't
 # target
 #
-$stow = new_Stow(dir    => canon_path("$OUT_DIR/stow"),
-                 target => "$OUT_DIR/target");
+$stow = new_Stow(dir    => canon_path("$TEST_DIR/stow"),
+                 target => "$TEST_DIR/target");
 
-make_dir("$OUT_DIR/stow/pkg17/bin17");
-make_file("$OUT_DIR/stow/pkg17/bin17/file17");
+make_dir("$TEST_DIR/stow/pkg17/bin17");
+make_file("$TEST_DIR/stow/pkg17/bin17/file17");
 
 $stow->plan_stow('pkg17');
 $stow->process_tasks();
 is_deeply([ $stow->get_conflicts ], [], 'no conflicts with minimal stow');
 is(
-    readlink("$OUT_DIR/target/bin17"),
+    readlink("$TEST_DIR/target/bin17"),
     '../stow/pkg17/bin17',
     => "minimal stow of a simple tree with absolute stow dir"
 );
@@ -437,17 +437,17 @@ is(
 # stow a simple tree minimally with absolute stow AND target dirs when
 # cwd isn't target
 #
-$stow = new_Stow(dir    => canon_path("$OUT_DIR/stow"),
-                 target => canon_path("$OUT_DIR/target"));
+$stow = new_Stow(dir    => canon_path("$TEST_DIR/stow"),
+                 target => canon_path("$TEST_DIR/target"));
 
-make_dir("$OUT_DIR/stow/pkg18/bin18");
-make_file("$OUT_DIR/stow/pkg18/bin18/file18");
+make_dir("$TEST_DIR/stow/pkg18/bin18");
+make_file("$TEST_DIR/stow/pkg18/bin18/file18");
 
 $stow->plan_stow('pkg18');
 $stow->process_tasks();
 is_deeply([ $stow->get_conflicts ], [], 'no conflicts with minimal stow');
 is(
-    readlink("$OUT_DIR/target/bin18"),
+    readlink("$TEST_DIR/target/bin18"),
     '../stow/pkg18/bin18',
     => "minimal stow of a simple tree with absolute stow and target dirs"
 );
@@ -458,7 +458,7 @@ is(
 # folded directories should be split open (unfolded) where
 # (and only where) necessary
 #
-cd("$OUT_DIR/target");
+cd("$TEST_DIR/target");
 
 sub create_pkg {
     my ($id, $pkg) = @_;

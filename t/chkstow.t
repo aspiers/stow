@@ -30,7 +30,7 @@ use Test::Output;
 use English qw(-no_match_vars);
 
 init_test_dirs();
-cd("$OUT_DIR/target");
+cd("$TEST_DIR/target");
 
 # setup stow directory
 make_dir('stow');

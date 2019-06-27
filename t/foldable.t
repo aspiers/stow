@@ -28,7 +28,7 @@ use Test::More tests => 4;
 use English qw(-no_match_vars);
 
 init_test_dirs();
-cd("$OUT_DIR/target");
+cd("$TEST_DIR/target");
 
 my $stow = new_Stow(dir => '../stow');
 

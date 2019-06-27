@@ -29,7 +29,7 @@ use testutil;
 require 'stow';
 
 # stowrc file used for testing.
-my $RC_FILE = "$OUT_DIR/.stowrc";
+my $RC_FILE = "$TEST_DIR/.stowrc";
 # Take the safe route and cowardly refuse to continue if there's
 # already a file at $RC_FILE.
 if (-e $RC_FILE) {
@@ -52,24 +52,24 @@ init_test_dirs();
 #
 local @ARGV = ('dummy');
 $rc_contents = <<HERE;
-    -d $OUT_DIR/stow
-    --target $OUT_DIR/target
+    -d $TEST_DIR/stow
+    --target $TEST_DIR/target
 HERE
 make_file($RC_FILE, $rc_contents);
 my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is($options->{target},  "$OUT_DIR/target", "rc options different lines");
-is($options->{dir}, "$OUT_DIR/stow", "rc options different lines");
+is($options->{target},  "$TEST_DIR/target", "rc options different lines");
+is($options->{dir}, "$TEST_DIR/stow", "rc options different lines");
 
 #
 # Test that scalar cli option overwrites conflicting stowrc option.
 #
-local @ARGV = ('-d', "$OUT_DIR/stow",'dummy');
+local @ARGV = ('-d', "$TEST_DIR/stow",'dummy');
 $rc_contents = <<HERE;
     -d bad/path
 HERE
 make_file($RC_FILE, $rc_contents);
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is($options->{dir}, "$OUT_DIR/stow", "cli overwrite scalar rc option.");
+is($options->{dir}, "$TEST_DIR/stow", "cli overwrite scalar rc option.");
 
 #
 # Test that list cli option merges with conflicting stowrc option.
@@ -98,8 +98,8 @@ is_deeply($options->{defer}, [qr(\Ainfo), qr(\Aman)],
 # Test environment variable expansion function.
 #
 # Basic expansion
-is(expand_environment('$HOME/stow'), "$OUT_DIR/stow", 'expand $HOME');
-is(expand_environment('${HOME}/stow'), "$OUT_DIR/stow", 'expand ${HOME}');
+is(expand_environment('$HOME/stow'), "$TEST_DIR/stow", 'expand $HOME');
+is(expand_environment('${HOME}/stow'), "$TEST_DIR/stow", 'expand ${HOME}');
 
 delete $ENV{UNDEFINED}; # just in case
 foreach my $var ('$UNDEFINED', '${UNDEFINED}') {
@@ -144,9 +144,9 @@ $rc_contents = <<'HERE';
 HERE
 make_file($RC_FILE, $rc_contents);
 ($options, $pkgs_to_delete, $pkgs_to_stow) = get_config_file_options();
-is($options->{dir}, "$OUT_DIR/stow",
+is($options->{dir}, "$TEST_DIR/stow",
     "apply environment expansion on stowrc --dir");
-is($options->{target}, "$OUT_DIR/stow",
+is($options->{target}, "$TEST_DIR/stow",
     "apply environment expansion on stowrc --target");
 is_deeply($options->{ignore}, [qr(\$HOME\z)],
     "environment expansion not applied on --ignore");
@@ -167,9 +167,9 @@ $rc_contents = <<'HERE';
 HERE
 make_file($RC_FILE, $rc_contents);
 ($options, $pkgs_to_delete, $pkgs_to_stow) = get_config_file_options();
-is($options->{dir}, "$OUT_DIR/stow",
+is($options->{dir}, "$TEST_DIR/stow",
     "apply environment expansion on stowrc --dir");
-is($options->{target}, "$OUT_DIR/stow",
+is($options->{target}, "$TEST_DIR/stow",
     "apply environment expansion on stowrc --target");
 is_deeply($options->{ignore}, [qr(~/stow\z)],
     "environment expansion not applied on --ignore");
@@ -181,5 +181,5 @@ is_deeply($options->{override}, [qr(\A~/stow)],
 # Clean up files used for testing.
 #
 unlink $RC_FILE or die "Unable to clean up $RC_FILE.\n";
-remove_dir($OUT_DIR);
+remove_dir($TEST_DIR);
 

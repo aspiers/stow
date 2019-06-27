@@ -29,7 +29,7 @@ use testutil;
 use Stow::Util qw(join_paths);
 
 init_test_dirs();
-cd("$OUT_DIR/target");
+cd("$TEST_DIR/target");
 
 my $stow = new_Stow();
 

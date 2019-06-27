@@ -30,7 +30,7 @@ use English qw(-no_match_vars);
 use testutil;
 
 init_test_dirs();
-cd("$OUT_DIR/target");
+cd("$TEST_DIR/target");
 
 my $stow;
 

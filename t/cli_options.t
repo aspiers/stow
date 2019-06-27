@@ -32,15 +32,15 @@ init_test_dirs();
 
 local @ARGV = (
     '-v',
-    '-d', "$OUT_DIR/stow",
-    '-t', "$OUT_DIR/target",
+    '-d', "$TEST_DIR/stow",
+    '-t', "$TEST_DIR/target",
     'dummy'
 );
 
 my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 
 is($options->{verbose}, 1, 'verbose option');
-is($options->{dir}, "$OUT_DIR/stow", 'stow dir option');
+is($options->{dir}, "$TEST_DIR/stow", 'stow dir option');
 
 my $stow = new_Stow(%$options);
 
@@ -101,12 +101,12 @@ is_deeply($options->{ignore}, [ qr(~\z), qr(\.#.*\z) ] => 'ignore temp files');
 # Check that expansion not applied.
 #
 local @ARGV = (
-    "--target=$OUT_DIR/".'$HOME',
+    "--target=$TEST_DIR/".'$HOME',
     'dummy'
 );
-make_dir("$OUT_DIR/".'$HOME');
+make_dir("$TEST_DIR/".'$HOME');
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is($options->{target}, "$OUT_DIR/".'$HOME', 'no expansion');
-remove_dir("$OUT_DIR/".'$HOME');
+is($options->{target}, "$TEST_DIR/".'$HOME', 'no expansion');
+remove_dir("$TEST_DIR/".'$HOME');
 
 # vim:ft=perl
