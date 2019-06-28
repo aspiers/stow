@@ -22,13 +22,15 @@
 use strict;
 use warnings;
 
-use testutil;
-
 use Test::More tests => 6;
+
+use testutil;
+use Stow::Util qw(set_debug_level);
 
 init_test_dirs();
 
 my $stow = new_Stow(dir => "$TEST_DIR/stow");
+#set_debug_level(4);
 
 is_deeply(
     [ $stow->find_stowed_path("$TEST_DIR/target/a/b/c", '../../../stow/a/b/c') ],

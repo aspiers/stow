@@ -26,7 +26,7 @@ use Test::More tests => 118;
 use Test::Output;
 use English qw(-no_match_vars);
 
-use Stow::Util qw(canon_path);
+use Stow::Util qw(canon_path set_debug_level);
 use testutil;
 
 init_test_dirs();
@@ -228,6 +228,7 @@ is(
 # (can't unfold)
 #
 $stow = new_Stow();
+#set_debug_level(4);
 
 make_path('bin7');
 make_path('../stow/pkg7a/bin7');
