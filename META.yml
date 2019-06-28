@@ -1,16 +1,15 @@
 ---
-abstract: 'manage the installation of multiple software packages'
+abstract: 'manage farms of symbolic links'
 author:
   - unknown
 build_requires:
   IO::Scalar: '0'
-  Hash::Merge: '0'
   Test::More: '0'
   Test::Output: '0'
 configure_requires:
   Module::Build: '0'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.422, CPAN::Meta::Converter version 2.150010'
+generated_by: 'Module::Build version 0.4224, CPAN::Meta::Converter version 2.150010'
 license: gpl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -25,6 +24,7 @@ provides:
     version: v2.3.0
 requires:
   Carp: '0'
+  Hash::Merge: '0'
   IO::File: '0'
   perl: '5.006'
 resources:
@@ -32,4 +32,4 @@ resources:
   license: http://www.gnu.org/licenses/gpl-2.0.html
   repository: git://git.savannah.gnu.org/stow.git
 version: v2.3.0
-x_serialization_backend: 'CPAN::Meta::YAML version 0.012'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'
