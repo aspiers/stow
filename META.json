@@ -1,23 +1,22 @@
 {
-   "abstract" : "manage the installation of multiple software packages",
+   "abstract" : "manage farms of symbolic links",
    "author" : [
       "unknown"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.422",
+   "generated_by" : "Module::Build version 0.4224",
    "license" : [
       "gpl_1"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : "2"
+      "version" : 2
    },
    "name" : "Stow",
    "prereqs" : {
       "build" : {
          "requires" : {
             "IO::Scalar" : "0",
-            "Hash::Merge": "0",
             "Test::More" : "0",
             "Test::Output" : "0"
          }
@@ -30,6 +29,7 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
+            "Hash::Merge" : "0",
             "IO::File" : "0",
             "perl" : "5.006"
          }
@@ -57,5 +57,5 @@
       }
    },
    "version" : "v2.3.0",
-   "x_serialization_backend" : "JSON::PP version 2.27300"
+   "x_serialization_backend" : "JSON::PP version 4.00"
 }
