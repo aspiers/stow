@@ -69,7 +69,7 @@ Release procedure
 - At this point we have a release candidate.  Tag the current git HEAD
   with the new version number:
 
-    git tag -s $version -m "Release $version"
+    git tag -s v$version -m "Release $version"
 
 - Run ./Build dist
 
