@@ -99,6 +99,7 @@ EXTRA_DIST = \
 	$(DEFAULT_IGNORE_LIST) \
 	$(CPAN_FILES)
 CLEANFILES = $(bin_SCRIPTS) $(pm_DATA) $(pmstow_DATA)
+DISTCLEANFILES = Makefile.in configure Build MYMETA.*
 MAINTAINERCLEANFILES = $(dist_man_MANS) $(HTML) $(PDF) ChangeLog
 
 # clean up auto-generated files
