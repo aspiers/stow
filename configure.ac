@@ -99,9 +99,12 @@ EOF
 !
 ! Please (re-)read INSTALL, then install the missing modules
 ! and try again.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 EOF
+    if test -n "$STRICT_TESTS"; then
+      exit 1
+    fi
   fi
 ]])
 AC_SUBST([PMDIR])
