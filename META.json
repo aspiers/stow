@@ -29,6 +29,7 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
+            "Clone" : "0",
             "Hash::Merge" : "0",
             "IO::File" : "0",
             "perl" : "5.006"
