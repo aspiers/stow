@@ -15,7 +15,9 @@ before_install:
 install:
   - autoreconf --install
   - eval `perl -V:siteprefix`
+  # Note: this will complain Test::Output isn't yet installed:
   - ./configure --prefix=$siteprefix && make
+  # but that's OK because we install it here:
   - make cpanm
 script:
   - make distcheck
