@@ -40,7 +40,7 @@ my $stow;
 
 $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
-make_dir('../stow/dotfiles');
+make_path('../stow/dotfiles');
 make_file('../stow/dotfiles/dot-foo');
 
 $stow->plan_stow('dotfiles');
@@ -57,7 +57,7 @@ is(
 
 $stow = new_Stow(dir => '../stow', dotfiles => 0);
 
-make_dir('../stow/dotfiles');
+make_path('../stow/dotfiles');
 make_file('../stow/dotfiles/dot-foo');
 
 $stow->plan_stow('dotfiles');
@@ -75,7 +75,7 @@ is(
 
 $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
-make_dir('../stow/dotfiles/dot-emacs');
+make_path('../stow/dotfiles/dot-emacs');
 make_file('../stow/dotfiles/dot-emacs/init.el');
 
 $stow->plan_stow('dotfiles');
@@ -93,10 +93,10 @@ is(
 
 $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
-make_dir('../stow/dotfiles');
+make_path('../stow/dotfiles');
 make_file('../stow/dotfiles/dot-');
 
-make_dir('../stow/dotfiles/dot-.');
+make_path('../stow/dotfiles/dot-.');
 make_file('../stow/dotfiles/dot-./foo');
 
 $stow->plan_stow('dotfiles');
@@ -118,7 +118,7 @@ is(
 
 $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
-make_dir('../stow/dotfiles');
+make_path('../stow/dotfiles');
 make_file('../stow/dotfiles/dot-bar');
 make_link('.bar', '../stow/dotfiles/dot-bar');
 

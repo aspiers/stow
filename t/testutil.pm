@@ -26,7 +26,7 @@ use warnings;
 
 use Carp qw(croak);
 use File::Basename;
-use File::Path qw(remove_tree);
+use File::Path qw(make_path remove_tree);
 use File::Spec;
 use IO::Scalar;
 use Test::More;
@@ -41,7 +41,7 @@ our @EXPORT = qw(
     init_test_dirs
     cd
     new_Stow new_compat_Stow
-    make_dir make_link make_invalid_link make_file
+    make_path make_link make_invalid_link make_file
     remove_dir remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
@@ -66,7 +66,7 @@ sub uncapture_stderr {
 sub init_test_dirs {
     for my $dir ("$TEST_DIR/target", "$TEST_DIR/stow") {
         -d $dir and remove_tree($dir);
-        make_dir($dir);
+        make_path($dir);
     }
 
     # Don't let user's ~/.stow-global-ignore affect test results
@@ -136,29 +136,6 @@ sub make_link {
 sub make_invalid_link {
     my ($target, $source, $allow_invalid) = @_;
     make_link($target, $source, 1);
-}
-
-#===== SUBROUTINE ===========================================================
-# Name      : make_dir()
-# Purpose   : create a directory and any requisite parents
-# Parameters: $dir => path to the new directory
-# Returns   : n/a
-# Throws    : fatal error if the directory or any of its parents cannot be
-#           : created
-# Comments  : none
-#============================================================================
-sub make_dir {
-    my ($dir) = @_;
-
-    my @parents = ();
-    for my $part (split '/', $dir) {
-        my $path = join '/', @parents, $part;
-        if (not -d $path and not mkdir $path) {
-            die "could not create directory: $path ($!)\n";
-        }
-        push @parents, $part;
-    }
-    return;
 }
 
 #===== SUBROUTINE ===========================================================

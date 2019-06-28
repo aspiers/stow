@@ -35,23 +35,23 @@ my $stow;
 ## set up some fake packages to stow
 
 # perl
-make_dir('stow/perl/bin');
+make_path('stow/perl/bin');
 make_file('stow/perl/bin/perl');
 make_file('stow/perl/bin/a2p');
-make_dir('stow/perl/info');
+make_path('stow/perl/info');
 make_file('stow/perl/info/perl');
-make_dir('stow/perl/lib/perl');
-make_dir('stow/perl/man/man1');
+make_path('stow/perl/lib/perl');
+make_path('stow/perl/man/man1');
 make_file('stow/perl/man/man1/perl.1');
 
 # emacs
-make_dir('stow/emacs/bin');
+make_path('stow/emacs/bin');
 make_file('stow/emacs/bin/emacs');
 make_file('stow/emacs/bin/etags');
-make_dir('stow/emacs/info');
+make_path('stow/emacs/info');
 make_file('stow/emacs/info/emacs');
-make_dir('stow/emacs/libexec/emacs');
-make_dir('stow/emacs/man/man1');
+make_path('stow/emacs/libexec/emacs');
+make_path('stow/emacs/man/man1');
 make_file('stow/emacs/man/man1/emacs.1');
 
 #
@@ -81,9 +81,9 @@ remove_link('info');
 remove_link('lib');
 remove_link('man');
 
-make_dir('bin');
-make_dir('lib');
-make_dir('man/man1');
+make_path('bin');
+make_path('lib');
+make_path('man/man1');
 
 $stow = new_Stow(dir => 'stow');
 $stow->plan_stow('perl');
@@ -157,8 +157,8 @@ ok(
 # behaviour is the same as if the empty directory had nothing to do with stow
 #
 
-make_dir('stow/pkg1a/bin1');
-make_dir('stow/pkg1b/bin1');
+make_path('stow/pkg1a/bin1');
+make_path('stow/pkg1b/bin1');
 make_file('stow/pkg1b/bin1/file1b');
 
 $stow = new_Stow(dir => 'stow');
@@ -172,10 +172,10 @@ ok(-d 'bin1' => 'bug 1: stowing empty dirs');
 # BUG 2: split open tree-folding symlinks pointing inside different stow
 # directories
 #
-make_dir('stow2a/pkg2a/bin2');
+make_path('stow2a/pkg2a/bin2');
 make_file('stow2a/pkg2a/bin2/file2a');
 make_file('stow2a/.stow');
-make_dir('stow2b/pkg2b/bin2');
+make_path('stow2b/pkg2b/bin2');
 make_file('stow2b/pkg2b/bin2/file2b');
 make_file('stow2b/.stow');
 

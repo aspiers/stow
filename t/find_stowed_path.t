@@ -44,7 +44,7 @@ is_deeply(
     => 'from target directory'
 );
 
-make_dir('stow');
+make_path('stow');
 cd('../..');
 $stow->set_stow_dir("$TEST_DIR/target/stow");
 
@@ -60,7 +60,7 @@ is_deeply(
     => 'target is not stowed'
 );
 
-make_dir("$TEST_DIR/target/stow2");
+make_path("$TEST_DIR/target/stow2");
 make_file("$TEST_DIR/target/stow2/.stow");
 
 is_deeply(

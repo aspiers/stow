@@ -123,7 +123,7 @@ EOF
 sub setup_package_local_list {
     my ($stow_path, $package, $list) = @_;
     my $package_path = join_paths($stow_path, $package);
-    make_dir($package_path);
+    make_path($package_path);
     my $local_ignore = join_paths($package_path, $Stow::LOCAL_IGNORE_FILE);
     make_file($local_ignore, $list);
     $stow->invalidate_memoized_regexp($local_ignore);
@@ -278,7 +278,7 @@ sub test_ignore_via_stow {
     my ($stow_path) = @_;
 
     my $package = 'pkg1';
-    make_dir("$stow_path/$package/foo/bar");
+    make_path("$stow_path/$package/foo/bar");
     make_file("$stow_path/$package/foo/bar/baz");
 
     setup_package_local_list($stow_path, $package, 'foo');
@@ -286,7 +286,7 @@ sub test_ignore_via_stow {
     is($stow->get_tasks(),     0, 'top dir ignored');
     is($stow->get_conflicts(), 0, 'top dir ignored, no conflicts');
 
-    make_dir("foo");
+    make_path("foo");
     for my $ignore ('bar', 'foo/bar', '/foo/bar', '^/foo/bar', '^/fo.+ar') {
         setup_package_local_list($stow_path, $package, $ignore);
         $stow->plan_stow($package);

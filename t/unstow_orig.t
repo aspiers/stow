@@ -22,6 +22,7 @@
 use strict;
 use warnings;
 
+use File::Spec qw(make_path);
 use Test::More tests => 37;
 use Test::Output;
 use English qw(-no_match_vars);
@@ -43,7 +44,7 @@ my %conflicts;
 
 $stow = new_compat_Stow();
 
-make_dir('../stow/pkg1/bin1');
+make_path('../stow/pkg1/bin1');
 make_file('../stow/pkg1/bin1/file1');
 make_link('bin1', '../stow/pkg1/bin1');
 
@@ -60,8 +61,8 @@ ok(
 #
 $stow = new_compat_Stow();
 
-make_dir('lib2');
-make_dir('../stow/pkg2/lib2');
+make_path('lib2');
+make_path('../stow/pkg2/lib2');
 make_file('../stow/pkg2/lib2/file2');
 make_link('lib2/file2', '../../stow/pkg2/lib2/file2');
 $stow->plan_unstow('pkg2');
@@ -77,13 +78,13 @@ ok(
 #
 $stow = new_compat_Stow();
 
-make_dir('bin3');
+make_path('bin3');
 
-make_dir('../stow/pkg3a/bin3');
+make_path('../stow/pkg3a/bin3');
 make_file('../stow/pkg3a/bin3/file3a');
 make_link('bin3/file3a' => '../../stow/pkg3a/bin3/file3a'); # emulate stow
 
-make_dir('../stow/pkg3b/bin3');
+make_path('../stow/pkg3b/bin3');
 make_file('../stow/pkg3b/bin3/file3b');
 make_link('bin3/file3b' => '../../stow/pkg3b/bin3/file3b'); # emulate stow
 $stow->plan_unstow('pkg3b');
@@ -100,8 +101,8 @@ ok(
 #
 $stow = new_compat_Stow();
 
-make_dir('bin4');
-make_dir('../stow/pkg4/bin4');
+make_path('bin4');
+make_path('../stow/pkg4/bin4');
 make_file('../stow/pkg4/bin4/file4');
 make_invalid_link('bin4/file4', '../../stow/pkg4/bin4/does-not-exist');
 
@@ -118,7 +119,7 @@ ok(
 #
 $stow = new_compat_Stow();
 
-make_dir('../stow/pkg5/bin5');
+make_path('../stow/pkg5/bin5');
 make_invalid_link('bin5', '../not-stow');
 
 $stow->plan_unstow('pkg5');
@@ -139,12 +140,12 @@ ok(
 #
 $stow = new_compat_Stow();
 
-make_dir('bin6');
-make_dir('../stow/pkg6a/bin6');
+make_path('bin6');
+make_path('../stow/pkg6a/bin6');
 make_file('../stow/pkg6a/bin6/file6');
 make_link('bin6/file6', '../../stow/pkg6a/bin6/file6');
 
-make_dir('../stow/pkg6b/bin6');
+make_path('../stow/pkg6b/bin6');
 make_file('../stow/pkg6b/bin6/file6');
 
 $stow->plan_unstow('pkg6b');
@@ -158,11 +159,11 @@ ok(
 #
 # Don't unlink anything under the stow directory
 #
-make_dir('stow'); # make out stow dir a subdir of target
+make_path('stow'); # make out stow dir a subdir of target
 $stow = new_compat_Stow(dir => 'stow');
 
 # emulate stowing into ourself (bizarre corner case or accident)
-make_dir('stow/pkg7a/stow/pkg7b');
+make_path('stow/pkg7a/stow/pkg7b');
 make_file('stow/pkg7a/stow/pkg7b/file7b');
 make_link('stow/pkg7b', '../stow/pkg7a/stow/pkg7b');
 
@@ -185,11 +186,11 @@ uncapture_stderr();
 #
 $stow = new_compat_Stow(dir => 'stow');
 
-make_dir('stow2'); # make our alternate stow dir a subdir of target
+make_path('stow2'); # make our alternate stow dir a subdir of target
 make_file('stow2/.stow');
 
 # emulate stowing into ourself (bizarre corner case or accident)
-make_dir('stow/pkg8a/stow2/pkg8b');
+make_path('stow/pkg8a/stow2/pkg8b');
 make_file('stow/pkg8a/stow2/pkg8b/file8b');
 make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
 
@@ -224,12 +225,12 @@ sub check_protected_dirs_skipped {
 $stow = new_compat_Stow(override => ['man9', 'info9']);
 make_file('stow/.stow');
 
-make_dir('../stow/pkg9a/man9/man1');
+make_path('../stow/pkg9a/man9/man1');
 make_file('../stow/pkg9a/man9/man1/file9.1');
-make_dir('man9/man1');
+make_path('man9/man1');
 make_link('man9/man1/file9.1' => '../../../stow/pkg9a/man9/man1/file9.1'); # emulate stow
 
-make_dir('../stow/pkg9b/man9/man1');
+make_path('../stow/pkg9b/man9/man1');
 make_file('../stow/pkg9b/man9/man1/file9.1');
 capture_stderr();
 $stow->plan_unstow('pkg9b');
@@ -246,18 +247,18 @@ check_protected_dirs_skipped();
 #
 $stow = new_compat_Stow(defer => ['man10', 'info10']);
 
-make_dir('../stow/pkg10a/man10/man1');
+make_path('../stow/pkg10a/man10/man1');
 make_file('../stow/pkg10a/man10/man1/file10a.1');
-make_dir('man10/man1');
+make_path('man10/man1');
 make_link('man10/man1/file10a.1'  => '../../../stow/pkg10a/man10/man1/file10a.1');
 
 # need this to block folding
-make_dir('../stow/pkg10b/man10/man1');
+make_path('../stow/pkg10b/man10/man1');
 make_file('../stow/pkg10b/man10/man1/file10b.1');
 make_link('man10/man1/file10b.1'  => '../../../stow/pkg10b/man10/man1/file10b.1');
 
 
-make_dir('../stow/pkg10c/man10/man1');
+make_path('../stow/pkg10c/man10/man1');
 make_file('../stow/pkg10c/man10/man1/file10a.1');
 capture_stderr();
 $stow->plan_unstow('pkg10c');
@@ -274,11 +275,11 @@ check_protected_dirs_skipped();
 #
 $stow = new_compat_Stow(ignore => ['~', '\.#.*']);
 
-make_dir('../stow/pkg12/man12/man1');
+make_path('../stow/pkg12/man12/man1');
 make_file('../stow/pkg12/man12/man1/file12.1');
 make_file('../stow/pkg12/man12/man1/file12.1~');
 make_file('../stow/pkg12/man12/man1/.#file12.1');
-make_dir('man12/man1');
+make_path('man12/man1');
 make_link('man12/man1/file12.1'  => '../../../stow/pkg12/man12/man1/file12.1');
 
 capture_stderr();
@@ -345,7 +346,7 @@ check_protected_dirs_skipped();
 cd('../..');
 $stow = new_Stow(dir => "$TEST_DIR/stow", target => "$TEST_DIR/target");
 
-make_dir("$TEST_DIR/stow/pkg13/bin13");
+make_path("$TEST_DIR/stow/pkg13/bin13");
 make_file("$TEST_DIR/stow/pkg13/bin13/file13");
 make_link("$TEST_DIR/target/bin13", '../stow/pkg13/bin13');
 
@@ -364,7 +365,7 @@ ok(
 $stow = new_Stow(dir    => canon_path("$TEST_DIR/stow"),
                  target => "$TEST_DIR/target");
 
-make_dir("$TEST_DIR/stow/pkg14/bin14");
+make_path("$TEST_DIR/stow/pkg14/bin14");
 make_file("$TEST_DIR/stow/pkg14/bin14/file14");
 make_link("$TEST_DIR/target/bin14", '../stow/pkg14/bin14');
 
@@ -383,7 +384,7 @@ ok(
 $stow = new_Stow(dir    => canon_path("$TEST_DIR/stow"),
                  target => canon_path("$TEST_DIR/target"));
 
-make_dir("$TEST_DIR/stow/pkg15/bin15");
+make_path("$TEST_DIR/stow/pkg15/bin15");
 make_file("$TEST_DIR/stow/pkg15/bin15/file15");
 make_link("$TEST_DIR/target/bin15", '../stow/pkg15/bin15');
 

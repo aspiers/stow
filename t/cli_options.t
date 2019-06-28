@@ -104,7 +104,7 @@ local @ARGV = (
     "--target=$TEST_DIR/".'$HOME',
     'dummy'
 );
-make_dir("$TEST_DIR/".'$HOME');
+make_path("$TEST_DIR/".'$HOME');
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 is($options->{target}, "$TEST_DIR/".'$HOME', 'no expansion');
 remove_dir("$TEST_DIR/".'$HOME');

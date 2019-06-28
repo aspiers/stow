@@ -33,43 +33,43 @@ init_test_dirs();
 cd("$TEST_DIR/target");
 
 # setup stow directory
-make_dir('stow');
+make_path('stow');
 make_file('stow/.stow');
 # perl
-make_dir('stow/perl/bin');
+make_path('stow/perl/bin');
 make_file('stow/perl/bin/perl');
 make_file('stow/perl/bin/a2p');
-make_dir('stow/perl/info');
+make_path('stow/perl/info');
 make_file('stow/perl/info/perl');
-make_dir('stow/perl/lib/perl');
-make_dir('stow/perl/man/man1');
+make_path('stow/perl/lib/perl');
+make_path('stow/perl/man/man1');
 make_file('stow/perl/man/man1/perl.1');
 # emacs
-make_dir('stow/emacs/bin');
+make_path('stow/emacs/bin');
 make_file('stow/emacs/bin/emacs');
 make_file('stow/emacs/bin/etags');
-make_dir('stow/emacs/info');
+make_path('stow/emacs/info');
 make_file('stow/emacs/info/emacs');
-make_dir('stow/emacs/libexec/emacs');
-make_dir('stow/emacs/man/man1');
+make_path('stow/emacs/libexec/emacs');
+make_path('stow/emacs/man/man1');
 make_file('stow/emacs/man/man1/emacs.1');
 
 #setup target directory
-make_dir('bin');
+make_path('bin');
 make_link('bin/a2p', '../stow/perl/bin/a2p');
 make_link('bin/emacs', '../stow/emacs/bin/emacs');
 make_link('bin/etags', '../stow/emacs/bin/etags');
 make_link('bin/perl', '../stow/perl/bin/perl');
 
-make_dir('info');
+make_path('info');
 make_link('info/emacs', '../stow/emacs/info/emacs');
 make_link('info/perl', '../stow/perl/info/perl');
 
 make_link('lib', 'stow/perl/lib');
 make_link('libexec', 'stow/emacs/libexec');
 
-make_dir('man');
-make_dir('man/man1');
+make_path('man');
+make_path('man/man1');
 make_link('man/man1/emacs', '../../stow/emacs/man/man1/emacs.1');
 make_link('man/man1/perl', '../../stow/perl/man/man1/perl.1');
 
