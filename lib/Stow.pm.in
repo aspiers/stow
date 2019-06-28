@@ -354,7 +354,9 @@ sub within_target_do {
 # Parameters: $stow_path => relative path from current (i.e. target) directory
 #           :               to the stow dir containing the package to be stowed
 #           : $package => the package whose contents are being stowed
-#           : $target => subpath relative to package and target directories
+#           : $target => subpath relative to package directory which needs
+#           :            stowing as a symlink at subpath relative to target
+#           :            directory.
 #           : $source => relative path from the (sub)dir of target
 #           :            to symlink source
 # Returns   : n/a
@@ -415,7 +417,9 @@ sub stow_contents {
 # Parameters: $stow_path => relative path from current (i.e. target) directory
 #           :               to the stow dir containing the node to be stowed
 #           : $package => the package containing the node being stowed
-#           : $target => subpath relative to package and target directories
+#           : $target => subpath relative to package directory of node which
+#           :            needs stowing as a symlink at subpath relative to
+#           :            target directory.
 #           : $source => relative path to symlink source from the dir of target
 # Returns   : n/a
 # Throws    : fatal exception if a conflict arises
@@ -912,18 +916,20 @@ sub path_owned_by_package {
 # Name      : find_stowed_path()
 # Purpose   : determine whether the given link points to a member of a
 #           : stowed package
-# Parameters: $target => path to a symbolic link under current directory
+# Parameters: $target => path to a symbolic link under current directory.
+#           :            Must share a common prefix with $self->{stow_path}
 #           : $source => where that link points to (needed because link
 #           :            might not exist yet due to two-phase approach,
-#           :            so we can't just call readlink())
+#           :            so we can't just call readlink()).  This must be
+#           :            expressed relative to (the directory containing)
+#           :            $target.
 # Returns   : ($path, $stow_path, $package) where $path and $stow_path are
 #           : relative from the current (i.e. target) directory.  $path
 #           : is the full relative path, $stow_path is the relative path
 #           : to the stow directory, and $package is the name of the package.
 #           : or ('', '', '') if link is not owned by stow
 # Throws    : n/a
-# Comments  : Needs 
-#           : Allow for stow dir not being under target dir.
+# Comments  : Allow for stow dir not being under target dir.
 #           : We could put more logic under here for multiple stow dirs.
 #============================================================================
 sub find_stowed_path {
@@ -955,6 +961,12 @@ sub find_stowed_path {
     # If no .stow file was found, we need to find out whether it's
     # owned by the current stow directory, in which case $path will be
     # a prefix of $self->{stow_path}.
+    if (substr($path, 0, 1) eq '/' xor substr($self->{stow_path}, 0, 1) eq '/')
+    {
+        warn "BUG in find_stowed_path? Absolute/relative mismatch between " .
+             "Stow dir $self->{stow_path} and path $path";
+    }
+
     my @stow_path = split m{/+}, $self->{stow_path};
 
     # Strip off common prefixes until one is empty
@@ -971,7 +983,7 @@ sub find_stowed_path {
     }
 
     my $package = shift @path;
-    
+
     debug(4, "    yes - by $package in " . join_paths(@path));
     return ($path, $self->{stow_path}, $package);
 }

@@ -26,7 +26,7 @@ use warnings;
 
 use Carp qw(croak);
 use File::Basename;
-use File::Path qw(remove_tree);
+use File::Path qw(make_path remove_tree);
 use File::Spec;
 use IO::Scalar;
 use Test::More;
@@ -36,19 +36,21 @@ use Stow::Util qw(parent canon_path);
 
 use base qw(Exporter);
 our @EXPORT = qw(
-    $OUT_DIR
+    $ABS_TEST_DIR
+    $TEST_DIR
     $stderr
     init_test_dirs
     cd
     new_Stow new_compat_Stow
-    make_dir make_link make_invalid_link make_file
-    remove_dir remove_link
+    make_path make_link make_invalid_link make_file
+    remove_dir remove_file remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
     capture_stderr uncapture_stderr
 );
 
-our $OUT_DIR = 'tmp-testing-trees';
+our $TEST_DIR = 'tmp-testing-trees';
+our $ABS_TEST_DIR = File::Spec->rel2abs('tmp-testing-trees');
 
 our $stderr;
 my $tied_err;
@@ -64,13 +66,17 @@ sub uncapture_stderr {
 }
 
 sub init_test_dirs {
-    for my $dir ("$OUT_DIR/target", "$OUT_DIR/stow") {
-        -d $dir and remove_tree($dir);
-        make_dir($dir);
+    # Create a run_from/ subdirectory for tests which want to run
+    # from a separate directory outside the Stow directory or
+    # target directory.
+    for my $dir ("target", "stow", "run_from") {
+        my $path = "$TEST_DIR/$dir";
+        -d $path and remove_tree($path);
+        make_path($path);
     }
 
     # Don't let user's ~/.stow-global-ignore affect test results
-    $ENV{HOME} = $OUT_DIR;
+    $ENV{HOME} = $ABS_TEST_DIR;
 }
 
 sub new_Stow {
@@ -136,29 +142,6 @@ sub make_link {
 sub make_invalid_link {
     my ($target, $source, $allow_invalid) = @_;
     make_link($target, $source, 1);
-}
-
-#===== SUBROUTINE ===========================================================
-# Name      : make_dir()
-# Purpose   : create a directory and any requisite parents
-# Parameters: $dir => path to the new directory
-# Returns   : n/a
-# Throws    : fatal error if the directory or any of its parents cannot be
-#           : created
-# Comments  : none
-#============================================================================
-sub make_dir {
-    my ($dir) = @_;
-
-    my @parents = ();
-    for my $part (split '/', $dir) {
-        my $path = join '/', @parents, $part;
-        if (not -d $path and not mkdir $path) {
-            die "could not create directory: $path ($!)\n";
-        }
-        push @parents, $part;
-    }
-    return;
 }
 
 #===== SUBROUTINE ===========================================================

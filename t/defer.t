@@ -27,7 +27,7 @@ use testutil;
 use Test::More tests => 4;
 
 init_test_dirs();
-cd("$OUT_DIR/target");
+cd("$TEST_DIR/target");
 
 my $stow;
 
