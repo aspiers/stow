@@ -105,7 +105,7 @@ MAINTAINERCLEANFILES = $(dist_man_MANS) $(HTML) $(PDF) ChangeLog
 clean-local:
 	-rm -rf $(TESTS_OUT)
 maintainer-clean-local:
-	-rm -rf doc/manual-split
+	-rm -rf doc/manual-split cover_db
 
 # this is more explicit and reliable than the config file trick
 edit = sed -e 's|[@]PERL[@]|$(PERL)|g'       \

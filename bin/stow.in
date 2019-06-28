@@ -462,7 +462,10 @@ use Getopt::Long qw(GetOptionsFromArray);
 use Stow;
 use Stow::Util qw(parent error);
 
-use Hash::Merge qw( merge  );
+# Need to avoid Storable backend, since it can't deal with regexps:
+# https://rt.perl.org/Public/Bug/Display.html?id=50608
+use Clone::Choose qw(:Clone);
+use Hash::Merge qw(merge);
 
 my $ProgramName = $0;
 $ProgramName =~ s{.*/}{};
