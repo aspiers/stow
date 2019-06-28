@@ -43,9 +43,9 @@ ENV HOME=/root \
     PERLBREW_PATH=/usr/local/perlbrew/bin
 RUN mkdir -p /usr/local/perlbrew /root \
     && perlbrew init \
-	&& perlbrew install-cpanm \
-	&& perlbrew install-patchperl \
-    && perlbrew install-multiple -j 4 --notest \
+    && perlbrew install-cpanm \
+    && perlbrew install-patchperl
+RUN perlbrew install-multiple -j 4 --notest \
         perl-5.22.2 \
         perl-5.20.3 \
         perl-5.18.4 \
