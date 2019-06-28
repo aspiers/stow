@@ -111,7 +111,7 @@ Release procedure
     # Check that the changes look OK
     cvs diff
     # Then commit
-    cvs commit -m 'Update manual to v7.8.9'
+    cvs commit -m "Update manual to v$version"
 
 - Upload to ftp.gnu.org.  This is easiest using gnupload:
 
