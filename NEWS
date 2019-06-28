@@ -98,12 +98,7 @@ News file for Stow.
       consistency.
 
     - INSTALL.md now also documents how to build directly from git.
-** Fixes for bugs and technical debt
-*** Fix for test suite on Cygwin
-
-    Thanks to Lucas Theisen for this fix!
-
-*** aclocal.m4 was updated using aclocal 1.15.1.
+** Fixes for bugs, tests, and other technical debt
 
 *** Add Docker files for convenient testing across multiple Perl versions
 
@@ -118,16 +113,27 @@ News file for Stow.
 
     Thanks to Charles LeDoux for this!
 
-*** Add Coveralls integration with GitHub
-
-    This means that test coverage analysis will be automatically be run
-    on any pull requests submitted to GitHub.
-
 *** Set up continuous testing via Travis CI
 
     This means that the test suite will be automatically run on any
     pull requests submitted to GitHub, as well as "make distcheck"
     and "./Build distcheck".
+
+*** Add Coveralls integration with GitHub
+
+    This means that test coverage analysis will be automatically be run
+    on any pull requests submitted to GitHub.
+
+*** Miscellaneous improvements to the test suite
+
+    These include proper testing of the distinct impact of ~/.stowrc
+    and .stowrc in the directory from which Stow is invoked.
+
+*** Fix for test suite on Cygwin
+
+    Thanks to Lucas Theisen for this fix!
+
+*** aclocal.m4 was updated using aclocal 1.15.1.
 
 *** Miscellaneous fixes to the build and distribution process
 

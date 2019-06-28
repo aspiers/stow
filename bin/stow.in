@@ -515,14 +515,14 @@ sub main {
 #============================================================================
 sub process_options {
     # Get cli options.
-    my ($cli_options, 
-        $pkgs_to_unstow, 
+    my ($cli_options,
+        $pkgs_to_unstow,
         $pkgs_to_stow) = parse_options(@ARGV);
 
     # Get the .stowrc options.
     # Note that rc_pkgs_to_unstow and rc_pkgs_to_stow are ignored.
-    my ($rc_options, 
-        $rc_pkgs_to_unstow, 
+    my ($rc_options,
+        $rc_pkgs_to_unstow,
         $rc_pkgs_to_stow) = get_config_file_options();
 
     # Merge .stowrc and command line options.
@@ -547,8 +547,8 @@ sub process_options {
 #             Example: parse_options(@ARGV)
 # Returns   : (\%options, \@pkgs_to_unstow, \@pkgs_to_stow)
 # Throws    : a fatal error if a bad command line option is given
-# Comments  : Used for parsing both command line options and rc file. Used 
-#             for parsing only. Sanity checks and post-processing belong in 
+# Comments  : Used for parsing both command line options and rc file. Used
+#             for parsing only. Sanity checks and post-processing belong in
 #             process_options().
 #============================================================================
 sub parse_options {
@@ -614,6 +614,7 @@ sub parse_options {
 
     return (\%options, \@pkgs_to_unstow, \@pkgs_to_stow);
 }
+
 sub sanitize_path_options {
     my ($options) = @_;
 

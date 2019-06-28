@@ -36,19 +36,21 @@ use Stow::Util qw(parent canon_path);
 
 use base qw(Exporter);
 our @EXPORT = qw(
+    $ABS_TEST_DIR
     $TEST_DIR
     $stderr
     init_test_dirs
     cd
     new_Stow new_compat_Stow
     make_path make_link make_invalid_link make_file
-    remove_dir remove_link
+    remove_dir remove_file remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
     capture_stderr uncapture_stderr
 );
 
 our $TEST_DIR = 'tmp-testing-trees';
+our $ABS_TEST_DIR = File::Spec->rel2abs('tmp-testing-trees');
 
 our $stderr;
 my $tied_err;
@@ -64,13 +66,17 @@ sub uncapture_stderr {
 }
 
 sub init_test_dirs {
-    for my $dir ("$TEST_DIR/target", "$TEST_DIR/stow") {
-        -d $dir and remove_tree($dir);
-        make_path($dir);
+    # Create a run_from/ subdirectory for tests which want to run
+    # from a separate directory outside the Stow directory or
+    # target directory.
+    for my $dir ("target", "stow", "run_from") {
+        my $path = "$TEST_DIR/$dir";
+        -d $path and remove_tree($path);
+        make_path($path);
     }
 
     # Don't let user's ~/.stow-global-ignore affect test results
-    $ENV{HOME} = $TEST_DIR;
+    $ENV{HOME} = $ABS_TEST_DIR;
 }
 
 sub new_Stow {
