@@ -2,7 +2,7 @@
 
 set -eu
 
-version=$( git describe --match v* --abbrev=0 )
+version=$( tools/get-version )
 imagename=stowtest
 image=$imagename:$version
 
