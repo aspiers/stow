@@ -1,5 +1,26 @@
 News file for Stow.
 
+* Changes in version 2.3.1
+
+*** Remove dependencies on Hash::Merge and Clone::Choose
+
+    stow 2.3.0 added external runtime dependencies on Hash::Merge and
+    Clone::Choose. Historically stow hasn't had runtime dependencies
+    other than Perl itself, which is a useful property if you're
+    managing the installation of Perl using stow; the bootstrapping
+    instructions in stow's manual would need updating to describe how
+    to install these two modules (and any dependencies they have now
+    or in the future) as well.
+
+    However, Hash::Merge is much more general than stow actually
+    needs, so replace the merge() call with a few lines of equivalent
+    code -- this avoids the external dependencies, and is clearer than
+    the merge() call.
+
+    Many thanks to Adam Sampson for this patch!
+
+    https://lists.gnu.org/archive/html/bug-stow/2019-06/msg00001.html
+
 * Changes in version 2.3.0
 
 *** New features / changes in behaviour

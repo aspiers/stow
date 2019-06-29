@@ -29,8 +29,6 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
-            "Clone" : "0",
-            "Hash::Merge" : "0",
             "IO::File" : "0",
             "perl" : "5.006"
          }
@@ -39,11 +37,11 @@
    "provides" : {
       "Stow" : {
          "file" : "lib/Stow.pm",
-         "version" : "v2.3.0"
+         "version" : "v2.3.1"
       },
       "Stow::Util" : {
          "file" : "lib/Stow/Util.pm",
-         "version" : "v2.3.0"
+         "version" : "v2.3.1"
       }
    },
    "release_status" : "stable",
@@ -57,6 +55,6 @@
          "url" : "git://git.savannah.gnu.org/stow.git"
       }
    },
-   "version" : "v2.3.0",
+   "version" : "v2.3.1",
    "x_serialization_backend" : "JSON::PP version 4.00"
 }

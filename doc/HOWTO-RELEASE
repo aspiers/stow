@@ -140,10 +140,14 @@ Release procedure
 
     - Increment the patchlevel of the version number in configure.ac.
 
+    - Run this again:
+
+        version=$( tools/get-version ) && echo $version
+
     - Repeat the same procedure listed in the Module::Build section
       above, in order to update META.yaml and META.json.
 
-    - git commit -m "Bump version to X.Y.Z for development of next release"
+    - git commit -m "Bump version to $version for development of next release"
 
     - git push savannah
 

@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 33;
+use Test::More tests => 34;
 
 use testutil;
 
@@ -120,16 +120,19 @@ is($options->{dir}, "$ABS_TEST_DIR/stow"
    => "-d from \$HOME/.stowrc");
 
 #
-# Test ~/.stowrc file is overridden by .stowrc in cwd.
+# Test that some but not all options ~/.stowrc file are overridden by
+# .stowrc in cwd.
 #
 local @ARGV = ('dummy');
 make_file($HOME_RC_FILE, <<HERE);
     -d $ABS_TEST_DIR/stow-will-be-overridden
     --target $ABS_TEST_DIR/target-will-be-overridden
+    --defer=info
 HERE
 make_file($CWD_RC_FILE, <<HERE);
     -d $ABS_TEST_DIR/stow
     --target $ABS_TEST_DIR/target
+    --defer=man
 HERE
 
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
@@ -137,6 +140,8 @@ is($options->{target},  "$ABS_TEST_DIR/target"
    => "--target overridden by \$PWD/.stowrc");
 is($options->{dir}, "$ABS_TEST_DIR/stow"
    => "-d overridden \$PWD/.stowrc");
+is_deeply($options->{defer}, [qr(\Ainfo), qr(\Aman)],
+          'defer man and info');
 unlink($CWD_RC_FILE) or die "Failed to unlink $CWD_RC_FILE";
 
 #

@@ -457,15 +457,11 @@ require 5.006_001;
 
 use POSIX qw(getcwd);
 use Getopt::Long qw(GetOptionsFromArray);
+use Scalar::Util qw(reftype);
 
 @USE_LIB_PMDIR@
 use Stow;
 use Stow::Util qw(parent error);
-
-# Need to avoid Storable backend, since it can't deal with regexps:
-# https://rt.perl.org/Public/Bug/Display.html?id=50608
-use Clone::Choose qw(:Clone);
-use Hash::Merge qw(merge);
 
 my $ProgramName = $0;
 $ProgramName =~ s{.*/}{};
@@ -530,17 +526,27 @@ sub process_options {
 
     # Merge .stowrc and command line options.
     # Preference is given to cli options.
-    # rc options come first in merged arrays.
-    # cli options overwrite conflicting rc options.
-    Hash::Merge::set_behavior('RIGHT_PRECEDENT');
-    my $options = merge($rc_options, $cli_options);
+    my %options = %$rc_options;
+    foreach my $option (keys %$cli_options) {
+        my $rc_value = $rc_options->{$option};
+        my $cli_value = $cli_options->{$option};
+        my $type = reftype($cli_value);
+
+        if (defined $type && $type eq 'ARRAY' && defined $rc_value) {
+            # rc options come first in merged arrays.
+            $options{$option} = [@{$rc_value}, @{$cli_value}];
+        } else {
+            # cli options overwrite conflicting rc options.
+            $options{$option} = $cli_value;
+        }
+    }
 
     # Run checks on the merged options.
-    sanitize_path_options($options);
+    sanitize_path_options(\%options);
     check_packages($pkgs_to_unstow, $pkgs_to_stow);
 
     # Return merged and processed options.
-    return ($options, $pkgs_to_unstow, $pkgs_to_stow);
+    return (\%options, $pkgs_to_unstow, $pkgs_to_stow);
 }
 
 #===== SUBROUTINE ===========================================================
