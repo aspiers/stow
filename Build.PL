@@ -60,8 +60,6 @@ my $build = Module::Build->new(
         'perl'        => '5.006',
         'Carp'        => 0,
         'IO::File'    => 0,
-        'Hash::Merge' => 0,
-        'Clone'       => 0,
     },
     script_files => [ 'bin/stow', 'bin/chkstow' ],
     all_from => 'lib/Stow.pm.in',
