@@ -41,6 +41,11 @@ News file for Stow.
 
       Thanks to Brice Waegeneire for reporting this.
 
+*** License upgraded from GPL version 2 to version 3
+
+    Copyright and license notices were also added to the headers of
+    various files in accordance with GNU guidelines.
+
 *** Documentation fixes and enhancements
 
 ***** Remove dependency on unmaintained texi2html
