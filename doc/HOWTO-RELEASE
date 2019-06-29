@@ -69,7 +69,7 @@ Release procedure
 - At this point we have a release candidate.  Tag the current git HEAD
   with the new version number:
 
-    git tag -s $version -m "Release $version"
+    git tag -s v$version -m "Release $version"
 
 - Run ./Build dist
 
@@ -111,7 +111,7 @@ Release procedure
     # Check that the changes look OK
     cvs diff
     # Then commit
-    cvs commit -m 'Update manual to v7.8.9'
+    cvs commit -m "Update manual to v$version"
 
 - Upload to ftp.gnu.org.  This is easiest using gnupload:
 
@@ -128,6 +128,11 @@ Release procedure
 
   See http://www.gnu.org/prep/maintain/html_node/Announcements.html for
   more on making release announcements.
+
+  Excerpts of NEWS can be formatted for inclusion in the email by
+  selecting the relevant version subtree via M-x org-mark-element,
+  minus the "* Changes in version x.y.z", running M-x
+  org-export-dispatch, and exporting as plain text.
 
 - Update the git repositories to the next expected version, so that anyone
   who builds from git gets a version of Stow which is higher than the release

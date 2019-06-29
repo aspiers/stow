@@ -2,545 +2,552 @@ News file for Stow.
 
 * Changes in version 2.3.0
 
-** New features / changes in behaviour
+*** New features / changes in behaviour
 
-*** New --dotfiles option
+***** New --dotfiles option
 
-    Enable special handling for "dotfiles" (files or folders whose name
-    begins with a period) in the package directory. If this option is
-    enabled, Stow will add a preprocessing step for each file or folder
-    whose name begins with "dot-", and replace the "dot-" prefix in the
-    name by a period (".").  This is useful when Stow is used to manage
-    collections of dotfiles, to avoid having a package directory full
-    of hidden files.
+      Enable special handling for "dotfiles" (files or folders whose name
+      begins with a period) in the package directory. If this option is
+      enabled, Stow will add a preprocessing step for each file or folder
+      whose name begins with "dot-", and replace the "dot-" prefix in the
+      name by a period (".").  This is useful when Stow is used to manage
+      collections of dotfiles, to avoid having a package directory full
+      of hidden files.
 
-    For example, suppose we have a package containing two files,
-    stow/dot-bashrc and stow/dot-emacs.d/init.el.  With this option,
-    Stow will create symlinks from .bashrc to stow/dot-bashrc and from
-    .emacs.d/init.el to stow/dot-emacs.d/init.el.  Any other files,
-    whose name does not begin with "dot-", will be processed as usual.
+      For example, suppose we have a package containing two files,
+      stow/dot-bashrc and stow/dot-emacs.d/init.el.  With this option,
+      Stow will create symlinks from .bashrc to stow/dot-bashrc and from
+      .emacs.d/init.el to stow/dot-emacs.d/init.el.  Any other files,
+      whose name does not begin with "dot-", will be processed as usual.
 
-    Thanks to Joris Vankerschaver for this feature!
+      Thanks to Joris Vankerschaver for this feature!
 
-*** Shell-like expansion in .stowrc files
+***** Shell-like expansion in .stowrc files
 
-    For options within .stowrc files which describe file paths, "~" can
-    be included to expand to the current value of $HOME, and
-    environment variables can be referenced e.g. via "$FOO" or
-    "${FOO}".  To prevent expansion, escape with a backslash.
+      For options within .stowrc files which describe file paths, "~" can
+      be included to expand to the current value of $HOME, and
+      environment variables can be referenced e.g. via "$FOO" or
+      "${FOO}".  To prevent expansion, escape with a backslash.
 
-    Thanks a lot to Charles LeDoux for his diligent work on this
-    feature!
+      Thanks a lot to Charles LeDoux for his diligent work on this
+      feature!
 
-*** chkstow now honours the $STOW_DIR environment variable
+***** chkstow now honours the $STOW_DIR environment variable
 
-    The stow script already honoured the $STOW_DIR environment
-    variable.  Now chkstow does too, for consistency.
+      The stow script already honoured the $STOW_DIR environment
+      variable.  Now chkstow does too, for consistency.
 
-*** Stow now has a non-zero exit code if option parsing failed
+***** Stow now has a non-zero exit code if option parsing failed
 
-    Thanks to Brice Waegeneire for reporting this.
+      Thanks to Brice Waegeneire for reporting this.
 
-** Documentation fixes and enhancements
+*** License upgraded from GPL version 2 to version 3
 
-*** Remove dependency on unmaintained texi2html
+    Copyright and license notices were also added to the headers of
+    various files in accordance with GNU guidelines.
 
-    The dependency on the ancient and unmaintained texi2html for
-    building the single-page HTML version of the manual has been
-    removed, since it was difficult to get running on most distros
-    other than openSUSE.
+*** Documentation fixes and enhancements
 
-    Instead use the more modern "makeinfo --html --no-split" approach.
-    Rules have been kept for posterity in the Makefile for the old
-    approach and also an "in-between" approach based on texi2any;
-    however these are not triggered by default.  Run
+***** Remove dependency on unmaintained texi2html
 
-       make manual-single-html-all
+      The dependency on the ancient and unmaintained texi2html for
+      building the single-page HTML version of the manual has been
+      removed, since it was difficult to get running on most distros
+      other than openSUSE.
 
-    to compare the three versions.
+      Instead use the more modern "makeinfo --html --no-split" approach.
+      Rules have been kept for posterity in the Makefile for the old
+      approach and also an "in-between" approach based on texi2any;
+      however these are not triggered by default.  Run
 
-*** Fixed naming of man page
+         make manual-single-html-all
 
-    The title of the generated man page was previously ending up as
-    something like:
+      to compare the three versions.
 
-       IO::FILE=IO(0XA719C0)(1)
+***** Fixed naming of man page
 
-    Thanks to @Corin-EU on GitHub highlighting this and proposing a
-    fix.
+      The title of the generated man page was previously ending up as
+      something like:
 
-*** Convert README and INSTALL to Markdown
+         IO::FILE=IO(0XA719C0)(1)
 
-    They are now named README.md and INSTALL.md, and render nicely
-    when viewed via git hosting services which support Markdown.
+      Thanks to @Corin-EU on GitHub highlighting this and proposing a
+      fix.
 
-*** Update documentation to reflect more modern use cases
+***** Convert README and INSTALL to Markdown
 
-    The README.md, stow(8) man page, and info manual have been updated
-    to de-emphasise the package management use, since these days almost
-    everyone prefers to use modern package managers such as rpm / dpkg
-    / Nix for (system-wide) package management.
+      They are now named README.md and INSTALL.md, and render nicely
+      when viewed via git hosting services which support Markdown.
 
-    To compensate, more popular modern use cases for Stow have been
-    added, such as management of dotfiles and software compiled in the
-    user's $HOME directory.
+***** Update documentation to reflect more modern use cases
 
-*** Miscellaneous documentation fixes
+      The README.md, stow(8) man page, and info manual have been updated
+      to de-emphasise the package management use, since these days almost
+      everyone prefers to use modern package managers such as rpm / dpkg
+      / Nix for (system-wide) package management.
 
-    - Various typos were fixed.
+      To compensate, more popular modern use cases for Stow have been
+      added, such as management of dotfiles and software compiled in the
+      user's $HOME directory.
 
-    - The documentation for --verbose was updated to indicate that
-      verbosity levels now go up to 5.
+***** Miscellaneous documentation fixes
 
-    - Erroneous glob examples in the --ignore documentation were fixed.
+      - Various typos were fixed.
 
-    - The abbreviation "regex" was removed from the info manual for
-      consistency.
+      - The documentation for --verbose was updated to indicate that
+        verbosity levels now go up to 5.
 
-    - INSTALL.md now also documents how to build directly from git.
-** Fixes for bugs, tests, and other technical debt
+      - Erroneous glob examples in the --ignore documentation were fixed.
 
-*** Add Docker files for convenient testing across multiple Perl versions
+      - The abbreviation "regex" was removed from the info manual for
+        consistency.
 
-    This is the first release which has been tested across 5 different
-    versions of Perl prior to release!  The versions are:
+      - INSTALL.md now also documents how to build directly from git.
+*** Fixes for bugs, tests, and other technical debt
 
-         perl-5.22.2
-         perl-5.20.3
-         perl-5.18.4
-         perl-5.16.3
-         perl-5.14.4
+***** Add Docker files for convenient testing across multiple Perl versions
 
-    Thanks to Charles LeDoux for this!
+      This is the first release which has been tested across 5 different
+      versions of Perl prior to release!  The versions are:
 
-*** Set up continuous testing via Travis CI
+           perl-5.22.2
+           perl-5.20.3
+           perl-5.18.4
+           perl-5.16.3
+           perl-5.14.4
 
-    This means that the test suite will be automatically run on any
-    pull requests submitted to GitHub, as well as "make distcheck"
-    and "./Build distcheck".
+      Thanks to Charles LeDoux for this!
 
-*** Add Coveralls integration with GitHub
+***** Set up continuous testing via Travis CI
 
-    This means that test coverage analysis will be automatically be run
-    on any pull requests submitted to GitHub.
+      This means that the test suite will be automatically run on any
+      pull requests submitted to GitHub, as well as "make distcheck"
+      and "./Build distcheck".
 
-*** Miscellaneous improvements to the test suite
+***** Add Coveralls integration with GitHub
 
-    These include proper testing of the distinct impact of ~/.stowrc
-    and .stowrc in the directory from which Stow is invoked.
+      This means that test coverage analysis will be automatically be run
+      on any pull requests submitted to GitHub.
 
-*** Fix for test suite on Cygwin
+***** Miscellaneous improvements to the test suite
 
-    Thanks to Lucas Theisen for this fix!
+      These include proper testing of the distinct impact of ~/.stowrc
+      and .stowrc in the directory from which Stow is invoked.
 
-*** aclocal.m4 was updated using aclocal 1.15.1.
+***** Fix for test suite on Cygwin
 
-*** Miscellaneous fixes to the build and distribution process
+      Thanks to Lucas Theisen for this fix!
 
-*** Improve handling of directories with unusual names
+***** aclocal.m4 was updated using aclocal 1.15.1.
 
-    Various fixes for corner cases where directories are named "0"
-    or begin with a space character, or where STOW_DIR is empty.
+***** Miscellaneous fixes to the build and distribution process
 
-    Thanks to Cuong Manh Le for highlighting some of the issues and
-    proposing fixes!
+***** Improve handling of directories with unusual names
+
+      Various fixes for corner cases where directories are named "0"
+      or begin with a space character, or where STOW_DIR is empty.
+
+      Thanks to Cuong Manh Le for highlighting some of the issues and
+      proposing fixes!
 
 * Changes in version 2.2.2
 
-** @VERSION@ substitution was set up for the Stow::Util module.
+*** @VERSION@ substitution was set up for the Stow::Util module.
 
 * Changes in version 2.2.1
 
 Version 2.2.1 was not released since it was rejected by pause.perl.org
 due to Stow::Util missing $VERSION.
 
-** Small improvements to documentation
+*** Small improvements to documentation
 
-*** The README has been revamped.
+***** The README has been revamped.
 
-*** Some index points have been added to the manual.
+***** Some index points have been added to the manual.
 
-*** Some typos were fixed.
+***** Some typos were fixed.
 
-*** @VERSION@ substitution was fixed in the stow(8) man page.
+***** @VERSION@ substitution was fixed in the stow(8) man page.
 
-** Fix Perl warnings
+*** Fix Perl warnings
 
-   Stow no longer emits "v-string in use/require non-portable" and
-   "Possible precedence issue with control flow operator" warnings
-   with newer Perl versions.  See https://savannah.gnu.org/bugs/?36478
-   and http://lists.gnu.org/archive/html/bug-stow/2014-06/msg00000.html
-   for full details.
+    Stow no longer emits "v-string in use/require non-portable" and
+    "Possible precedence issue with control flow operator" warnings
+    with newer Perl versions.  See https://savannah.gnu.org/bugs/?36478
+    and http://lists.gnu.org/archive/html/bug-stow/2014-06/msg00000.html
+    for full details.
 
-** Fix "Undefined subroutine &main::error" error
+*** Fix "Undefined subroutine &main::error" error
 
-   See https://rt.cpan.org/Public/Bug/Display.html?id=75349 for details.
+    See https://rt.cpan.org/Public/Bug/Display.html?id=75349 for details.
 
-** Failed system calls now include error description
+*** Failed system calls now include error description
 
-   This should make errors easier to understand.
+    This should make errors easier to understand.
 
-** Default ignore list now ignores top-level README.*, LICENSE.*, and COPYING
+*** Default ignore list now ignores top-level README.*, LICENSE.*, and COPYING
 
-   These files are by definition specific to a given package, so if
-   they exist in the top-level directory, they should not be stowed.
+    These files are by definition specific to a given package, so if
+    they exist in the top-level directory, they should not be stowed.
 
-** Correctly handle the stow/target directories as non-canonical paths
+*** Correctly handle the stow/target directories as non-canonical paths
 
-   Fix the case discovered by Hiroyuki Iwatsuki where stowing fails if
-   the stow / target directories are non-canonical paths.  For
-   example, on FreeBSD /home is a symlink pointing to 'usr/home', so
-   running with the stow directory as /home/user/local/stow and the
-   target directory as /home/user/local previously resulted in the
-   stow directory path being calculated as
-   ../../../usr/home/user/local/stow relative to the target.
+    Fix the case discovered by Hiroyuki Iwatsuki where stowing fails if
+    the stow / target directories are non-canonical paths.  For
+    example, on FreeBSD /home is a symlink pointing to 'usr/home', so
+    running with the stow directory as /home/user/local/stow and the
+    target directory as /home/user/local previously resulted in the
+    stow directory path being calculated as
+    ../../../usr/home/user/local/stow relative to the target.
 
-   See http://article.gmane.org/gmane.comp.gnu.stow.bugs/8820 for details.
+    See http://article.gmane.org/gmane.comp.gnu.stow.bugs/8820 for details.
 
-** Fix stowing of relative links when --no-folding is used.
+*** Fix stowing of relative links when --no-folding is used.
 
-   With a tree like this:
+    With a tree like this:
 
-       .
-       |-- stow
-       |   `-- pkg
-       |       `-- lib
-       |           |-- itk-current -> itk4.0.0
-       |           `-- itk4.0.0
-       |               `-- libitk4.0.0.so
-       `-- target
-           `-- lib
-               |-- itk4.0.0 -> ../../stow/pkg/lib/itk4.0.0
-               `-- libfoo-1.2.3.so
+        .
+        |-- stow
+        |   `-- pkg
+        |       `-- lib
+        |           |-- itk-current -> itk4.0.0
+        |           `-- itk4.0.0
+        |               `-- libitk4.0.0.so
+        `-- target
+            `-- lib
+                |-- itk4.0.0 -> ../../stow/pkg/lib/itk4.0.0
+                `-- libfoo-1.2.3.so
 
-   stowing pkg with the --no-folding option resulted in itk-current
-   being "unpacked":
+    stowing pkg with the --no-folding option resulted in itk-current
+    being "unpacked":
 
-       .
-       `-- target
-           `-- lib
-               |-- itk-current
-               |   `-- libitk4.0.0.so -> ../../../stow/pkg/lib/itk-current/libitk4.0.0.so
-               |-- itk4.0.0
-               |   `-- libitk4.0.0.so -> ../../../stow/pkg/lib/itk4.0.0/libitk4.0.0.so
-               `-- libfoo-1.2.3.so
+        .
+        `-- target
+            `-- lib
+                |-- itk-current
+                |   `-- libitk4.0.0.so -> ../../../stow/pkg/lib/itk-current/libitk4.0.0.so
+                |-- itk4.0.0
+                |   `-- libitk4.0.0.so -> ../../../stow/pkg/lib/itk4.0.0/libitk4.0.0.so
+                `-- libfoo-1.2.3.so
 
-   This commit fixes it so that it gets stowed as a symlink:
+    This commit fixes it so that it gets stowed as a symlink:
 
-     .
-     `-- target
-         `-- lib
-             ...
-             |-- itk-current -> ../../stow/pkg/lib/itk-current
-             ...
+      .
+      `-- target
+          `-- lib
+              ...
+              |-- itk-current -> ../../stow/pkg/lib/itk-current
+              ...
 
-   Thanks to Gabriele Balducci for reporting this problem:
+    Thanks to Gabriele Balducci for reporting this problem:
 
-       http://thread.gmane.org/gmane.comp.gnu.stow.general/6676
+        http://thread.gmane.org/gmane.comp.gnu.stow.general/6676
 
-** Internal code cleanups
+*** Internal code cleanups
 
-*** aclocal was updated.
+***** aclocal was updated.
 
-*** automake files were removed.
+***** automake files were removed.
 
-*** Trailing whitespace was removed.
+***** Trailing whitespace was removed.
 
-*** Comments were added.
+***** Comments were added.
 
-*** Debug messages were improved.
+***** Debug messages were improved.
 
 * Changes in version 2.2.0
 
-** New --no-folding option
+*** New --no-folding option
 
-   Disables folding of newly stowed directories when stowing, and
-   refolding of newly foldable directories when unstowing.
+    Disables folding of newly stowed directories when stowing, and
+    refolding of newly foldable directories when unstowing.
 
-** Remove -a option (--adopt still available)
+*** Remove -a option (--adopt still available)
 
-   As --adopt is the only option which allows stow to modify files, it
-   is considered potentially dangerous (especially for stow package
-   directories which are not managed by a version control system).
-   Therefore it seems prudent to require a bit more effort from the
-   user to enable this option, minimising the change of enabling it
-   via a typo.
+    As --adopt is the only option which allows stow to modify files, it
+    is considered potentially dangerous (especially for stow package
+    directories which are not managed by a version control system).
+    Therefore it seems prudent to require a bit more effort from the
+    user to enable this option, minimising the change of enabling it
+    via a typo.
 
-** Improve error message when stow package is not found.
+*** Improve error message when stow package is not found.
 
-   The error message displayed a path to the missing stow package
-   which was relative to the target directory rather than the cwd,
-   which was confusing for the user.
+    The error message displayed a path to the missing stow package
+    which was relative to the target directory rather than the cwd,
+    which was confusing for the user.
 
-** Test suite improvements
+*** Test suite improvements
 
-   The test suite has been tightened up slightly.
+    The test suite has been tightened up slightly.
 
-** Documentation improvements
+*** Documentation improvements
 
-   Various fixes and cosmetic improvements have been made in the manual.
+    Various fixes and cosmetic improvements have been made in the manual.
 
-** Remove "There are no outstanding operations to perform" warning.
+*** Remove "There are no outstanding operations to perform" warning.
 
 * Changes in version 2.1.3
 
-** New --adopt / -a option
+*** New --adopt / -a option
 
-   This allows plain files in the target to be "adopted" into the
-   package being stowed.  See the manual has more details.
+    This allows plain files in the target to be "adopted" into the
+    package being stowed.  See the manual has more details.
 
-** ./configure now checks for Perl modules required by the test suite.
+*** ./configure now checks for Perl modules required by the test suite.
 
 * Changes in version 2.1.2
 
   Many thanks to Stefano Lattarini for help with numerous autoconf and
   automake issues which are addressed in this release.
 
-** Significantly improve the handling of --with-pmdir.
+*** Significantly improve the handling of --with-pmdir.
 
-*** Calculation of the default value for --with-pmdir is now done safely in Perl.
+***** Calculation of the default value for --with-pmdir is now done safely in Perl.
 
-    Previously non-POSIX-compliant shells could cause issues.
+      Previously non-POSIX-compliant shells could cause issues.
 
-*** The output of ./configure and make are now much more helpful.
+***** The output of ./configure and make are now much more helpful.
 
-*** The Makefile will now check whether pmdir is in Perl's built-in @INC.
+***** The Makefile will now check whether pmdir is in Perl's built-in @INC.
 
-    If not, it will insert a
+      If not, it will insert a
 
-      use lib "...";
+        use lib "...";
 
-    line into the generated stow script to ensure that it can always
-    locate the Perl modules without needing to manually set PERL5LIB.
+      line into the generated stow script to ensure that it can always
+      locate the Perl modules without needing to manually set PERL5LIB.
 
-*** Updated INSTALL and HOWTO-RELEASE accordingly.
+***** Updated INSTALL and HOWTO-RELEASE accordingly.
 
-** ./configure now aborts if Perl isn't found.
+*** ./configure now aborts if Perl isn't found.
 
-** Ensured the ChangeLog is up-to-date when making a new distribution.
+*** Ensured the ChangeLog is up-to-date when making a new distribution.
 
-** Fixed bug with `make clean' removing files which the user may not be able to rebuild.
+*** Fixed bug with `make clean' removing files which the user may not be able to rebuild.
 
 * Changes in version 2.1.1
 
-** Fixed bug where ./configure --with-pmdir=X was ineffectual.
+*** Fixed bug where ./configure --with-pmdir=X was ineffectual.
 
-** Calculated the correct default value for pmdir based on the local Perl installation.
+*** Calculated the correct default value for pmdir based on the local Perl installation.
 
-** Fixed some automake issues (thanks to Stefano Lattarini for spotting these!)
+*** Fixed some automake issues (thanks to Stefano Lattarini for spotting these!)
 
-** Improved various bits of documentation.
+*** Improved various bits of documentation.
 
 * Changes in version 2.1.0
 
-** Major refactoring of code into separate Stow and Stow::Util Perl modules.
+*** Major refactoring of code into separate Stow and Stow::Util Perl modules.
 
-** Added support for ignore list files.
+*** Added support for ignore list files.
 
-** Added support for CPAN-style installation and distribution via Module::Build.
+*** Added support for CPAN-style installation and distribution via Module::Build.
 
-** Introduced `make test' target and significantly tightened up test suite.
+*** Introduced `make test' target and significantly tightened up test suite.
 
-** Very large number of code and documentation fixes (over 80 commits since version 2.0.1).
+*** Very large number of code and documentation fixes (over 80 commits since version 2.0.1).
 
-** The '--conflicts' option has been removed.
+*** The '--conflicts' option has been removed.
 
-   Stow will always show conflicts if they are found during the scanning
-   phase.
+    Stow will always show conflicts if they are found during the scanning
+    phase.
 
-** Improved debugging output.
+*** Improved debugging output.
 
-** Converted man page to POD format.
+*** Converted man page to POD format.
 
-** Include PDF, and both split- and single-page HTML versions of manual in the distribution.
+*** Include PDF, and both split- and single-page HTML versions of manual in the distribution.
 
-** Fixed code style consistency issues.
+*** Fixed code style consistency issues.
 
-** Running configure from outside the source tree now works.
+*** Running configure from outside the source tree now works.
 
-** `make distcheck' now works.
+*** `make distcheck' now works.
 
 * Changes in version 2.0.1
 
-** Defer operations until all potential conflicts have been assessed.
+*** Defer operations until all potential conflicts have been assessed.
 
-   We do this by traversing the installation image(s) and recording the
-   actions that need to be performed.  Redundant actions are factored out,
-   e.g., we don't want to create a link that we will later remove in order to
-   create a directory.  Benefits of this approach:
+    We do this by traversing the installation image(s) and recording the
+    actions that need to be performed.  Redundant actions are factored out,
+    e.g., we don't want to create a link that we will later remove in order to
+    create a directory.  Benefits of this approach:
 
-     1. Get to see _all_ the conflicts that are blocking an installation:
-        you don't have to deal with them one at a time.
-     2. No operations are be performed if _any_ conflicts are detected:
-        a failed stow will not leave you with a partially installed
-        package.
-     3. Minimises the set of operations that need to be performed.
-     4. Operations are executed as a batch which is much faster
-        This can be an advantage when upgrading packages on a live system
-        where you want to minimise the amount of time when the package is
-        unavailable.
+      1. Get to see _all_ the conflicts that are blocking an installation:
+         you don't have to deal with them one at a time.
+      2. No operations are be performed if _any_ conflicts are detected:
+         a failed stow will not leave you with a partially installed
+         package.
+      3. Minimises the set of operations that need to be performed.
+      4. Operations are executed as a batch which is much faster
+         This can be an advantage when upgrading packages on a live system
+         where you want to minimise the amount of time when the package is
+         unavailable.
 
-** The above fixes the false conflict problem mentioned in the info file.
+*** The above fixes the false conflict problem mentioned in the info file.
 
-** It also fixes the two bugs mentioned in the man page.
+*** It also fixes the two bugs mentioned in the man page.
 
-** Multiple stow directories will now cooperate in folding/unfolding.
+*** Multiple stow directories will now cooperate in folding/unfolding.
 
-** Conflict messages are more uniform and informative.
+*** Conflict messages are more uniform and informative.
 
-** Verbosity and tracing is more extensive and uniform.
+*** Verbosity and tracing is more extensive and uniform.
 
-** Implemented option parsing via Getopt::Long.
+*** Implemented option parsing via Getopt::Long.
 
-** Default command line arguments set via '.stowrc' and '~/.stowrc' files.
+*** Default command line arguments set via '.stowrc' and '~/.stowrc' files.
 
-   Contents of these files are parsed as though they occurred first on
-   the command line.
+    Contents of these files are parsed as though they occurred first on
+    the command line.
 
-** Support multiple actions per invocation.
+*** Support multiple actions per invocation.
 
-   In order for this to work, we had to add a new (optional) command line arg
-   (-S) to specify packages to stow.  For example, to update an installation
-   of emacs you can now do
+    In order for this to work, we had to add a new (optional) command line arg
+    (-S) to specify packages to stow.  For example, to update an installation
+    of emacs you can now do
 
-           stow -D emacs-21.3 -S emacs-21.4a
+            stow -D emacs-21.3 -S emacs-21.4a
 
-   which will replace emacs-21.3 with emacs-21.4a.
-   You can mix and match any number of actions, e.g.,
+    which will replace emacs-21.3 with emacs-21.4a.
+    You can mix and match any number of actions, e.g.,
 
-           stow -S p1 p2 -D p3 p4 -S p5 -R p6
+            stow -S p1 p2 -D p3 p4 -S p5 -R p6
 
-   will unstow p3, p4 and p6, then stow p1, p2, p5 and p6.
+    will unstow p3, p4 and p6, then stow p1, p2, p5 and p6.
 
-** New (repeatable) command line arg: --ignore='<regex>'
+*** New (repeatable) command line arg: --ignore='<regex>'
 
-   This suppresses operating on a file matching the regex (suffix),
-   e.g.
+    This suppresses operating on a file matching the regex (suffix),
+    e.g.
 
-           --ignore='~' --ignore='\.#.*'
+            --ignore='~' --ignore='\.#.*'
 
-   will ignore emacs and CVS backup files (suitable for ~/.stowrc file).
+    will ignore emacs and CVS backup files (suitable for ~/.stowrc file).
 
-   (I opted for Perl regular expressions because they are more
-   powerful and easier to implement).
+    (I opted for Perl regular expressions because they are more
+    powerful and easier to implement).
 
-** New (repeatable) command line arg: --defer='<regex>'
+*** New (repeatable) command line arg: --defer='<regex>'
 
-   This defers stowing a file matching the regex (prefix) if that file
-   is already stowed to a different package, e.g.,
+    This defers stowing a file matching the regex (prefix) if that file
+    is already stowed to a different package, e.g.,
 
-           --defer='man' --defer='info'
+            --defer='man' --defer='info'
 
-   will cause stow to skip over pre-existing man and info pages.
+    will cause stow to skip over pre-existing man and info pages.
 
-   Equivalently, you could use --defer='man|info' since the argument
-   is just a Perl regex.
+    Equivalently, you could use --defer='man|info' since the argument
+    is just a Perl regex.
 
-** New (repeatable) command line arg: --override='<regex>'
+*** New (repeatable) command line arg: --override='<regex>'
 
-   This forces a file matching the regex (prefix) to be stowed even if
-   the file is already stowed to a different package, e.g.
+    This forces a file matching the regex (prefix) to be stowed even if
+    the file is already stowed to a different package, e.g.
 
-           --override='man' --override='info'
+            --override='man' --override='info'
 
-   will unstow any pre-existing man and info pages that would conflict
-   with the file we are trying to stow.
+    will unstow any pre-existing man and info pages that would conflict
+    with the file we are trying to stow.
 
-   Equivalently, you could use --override='man|info' since the
-   argument is just a Perl regex.
+    Equivalently, you could use --override='man|info' since the
+    argument is just a Perl regex.
 
-** The above gives the ability to manage packages with common content.
+*** The above gives the ability to manage packages with common content.
 
-   For example, man pages that are shared by a number of CPAN
-   packages.  Using multiple stow directories and .stowrc files can
-   also simplify things.  In our setup we use the standard
-   /usr/local/stow directory for packages to be installed in
-   /usr/local.  Since we install a large number of extra Perl packages
-   (currently about 300) we use an additional stow directory:
-   /usr/local/stow/perl-5.8.8-extras.  Both stow directories contain a
-   '.stow' file so that they collaborate appropriately.  I then use
-   the following .stowrc file in /usr/local/stow/perl-5.8.8-extras
+    For example, man pages that are shared by a number of CPAN
+    packages.  Using multiple stow directories and .stowrc files can
+    also simplify things.  In our setup we use the standard
+    /usr/local/stow directory for packages to be installed in
+    /usr/local.  Since we install a large number of extra Perl packages
+    (currently about 300) we use an additional stow directory:
+    /usr/local/stow/perl-5.8.8-extras.  Both stow directories contain a
+    '.stow' file so that they collaborate appropriately.  I then use
+    the following .stowrc file in /usr/local/stow/perl-5.8.8-extras
 
-        --dir=/usr/local/stow/perl-5.8.8-extras
-        --target=/usr/local
-        --override=bin
-        --override=man
-        --ignore='perllocal\.pod'
-        --ignore='\.packlist'
-        --ignore='\.bs'
+         --dir=/usr/local/stow/perl-5.8.8-extras
+         --target=/usr/local
+         --override=bin
+         --override=man
+         --ignore='perllocal\.pod'
+         --ignore='\.packlist'
+         --ignore='\.bs'
 
-   When I stow packages from there, they automatically override any
-   man pages and binaries that may already have been stowed by another
-   package or by the core perl-5.8.8 installation.  For example, if
-   you want to upgrade the Test-Simple package, you need to override
-   all the man pages that would have been installed by the core
-   package.  If you are upgrading CPAN, you will also have to override
-   the pre-existing cpan executable.
+    When I stow packages from there, they automatically override any
+    man pages and binaries that may already have been stowed by another
+    package or by the core perl-5.8.8 installation.  For example, if
+    you want to upgrade the Test-Simple package, you need to override
+    all the man pages that would have been installed by the core
+    package.  If you are upgrading CPAN, you will also have to override
+    the pre-existing cpan executable.
 
-** By default, search less aggressively for invalid symlinks when unstowing.
+*** By default, search less aggressively for invalid symlinks when unstowing.
 
-   That is, we only search for bad symlinks in the directories
-   explicitly mentioned in the installation image, and do not dig down
-   into other subdirs.  Digging down into other directories can be
-   very time consuming if you have a really big tree (like with a
-   couple of Oracle installations lying around). In general the old
-   behaviour is only necessary when you have really stuffed up your
-   installation by deleting a directory that has already been stowed.
-   Doing that on a live system is somewhat crazy and hopefully rare.
-   We provide an option '-p|--compat' to enable the old behaviour for
-   those needing to patch up mistakes.
+    That is, we only search for bad symlinks in the directories
+    explicitly mentioned in the installation image, and do not dig down
+    into other subdirs.  Digging down into other directories can be
+    very time consuming if you have a really big tree (like with a
+    couple of Oracle installations lying around). In general the old
+    behaviour is only necessary when you have really stuffed up your
+    installation by deleting a directory that has already been stowed.
+    Doing that on a live system is somewhat crazy and hopefully rare.
+    We provide an option '-p|--compat' to enable the old behaviour for
+    those needing to patch up mistakes.
 
-** New chkstow utility for checking the integrity of the target directory.
+*** New chkstow utility for checking the integrity of the target directory.
 
-** Implement a test suite and support code.
+*** Implement a test suite and support code.
 
-   This was built before implementing any of the extra features so I
-   could more easily check for equivalent functionality.  The initial
-   code base had to be refactored substantially to allow for testing.
-   The test suite is not exhaustive, but it should provide enough to
-   check for regressions.
+    This was built before implementing any of the extra features so I
+    could more easily check for equivalent functionality.  The initial
+    code base had to be refactored substantially to allow for testing.
+    The test suite is not exhaustive, but it should provide enough to
+    check for regressions.
 
 * Changes in version 1.3.3
 
-** Now requires Perl 5.005 or later
+*** Now requires Perl 5.005 or later
 
-** Initially empty directories are not removed anymore
+*** Initially empty directories are not removed anymore
 
-** Removed buggy fastcwd (we use POSIX::getcwd instead)
+*** Removed buggy fastcwd (we use POSIX::getcwd instead)
 
-** Fixed bug when the common Parent of Target dir and Stow dir was "/"
+*** Fixed bug when the common Parent of Target dir and Stow dir was "/"
 
-** Fixed bug when handling directories named "0"
+*** Fixed bug when handling directories named "0"
 
-** Stow now only warns the user if a directory is unreadable during unstowing.
+*** Stow now only warns the user if a directory is unreadable during unstowing.
 
 * Changes in version 1.3:
 
-** Added --restow option.
+*** Added --restow option.
 
-** Fixed handling of slashes in package names.
+*** Fixed handling of slashes in package names.
 
-** Expanded configure-time search for Perl binary.
+*** Expanded configure-time search for Perl binary.
 
 * Changes in version 1.2:
 
-** Dependency on `pwd' removed.
+*** Dependency on `pwd' removed.
 
-** Perl 4 compatibility fixes.
+*** Perl 4 compatibility fixes.
 
-** Manual expanded even more.
+*** Manual expanded even more.
 
 * Changes in version 1.1:
 
-** Long and short options now accepted.
+*** Long and short options now accepted.
 
-** Manual expanded.
+*** Manual expanded.
 
-** `make clean' removes stow (which is generated from stow.in).
+*** `make clean' removes stow (which is generated from stow.in).
 
 * Initial public release (v1.0) of Stow.
 
 * emacs local variables
   Local Variables:
   mode: org
+  org-export-with-toc: t
+  org-toc-odd-levels-only: t
   End:
