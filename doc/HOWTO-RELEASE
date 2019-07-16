@@ -86,6 +86,12 @@ Release procedure
     git push github
     git push --tags github
 
+- Upload the new release to ftp.gnu.org.  This is easiest using gnupload:
+
+    - git clone git://git.savannah.gnu.org/gnulib.git
+    - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
+    - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.*
+
 - Regenerate the documentation for the website:
 
     # First check out gnulib repository via:
@@ -112,12 +118,6 @@ Release procedure
     cvs diff
     # Then commit
     cvs commit -m "Update manual to v$version"
-
-- Upload to ftp.gnu.org.  This is easiest using gnupload:
-
-    - git clone git://git.savannah.gnu.org/gnulib.git
-    - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
-    - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.*
 
 - Send release announcements to
 
