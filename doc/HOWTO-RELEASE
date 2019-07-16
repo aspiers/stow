@@ -119,6 +119,9 @@ Release procedure
     # Then commit
     cvs commit -m "Update manual to v$version"
 
+- Update the news section of stow.html in the stow-web CVS repository
+  to mention the new release.
+
 - Send release announcements to
 
     - info-stow@gnu.org
