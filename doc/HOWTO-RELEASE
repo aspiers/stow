@@ -50,6 +50,7 @@ Release procedure
         ./Build install
         ./Build distcheck
         ./Build distmeta
+        ./Build dist
 
     - Check META.yaml and META.json have the new version number.
       They already should if the final step of this document was
@@ -75,8 +76,6 @@ Release procedure
   with the new version number:
 
     git tag -s v$version -m "Release $version"
-
-- Run ./Build dist
 
 - Upload the resulting Stow-v7.8.9.tar.gz to CPAN via https://pause.perl.org/
 
