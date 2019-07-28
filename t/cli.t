@@ -57,7 +57,7 @@ use testutil;
 #
 # or from the top of the source tree during development.  This can be done
 # via the following, which also follows the KISS principle:
-my $STOW = 'bin/stow';
+my $STOW = "$^X bin/stow";
 
 `$STOW --help`;
 is($?, 0, "--help should return 0 exit code");
