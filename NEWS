@@ -584,5 +584,6 @@ due to Stow::Util missing $VERSION.
   Local Variables:
   mode: org
   org-export-with-toc: t
+  org-export-with-author: nil
   org-toc-odd-levels-only: t
   End:
