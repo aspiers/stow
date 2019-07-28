@@ -360,13 +360,14 @@ the target directory, because this is what you will want to do most of the time.
 
 @item --no-folding
 
-This disables any further @ref{tree folding} or @ref{tree refolding}.
-If a new subdirectory is encountered whilst stowing a new package, the
-subdirectory is created within the target, and its contents are
-symlinked, rather than just creating a symlink for the directory.  If
-removal of symlinks whilst unstowing a package causes a subtree to be
-foldable (i.e. only containing symlinks to a single package), that
-subtree will not be removed and replaced with a symlink.
+This disables any further tree folding (@pxref{tree folding}) or
+refolding (@pxref{tree refolding}).  If a new subdirectory is
+encountered whilst stowing a new package, the subdirectory is created
+within the target, and its contents are symlinked, rather than just
+creating a symlink for the directory.  If removal of symlinks whilst
+unstowing a package causes a subtree to be foldable (i.e. only
+containing symlinks to a single package), that subtree will not be
+removed and replaced with a symlink.
 
 @cindex adopting existing files
 @item --adopt
