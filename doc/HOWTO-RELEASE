@@ -87,9 +87,9 @@ Release procedure
 
 - Push HEAD and tag to savannah and GitHub:
 
-    git push savannah
+    git push savannah master
     git push --tags savannah
-    git push github
+    git push github master
     git push --tags github
 
 - Upload the new release to ftp.gnu.org.  This is easiest using gnupload:
@@ -169,6 +169,6 @@ Release procedure
 
     - git commit -m "Bump version to $version for development of next release"
 
-    - git push savannah
+    - git push savannah master
 
-    - git push github
+    - git push github master
