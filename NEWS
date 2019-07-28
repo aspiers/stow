@@ -21,6 +21,20 @@ News file for Stow.
 
     https://lists.gnu.org/archive/html/bug-stow/2019-06/msg00001.html
 
+*** Fix an issue with the test suite
+
+    t/cli.t was not testing with the right Perl executable, as
+    reported here:
+
+        https://rt.cpan.org/Ticket/Display.html?id=129944
+
+    Thanks to Slaven Rezic for spotting this and reporting it!
+
+*** Various maintainer tweaks
+
+    Improved the release process and its documentation in various
+    minor ways.
+
 * Changes in version 2.3.0
 
 *** New features / changes in behaviour
