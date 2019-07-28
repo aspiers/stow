@@ -79,9 +79,11 @@ Release procedure
 
 - Upload the resulting Stow-v7.8.9.tar.gz to CPAN via https://pause.perl.org/
 
-- Wait until PAUSE has accepted the upload as a valid module.
-  This provides some valuable final validation, as shown by the
-  non-release of 2.2.1.
+- Wait until PAUSE has accepted the upload as a valid module.  If you
+  are the maintainer of the module, you should receive two email
+  notifications: a CPAN upload confirmation, and a PAUSE indexer
+  report.  This provides some valuable final validation, as learnt the
+  hard way during the non-release of 2.2.1.
 
 - Push HEAD and tag to savannah and GitHub:
 
