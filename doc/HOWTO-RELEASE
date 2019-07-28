@@ -52,9 +52,9 @@ Release procedure
         ./Build distmeta
         ./Build dist
 
-    - Check META.yaml and META.json have the new version number.
+    - Check META.yml and META.json have the new version number.
       They already should if the final step of this document was
-      carried out after the previous release was published, but
+      carried out after the previous release was publised, but
       if not:
 
         git commit -m "Bump version to $version"
@@ -159,8 +159,13 @@ Release procedure
 
         version=$( tools/get-version ) && echo $version
 
-    - Repeat the same procedure listed in the Module::Build section
-      above, in order to update META.yaml and META.json.
+    - In order to update META.yml and META.json, repeat the same
+      procedure listed above, starting at "make distclean" and
+      finishing after "./Build distmeta".
+
+    - Check META.yml and META.json now have the new versions.
+
+    - git add configure.ac META.{yml,json}
 
     - git commit -m "Bump version to $version for development of next release"
 
