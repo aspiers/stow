@@ -122,6 +122,12 @@ Release procedure
 - Update the news section of stow.html in the stow-web CVS repository
   to mention the new release.
 
+    cd $stow_web_repo
+    # Check that the changes look OK
+    cvs diff
+    # Then commit
+    cvs commit -m "Update home page to v$version"
+
 - Send release announcements to
 
     - info-stow@gnu.org
