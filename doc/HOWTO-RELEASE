@@ -29,6 +29,11 @@ Release procedure
 
 - Check CPAN distribution will work via Module::Build:
 
+    - Start from a clean slate:
+
+        make distclean
+        autoreconf -iv
+
     - Generate stow, chkstow, and lib/Stow.pm via:
 
         eval `perl -V:siteprefix`
