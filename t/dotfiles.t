@@ -24,7 +24,7 @@ use warnings;
 
 use testutil;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use English qw(-no_match_vars);
 
 use testutil;
@@ -149,10 +149,23 @@ is(
 );
 
 #
-# package containing a dot dir, no folding
+# unstow from existing directory
 #
 
-remove_link('.config/emacs');
+$stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+$stow->plan_unstow('emacs');
+$stow->process_tasks();
+ok(
+    $stow->get_conflict_count == 0 &&
+    -d '.config' && ! -e '.config/stow' &&
+    -f '../stow/emacs/dot-config/emacs/init.el'
+    => 'unstow from a directory'
+);
+
+#
+# package containing a dot dir, no folding
+#
 
 $stow = new_Stow(dir => '../stow', dotfiles => 1, 'no-folding' => 1);
 
