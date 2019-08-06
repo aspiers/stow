@@ -24,7 +24,7 @@ use warnings;
 
 use testutil;
 
-use Test::More tests => 6;
+use Test::More tests => 8;
 use English qw(-no_match_vars);
 
 use testutil;
@@ -128,4 +128,41 @@ ok(
     $stow->get_conflict_count == 0 &&
     -f '../stow/dotfiles/dot-bar' && ! -e '.bar'
     => 'unstow a simple dotfile'
+);
+
+#
+# stow into existing directory
+#
+
+$stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+make_path('.config');
+make_path('../stow/emacs/dot-config/emacs');
+make_file('../stow/emacs/dot-config/emacs/init.el');
+
+$stow->plan_stow('emacs');
+$stow->process_tasks();
+is(
+    readlink('.config/emacs'),
+    '../../stow/emacs/dot-config/emacs',
+    => 'processed dotfile folder into existing folder'
+);
+
+#
+# package containing a dot dir, no folding
+#
+
+remove_link('.config/emacs');
+
+$stow = new_Stow(dir => '../stow', dotfiles => 1, 'no-folding' => 1);
+
+make_path('../stow/emacs/dot-config/emacs');
+make_file('../stow/emacs/dot-config/emacs/init.el');
+
+$stow->plan_stow('emacs');
+$stow->process_tasks();
+is(
+    readlink('.config/emacs/init.el'),
+    '../../../stow/emacs/dot-config/emacs/init.el',
+    => 'processed dotfile folder without folding'
 );

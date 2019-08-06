@@ -367,11 +367,18 @@ sub within_target_do {
 #============================================================================
 sub stow_contents {
     my $self = shift;
-    my ($stow_path, $package, $target, $source) = @_;
+    my ($stow_path, $package, $package_target, $source) = @_;
 
-    my $path = join_paths($stow_path, $package, $target);
+    my $real_target = $package_target;
 
-    return if $self->should_skip_target_which_is_stow_dir($target);
+    if ($self->{dotfiles}) {
+        debug(4, "  Adjusting: $package_target => $real_target");
+        $real_target = adjust_dotfile($package_target);
+    }
+
+    my $path = join_paths($stow_path, $package, $package_target);
+
+    return if $self->should_skip_target_which_is_stow_dir($real_target);
 
     my $cwd = getcwd();
     my $msg = "Stowing contents of $path (cwd=$cwd)";
@@ -381,8 +388,8 @@ sub stow_contents {
 
     error("stow_contents() called with non-directory path: $path")
         unless -d $path;
-    error("stow_contents() called with non-directory target: $target")
-        unless $self->is_a_node($target);
+    error("stow_contents() called with non-directory target: $real_target")
+        unless $self->is_a_node($real_target);
 
     opendir my $DIR, $path
         or error("cannot read directory: $path ($!)");
@@ -393,14 +400,8 @@ sub stow_contents {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        my $node_target = join_paths($target, $node);
+        my $node_target = join_paths($package_target, $node);
         next NODE if $self->ignore($stow_path, $package, $node_target);
-
-        if ($self->{dotfiles}) {
-            my $adj_node_target = adjust_dotfile($node_target);
-            debug(4, "  Adjusting: $node_target => $adj_node_target");
-            $node_target = $adj_node_target;
-        }
 
         $self->stow_node(
             $stow_path,
@@ -429,11 +430,18 @@ sub stow_contents {
 #============================================================================
 sub stow_node {
     my $self = shift;
-    my ($stow_path, $package, $target, $source) = @_;
+    my ($stow_path, $package, $package_target, $source) = @_;
 
-    my $path = join_paths($stow_path, $package, $target);
+    my $real_target = $package_target;
 
-    debug(3, "Stowing $stow_path / $package / $target");
+    if ($self->{dotfiles}) {
+        debug(4, "  Adjusting: $package_target => $real_target");
+        $real_target = adjust_dotfile($package_target);
+    }
+
+    my $path = join_paths($stow_path, $package, $package_target);
+
+    debug(3, "Stowing $stow_path / $package / $package_target");
     debug(4, "  => $source");
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
@@ -451,59 +459,59 @@ sub stow_node {
     }
 
     # Does the target already exist?
-    if ($self->is_a_link($target)) {
+    if ($self->is_a_link($real_target)) {
         # Where is the link pointing?
-        my $existing_source = $self->read_a_link($target);
+        my $existing_source = $self->read_a_link($real_target);
         if (not $existing_source) {
-            error("Could not read link: $target");
+            error("Could not read link: $real_target");
         }
-        debug(4, "  Evaluate existing link: $target => $existing_source");
+        debug(4, "  Evaluate existing link: $real_target => $existing_source");
 
         # Does it point to a node under any stow directory?
         my ($existing_path, $existing_stow_path, $existing_package) =
-            $self->find_stowed_path($target, $existing_source);
+            $self->find_stowed_path($real_target, $existing_source);
         if (not $existing_path) {
             $self->conflict(
                 'stow',
                 $package,
-                "existing target is not owned by stow: $target"
+                "existing target is not owned by stow: $real_target"
             );
             return; # XXX #
         }
 
-        # Does the existing $target actually point to anything?
+        # Does the existing $real_target actually point to anything?
         if ($self->is_a_node($existing_path)) {
             if ($existing_source eq $source) {
-                debug(2, "--- Skipping $target as it already points to $source");
+                debug(2, "--- Skipping $real_target as it already points to $source");
             }
-            elsif ($self->defer($target)) {
-                debug(2, "--- Deferring installation of: $target");
+            elsif ($self->defer($real_target)) {
+                debug(2, "--- Deferring installation of: $real_target");
             }
-            elsif ($self->override($target)) {
-                debug(2, "--- Overriding installation of: $target");
-                $self->do_unlink($target);
-                $self->do_link($source, $target);
+            elsif ($self->override($real_target)) {
+                debug(2, "--- Overriding installation of: $real_target");
+                $self->do_unlink($real_target);
+                $self->do_link($source, $real_target);
             }
-            elsif ($self->is_a_dir(join_paths(parent($target), $existing_source)) &&
-                   $self->is_a_dir(join_paths(parent($target), $source))     ) {
+            elsif ($self->is_a_dir(join_paths(parent($real_target), $existing_source)) &&
+                   $self->is_a_dir(join_paths(parent($real_target), $source))     ) {
 
                 # If the existing link points to a directory,
                 # and the proposed new link points to a directory,
                 # then we can unfold (split open) the tree at that point
 
-                debug(2, "--- Unfolding $target which was already owned by $existing_package");
-                $self->do_unlink($target);
-                $self->do_mkdir($target);
+                debug(2, "--- Unfolding $real_target which was already owned by $existing_package");
+                $self->do_unlink($real_target);
+                $self->do_mkdir($real_target);
                 $self->stow_contents(
                     $existing_stow_path,
                     $existing_package,
-                    $target,
+                    $package_target,
                     join_paths('..', $existing_source),
                 );
                 $self->stow_contents(
                     $self->{stow_path},
                     $package,
-                    $target,
+                    $package_target,
                     join_paths('..', $source),
                 );
             }
@@ -512,52 +520,52 @@ sub stow_node {
                     'stow',
                     $package,
                     "existing target is stowed to a different package: "
-                    . "$target => $existing_source"
+                    . "$real_target => $existing_source"
                 );
             }
         }
         else {
             # The existing link is invalid, so replace it with a good link
             debug(2, "--- replacing invalid link: $path");
-            $self->do_unlink($target);
-            $self->do_link($source, $target);
+            $self->do_unlink($real_target);
+            $self->do_link($source, $real_target);
         }
     }
-    elsif ($self->is_a_node($target)) {
-        debug(4, "  Evaluate existing node: $target");
-        if ($self->is_a_dir($target)) {
+    elsif ($self->is_a_node($real_target)) {
+        debug(4, "  Evaluate existing node: $real_target");
+        if ($self->is_a_dir($real_target)) {
             $self->stow_contents(
                 $self->{stow_path},
                 $package,
-                $target,
+                $package_target,
                 join_paths('..', $source),
             );
         }
         else {
             if ($self->{adopt}) {
-                $self->do_mv($target, $path);
-                $self->do_link($source, $target);
+                $self->do_mv($real_target, $path);
+                $self->do_link($source, $real_target);
             }
             else {
                 $self->conflict(
                     'stow',
                     $package,
-                    "existing target is neither a link nor a directory: $target"
+                    "existing target is neither a link nor a directory: $real_target"
                 );
             }
         }
     }
     elsif ($self->{'no-folding'} && -d $path && ! -l $path) {
-        $self->do_mkdir($target);
+        $self->do_mkdir($real_target);
         $self->stow_contents(
             $self->{stow_path},
             $package,
-            $target,
+            $package_target,
             join_paths('..', $source),
         );
     }
     else {
-        $self->do_link($source, $target);
+        $self->do_link($source, $real_target);
     }
     return;
 }
