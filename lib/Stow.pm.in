@@ -445,7 +445,7 @@ sub stow_node {
     debug(4, "  => $source");
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
-    if (not $self->{absolute} && -l $source) {
+    if ((not $self->{absolute}) && -l $source) {
         my $second_source = $self->read_a_link($source);
         if ($second_source =~ m{\A/}) {
             $self->conflict(
@@ -827,7 +827,7 @@ sub unstow_node {
             error("Could not read link: $target");
         }
 
-        if ($existing_source =~ m{\A/}) {
+        if (not $self->{absolute} and $existing_source =~ m{\A/}) {
             warn "Ignoring an absolute symlink: $target => $existing_source\n";
             return; # XXX #
         }
