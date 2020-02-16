@@ -821,6 +821,7 @@ OPTIONS:
     -R, --restow          Restow (like stow -D followed by stow -S)
 
     -a, --absolute        Use absolute paths
+    --dotfiles            Convert filenames starting with `dot-' to `.'
 
     --no-folding          Disable folding of newly stowed directories when stowing, 
                           and refolding of newly foldable directories when unstowing.
