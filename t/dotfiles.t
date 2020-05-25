@@ -24,7 +24,7 @@ use warnings;
 
 use testutil;
 
-use Test::More tests => 6;
+use Test::More tests => 10;
 use English qw(-no_match_vars);
 
 use testutil;
@@ -87,6 +87,64 @@ is(
 );
 
 #
+# process folder marked with 'dot' prefix
+# when directory exists is target
+#
+
+$stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+make_path('../stow/dotfiles/dot-emacs.d');
+make_file('../stow/dotfiles/dot-emacs.d/init.el');
+make_path('.emacs.d');
+
+$stow->plan_stow('dotfiles');
+$stow->process_tasks();
+is(
+    readlink('.emacs.d/init.el'),
+    '../../stow/dotfiles/dot-emacs.d/init.el',
+    => 'processed dotfile folder when folder exists (1 level)'
+);
+
+#
+# process folder marked with 'dot' prefix
+# when directory exists is target (2 levels)
+#
+
+$stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+make_path('../stow/dotfiles/dot-emacs.d/dot-emacs.d');
+make_file('../stow/dotfiles/dot-emacs.d/dot-emacs.d/init.el');
+make_path('.emacs.d');
+
+$stow->plan_stow('dotfiles');
+$stow->process_tasks();
+is(
+    readlink('.emacs.d/.emacs.d'),
+    '../../stow/dotfiles/dot-emacs.d/dot-emacs.d',
+    => 'processed dotfile folder exists (2 levels)'
+);
+
+#
+# process folder marked with 'dot' prefix
+# when directory exists is target
+#
+
+$stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+make_path('../stow/dotfiles/dot-one/dot-two');
+make_file('../stow/dotfiles/dot-one/dot-two/three');
+make_path('.one/.two');
+
+$stow->plan_stow('dotfiles');
+$stow->process_tasks();
+is(
+    readlink('./.one/.two/three'),
+    '../../../stow/dotfiles/dot-one/dot-two/three',
+    => 'processed dotfile 2 folder exists (2 levels)'
+);
+
+
+#
 # corner case: paths that have a part in them that's just "$DOT_PREFIX" or
 # "$DOT_PREFIX." should not have that part expanded.
 #
@@ -128,4 +186,26 @@ ok(
     $stow->get_conflict_count == 0 &&
     -f '../stow/dotfiles/dot-bar' && ! -e '.bar'
     => 'unstow a simple dotfile'
+);
+
+#
+# unstow process folder marked with 'dot' prefix
+# when directory exists is target
+#
+
+$stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+make_path('../stow/dotfiles/dot-emacs.d');
+make_file('../stow/dotfiles/dot-emacs.d/init.el');
+make_path('.emacs.d');
+make_link('.emacs.d/init.el', '../../stow/dotfiles/dot-emacs.d/init.el');
+
+$stow->plan_unstow('dotfiles');
+$stow->process_tasks();
+ok(
+    $stow->get_conflict_count == 0 &&
+    -f '../stow/dotfiles/dot-emacs.d/init.el' &&
+    ! -e '.emacs.d/init.el' &&
+    -d '.emacs.d/'
+    => 'unstow dotfile folder when folder already exists'
 );
