@@ -785,7 +785,7 @@ sub unstow_contents {
             $node_target = $adj_node_target;
         }
 
-        $self->unstow_node($stow_path, $package, $node_target, join_paths($source, $node));
+        $self->unstow_node($stow_path, $package, $node_target, join_paths($path, $node));
     }
     if (-d $target) {
         $self->cleanup_invalid_links($target);
