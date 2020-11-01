@@ -1055,9 +1055,9 @@ sub foldable {
     my $self = shift;
     my ($target) = @_;
 
-    debug(3, "--- Is $target foldable?");
+    debug(3, "    Is $target foldable?");
     if ($self->{'no-folding'}) {
-        debug(3, "--- no because --no-folding enabled");
+        debug(3, "      no because --no-folding enabled");
         return '';
     }
 
@@ -1104,7 +1104,7 @@ sub foldable {
 
     # If the resulting path is owned by stow, we can fold it
     if ($self->path_owned_by_package($target, $parent)) {
-        debug(3, "--- $target is foldable");
+        debug(3, "      $target is foldable");
         return $parent;
     }
     else {
