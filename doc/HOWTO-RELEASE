@@ -31,7 +31,7 @@ Release procedure
 
     - Start from a clean slate:
 
-        make distclean
+        make maintainer-clean
         autoreconf -iv
 
     - Generate stow, chkstow, and lib/Stow.pm via:
