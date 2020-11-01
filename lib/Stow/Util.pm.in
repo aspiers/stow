@@ -93,7 +93,7 @@ sub set_test_mode {
     }
 }
 
-=head2 debug($level, $msg)
+=head2 debug($level[, $indent_level], $msg)
 
 Logs to STDERR based on C<$debug_level> setting.  C<$level> is the
 minimum verbosity level required to output C<$msg>.  All output is to
@@ -125,13 +125,18 @@ overriding, fixing invalid links
 =cut
 
 sub debug {
-    my ($level, $msg) = @_;
+    my $level = shift;
+    my $indent_level;
+    # Maintain backwards-compatibility in case anyone's relying on this.
+    $indent_level = $_[0] =~ /^\d+$/ ? shift : 0;
+    my $msg = shift;
     if ($debug_level >= $level) {
+        my $indent = '    ' x $indent_level;
         if ($test_mode) {
-            print "# $msg\n";
+            print "# $indent$msg\n";
         }
         else {
-            warn "$msg\n";
+            warn "$indent$msg\n";
         }
     }
 }

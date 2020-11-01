@@ -204,8 +204,8 @@ sub set_stow_dir {
     my $target = canon_path($self->{target});
     $self->{stow_path} = File::Spec->abs2rel($stow_dir, $target);
 
-    debug(2, "stow dir is $stow_dir");
-    debug(2, "stow dir path relative to target $target is $self->{stow_path}");
+    debug(2, 0, "stow dir is $stow_dir");
+    debug(2, 0, "stow dir path relative to target $target is $self->{stow_path}");
 }
 
 sub init_state {
@@ -271,7 +271,7 @@ sub plan_unstow {
             if (not -d $path) {
                 error("The stow directory $self->{stow_path} does not contain package $package");
             }
-            debug(2, "Planning unstow of package $package...");
+            debug(2, 0, "Planning unstow of package $package...");
             if ($self->{compat}) {
                 $self->unstow_contents_orig(
                     $self->{stow_path},
@@ -286,7 +286,7 @@ sub plan_unstow {
                     '.',
                 );
             }
-            debug(2, "Planning unstow of package $package... done");
+            debug(2, 0, "Planning unstow of package $package... done");
             $self->{action_count}++;
         }
     });
@@ -310,14 +310,14 @@ sub plan_stow {
             if (not -d $path) {
                 error("The stow directory $self->{stow_path} does not contain package $package");
             }
-            debug(2, "Planning stow of package $package...");
+            debug(2, 0, "Planning stow of package $package...");
             $self->stow_contents(
                 $self->{stow_path},
                 $package,
                 '.',
                 $path, # source from target
             );
-            debug(2, "Planning stow of package $package... done");
+            debug(2, 0, "Planning stow of package $package... done");
             $self->{action_count}++;
         }
     });
@@ -340,12 +340,12 @@ sub within_target_do {
     my $cwd = getcwd();
     chdir($self->{target})
         or error("Cannot chdir to target tree: $self->{target} ($!)");
-    debug(3, "cwd now $self->{target}");
+    debug(3, 0, "cwd now $self->{target}");
 
     $self->$code();
 
     restore_cwd($cwd);
-    debug(3, "cwd restored to $cwd");
+    debug(3, 0, "cwd restored to $cwd");
 }
 
 #===== METHOD ===============================================================
@@ -376,8 +376,8 @@ sub stow_contents {
     my $cwd = getcwd();
     my $msg = "Stowing contents of $path (cwd=$cwd)";
     $msg =~ s!$ENV{HOME}(/|$)!~$1!g;
-    debug(3, $msg);
-    debug(4, "  => $source");
+    debug(3, 0, $msg);
+    debug(4, 1, "=> $source");
 
     error("stow_contents() called with non-directory path: $path")
         unless -d $path;
@@ -398,7 +398,7 @@ sub stow_contents {
 
         if ($self->{dotfiles}) {
             my $adj_node_target = adjust_dotfile($node_target);
-            debug(4, "  Adjusting: $node_target => $adj_node_target");
+            debug(4, 1, "Adjusting: $node_target => $adj_node_target");
             $node_target = $adj_node_target;
         }
 
@@ -433,8 +433,8 @@ sub stow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(3, "Stowing $stow_path / $package / $target");
-    debug(4, "  => $source");
+    debug(3, 0, "Stowing $stow_path / $package / $target");
+    debug(4, 1, "=> $source");
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
@@ -445,7 +445,7 @@ sub stow_node {
                 $package,
                 "source is an absolute symlink $source => $second_source"
             );
-            debug(3, "Absolute symlinks cannot be unstowed");
+            debug(3, 0, "Absolute symlinks cannot be unstowed");
             return;
         }
     }
@@ -457,7 +457,7 @@ sub stow_node {
         if (not $existing_source) {
             error("Could not read link: $target");
         }
-        debug(4, "  Evaluate existing link: $target => $existing_source");
+        debug(4, 1, "Evaluate existing link: $target => $existing_source");
 
         # Does it point to a node under any stow directory?
         my ($existing_path, $existing_stow_path, $existing_package) =
@@ -474,13 +474,13 @@ sub stow_node {
         # Does the existing $target actually point to anything?
         if ($self->is_a_node($existing_path)) {
             if ($existing_source eq $source) {
-                debug(2, "--- Skipping $target as it already points to $source");
+                debug(2, 0, "--- Skipping $target as it already points to $source");
             }
             elsif ($self->defer($target)) {
-                debug(2, "--- Deferring installation of: $target");
+                debug(2, 0, "--- Deferring installation of: $target");
             }
             elsif ($self->override($target)) {
-                debug(2, "--- Overriding installation of: $target");
+                debug(2, 0, "--- Overriding installation of: $target");
                 $self->do_unlink($target);
                 $self->do_link($source, $target);
             }
@@ -491,7 +491,7 @@ sub stow_node {
                 # and the proposed new link points to a directory,
                 # then we can unfold (split open) the tree at that point
 
-                debug(2, "--- Unfolding $target which was already owned by $existing_package");
+                debug(2, 0, "--- Unfolding $target which was already owned by $existing_package");
                 $self->do_unlink($target);
                 $self->do_mkdir($target);
                 $self->stow_contents(
@@ -518,13 +518,13 @@ sub stow_node {
         }
         else {
             # The existing link is invalid, so replace it with a good link
-            debug(2, "--- replacing invalid link: $path");
+            debug(2, 0, "--- replacing invalid link: $path");
             $self->do_unlink($target);
             $self->do_link($source, $target);
         }
     }
     elsif ($self->is_a_node($target)) {
-        debug(4, "  Evaluate existing node: $target");
+        debug(4, 1, "Evaluate existing node: $target");
         if ($self->is_a_dir($target)) {
             $self->stow_contents(
                 $self->{stow_path},
@@ -586,7 +586,7 @@ sub should_skip_target_which_is_stow_dir {
         return 1;
     }
 
-    debug(4, "  $target not protected");
+    debug(4, 1, "$target not protected");
     return 0;
 }
 
@@ -595,7 +595,7 @@ sub marked_stow_dir {
     my ($target) = @_;
     for my $f (".stow", ".nonstow") {
         if (-e join_paths($target, $f)) {
-            debug(4, "$target contained $f");
+            debug(4, 0, "$target contained $f");
             return 1;
         }
     }
@@ -625,8 +625,8 @@ sub unstow_contents_orig {
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (compat mode, cwd=$cwd, stow dir=$self->{stow_path})";
     $msg =~ s!$ENV{HOME}(/|$)!~$1!g;
-    debug(3, $msg);
-    debug(4, "  source path is $path");
+    debug(3, 0, $msg);
+    debug(4, 1, "source path is $path");
     # In compat mode we traverse the target tree not the source tree,
     # so we're unstowing the contents of /target/foo, there's no
     # guarantee that the corresponding /stow/mypkg/foo exists.
@@ -665,12 +665,12 @@ sub unstow_node_orig {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(3, "Unstowing $target (compat mode)");
-    debug(4, "  source path is $path");
+    debug(3, 0, "Unstowing $target (compat mode)");
+    debug(4, 1, "source path is $path");
 
     # Does the target exist?
     if ($self->is_a_link($target)) {
-        debug(4, "  Evaluate existing link: $target");
+        debug(4, 1, "Evaluate existing link: $target");
 
         # Where is the link pointing?
         my $existing_source = $self->read_a_link($target);
@@ -695,13 +695,13 @@ sub unstow_node_orig {
                 $self->do_unlink($target);
             }
             elsif ($self->override($target)) {
-                debug(2, "--- overriding installation of: $target");
+                debug(2, 0, "--- overriding installation of: $target");
                 $self->do_unlink($target);
             }
             # else leave it alone
         }
         else {
-            debug(2, "--- removing invalid link into a stow directory: $path");
+            debug(2, 0, "--- removing invalid link into a stow directory: $path");
             $self->do_unlink($target);
         }
     }
@@ -721,7 +721,7 @@ sub unstow_node_orig {
         );
     }
     else {
-        debug(2, "$target did not exist to be unstowed");
+        debug(2, 0, "$target did not exist to be unstowed");
     }
     return;
 }
@@ -749,8 +749,8 @@ sub unstow_contents {
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (cwd=$cwd, stow dir=$self->{stow_path})";
     $msg =~ s!$ENV{HOME}/!~/!g;
-    debug(3, $msg);
-    debug(4, "  source path is $path");
+    debug(3, 0, $msg);
+    debug(4, 1, "source path is $path");
     # We traverse the source tree not the target tree, so $path must exist.
     error("unstow_contents() called with non-directory path: $path")
         unless -d $path;
@@ -774,7 +774,7 @@ sub unstow_contents {
 
         if ($self->{dotfiles}) {
             my $adj_node_target = adjust_dotfile($node_target);
-            debug(4, "  Adjusting: $node_target => $adj_node_target");
+            debug(4, 1, "Adjusting: $node_target => $adj_node_target");
             $node_target = $adj_node_target;
         }
 
@@ -802,12 +802,12 @@ sub unstow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(3, "Unstowing $path");
-    debug(4, "  target is $target");
+    debug(3, 0, "Unstowing $path");
+    debug(4, 1, "target is $target");
 
     # Does the target exist?
     if ($self->is_a_link($target)) {
-        debug(4, "  Evaluate existing link: $target");
+        debug(4, 1, "Evaluate existing link: $target");
 
         # Where is the link pointing?
         my $existing_source = $self->read_a_link($target);
@@ -849,10 +849,10 @@ sub unstow_node {
             # package.
 
             #elsif (defer($target)) {
-            #    debug(2, "--- deferring to installation of: $target");
+            #    debug(2, 0, "--- deferring to installation of: $target");
             #}
             #elsif ($self->override($target)) {
-            #    debug(2, "--- overriding installation of: $target");
+            #    debug(2, 0, "--- overriding installation of: $target");
             #    $self->do_unlink($target);
             #}
             #else {
@@ -865,12 +865,12 @@ sub unstow_node {
             #}
         }
         else {
-            debug(2, "--- removing invalid link into a stow directory: $path");
+            debug(2, 0, "--- removing invalid link into a stow directory: $path");
             $self->do_unlink($target);
         }
     }
     elsif (-e $target) {
-        debug(4, "  Evaluate existing node: $target");
+        debug(4, 1, "Evaluate existing node: $target");
         if (-d $target) {
             $self->unstow_contents($stow_path, $package, $target);
 
@@ -888,7 +888,7 @@ sub unstow_node {
         }
     }
     else {
-        debug(2, "$target did not exist to be unstowed");
+        debug(2, 0, "$target did not exist to be unstowed");
     }
     return;
 }
@@ -938,7 +938,7 @@ sub find_stowed_path {
 
     # Evaluate softlink relative to its target
     my $path = join_paths(parent($target), $source);
-    debug(4, "  is path $path owned by stow?");
+    debug(4, 1, "is path $path owned by stow?");
 
     # Search for .stow files - this allows us to detect links
     # owned by stow directories other than the current one.
@@ -952,7 +952,7 @@ sub find_stowed_path {
             internal_error("find_stowed_path() called directly on stow dir")
                 if $i == $#path;
 
-            debug(4, "    yes - $dir was marked as a stow dir");
+            debug(4, 2, "yes - $dir was marked as a stow dir");
             my $package = $path[$i + 1];
             return ($path, $dir, $package);
         }
@@ -972,19 +972,19 @@ sub find_stowed_path {
     # Strip off common prefixes until one is empty
     while (@path && @stow_path) {
         if ((shift @path) ne (shift @stow_path)) {
-            debug(4, "    no - either $path not under $self->{stow_path} or vice-versa");
+            debug(4, 2, "no - either $path not under $self->{stow_path} or vice-versa");
             return ('', '', '');
         }
     }
 
     if (@stow_path) { # @path must be empty
-        debug(4, "    no - $path is not under $self->{stow_path}");
+        debug(4, 2, "no - $path is not under $self->{stow_path}");
         return ('', '', '');
     }
 
     my $package = shift @path;
 
-    debug(4, "    yes - by $package in " . join_paths(@path));
+    debug(4, 2, "yes - by $package in " . join_paths(@path));
     return ($path, $self->{stow_path}, $package);
 }
 
@@ -1032,7 +1032,7 @@ sub cleanup_invalid_links {
                 not -e join_paths($dir, $source) and  # bad link
                 $self->path_owned_by_package($node_path, $source) # owned by stow
             ){
-                debug(2, "--- removing stale link: $node_path => " .
+                debug(2, 0, "--- removing stale link: $node_path => " .
                           join_paths($dir, $source));
                 $self->do_unlink($node_path);
             }
@@ -1055,9 +1055,9 @@ sub foldable {
     my $self = shift;
     my ($target) = @_;
 
-    debug(3, "    Is $target foldable?");
+    debug(3, 2, "Is $target foldable?");
     if ($self->{'no-folding'}) {
-        debug(3, "      no because --no-folding enabled");
+        debug(3, 3, "no because --no-folding enabled");
         return '';
     }
 
@@ -1104,7 +1104,7 @@ sub foldable {
 
     # If the resulting path is owned by stow, we can fold it
     if ($self->path_owned_by_package($target, $parent)) {
-        debug(3, "      $target is foldable");
+        debug(3, 3, "$target is foldable");
         return $parent;
     }
     else {
@@ -1125,7 +1125,7 @@ sub fold_tree {
     my $self = shift;
     my ($target, $source) = @_;
 
-    debug(3, "--- Folding tree: $target => $source");
+    debug(3, 0, "--- Folding tree: $target => $source");
 
     opendir my $DIR, $target
         or error(qq{Cannot read directory "$target" ($!)\n});
@@ -1158,7 +1158,7 @@ sub conflict {
     my $self = shift;
     my ($action, $package, $message) = @_;
 
-    debug(2, "CONFLICT when ${action}ing $package: $message");
+    debug(2, 0, "CONFLICT when ${action}ing $package: $message");
     $self->{conflicts}{$action}{$package} ||= [];
     push @{ $self->{conflicts}{$action}{$package} }, $message;
     $self->{conflict_count}++;
@@ -1242,7 +1242,7 @@ sub ignore {
 
     for my $suffix (@{ $self->{ignore} }) {
         if ($target =~ m/$suffix/) {
-            debug(4, "  Ignoring path $target due to --ignore=$suffix");
+            debug(4, 1, "Ignoring path $target due to --ignore=$suffix");
             return 1;
         }
     }
@@ -1250,23 +1250,23 @@ sub ignore {
     my $package_dir = join_paths($stow_path, $package);
     my ($path_regexp, $segment_regexp) =
         $self->get_ignore_regexps($package_dir);
-    debug(5, "    Ignore list regexp for paths:    " .
+    debug(5, 2, "Ignore list regexp for paths:    " .
              (defined $path_regexp ? "/$path_regexp/" : "none"));
-    debug(5, "    Ignore list regexp for segments: " .
+    debug(5, 2, "Ignore list regexp for segments: " .
              (defined $segment_regexp ? "/$segment_regexp/" : "none"));
 
     if (defined $path_regexp and "/$target" =~ $path_regexp) {
-        debug(4, "  Ignoring path /$target");
+        debug(4, 1, "Ignoring path /$target");
         return 1;
     }
 
     (my $basename = $target) =~ s!.+/!!;
     if (defined $segment_regexp and $basename =~ $segment_regexp) {
-        debug(4, "  Ignoring path segment $basename");
+        debug(4, 1, "Ignoring path segment $basename");
         return 1;
     }
 
-    debug(5, "  Not ignoring $target");
+    debug(5, 1, "Not ignoring $target");
     return 0;
 }
 
@@ -1286,15 +1286,15 @@ sub get_ignore_regexps {
 
     for my $file ($local_stow_ignore, $global_stow_ignore) {
         if (-e $file) {
-            debug(5, "  Using ignore file: $file");
+            debug(5, 1, "Using ignore file: $file");
             return $self->get_ignore_regexps_from_file($file);
         }
         else {
-            debug(5, "  $file didn't exist");
+            debug(5, 1, "$file didn't exist");
         }
     }
 
-    debug(4, "  Using built-in ignore list");
+    debug(4, 1, "Using built-in ignore list");
     return @default_global_ignore_regexps;
 }
 
@@ -1305,12 +1305,12 @@ sub get_ignore_regexps_from_file {
     my ($file) = @_;
 
     if (exists $ignore_file_regexps{$file}) {
-        debug(4, "    Using memoized regexps from $file");
+        debug(4, 2, "Using memoized regexps from $file");
         return @{ $ignore_file_regexps{$file} };
     }
 
     if (! open(REGEXPS, $file)) {
-        debug(4, "    Failed to open $file: $!");
+        debug(4, 2, "Failed to open $file: $!");
         return undef;
     }
 
@@ -1335,11 +1335,11 @@ sub invalidate_memoized_regexp {
     my $self = shift;
     my ($file) = @_;
     if (exists $ignore_file_regexps{$file}) {
-        debug(4, "    Invalidated memoized regexp for $file");
+        debug(4, 2, "Invalidated memoized regexp for $file");
         delete $ignore_file_regexps{$file};
     }
     else {
-        debug(2, "  WARNING: no memoized regexp for $file to invalidate");
+        debug(2, 1, "WARNING: no memoized regexp for $file to invalidate");
     }
 }
 
@@ -1462,7 +1462,7 @@ sub override {
 sub process_tasks {
     my $self = shift;
 
-    debug(2, "Processing tasks...");
+    debug(2, 0, "Processing tasks...");
 
     # Strip out all tasks with a skip action
     $self->{tasks} = [ grep { $_->{action} ne 'skip' } @{ $self->{tasks} } ];
@@ -1477,7 +1477,7 @@ sub process_tasks {
         }
     });
 
-    debug(2, "Processing tasks... done");
+    debug(2, 0, "Processing tasks... done");
 }
 
 #===== METHOD ===============================================================
@@ -1549,7 +1549,7 @@ sub link_task_action {
     my ($path) = @_;
 
     if (! exists $self->{link_task_for}{$path}) {
-        debug(4, "  link_task_action($path): no task");
+        debug(4, 1, "link_task_action($path): no task");
         return '';
     }
 
@@ -1557,7 +1557,7 @@ sub link_task_action {
     internal_error("bad task action: $action")
         unless $action eq 'remove' or $action eq 'create';
 
-    debug(4, "  link_task_action($path): link task exists with action $action");
+    debug(4, 1, "link_task_action($path): link task exists with action $action");
     return $action;
 }
 
@@ -1574,7 +1574,7 @@ sub dir_task_action {
     my ($path) = @_;
 
     if (! exists $self->{dir_task_for}{$path}) {
-        debug(4, "  dir_task_action($path): no task");
+        debug(4, 1, "dir_task_action($path): no task");
         return '';
     }
 
@@ -1582,7 +1582,7 @@ sub dir_task_action {
     internal_error("bad task action: $action")
         unless $action eq 'remove' or $action eq 'create';
 
-    debug(4, "  dir_task_action($path): dir task exists with action $action");
+    debug(4, 1, "dir_task_action($path): dir task exists with action $action");
     return $action;
 }
 
@@ -1602,15 +1602,15 @@ sub parent_link_scheduled_for_removal {
     my $prefix = '';
     for my $part (split m{/+}, $path) {
         $prefix = join_paths($prefix, $part);
-        debug(4, "    parent_link_scheduled_for_removal($path): prefix $prefix");
+        debug(4, 2, "parent_link_scheduled_for_removal($path): prefix $prefix");
         if (exists $self->{link_task_for}{$prefix} and
              $self->{link_task_for}{$prefix}->{action} eq 'remove') {
-            debug(4, "    parent_link_scheduled_for_removal($path): link scheduled for removal");
+            debug(4, 2, "parent_link_scheduled_for_removal($path): link scheduled for removal");
             return 1;
         }
     }
 
-    debug(4, "    parent_link_scheduled_for_removal($path): returning false");
+    debug(4, 2, "parent_link_scheduled_for_removal($path): returning false");
     return 0;
 }
 
@@ -1626,15 +1626,15 @@ sub parent_link_scheduled_for_removal {
 sub is_a_link {
     my $self = shift;
     my ($path) = @_;
-    debug(4, "  is_a_link($path)");
+    debug(4, 1, "is_a_link($path)");
 
     if (my $action = $self->link_task_action($path)) {
         if ($action eq 'remove') {
-            debug(4, "  is_a_link($path): returning 0 (remove action found)");
+            debug(4, 1, "is_a_link($path): returning 0 (remove action found)");
             return 0;
         }
         elsif ($action eq 'create') {
-            debug(4, "  is_a_link($path): returning 1 (create action found)");
+            debug(4, 1, "is_a_link($path): returning 1 (create action found)");
             return 1;
         }
     }
@@ -1642,11 +1642,11 @@ sub is_a_link {
     if (-l $path) {
         # Check if any of its parent are links scheduled for removal
         # (need this for edge case during unfolding)
-        debug(4, "  is_a_link($path): is a real link");
+        debug(4, 1, "is_a_link($path): is a real link");
         return $self->parent_link_scheduled_for_removal($path) ? 0 : 1;
     }
 
-    debug(4, "  is_a_link($path): returning 0");
+    debug(4, 1, "is_a_link($path): returning 0");
     return 0;
 }
 
@@ -1663,7 +1663,7 @@ sub is_a_link {
 sub is_a_dir {
     my $self = shift;
     my ($path) = @_;
-    debug(4, "  is_a_dir($path)");
+    debug(4, 1, "is_a_dir($path)");
 
     if (my $action = $self->dir_task_action($path)) {
         if ($action eq 'remove') {
@@ -1677,11 +1677,11 @@ sub is_a_dir {
     return 0 if $self->parent_link_scheduled_for_removal($path);
 
     if (-d $path) {
-        debug(4, "  is_a_dir($path): real dir");
+        debug(4, 1, "is_a_dir($path): real dir");
         return 1;
     }
 
-    debug(4, "  is_a_dir($path): returning false");
+    debug(4, 1, "is_a_dir($path): returning false");
     return 0;
 }
 
@@ -1698,7 +1698,7 @@ sub is_a_dir {
 sub is_a_node {
     my $self = shift;
     my ($path) = @_;
-    debug(4, "  is_a_node($path)");
+    debug(4, 1, "is_a_node($path)");
 
     my $laction = $self->link_task_action($path);
     my $daction = $self->dir_task_action($path);
@@ -1749,11 +1749,11 @@ sub is_a_node {
     return 0 if $self->parent_link_scheduled_for_removal($path);
 
     if (-e $path) {
-        debug(4, "  is_a_node($path): really exists");
+        debug(4, 1, "is_a_node($path): really exists");
         return 1;
     }
 
-    debug(4, "  is_a_node($path): returning false");
+    debug(4, 1, "is_a_node($path): returning false");
     return 0;
 }
 
@@ -1771,7 +1771,7 @@ sub read_a_link {
     my ($path) = @_;
 
     if (my $action = $self->link_task_action($path)) {
-        debug(4, "  read_a_link($path): task exists with action $action");
+        debug(4, 1, "read_a_link($path): task exists with action $action");
 
         if ($action eq 'create') {
             return $self->{link_task_for}{$path}->{source};
@@ -1783,7 +1783,7 @@ sub read_a_link {
         }
     }
     elsif (-l $path) {
-        debug(4, "  read_a_link($path): real link");
+        debug(4, 1, "read_a_link($path): real link");
         my $target = readlink $path or error("Could not read link: $path ($!)");
         return $target;
     }
@@ -1835,14 +1835,14 @@ sub do_link {
                 )
             }
             else {
-                debug(1, "LINK: $newfile => $oldfile (duplicates previous action)");
+                debug(1, 0, "LINK: $newfile => $oldfile (duplicates previous action)");
                 return;
             }
         }
         elsif ($task_ref->{action} eq 'remove') {
             if ($task_ref->{source} eq $oldfile) {
                 # No need to remove a link we are going to recreate
-                debug(1, "LINK: $newfile => $oldfile (reverts previous action)");
+                debug(1, 0, "LINK: $newfile => $oldfile (reverts previous action)");
                 $self->{link_task_for}{$newfile}->{action} = 'skip';
                 delete $self->{link_task_for}{$newfile};
                 return;
@@ -1855,7 +1855,7 @@ sub do_link {
     }
 
     # Creating a new link
-    debug(1, "LINK: $newfile => $oldfile");
+    debug(1, 0, "LINK: $newfile => $oldfile");
     my $task = {
         action  => 'create',
         type    => 'link',
@@ -1883,12 +1883,12 @@ sub do_unlink {
     if (exists $self->{link_task_for}{$file}) {
         my $task_ref = $self->{link_task_for}{$file};
         if ($task_ref->{action} eq 'remove') {
-            debug(1, "UNLINK: $file (duplicates previous action)");
+            debug(1, 0, "UNLINK: $file (duplicates previous action)");
             return;
         }
         elsif ($task_ref->{action} eq 'create') {
             # Do need to create a link then remove it
-            debug(1, "UNLINK: $file (reverts previous action)");
+            debug(1, 0, "UNLINK: $file (reverts previous action)");
             $self->{link_task_for}{$file}->{action} = 'skip';
             delete $self->{link_task_for}{$file};
             return;
@@ -1907,7 +1907,7 @@ sub do_unlink {
     }
 
     # Remove the link
-    debug(1, "UNLINK: $file");
+    debug(1, 0, "UNLINK: $file");
 
     my $source = readlink $file or error("could not readlink $file ($!)");
 
@@ -1959,11 +1959,11 @@ sub do_mkdir {
         my $task_ref = $self->{dir_task_for}{$dir};
 
         if ($task_ref->{action} eq 'create') {
-            debug(1, "MKDIR: $dir (duplicates previous action)");
+            debug(1, 0, "MKDIR: $dir (duplicates previous action)");
             return;
         }
         elsif ($task_ref->{action} eq 'remove') {
-            debug(1, "MKDIR: $dir (reverts previous action)");
+            debug(1, 0, "MKDIR: $dir (reverts previous action)");
             $self->{dir_task_for}{$dir}->{action} = 'skip';
             delete $self->{dir_task_for}{$dir};
             return;
@@ -1973,7 +1973,7 @@ sub do_mkdir {
         }
     }
 
-    debug(1, "MKDIR: $dir");
+    debug(1, 0, "MKDIR: $dir");
     my $task = {
         action  => 'create',
         type    => 'dir',
@@ -2013,11 +2013,11 @@ sub do_rmdir {
         my $task_ref = $self->{link_task_for}{$dir};
 
         if ($task_ref->{action} eq 'remove') {
-            debug(1, "RMDIR $dir (duplicates previous action)");
+            debug(1, 0, "RMDIR $dir (duplicates previous action)");
             return;
         }
         elsif ($task_ref->{action} eq 'create') {
-            debug(1, "MKDIR $dir (reverts previous action)");
+            debug(1, 0, "MKDIR $dir (reverts previous action)");
             $self->{link_task_for}{$dir}->{action} = 'skip';
             delete $self->{link_task_for}{$dir};
             return;
@@ -2027,7 +2027,7 @@ sub do_rmdir {
         }
     }
 
-    debug(1, "RMDIR $dir");
+    debug(1, 0, "RMDIR $dir");
     my $task = {
         action  => 'remove',
         type    => 'dir',
@@ -2071,7 +2071,7 @@ sub do_mv {
     }
 
     # Remove the link
-    debug(1, "MV: $src -> $dst");
+    debug(1, 0, "MV: $src -> $dst");
 
     my $task = {
         action  => 'move',
