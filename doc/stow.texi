@@ -358,6 +358,24 @@ pages that are owned by stow and would otherwise cause a conflict.
 The regular expression is anchored to the beginning of the path relative to
 the target directory, because this is what you will want to do most of the time.
 
+@cindex dotfiles
+@item --dotfiles
+
+Enable special handling for @emph{dotfiles} (files or folders whose
+name begins with a period) in the package directory. If this option is
+enabled, Stow will add a preprocessing step for each file or folder
+whose name begins with @samp{dot-}, and replace the @samp{dot-} prefix
+in the name by a period @samp{.}. This is useful when Stow is used to
+manage collections of dotfiles, to avoid having a package directory
+full of hidden files.
+
+For example, suppose we have a package containing two files,
+@file{stow/dot-bashrc} and @file{stow/dot-emacs.d/init.el}. With this
+option, Stow will create symlinks from @file{.bashrc} to
+@file{stow/dot-bashrc} and from @file{.emacs.d/init.el} to
+@file{stow/dot-emacs.d/init.el}. Any other files, whose name does not
+begin with @samp{dot-}, will be processed as usual.
+
 @item --no-folding
 
 This disables any further tree folding (@pxref{tree folding}) or
