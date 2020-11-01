@@ -32,7 +32,6 @@ pmstowdir = $(pmdir)/Stow
 pm_DATA = lib/Stow.pm
 pmstow_DATA = lib/Stow/Util.pm
 
-TEXINFO_TEX = doc/texinfo.tex
 export TEXI2DVI_BUILD_MODE = clean
 AM_MAKEINFOFLAGS = -I $(srcdir)
 
@@ -95,7 +94,6 @@ EXTRA_DIST = \
 	bin/stow.in bin/chkstow.in lib/Stow.pm.in lib/Stow/Util.pm.in \
 	doc/manual-split \
 	$(TESTS) t/testutil.pm \
-	$(TEXINFO_TEX) \
 	$(DEFAULT_IGNORE_LIST) \
 	$(CPAN_FILES)
 CLEANFILES = $(bin_SCRIPTS) $(pm_DATA) $(pmstow_DATA)

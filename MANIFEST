@@ -3,6 +3,7 @@ aclocal.m4
 automake/install-sh
 automake/mdate-sh
 automake/missing
+automake/texinfo.tex
 bin/chkstow
 bin/chkstow.in
 bin/stow
@@ -19,7 +20,6 @@ doc/manual.pdf
 doc/stow.8
 doc/stow.info
 doc/stow.texi
-doc/texinfo.tex
 doc/version.texi
 INSTALL.md
 lib/Stow.pm
