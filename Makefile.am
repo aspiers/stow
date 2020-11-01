@@ -39,7 +39,7 @@ AM_MAKEINFOFLAGS = -I $(srcdir)
 # default ignore list in the manual works.  Unfortunately this is
 # the only way to do it:
 #
-#   http://article.gmane.org/gmane.comp.sysutils.automake.bugs/4334/match=passing+parameters
+#   https://lists.gnu.org/archive/html/bug-automake/2008-09/msg00040.html
 #
 # even though it annoyingly produces a warning with the -Wall option
 # to AM_INIT_AUTOMAKE which has to be silenced via -Wno-override.
@@ -76,7 +76,7 @@ check_DATA = $(TESTS_OUT)
 # Note that automake's `check' rule cannot be overridden
 # for some weird reason:
 #
-#   http://thread.gmane.org/gmane.comp.sysutils.automake.general/13040/focus=13041
+#   https://lists.gnu.org/archive/html/automake/2011-09/msg00029.html
 #
 # so we override check-TESTS instead which is where the real work is
 # done anyway.  Unfortunately this produces a warning with the -Wall
@@ -188,7 +188,7 @@ doc/stow.8: bin/stow.in Makefile.am
 #
 # If it were not for a troublesome dependency on doc/$(am__dirstamp):
 #
-#   http://article.gmane.org/gmane.comp.sysutils.automake.general/13192
+#   https://lists.gnu.org/archive/html/automake/2011-11/msg00107.html
 #
 # we could have achieved this using the built-in rules combined with
 # install-data-hook to rename from stow.pdf to manual.pdf etc. on

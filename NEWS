@@ -235,7 +235,7 @@ due to Stow::Util missing $VERSION.
     stow directory path being calculated as
     ../../../usr/home/user/local/stow relative to the target.
 
-    See http://article.gmane.org/gmane.comp.gnu.stow.bugs/8820 for details.
+    See https://lists.gnu.org/archive/html/bug-stow/2013-04/msg00000.html for details.
 
 *** Fix stowing of relative links when --no-folding is used.
 
@@ -276,7 +276,7 @@ due to Stow::Util missing $VERSION.
 
     Thanks to Gabriele Balducci for reporting this problem:
 
-        http://thread.gmane.org/gmane.comp.gnu.stow.general/6676
+        https://lists.gnu.org/archive/html/help-stow/2014-09/msg00000.html
 
 *** Internal code cleanups
 
