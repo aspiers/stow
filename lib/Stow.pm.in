@@ -894,7 +894,7 @@ sub unstow_node {
 }
 
 #===== METHOD ===============================================================
-# Name      : path_owned_by_package()
+# Name      : link_owned_by_package()
 # Purpose   : determine whether the given link points to a member of a
 #           : stowed package
 # Parameters: $target => path to a symbolic link under current directory
@@ -903,7 +903,7 @@ sub unstow_node {
 # Throws    : n/a
 # Comments  : lossy wrapper around find_stowed_path()
 #============================================================================
-sub path_owned_by_package {
+sub link_owned_by_package {
     my $self = shift;
     my ($target, $source) = @_;
 
@@ -1046,7 +1046,7 @@ sub cleanup_invalid_links {
               "checking whether valid link $node_path -> $source is " .
               "owned by stow");
 
-        if ($self->path_owned_by_package($node_path, $source)) {
+        if ($self->link_owned_by_package($node_path, $source)) {
             # owned by stow
             debug(2, 0, "--- removing stale link: $node_path => " .
                   join_paths($dir, $source));
@@ -1118,7 +1118,7 @@ sub foldable {
     $parent =~ s{\A\.\./}{};
 
     # If the resulting path is owned by stow, we can fold it
-    if ($self->path_owned_by_package($target, $parent)) {
+    if ($self->link_owned_by_package($target, $parent)) {
         debug(3, 3, "$target is foldable");
         return $parent;
     }
