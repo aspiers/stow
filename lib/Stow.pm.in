@@ -1003,6 +1003,9 @@ sub cleanup_invalid_links {
     my $self = shift;
     my ($dir) = @_;
 
+    my $cwd = getcwd();
+    debug(2, 1, "cleanup_invalid_links for $dir (pwd=$cwd)");
+
     if (not -d $dir) {
         error("cleanup_invalid_links() called with a non-directory: $dir");
     }
@@ -1019,23 +1022,35 @@ sub cleanup_invalid_links {
 
         my $node_path = join_paths($dir, $node);
 
-        if (-l $node_path and not exists $self->{link_task_for}{$node_path}) {
+        next unless -l $node_path;
 
-            # Where is the link pointing?
-            # (don't use read_a_link() here)
-            my $source = readlink($node_path);
-            if (not $source) {
-                error("Could not read link $node_path");
-            }
+        debug(2, 2, "checking validity of link $node_path");
 
-            if (
-                not -e join_paths($dir, $source) and  # bad link
-                $self->path_owned_by_package($node_path, $source) # owned by stow
-            ){
-                debug(2, 0, "--- removing stale link: $node_path => " .
-                          join_paths($dir, $source));
-                $self->do_unlink($node_path);
-            }
+        if (exists $self->{link_task_for}{$node_path}) {
+            die "huh? link_task_for $node_path";
+        }
+
+        # Where is the link pointing?
+        # (don't use read_a_link() here)
+        my $source = readlink($node_path);
+        if (not $source) {
+            error("Could not read link $node_path");
+        }
+
+        if (-e join_paths($dir, $source)) {
+            debug(4, 3, "link target $source exists; skipping clean up");
+            next;
+        }
+
+        debug(2, 2,
+              "checking whether valid link $node_path -> $source is " .
+              "owned by stow");
+
+        if ($self->path_owned_by_package($node_path, $source)) {
+            # owned by stow
+            debug(2, 0, "--- removing stale link: $node_path => " .
+                  join_paths($dir, $source));
+            $self->do_unlink($node_path);
         }
     }
     return;
