@@ -938,7 +938,7 @@ sub find_stowed_path {
 
     # Evaluate softlink relative to its target
     my $path = join_paths(parent($target), $source);
-    debug(4, 1, "is path $path owned by stow?");
+    debug(4, 2, "is path $path owned by stow?");
 
     # Search for .stow files - this allows us to detect links
     # owned by stow directories other than the current one.
@@ -952,7 +952,7 @@ sub find_stowed_path {
             internal_error("find_stowed_path() called directly on stow dir")
                 if $i == $#path;
 
-            debug(4, 2, "yes - $dir was marked as a stow dir");
+            debug(4, 3, "yes - $dir was marked as a stow dir");
             my $package = $path[$i + 1];
             return ($path, $dir, $package);
         }
@@ -972,19 +972,19 @@ sub find_stowed_path {
     # Strip off common prefixes until one is empty
     while (@path && @stow_path) {
         if ((shift @path) ne (shift @stow_path)) {
-            debug(4, 2, "no - either $path not under $self->{stow_path} or vice-versa");
+            debug(4, 3, "no - either $path not under $self->{stow_path} or vice-versa");
             return ('', '', '');
         }
     }
 
     if (@stow_path) { # @path must be empty
-        debug(4, 2, "no - $path is not under $self->{stow_path}");
+        debug(4, 3, "no - $path is not under $self->{stow_path}");
         return ('', '', '');
     }
 
     my $package = shift @path;
 
-    debug(4, 2, "yes - by $package in " . join_paths(@path));
+    debug(4, 3, "yes - by $package in " . join_paths(@path));
     return ($path, $self->{stow_path}, $package);
 }
 
