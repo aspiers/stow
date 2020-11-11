@@ -265,6 +265,10 @@ sub plan_unstow {
     my $self = shift;
     my @packages = @_;
 
+    return unless @packages;
+
+    debug(2, 0, "Planning unstow of: @packages ...");
+
     $self->within_target_do(sub {
         for my $package (@packages) {
             my $path = join_paths($self->{stow_path}, $package);
@@ -303,6 +307,10 @@ accessible via L<get_conflicts()>.
 sub plan_stow {
     my $self = shift;
     my @packages = @_;
+
+    return unless @packages;
+
+    debug(2, 0, "Planning stow of: @packages ...");
 
     $self->within_target_do(sub {
         for my $package (@packages) {
