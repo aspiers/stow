@@ -1015,7 +1015,7 @@ sub cleanup_invalid_links {
     debug(2, 0, "Cleaning up any invalid links in $dir (pwd=$cwd)");
 
     if (not -d $dir) {
-        error("cleanup_invalid_links() called with a non-directory: $dir");
+        internal_error("cleanup_invalid_links() called with a non-directory: $dir");
     }
 
     opendir my $DIR, $dir
