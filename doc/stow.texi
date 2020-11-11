@@ -1287,7 +1287,7 @@ the precise command you gave;
 
 @item
 the output from the command (preferably verbose output, obtained by
-adding @samp{--verbose=3} to the Stow command line).
+adding @samp{--verbose=5} to the Stow command line).
 @end itemize
 
 If you are really keen, consider developing a minimal test case and
