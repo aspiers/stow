@@ -25,6 +25,23 @@ There is also a
 [stow-devel](https://lists.gnu.org/mailman/listinfo/stow-devel)
 mailing list (see [Mailing lists](README.md#mailing-lists)).
 
+Testing
+~~~~~~~
+
+The test suite can be found in the [`t/`](t/) subdirectory.  You can
+run the test suite via:
+
+    make check
+
+Individual tests can be run as follows:
+
+    perl -It t/stow.t
+
+or with a given debugging verbosity corresponding to the `-v` / `--verbose`
+command-line option:
+
+    TEST_VERBOSE=4 perl -It t/stow.t
+
 Translating Stow
 ----------------
 
