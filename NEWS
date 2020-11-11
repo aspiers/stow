@@ -9,8 +9,11 @@ News file for Stow.
 
 *** Minor janitorial tasks
 
-    Users are not substantially affected by these behind-the-scenes
-    changes.
+    Users are not substantially affected by these changes.
+
+***** Added some more information from the web page to the README
+
+***** Added a CONTRIBUTING.md file
 
 ***** Removed texinfo.tex from the distribution
 

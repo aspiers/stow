@@ -1291,8 +1291,9 @@ adding @samp{--verbose=5} to the Stow command line).
 @end itemize
 
 If you are really keen, consider developing a minimal test case and
-creating a new test.  See the @file{t/} directory in the source for
-lots of examples.
+creating a new test.  See the @file{t/} directory in the source for lots
+of examples, and the @file{CONTRIBUTING.md} file for a guide on how to
+contribute.
 
 Before reporting a bug, please read the manual carefully, especially
 @ref{Known Bugs}, to see whether you're encountering
