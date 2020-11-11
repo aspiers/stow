@@ -1027,7 +1027,14 @@ sub cleanup_invalid_links {
         debug(4, 1, "Checking validity of link $node_path");
 
         if (exists $self->{link_task_for}{$node_path}) {
-            die "huh? link_task_for $node_path";
+            my $action = $self->{link_task_for}{$node_path}{action};
+            if ($action ne 'remove') {
+                warn "Unexpected action $action scheduled for $node_path; skipping clean-up\n";
+            }
+            else {
+                debug(4, 2, "$node_path scheduled for removal; skipping clean-up");
+            }
+            next;
         }
 
         # Where is the link pointing?
