@@ -586,4 +586,5 @@ due to Stow::Util missing $VERSION.
   org-export-with-toc: nil
   org-export-with-author: nil
   org-toc-odd-levels-only: t
+  org-blank-before-new-entry: ((heading . auto) (plain-list-item . auto))
   End:
