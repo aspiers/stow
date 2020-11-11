@@ -936,80 +936,129 @@ sub link_owned_by_package {
 
 #===== METHOD ===============================================================
 # Name      : find_stowed_path()
-# Purpose   : determine whether the given link within the target directory
+# Purpose   : determine whether the given symlink within the target directory
 #           : is a stowed path pointing to a member of a package under the
 #           : stow dir, and if so, obtain a breakdown of information about
 #           : this stowed path.
-# Parameters: $target => path to a symbolic link under current directory.
-#           :            Must share a common prefix with $self->{stow_path}
-#           : $source => where that link points to (needed because link
+# Parameters: $target => path to a symbolic link somewhere under
+#           :            the target directory, relative to the
+#           :            top-level target directory (which is also
+#           :            expected to be the current directory).
+#           : $ldest =>  where that link points to (needed because link
 #           :            might not exist yet due to two-phase approach,
-#           :            so we can't just call readlink()).  This must be
-#           :            expressed relative to (the directory containing)
-#           :            $target.
-# Returns   : ($path, $stow_path, $package) where $path and $stow_path are
-#           : relative from the current (i.e. target) directory.  $path
-#           : is the full relative path, $stow_path is the relative path
-#           : to the stow directory, and $package is the name of the package.
-#           : or ('', '', '') if link is not owned by stow
+#           :            so we can't just call readlink()).  If this is
+#           :            owned by Stow, it will be expressed relative to
+#           :            (the directory containing) $target.  However if
+#           :            it's not, it could of course be relative or absolute,
+#           :            point absolutely anywhere, and could even be
+#           :            dangling.
+# Returns   : ($path, $stow_path, $package) where $path and $stow_path
+#           : are relative from the top-level target directory.  $path
+#           : is the full relative path to the member of the package
+#           : pointed to by $ldest; $stow_path is the relative path
+#           : to the stow directory; and $package is the name of the
+#           : package; or ('', '', '') if link is not owned by stow.
 # Throws    : n/a
-# Comments  : Allow for stow dir not being under target dir.
-#           : We could put more logic under here for multiple stow dirs.
+# Comments  : cwd must be the top-level target directory, otherwise
+#           : find_containing_marked_stow_dir() won't work.
+#           : Allow for stow dir not being under target dir.
 #============================================================================
 sub find_stowed_path {
     my $self = shift;
-    my ($target, $source) = @_;
+    my ($target, $ldest) = @_;
 
-    # Evaluate softlink relative to its target
-    my $path = join_paths(parent($target), $source);
-    debug(4, 2, "is path $path owned by stow?");
-
-    # Search for .stow files - this allows us to detect links
-    # owned by stow directories other than the current one.
-    my $dir = '';
-    my @path = split m{/+}, $path;
-    for my $i (0 .. $#path) {
-        my $part = $path[$i];
-        $dir = join_paths($dir, $part);
-        if ($self->marked_stow_dir($dir)) {
-            # FIXME - not sure if this can ever happen
-            internal_error("find_stowed_path() called directly on stow dir")
-                if $i == $#path;
-
-            debug(4, 3, "yes - $dir was marked as a stow dir");
-            my $package = $path[$i + 1];
-            return ($path, $dir, $package);
-        }
-    }
-
-    # If no .stow file was found, we need to find out whether it's
-    # owned by the current stow directory, in which case $path will be
-    # a prefix of $self->{stow_path}.
-    if (substr($path, 0, 1) eq '/' xor substr($self->{stow_path}, 0, 1) eq '/')
-    {
-        warn "BUG in find_stowed_path? Absolute/relative mismatch between " .
-             "Stow dir $self->{stow_path} and path $path";
-    }
-
-    my @stow_path = split m{/+}, $self->{stow_path};
-
-    # Strip off common prefixes until one is empty
-    while (@path && @stow_path) {
-        if ((shift @path) ne (shift @stow_path)) {
-            debug(4, 3, "no - either $path not under $self->{stow_path} or vice-versa");
-            return ('', '', '');
-        }
-    }
-
-    if (@stow_path) { # @path must be empty
-        debug(4, 3, "no - $path is not under $self->{stow_path}");
+    if (substr($ldest, 0, 1) eq '/') {
+        # Symlink points to an absolute path, therefore it cannot be
+        # owned by Stow.
         return ('', '', '');
     }
 
-    my $package = shift @path;
+    # Evaluate softlink relative to its target, without relying on
+    # what's actually on the filesystem, since the link might not
+    # exist yet.
+    debug(4, 2, "find_stowed_path(target=$target; source=$ldest)");
+    my $dest = join_paths(parent($target), $ldest);
+    debug(4, 3, "is symlink destination $dest owned by stow?");
 
-    debug(4, 3, "yes - by $package in " . join_paths(@path));
-    return ($path, $self->{stow_path}, $package);
+    # First check whether the link is owned by the current stow
+    # directory, in which case $dest will be a prefix of
+    # $self->{stow_path}.
+    my ($package, $path) = $self->link_dest_within_stow_dir($dest);
+    if (length $package) {
+        debug(4, 3, "yes - package $package in $self->{stow_path} may contain $path");
+        return ($dest, $self->{stow_path}, $package);
+    }
+
+    # If no .stow file was found, we need to find out whether it's
+    my ($stow_path, $ext_package) = $self->find_containing_marked_stow_dir($dest);
+    if (length $stow_path) {
+        debug(5, 5, "yes - $stow_path in $dest was marked as a stow dir; package=$ext_package");
+        return ($dest, $stow_path, $ext_package);
+    }
+
+    return ('', '', '');
+}
+
+#===== METHOD ================================================================
+# Name      : link_dest_within_stow_dir
+# Purpose   : detect whether symlink destination is within current stow dir
+# Parameters: $ldest - destination of the symlink relative
+# Returns   : ($package, $path) - package within the current stow dir
+#           : and subpath within that package which the symlink points to
+#=============================================================================
+sub link_dest_within_stow_dir {
+    my $self = shift;
+    my ($ldest) = @_;
+
+    debug(4, 4, "common prefix? ldest=$ldest; stow_path=$self->{stow_path}");
+
+    my $removed = $ldest =~ s,^\Q$self->{stow_path}/,,;
+    if (! $removed) {
+        debug(4, 3, "no - $ldest not under $self->{stow_path}");
+        return ('', '');
+    }
+
+    debug(4, 4, "remaining after removing $self->{stow_path}: $ldest");
+    my @dirs = File::Spec->splitdir($ldest);
+    my $package = shift @dirs;
+    my $path = File::Spec->catdir(@dirs);
+    return ($package, $path);
+}
+
+#===== METHOD ================================================================
+# Name      : find_containing_marked_stow_dir
+# Purpose   : detect whether path is within a marked stow directory
+# Parameters: $path => path to directory to check
+# Returns   : ($stow_path, $package) where $stow_path is the highest directory
+#           : (relative from the top-level target directory) which is marked
+#           : as a Stow directory, and $package is the containing package;
+#           : or ('', '') if no containing directory is marked as a stow
+#           : directory.
+# Comments  : cwd must be the top-level target directory, otherwise
+#           : marked_stow_dir() won't work.
+#=============================================================================
+sub find_containing_marked_stow_dir {
+    my $self = shift;
+    my ($path) = @_;
+
+    # Search for .stow files - this allows us to detect links
+    # owned by stow directories other than the current one.
+    my @segments = File::Spec->splitdir($path);
+    for my $last_segment (0 .. $#segments) {
+        my $path = join_paths(@segments[0 .. $last_segment]);
+        debug(5, 5, "is $path marked stow dir?");
+        if ($self->marked_stow_dir($path)) {
+            if ($last_segment == $#segments) {
+                # This should probably never happen.  Even if it did,
+                # there would be no way of calculating $package.
+                internal_error("find_stowed_path() called directly on stow dir");
+            }
+
+            my $package = $segments[$last_segment + 1];
+            return ($path, $package);
+        }
+    }
+    return ('', '');
 }
 
 #===== METHOD ================================================================
@@ -1066,24 +1115,30 @@ sub cleanup_invalid_links {
 
         # Where is the link pointing?
         # (don't use read_a_link() here)
-        my $source = readlink($node_path);
-        if (not $source) {
+        my $ldest = readlink($node_path);
+        if (not $ldest) {
             error("Could not read link $node_path");
         }
 
-        if (-e join_paths($dir, $source)) {
-            debug(4, 2, "Link target $source exists; skipping clean up");
+        my $target = join_paths($dir, $ldest);
+        debug(4, 2, "join $dir $ldest");
+        if (-e $target) {
+            debug(4, 2, "Link target $ldest exists at $target; skipping clean up");
             next;
+        }
+        else {
+            debug(4, 2, "Link target $ldest doesn't exist at $target");
         }
 
         debug(3, 1,
-              "Checking whether valid link $node_path -> $source is " .
+              "Checking whether valid link $node_path -> $ldest is " .
               "owned by stow");
 
-        if ($self->link_owned_by_package($node_path, $source)) {
+        my $owner = $self->link_owned_by_package($node_path, $ldest);
+        if ($owner) {
             # owned by stow
-            debug(2, 0, "--- removing stale link: $node_path => " .
-                  join_paths($dir, $source));
+            debug(2, 0, "--- removing link owned by $owner: $node_path => " .
+                  join_paths($dir, $ldest));
             $self->do_unlink($node_path);
         }
     }

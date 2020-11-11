@@ -2,6 +2,15 @@ News file for Stow.
 
 * Changes in version 2.3.2
 
+*** Eliminated a spurious warning on unstowing
+
+    2.3.1 introduced a benign but annoying warning when unstowing
+    in certain circumstances.  It looked like:
+
+      BUG in find_stowed_path? Absolute/relative mismatch between Stow dir X and path Y
+
+    This was caused by erroneous logic, and has now been fixed.
+
 *** Improved debug output
 
     Extra output resulting from use of the -v / --verbose flag
