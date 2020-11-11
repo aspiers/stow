@@ -595,7 +595,7 @@ sub marked_stow_dir {
     my ($target) = @_;
     for my $f (".stow", ".nonstow") {
         if (-e join_paths($target, $f)) {
-            debug(4, 0, "$target contained $f");
+            debug(4, 2, "$target contained $f");
             return 1;
         }
     }
@@ -802,12 +802,12 @@ sub unstow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(3, 0, "Unstowing $path");
-    debug(4, 1, "target is $target");
+    debug(3, 1, "Unstowing $path");
+    debug(4, 2, "target is $target");
 
     # Does the target exist?
     if ($self->is_a_link($target)) {
-        debug(4, 1, "Evaluate existing link: $target");
+        debug(4, 2, "Evaluate existing link: $target");
 
         # Where is the link pointing?
         my $existing_source = $self->read_a_link($target);
@@ -870,7 +870,7 @@ sub unstow_node {
         }
     }
     elsif (-e $target) {
-        debug(4, 1, "Evaluate existing node: $target");
+        debug(4, 2, "Evaluate existing node: $target");
         if (-d $target) {
             $self->unstow_contents($stow_path, $package, $target);
 
@@ -888,7 +888,7 @@ sub unstow_node {
         }
     }
     else {
-        debug(2, 0, "$target did not exist to be unstowed");
+        debug(2, 1, "$target did not exist to be unstowed");
     }
     return;
 }
@@ -1004,7 +1004,7 @@ sub cleanup_invalid_links {
     my ($dir) = @_;
 
     my $cwd = getcwd();
-    debug(2, 1, "cleanup_invalid_links for $dir (pwd=$cwd)");
+    debug(2, 0, "Cleaning up any invalid links in $dir (pwd=$cwd)");
 
     if (not -d $dir) {
         error("cleanup_invalid_links() called with a non-directory: $dir");
@@ -1024,7 +1024,7 @@ sub cleanup_invalid_links {
 
         next unless -l $node_path;
 
-        debug(2, 2, "checking validity of link $node_path");
+        debug(4, 1, "Checking validity of link $node_path");
 
         if (exists $self->{link_task_for}{$node_path}) {
             die "huh? link_task_for $node_path";
@@ -1038,12 +1038,12 @@ sub cleanup_invalid_links {
         }
 
         if (-e join_paths($dir, $source)) {
-            debug(4, 3, "link target $source exists; skipping clean up");
+            debug(4, 2, "Link target $source exists; skipping clean up");
             next;
         }
 
-        debug(2, 2,
-              "checking whether valid link $node_path -> $source is " .
+        debug(3, 1,
+              "Checking whether valid link $node_path -> $source is " .
               "owned by stow");
 
         if ($self->link_owned_by_package($node_path, $source)) {
@@ -1713,7 +1713,7 @@ sub is_a_dir {
 sub is_a_node {
     my $self = shift;
     my ($path) = @_;
-    debug(4, 1, "is_a_node($path)");
+    debug(4, 1, "Checking whether $path is a current/planned node");
 
     my $laction = $self->link_task_action($path);
     my $daction = $self->dir_task_action($path);
