@@ -81,6 +81,8 @@ sub init_test_dirs {
 
 sub new_Stow {
     my %opts = @_;
+    # These default paths assume that execution will be triggered from
+    # within the target directory.
     $opts{dir}    ||= '../stow';
     $opts{target} ||= '.';
     $opts{test_mode} = 1;
