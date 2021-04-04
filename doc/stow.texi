@@ -220,9 +220,12 @@ to be installed in a particular directory structure --- e.g., with
 
 @cindex target directory
 A @dfn{target directory} is the root of a tree in which one or more
-packages wish to @emph{appear} to be installed.  A common, but by no
-means the only such location is @file{/usr/local}.  The examples in this
-manual will use @file{/usr/local} as the target directory.
+packages wish to @emph{appear} to be installed.  @file{/usr/local} is a
+common choice for this, but by no means the only such location.  Another
+common choice is @file{~} (i.e. the user's @code{$HOME} directory) in
+the case where Stow is being used to manage the user's configuration
+(``dotfiles'') and other files in their @code{$HOME}.  The examples in
+this manual will use @file{/usr/local} as the target directory.
 
 @cindex stow directory
 A @dfn{stow directory} is the root of a tree containing separate

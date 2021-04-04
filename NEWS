@@ -13,6 +13,8 @@ News file for Stow.
 
 ***** Added some more information from the web page to the README
 
+***** Made some small improvements to the documentation
+
 ***** Added a CONTRIBUTING.md file
 
 ***** Add a =watch= target to =Makefile=
