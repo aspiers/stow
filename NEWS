@@ -15,6 +15,11 @@ News file for Stow.
 
 ***** Added a CONTRIBUTING.md file
 
+***** Add a =watch= target to =Makefile=
+
+      =make watch= provides easy continual pre-processing during
+      development, which reduces the risk of debugging the wrong code.
+
 ***** Removed texinfo.tex from the distribution
 
       This eliminates existing and future bit-rot.

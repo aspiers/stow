@@ -25,6 +25,22 @@ There is also a
 [stow-devel](https://lists.gnu.org/mailman/listinfo/stow-devel)
 mailing list (see [Mailing lists](README.md#mailing-lists)).
 
+Please be aware that all program source files (excluding the test
+suite) end in `.in`, and are pre-processed by `Makefile` into
+corresponding files with that prefix stripped before execution.  So if
+you want to test any modifications to the source, make sure that you
+change the `.in` files and then run `make` to regenerate the
+pre-processed versions before doing any testing.  To avoid forgetting
+(which can potentially waste a lot of time debugging the wrong code),
+you can automatically run `make` in an infinite loop every second via:
+
+    make watch
+
+(You could even use fancier approaches like
+[`inotifywait(1)`](https://www.man7.org/linux/man-pages/man1/inotifywait.1.html)
+or [Guard](https://guardgem.org/).  But those are probably overkill in
+this case where the simple `while` loop is plenty good enough.)
+
 Testing
 ~~~~~~~
 
@@ -42,6 +58,10 @@ this will do the job:
 
 (Not all tests require all of these, but it's safer to include all of
 them.)
+
+Secondly, be aware that if you want to test modifications to the
+source files, you will need to run `make watch`, or `make` before each
+test run as explained above.
 
 Now running an individual test is as simple as:
 

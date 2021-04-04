@@ -286,3 +286,28 @@ ChangeLog: doc/ChangeLog.OLD
 	else \
 	    echo "Not in a git repository; can't update ChangeLog."; \
 	fi
+
+# Watch for changes, and if any rebuilds are required, also do a
+# make install.
+#
+# If we solved https://github.com/aspiers/stow/issues/84, we could
+# probably ditch this:
+watch:
+	@echo "Watching for changes to program source files ..."
+	@while true; do \
+	    if $(MAKE) 2>&1 | \
+		grep -vE 'make\[[1-9]\]: (Entering|Leaving) directory ' | \
+		grep -v 'Nothing to be done'; \
+	    then \
+		echo; \
+		echo "-----------------------------------------------------"; \
+		echo "make found things to rebuild; doing $(MAKE) install ..."; \
+		echo; \
+		$(MAKE) install; \
+		echo; \
+		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"; \
+		echo; \
+	    fi; \
+	    sleep 1; \
+	done 2>&1 | \
+	grep -vE 'make\[[1-9]\]: (Entering|Leaving) directory '
