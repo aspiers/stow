@@ -40,7 +40,7 @@ my %conflicts;
 
 #
 # unstow a simple tree minimally
-# 
+#
 
 $stow = new_compat_Stow();
 
@@ -53,7 +53,7 @@ $stow->process_tasks();
 ok(
     $stow->get_conflict_count == 0 &&
     -f '../stow/pkg1/bin1/file1' && ! -e 'bin1'
-    => 'unstow a simple tree' 
+    => 'unstow a simple tree'
 );
 
 #
@@ -70,7 +70,7 @@ $stow->process_tasks();
 ok(
     $stow->get_conflict_count == 0 &&
     -f '../stow/pkg2/lib2/file2' && -d 'lib2'
-    => 'unstow simple tree from a pre-existing directory' 
+    => 'unstow simple tree from a pre-existing directory'
 );
 
 #
@@ -89,10 +89,10 @@ make_file('../stow/pkg3b/bin3/file3b');
 make_link('bin3/file3b' => '../../stow/pkg3b/bin3/file3b'); # emulate stow
 $stow->plan_unstow('pkg3b');
 $stow->process_tasks();
-ok( 
+ok(
     $stow->get_conflict_count == 0 &&
     -l 'bin3' &&
-    readlink('bin3') eq '../stow/pkg3a/bin3' 
+    readlink('bin3') eq '../stow/pkg3a/bin3'
     => 'fold tree after unstowing'
 );
 
@@ -235,7 +235,7 @@ make_file('../stow/pkg9b/man9/man1/file9.1');
 capture_stderr();
 $stow->plan_unstow('pkg9b');
 $stow->process_tasks();
-ok( 
+ok(
     $stow->get_conflict_count == 0 &&
     !-l 'man9/man1/file9.1'
     => 'overriding existing documentation files'
@@ -263,9 +263,9 @@ make_file('../stow/pkg10c/man10/man1/file10a.1');
 capture_stderr();
 $stow->plan_unstow('pkg10c');
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg10c');
-ok( 
+ok(
     $stow->get_conflict_count == 0 &&
-    readlink('man10/man1/file10a.1') eq '../../../stow/pkg10a/man10/man1/file10a.1' 
+    readlink('man10/man1/file10a.1') eq '../../../stow/pkg10a/man10/man1/file10a.1'
     => 'defer to existing documentation files'
 );
 check_protected_dirs_skipped();
@@ -285,7 +285,7 @@ make_link('man12/man1/file12.1'  => '../../../stow/pkg12/man12/man1/file12.1');
 capture_stderr();
 $stow->plan_unstow('pkg12');
 $stow->process_tasks();
-ok( 
+ok(
     $stow->get_conflict_count == 0 &&
     !-e 'man12/man1/file12.1'
     => 'ignore temp files'
@@ -355,7 +355,7 @@ $stow->process_tasks();
 ok(
     $stow->get_conflict_count == 0 &&
     -f "$TEST_DIR/stow/pkg13/bin13/file13" && ! -e "$TEST_DIR/target/bin13"
-    => 'unstow a simple tree' 
+    => 'unstow a simple tree'
 );
 
 #

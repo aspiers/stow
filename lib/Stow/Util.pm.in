@@ -186,7 +186,7 @@ sub parent {
     my $path = join '/', @_;
     my @elts = split m{/+}, $path;
     pop @elts;
-    return join '/', @elts; 
+    return join '/', @elts;
 }
 
 #===== METHOD ===============================================================
