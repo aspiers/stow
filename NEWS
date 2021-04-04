@@ -19,9 +19,9 @@ News file for Stow.
 
       This eliminates existing and future bit-rot.
 
-***** Updated aclocal.m4 from 1.15.1 to 1.16.2
+***** Updated aclocal.m4 from 1.15.1 to 1.16.3
 
-      This only updates copyright notices to 2020, and URLs to https.
+      This mostly just updates copyright notices to 2020, and URLs to https.
 
 ***** Replace broken gmane links with links to lists.gnu.org
 
