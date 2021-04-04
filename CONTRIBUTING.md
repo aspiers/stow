@@ -33,14 +33,34 @@ run the test suite via:
 
     make check
 
-Individual tests can be run as follows:
+Tests can be run individually as follows.  First you have to ensure
+that the `t/`, `bin/`, and `lib/` directories are on Perl's search path.
+Assuming that you run all tests from the root of the repository tree,
+this will do the job:
 
-    perl -It t/stow.t
+    export PERL5LIB=t:bin:lib
+
+(Not all tests require all of these, but it's safer to include all of
+them.)
+
+Now running an individual test is as simple as:
+
+    perl t/chkstow.t
 
 or with a given debugging verbosity corresponding to the `-v` / `--verbose`
 command-line option:
 
-    TEST_VERBOSE=4 perl -It t/stow.t
+    TEST_VERBOSE=4 perl t/chkstow.t
+
+The [`prove(1)` test runner](https://perldoc.perl.org/prove) is another
+good alternative which provides several handy extra features.  Invocation
+is very similar, e.g.:
+
+    prove t/stow.t
+
+or to run the whole suite:
+
+    prove
 
 Translating Stow
 ----------------
