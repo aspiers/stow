@@ -66,6 +66,8 @@ sub uncapture_stderr {
 }
 
 sub init_test_dirs {
+    -d "t" or die "Was expecting tests to be run from root of repo\n";
+
     # Create a run_from/ subdirectory for tests which want to run
     # from a separate directory outside the Stow directory or
     # target directory.
