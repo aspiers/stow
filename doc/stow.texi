@@ -19,13 +19,13 @@ This manual describes GNU Stow version @value{VERSION}
 
 Software and documentation is copyrighted by the following:
 
-@copyright{} 1993, 1994, 1995, 1996 Bob Glickstein <bobg+stow@@zanshin.com>
+@copyright{} 1993, 1994, 1995, 1996 Bob Glickstein @email{bobg+stow@@zanshin.com}
 @*
-@copyright{} 2000, 2001 Guillaume Morin <gmorin@@gnu.org>
+@copyright{} 2000, 2001 Guillaume Morin @email{gmorin@@gnu.org}
 @*
-@copyright{} 2007 Kahlil (Kal) Hodgson <kahlil@@internode.on.net>
+@copyright{} 2007 Kahlil (Kal) Hodgson @email{kahlil@@internode.on.net}
 @*
-@copyright{} 2011 Adam Spiers <stow@@adamspiers.org>
+@copyright{} 2011 Adam Spiers @email{stow@@adamspiers.org}
 
 @quotation
 Permission is granted to make and distribute verbatim copies of this
