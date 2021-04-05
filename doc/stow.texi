@@ -1267,9 +1267,32 @@ perl/bin/perl stow/bin/stow -vv *
 @node Reporting Bugs, Known Bugs, Bootstrapping, Top
 @chapter Reporting Bugs
 
-Please send bug reports to the current maintainers by electronic
-mail.  The address to use is @samp{<bug-stow@@gnu.org>}.  Please
-include:
+You can report bugs to the current maintainers in one of three ways:
+
+@enumerate
+@item
+Send e-mail to @email{bug-stow@@gnu.org}.
+
+@item
+File an issue in @uref{https://savannah.gnu.org/bugs/?group=stow,
+the Savannah bug tracker}.
+
+@item
+File an issue in
+@uref{https://github.com/aspiers/stow/issues/, the GitHub project}.
+@end enumerate
+
+While GitHub is arguably the most convenient of these three options, it
+@uref{https://www.gnu.org/software/repo-criteria-evaluation.html#GitHub,
+is not the most ethical or freedom-preserving way to host software
+projects}.  Therefore the GitHub project may be
+@uref{https://github.com/aspiers/stow/issues/43, moved to a more ethical
+hosting service} in the future.
+
+Before reporting a bug, it is recommended to check whether it is already
+known, so please first @pxref{Known Bugs}.
+
+When reporting a new bug, please include:
 
 @itemize @bullet
 @item
@@ -1307,13 +1330,22 @@ something that doesn't need reporting.
 @node Known Bugs, GNU General Public License, Reporting Bugs, Top
 @chapter Known Bugs
 
-There are no known bugs in Stow version @value{VERSION}!
-If you think you have found one, please @pxref{Reporting Bugs}.
+Known bugs can be found in the following locations:
 
-@c @itemize @bullet
-@c @item
-@c Put known bugs here
-@c @end itemize
+@itemize
+@item
+@uref{https://github.com/aspiers/stow/issues/, the GitHub issue tracker}
+
+@item
+@uref{https://savannah.gnu.org/bugs/?group=stow, the Savannah bug
+tracker}
+
+@item
+the @uref{https://lists.gnu.org/archive/html/bug-stow/, bug-stow list
+archives}
+@end itemize
+
+If you think you have found a new bug, please @pxref{Reporting Bugs}.
 
 @c ===========================================================================
 @node GNU General Public License, Index, Known Bugs, Top
