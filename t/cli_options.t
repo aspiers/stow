@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 12;
 
 use testutil;
 
@@ -108,5 +108,19 @@ make_path("$TEST_DIR/".'$HOME');
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 is($options->{target}, "$TEST_DIR/".'$HOME', 'no expansion');
 remove_dir("$TEST_DIR/".'$HOME');
+
+#
+# Check if verbose on simulate invoked option
+#
+local @ARGV = (
+    '--simulate',
+    '-d', "$TEST_DIR/stow",
+    '-t', "$TEST_DIR/target",
+    'dummy'
+);
+
+my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+is($options->{simulate}, 1, 'simulate|no|n option');
+is($options->{verbose}, 1, 'verbose option');
 
 # vim:ft=perl

@@ -574,11 +574,19 @@ sub parse_options {
     GetOptionsFromArray(
         \@_,
         \%options,
-        'verbose|v:+', 'help|h', 'simulate|n|no',
+        'verbose|v:+', 'help|h',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
         'adopt', 'no-folding', 'dotfiles',
 
         # clean and pre-compile any regex's at parse time
+        'simulate|n|no' =>
+        sub {
+            $options{simulate} = 1;
+            unless (exists $options{verbose}) {
+                $options{verbose} = 1;
+            }
+        },
+
         'ignore=s' =>
         sub {
             my $regex = $_[1];
