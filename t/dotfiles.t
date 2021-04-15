@@ -24,7 +24,7 @@ use warnings;
 
 use testutil;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 use English qw(-no_match_vars);
 
 use testutil;
@@ -129,3 +129,27 @@ ok(
     -f '../stow/dotfiles/dot-bar' && ! -e '.bar'
     => 'unstow a simple dotfile'
 );
+
+#
+# adopt a dot file
+#
+
+TODO: {
+    local $TODO = ".file contents are wrong after getting adopted";
+
+    $stow = new_Stow(dir => '../stow', dotfiles => 1, 'adopt' => 1);
+
+    make_path('../stow/vim');
+    make_file('../stow/vim/dot-vimrc', "dot-vimrc contents\n");
+
+    make_file('.vimrc', ".vimrc contents\n");
+
+    $stow->plan_stow('vim');
+    $stow->process_tasks();
+
+    is(
+        cat_file('.vimrc'),
+        ".vimrc contents\n"
+        => "adopt dot file has right contents"
+    );
+};
