@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 use testutil;
 
@@ -122,5 +122,16 @@ local @ARGV = (
 my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 is($options->{simulate}, 1, 'simulate|no|n option');
 is($options->{verbose}, 1, 'verbose option');
+
+local @ARGV = (
+    '--simulate',
+    '-v3',
+    '-d', "$TEST_DIR/stow",
+    '-t', "$TEST_DIR/target",
+    'dummy'
+);
+
+my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+is($options->{verbose}, 3, 'verbose option');
 
 # vim:ft=perl
