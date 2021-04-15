@@ -135,6 +135,8 @@ C<-D>).
 
 =item --no
 
+=item --simulate
+
 Do not perform any operations that modify the filesystem; merely show
 what would happen.
 
