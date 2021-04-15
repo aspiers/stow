@@ -208,6 +208,12 @@ changing.
 Disable folding of newly stowed directories when stowing, and
 refolding of newly foldable directories when unstowing.
 
+=item --absolute
+
+=item -a
+
+Use absolute paths
+
 =item --ignore=REGEX
 
 Ignore files ending in this Perl regex.
@@ -576,7 +582,7 @@ sub parse_options {
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
-        'adopt', 'no-folding', 'dotfiles',
+        'adopt', 'no-folding', 'dotfiles', 'absolute|a',
 
         # clean and pre-compile any regex's at parse time
         'ignore=s' =>
@@ -816,6 +822,11 @@ OPTIONS:
     -D, --delete          Unstow the package names that follow this option
     -R, --restow          Restow (like stow -D followed by stow -S)
 
+    -a, --absolute        Use absolute paths
+    --dotfiles            Convert filenames starting with `dot-' to `.'
+
+    --no-folding          Disable folding of newly stowed directories when stowing, 
+                          and refolding of newly foldable directories when unstowing.
     --ignore=REGEX        Ignore files ending in this Perl regex
     --defer=REGEX         Don't stow files beginning with this Perl regex
                           if the file is already stowed to another package
