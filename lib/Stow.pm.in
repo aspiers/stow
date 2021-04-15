@@ -284,6 +284,7 @@ sub plan_unstow {
                     $self->{stow_path},
                     $package,
                     '.',
+		    $path,
                 );
             }
             debug(2, "Planning unstow of package $package... done");
@@ -316,6 +317,7 @@ sub plan_stow {
                 $package,
                 '.',
                 $path, # source from target
+		0,
             );
             debug(2, "Planning stow of package $package... done");
             $self->{action_count}++;
@@ -367,10 +369,12 @@ sub within_target_do {
 #============================================================================
 sub stow_contents {
     my $self = shift;
-    my ($stow_path, $package, $target, $source) = @_;
+    my ($stow_path, $package, $target, $source, $level) = @_;
 
-    my $path = join_paths($stow_path, $package, $target);
-
+    # Remove leading $level times .. from $source
+    my $n = 0;
+    my $path = join '/', map { (++$n <= $level) ? ( ) : $_ } (split m{/+}, $source);
+    
     return if $self->should_skip_target_which_is_stow_dir($target);
 
     my $cwd = getcwd();
@@ -407,6 +411,7 @@ sub stow_contents {
             $package,
             $node_target,                 # target
             join_paths($source, $node),   # source
+	    $level
         );
     }
 }
@@ -429,7 +434,7 @@ sub stow_contents {
 #============================================================================
 sub stow_node {
     my $self = shift;
-    my ($stow_path, $package, $target, $source) = @_;
+    my ($stow_path, $package, $target, $source, $level) = @_;
 
     my $path = join_paths($stow_path, $package, $target);
 
@@ -499,12 +504,14 @@ sub stow_node {
                     $existing_package,
                     $target,
                     join_paths('..', $existing_source),
+		    $level + 1,
                 );
                 $self->stow_contents(
                     $self->{stow_path},
                     $package,
                     $target,
                     join_paths('..', $source),
+		    $level + 1,
                 );
             }
             else {
@@ -531,6 +538,7 @@ sub stow_node {
                 $package,
                 $target,
                 join_paths('..', $source),
+		$level + 1,
             );
         }
         else {
@@ -554,6 +562,7 @@ sub stow_node {
             $package,
             $target,
             join_paths('..', $source),
+	    $level + 1,
         );
     }
     else {
@@ -740,9 +749,7 @@ sub unstow_node_orig {
 #============================================================================
 sub unstow_contents {
     my $self = shift;
-    my ($stow_path, $package, $target) = @_;
-
-    my $path = join_paths($stow_path, $package, $target);
+    my ($stow_path, $package, $target, $path) = @_;
 
     return if $self->should_skip_target_which_is_stow_dir($target);
 
@@ -778,7 +785,7 @@ sub unstow_contents {
             $node_target = $adj_node_target;
         }
 
-        $self->unstow_node($stow_path, $package, $node_target);
+        $self->unstow_node($stow_path, $package, $node_target, join_paths($path, $node));
     }
     if (-d $target) {
         $self->cleanup_invalid_links($target);
@@ -798,7 +805,7 @@ sub unstow_contents {
 #============================================================================
 sub unstow_node {
     my $self = shift;
-    my ($stow_path, $package, $target) = @_;
+    my ($stow_path, $package, $target, $source) = @_;
 
     my $path = join_paths($stow_path, $package, $target);
 
@@ -872,7 +879,7 @@ sub unstow_node {
     elsif (-e $target) {
         debug(4, "  Evaluate existing node: $target");
         if (-d $target) {
-            $self->unstow_contents($stow_path, $package, $target);
+            $self->unstow_contents($stow_path, $package, $target, $source);
 
             # This action may have made the parent directory foldable
             if (my $parent = $self->foldable($target)) {
