@@ -160,7 +160,8 @@ directory.
 =item --verbose[=N]
 
 Send verbose output to standard error describing what Stow is
-doing. Verbosity levels are from 0 to 5; 0 is the default.
+doing. Verbosity levels are from 0 to 5; 0 is the default or
+1 if using C<--simulate>.
 Using C<-v> or C<--verbose> increases the verbosity by one; using
 `--verbose=N' sets it to N.
 
