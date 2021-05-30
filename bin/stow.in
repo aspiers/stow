@@ -203,6 +203,18 @@ stow directory, and then stowing proceeds as before.  So effectively,
 the file becomes adopted by the stow package, without its contents
 changing.
 
+=item --orig
+
+This option attempts to resolve simple file conflicts when stowing by retaining
+and restoring their '.orig' backups.
+
+When stowing, if a target is encountered which already exists but is a
+plain file, it is renamed with an additional '.orig' extension, and stowing
+proceeds. If a '.orig' file of the target already exists, a conflict is raised.
+
+When unstowing, the '.orig' backups are restored. If a '.orig' version of a
+target is encountered in the same dir, it is renamed to the target after unstowing the target.
+
 =item --no-folding
 
 Disable folding of newly stowed directories when stowing, and
@@ -576,7 +588,7 @@ sub parse_options {
         \%options,
         'verbose|v:+', 'help|h', 'simulate|n|no',
         'version|V', 'compat|p', 'dir|d=s', 'target|t=s',
-        'adopt', 'no-folding', 'dotfiles',
+        'adopt', 'orig', 'no-folding', 'dotfiles',
 
         # clean and pre-compile any regex's at parse time
         'ignore=s' =>
@@ -823,6 +835,8 @@ OPTIONS:
                           if the file is already stowed to another package
     --adopt               (Use with care!)  Import existing files into stow package
                           from target.  Please read docs before using.
+    --orig                If a conflicting file is encountered, retain a '.orig' copy
+                          of it and proceed instead of aborting. See the docs for more info.
     --dotfiles            Enables special handling for dotfiles that are
                           Stow packages that start with "dot-" and not "."
     -p, --compat          Use legacy algorithm for unstowing
