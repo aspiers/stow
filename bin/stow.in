@@ -211,9 +211,12 @@ and restoring their '.orig' backups.
 When stowing, if a target is encountered which already exists but is a
 plain file, it is renamed with an additional '.orig' extension, and stowing
 proceeds. If a '.orig' file of the target already exists, a conflict is raised.
+The --adopt option overrides this behavior.
 
 When unstowing, the '.orig' backups are restored. If a '.orig' version of a
 target is encountered in the same dir, it is renamed to the target after unstowing the target.
+
+This option is not available in legacy mode (--compat).
 
 =item --no-folding
 
@@ -836,7 +839,8 @@ OPTIONS:
     --adopt               (Use with care!)  Import existing files into stow package
                           from target.  Please read docs before using.
     --orig                If a conflicting file is encountered, retain a '.orig' copy
-                          of it and proceed instead of aborting. See the docs for more info.
+                          of it and proceed instead of aborting. Note that the --adopt
+                          option overrides this behavior. See the docs for more info.
     --dotfiles            Enables special handling for dotfiles that are
                           Stow packages that start with "dot-" and not "."
     -p, --compat          Use legacy algorithm for unstowing
