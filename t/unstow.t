@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 39;
+use Test::More tests => 43;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -448,3 +448,22 @@ is_dir_not_symlink('no-folding-shared2/subdir');
 # Todo
 #
 # Test cleaning up subdirs with --paranoid option
+
+#
+# A file backup 'file4f.orig' is restored when using --orig with unstow
+#
+$stow = new_Stow(orig => 1);
+
+make_file('file16.orig',        "file16 - version originally in target\n");
+make_path ('../stow/pkg16');
+make_file('../stow/pkg16/file16', "file16 - version originally in stow package\n");
+make_link('file16', '../stow/pkg16/file16');
+
+$stow->plan_unstow('pkg16');
+is($stow->get_conflict_count, 0 => 'no conflicts unstowing with --orig');
+
+$stow->process_tasks();
+
+ok(-e 'file16', ".orig backup got restored");
+ok(! -e 'file16.orig', ".orig backup got deleted");
+is(cat_file('file16'), "file16 - version originally in target\n");

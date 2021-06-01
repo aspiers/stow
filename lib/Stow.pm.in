@@ -77,6 +77,7 @@ our %DEFAULT_OPTIONS = (
     test_mode    => 0,
     dotfiles     => 0,
     adopt        => 0,
+    orig         => 0,
     'no-folding' => 0,
     ignore       => [],
     override     => [],
@@ -116,6 +117,8 @@ See the documentation for the F<stow> CLI front-end for information on these.
 =item * test_mode
 
 =item * adopt
+
+=item * orig
 
 =item * no-folding
 
@@ -538,6 +541,25 @@ sub stow_node {
                 $self->do_mv($target, $path);
                 $self->do_link($source, $target);
             }
+            elsif ($self->{orig}) {
+                my $orig_target = "$target.orig";
+
+                # Check if a backup already exists
+                if (-e $orig_target ) {
+                    $self->conflict(
+                        'stow',
+                        $package,
+                        "A conflicting .orig backup alread exists: $orig_target"
+                    );
+                }
+
+                # Back up the original with .orig extension
+                else {
+                    debug(4, "  Creating a .orig backup of a conflicting node: $orig_target");
+                    $self->do_mv($target, $orig_target);
+                    $self->do_link($source, $target);
+                }
+            }
             else {
                 $self->conflict(
                     'stow',
@@ -843,6 +865,13 @@ sub unstow_node {
 
             if ($existing_path eq $path) {
                 $self->do_unlink($target);
+
+                # If the original file was backed up with .orig, restore it
+                my $orig_target = "$target.orig";
+                if ($self->{orig} and -e $orig_target) {
+                    debug 3, "   Orig target $orig_target exists, restoring...";
+                    $self->do_mv($orig_target, $target);
+                }
             }
 
             # XXX we quietly ignore links that are stowed to a different
