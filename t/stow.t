@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 118;
+use Test::More tests => 127;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -188,6 +188,50 @@ for my $file ('file4c', 'bin4c/file4c') {
     is(cat_file($file), "$file - version originally in target\n" => "$file has right contents");
 }
 
+#
+# Link to file 'file4d' conflict resolved when using --orig
+#
+$stow = new_Stow(orig => 1);
+
+make_file('file4d',               "file4d - version originally in target\n");
+make_path ('../stow/pkg4d');
+make_file('../stow/pkg4d/file4d', "file4d - version originally in stow package\n");
+
+$stow->plan_stow('pkg4d');
+
+is($stow->get_conflict_count, 0 => 'no conflicts with --orig');
+is($stow->get_tasks, 2 => 'two tasks per file');
+$stow->process_tasks();
+my $file = 'file4d';
+ok(-l $file, "$file turned into a symlink");
+ok(-e $file . '.orig', "$file got backed up with .orig");
+is(
+    readlink $file,
+    (index($file, '/') == -1 ? '' : '../' )
+    . "../stow/pkg4d/$file" => "$file points to right place"
+);
+is(cat_file($file), "$file - version originally in stow package\n" => "$file has right contents");
+is(cat_file($file . '.orig'), "$file - version originally in target\n" => "$file.orig has right contents");
+
+#
+# Link to file 'file4e' conflict with --orig when 'file4b.orig' already exists
+#
+$stow = new_Stow(orig => 1);
+
+make_file('file4e',               "file4e - version originally in target\n");
+make_file('file4e.orig',          "file4e.orig - version originally in target\n");
+make_path ('../stow/pkg4e');
+make_file('../stow/pkg4e/file4e', "file4e - version originally in stow package\n");
+
+$stow->plan_stow('pkg4e');
+
+is($stow->get_conflict_count, 1 => 'no conflicts with --orig');
+%conflicts = $stow->get_conflicts();
+like(
+    $conflicts{stow}{pkg4e}[0],
+    qr/A conflicting .orig backup alread exists/
+    => 'conflicted instead of backing up file4e because file4e.orig already existed'
+);
 
 #
 # Target already exists but is not owned by stow
