@@ -379,6 +379,13 @@ sub stow_contents {
     debug(3, $msg);
     debug(4, "  => $source");
 
+    if($self->{dotfiles}) {
+        my $alt_target = $target;
+        $alt_target =~s/\./dot-/;
+        $path = join_paths($stow_path, $package, $alt_target)
+            unless -d $path;
+    }
+    
     error("stow_contents() called with non-directory path: $path")
         unless -d $path;
     error("stow_contents() called with non-directory target: $target")
