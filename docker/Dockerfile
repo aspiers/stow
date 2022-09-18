@@ -19,7 +19,7 @@
 FROM debian:bookworm
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -qq
 RUN DEBIAN_FRONTEND=noninteractive \
-apt-get install -y -q \
+apt-get install -y --force-yes -q \
     autoconf \
     bzip2 \
     cpanminus \
