@@ -20,7 +20,7 @@ FROM debian:jessie
 RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list
 RUN DEBIAN_FRONTEND=noninteractive \
 apt-get update -qq && \
-apt-get install -y -q \
+apt-get install -y --force-yes -q \
     autoconf \
     bzip2 \
     cpanminus \
