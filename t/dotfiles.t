@@ -35,7 +35,7 @@ cd("$TEST_DIR/target");
 my $stow;
 
 #
-# process a dotfile marked with 'dot' prefix
+# stow a dotfile marked with 'dot' prefix
 #
 
 $stow = new_Stow(dir => '../stow', dotfiles => 1);
@@ -70,7 +70,7 @@ is(
 
 
 #
-# process folder marked with 'dot' prefix
+# stow folder marked with 'dot' prefix
 #
 
 $stow = new_Stow(dir => '../stow', dotfiles => 1);
@@ -87,7 +87,7 @@ is(
 );
 
 #
-# corner case: paths that have a part in them that's just "$DOT_PREFIX" or
+# corner case: paths with a part in them that's just "$DOT_PREFIX" or
 # "$DOT_PREFIX." should not have that part expanded.
 #
 
