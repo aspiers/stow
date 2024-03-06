@@ -958,15 +958,6 @@ sub find_stowed_path {
         }
     }
 
-    # If no .stow file was found, we need to find out whether it's
-    # owned by the current stow directory, in which case $path will be
-    # a prefix of $self->{stow_path}.
-    if (substr($path, 0, 1) eq '/' xor substr($self->{stow_path}, 0, 1) eq '/')
-    {
-        warn "BUG in find_stowed_path? Absolute/relative mismatch between " .
-             "Stow dir $self->{stow_path} and path $path";
-    }
-
     my @stow_path = split m{/+}, $self->{stow_path};
 
     # Strip off common prefixes until one is empty
