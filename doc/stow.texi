@@ -816,7 +816,7 @@ This is much faster and cleaner than performing two separate
 invocations of stow, because redundant folding/unfolding operations
 can be factored out.  In addition, all the operations are calculated
 and merged before being executed (@pxref{Deferred Operation}), so the
-amount of of time in which GNU Emacs is unavailable is minimised.
+amount of time in which GNU Emacs is unavailable is minimised.
 
 You can mix and match any number of actions, for example,
 
