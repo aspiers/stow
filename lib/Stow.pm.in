@@ -400,7 +400,7 @@ sub stow_contents {
     debug(3, 0, $msg);
     debug(4, 1, "=> $source");
 
-    error("stow_contents() called with non-directory path: $path")
+    error("stow_contents() called with non-directory package path: $path")
         unless -d $path;
     error("stow_contents() called with non-directory target: $target")
         unless $self->is_a_node($target);
@@ -454,7 +454,7 @@ sub stow_node {
 
     my $path = join_paths($stow_path, $package, $target);
 
-    debug(3, 0, "Stowing $stow_path / $package / $target");
+    debug(3, 0, "Stowing entry $stow_path / $package / $target");
     debug(4, 1, "=> $source");
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
