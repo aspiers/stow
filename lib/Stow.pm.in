@@ -444,7 +444,7 @@ sub stow_contents {
 #           : $source => relative path to symlink source from the dir of target
 # Returns   : n/a
 # Throws    : fatal exception if a conflict arises
-# Comments  : stow_node() and stow_contents() are mutually recursive
+# Comments  : stow_node() and stow_contents() are mutually recursive.
 #           : $source and $target are used for creating the symlink
 #           : $path is used for folding/unfolding trees as necessary
 #============================================================================
