@@ -426,7 +426,7 @@ sub stow_contents {
         $self->stow_node(
             $stow_path,
             $package,
-            $node_target,                 # target
+            $node_target,  # target, potentially adjusted for dot- prefix
             join_paths($source, $node),   # source
         );
     }
