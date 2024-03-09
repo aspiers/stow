@@ -381,6 +381,15 @@ sub stow_contents {
     my $self = shift;
     my ($stow_path, $package, $target, $source) = @_;
 
+    # Calculate the path to the package directory or sub-directory
+    # whose contents need to be stowed, relative to the current
+    # (target directory).  This is needed so that we can check it's a
+    # valid directory, and can read its contents to iterate over them.
+    #
+    # Note that $source refers to the same package (sub-)directory,
+    # but instead it's relative to the target directory or
+    # sub-directory where the symlink will be installed when the plans
+    # are executed.
     my $path = join_paths($stow_path, $package, $target);
 
     return if $self->should_skip_target_which_is_stow_dir($target);
