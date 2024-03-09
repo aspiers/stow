@@ -62,6 +62,9 @@ is($path, "", "empty path");
 is($stow_path, "", "empty stow path");
 is($package, "", "target is not stowed");
 
+# Make a second stow directory within the target directory, so that we
+# can check that links to package files within that second stow
+# directory are detected correctly.
 make_path("$TEST_DIR/target/stow2");
 make_file("$TEST_DIR/target/stow2/.stow");
 

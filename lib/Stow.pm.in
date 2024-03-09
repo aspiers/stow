@@ -202,6 +202,11 @@ sub set_stow_dir {
 
     my $stow_dir = canon_path($self->{dir});
     my $target = canon_path($self->{target});
+
+    # Calculate relative path from target directory to stow directory.
+    # This will be commonly used as a prefix for constructing and
+    # recognising symlinks "installed" in the target directory which
+    # point to package files under the stow directory.
     $self->{stow_path} = File::Spec->abs2rel($stow_dir, $target);
 
     debug(2, 0, "stow dir is $stow_dir");
@@ -925,8 +930,10 @@ sub link_owned_by_package {
 
 #===== METHOD ===============================================================
 # Name      : find_stowed_path()
-# Purpose   : determine whether the given link points to a member of a
-#           : stowed package
+# Purpose   : determine whether the given link within the target directory
+#           : is a stowed path pointing to a member of a package under the
+#           : stow dir, and if so, obtain a breakdown of information about
+#           : this stowed path.
 # Parameters: $target => path to a symbolic link under current directory.
 #           :            Must share a common prefix with $self->{stow_path}
 #           : $source => where that link points to (needed because link
