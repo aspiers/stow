@@ -69,7 +69,7 @@ make_path("$TEST_DIR/target/stow2");
 make_file("$TEST_DIR/target/stow2/.stow");
 
 ($path, $stow_path, $package) =
-    $stow->find_stowed_path("$TEST_DIR/target/a/b/c","../../stow2/a/b/c");
+    $stow->find_stowed_path("$TEST_DIR/target/a/b/c", "../../stow2/a/b/c");
 is($path, "$TEST_DIR/target/stow2/a/b/c", "path");
 is($stow_path, "$TEST_DIR/target/stow2", "stow path");
 is($package, "a", "detect alternate stow directory");
@@ -77,7 +77,7 @@ is($package, "a", "detect alternate stow directory");
 # Possible corner case with rogue symlink pointing to ancestor of
 # stow dir.
 ($path, $stow_path, $package) =
-    $stow->find_stowed_path("$TEST_DIR/target/a/b/c","../../..");
+    $stow->find_stowed_path("$TEST_DIR/target/a/b/c", "../../..");
 is($path, "", "path");
 is($stow_path, "", "stow path");
 is($package, "", "corner case - link points to ancestor of stow dir");
