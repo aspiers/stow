@@ -360,7 +360,11 @@ sub within_target_do {
 # Name      : stow_contents()
 # Purpose   : stow the contents of the given directory
 # Parameters: $stow_path => relative path from current (i.e. target) directory
-#           :               to the stow dir containing the package to be stowed
+#           :               to the stow dir containing the package to be stowed.
+#           :               This can differ from $self->{stow_path} when unfolding
+#           :               a (sub)tree which is already stowed from a package
+#           :               in a different stow directory (see the "Multiple Stow
+#           :               Directories" section of the manual).
 #           : $package => the package whose contents are being stowed
 #           : $target => subpath relative to package directory which needs
 #           :            stowing as a symlink at subpath relative to target
