@@ -278,14 +278,12 @@ sub plan_unstow {
             debug(2, 0, "Planning unstow of package $package...");
             if ($self->{compat}) {
                 $self->unstow_contents_orig(
-                    $self->{stow_path},
                     $package,
                     '.',
                 );
             }
             else {
                 $self->unstow_contents(
-                    $self->{stow_path},
                     $package,
                     '.',
                 );
@@ -626,9 +624,7 @@ sub marked_stow_dir {
 #===== METHOD ===============================================================
 # Name      : unstow_contents_orig()
 # Purpose   : unstow the contents of the given directory
-# Parameters: $stow_path => relative path from current (i.e. target) directory
-#           :               to the stow dir containing the package to be unstowed
-#           : $package => the package whose contents are being unstowed
+# Parameters: $package => the package whose contents are being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
@@ -637,9 +633,9 @@ sub marked_stow_dir {
 #============================================================================
 sub unstow_contents_orig {
     my $self = shift;
-    my ($stow_path, $package, $target) = @_;
+    my ($package, $target) = @_;
 
-    my $path = join_paths($stow_path, $package, $target);
+    my $path = join_paths($self->{stow_path}, $package, $target);
 
     return if $self->should_skip_target_which_is_stow_dir($target);
 
@@ -664,17 +660,15 @@ sub unstow_contents_orig {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
         my $node_target = join_paths($target, $node);
-        next NODE if $self->ignore($stow_path, $package, $node_target);
-        $self->unstow_node_orig($stow_path, $package, $node_target);
+        next NODE if $self->ignore($self->{stow_path}, $package, $node_target);
+        $self->unstow_node_orig($package, $node_target);
     }
 }
 
 #===== METHOD ===============================================================
 # Name      : unstow_node_orig()
 # Purpose   : unstow the given node
-# Parameters: $stow_path => relative path from current (i.e. target) directory
-#           :               to the stow dir containing the node to be stowed
-#           : $package => the package containing the node being stowed
+# Parameters: $package => the package containing the node being stowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
@@ -682,9 +676,9 @@ sub unstow_contents_orig {
 #============================================================================
 sub unstow_node_orig {
     my $self = shift;
-    my ($stow_path, $package, $target) = @_;
+    my ($package, $target) = @_;
 
-    my $path = join_paths($stow_path, $package, $target);
+    my $path = join_paths($self->{stow_path}, $package, $target);
 
     debug(3, 0, "Unstowing $target (compat mode)");
     debug(4, 1, "source path is $path");
@@ -727,7 +721,7 @@ sub unstow_node_orig {
         }
     }
     elsif (-d $target) {
-        $self->unstow_contents_orig($stow_path, $package, $target);
+        $self->unstow_contents_orig($package, $target);
 
         # This action may have made the parent directory foldable
         if (my $parent = $self->foldable($target)) {
@@ -750,9 +744,7 @@ sub unstow_node_orig {
 #===== METHOD ===============================================================
 # Name      : unstow_contents()
 # Purpose   : unstow the contents of the given directory
-# Parameters: $stow_path => relative path from current (i.e. target) directory
-#           :               to the stow dir containing the package to be unstowed
-#           : $package => the package whose contents are being unstowed
+# Parameters: $package => the package whose contents are being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
@@ -761,9 +753,9 @@ sub unstow_node_orig {
 #============================================================================
 sub unstow_contents {
     my $self = shift;
-    my ($stow_path, $package, $target) = @_;
+    my ($package, $target) = @_;
 
-    my $path = join_paths($stow_path, $package, $target);
+    my $path = join_paths($self->{stow_path}, $package, $target);
 
     return if $self->should_skip_target_which_is_stow_dir($target);
 
@@ -791,7 +783,7 @@ sub unstow_contents {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
         my $node_target = join_paths($target, $node);
-        next NODE if $self->ignore($stow_path, $package, $node_target);
+        next NODE if $self->ignore($self->{stow_path}, $package, $node_target);
 
         if ($self->{dotfiles}) {
             my $adj_node_target = adjust_dotfile($node_target);
@@ -799,7 +791,7 @@ sub unstow_contents {
             $node_target = $adj_node_target;
         }
 
-        $self->unstow_node($stow_path, $package, $node_target);
+        $self->unstow_node($package, $node_target);
     }
     if (-d $target) {
         $self->cleanup_invalid_links($target);
@@ -809,9 +801,7 @@ sub unstow_contents {
 #===== METHOD ===============================================================
 # Name      : unstow_node()
 # Purpose   : unstow the given node
-# Parameters: $stow_path => relative path from current (i.e. target) directory
-#           :               to the stow dir containing the node to be stowed
-#           : $package => the package containing the node being unstowed
+# Parameters: $package => the package containing the node being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
@@ -819,9 +809,9 @@ sub unstow_contents {
 #============================================================================
 sub unstow_node {
     my $self = shift;
-    my ($stow_path, $package, $target) = @_;
+    my ($package, $target) = @_;
 
-    my $path = join_paths($stow_path, $package, $target);
+    my $path = join_paths($self->{stow_path}, $package, $target);
 
     debug(3, 1, "Unstowing $path");
     debug(4, 2, "target is $target");
@@ -893,7 +883,7 @@ sub unstow_node {
     elsif (-e $target) {
         debug(4, 2, "Evaluate existing node: $target");
         if (-d $target) {
-            $self->unstow_contents($stow_path, $package, $target);
+            $self->unstow_contents($package, $target);
 
             # This action may have made the parent directory foldable
             if (my $parent = $self->foldable($target)) {
