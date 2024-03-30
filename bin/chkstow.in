@@ -123,6 +123,5 @@ sub list {
 
 # Local variables:
 # mode: perl
-# cperl-indent-level: 4
 # End:
 # vim: ft=perl

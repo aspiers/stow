@@ -313,6 +313,5 @@ sub is_nonexistent_path {
 
 # Local variables:
 # mode: perl
-# cperl-indent-level: 4
 # end:
 # vim: ft=perl
