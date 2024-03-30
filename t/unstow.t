@@ -193,7 +193,7 @@ ok(
     => q(don't unlink any nodes under another stow directory)
 );
 like($stderr,
-     qr/WARNING: skipping protected directory stow2/
+     qr/WARNING: skipping marked Stow directory stow2/
      => "unstowing from ourself should skip stow");
 uncapture_stderr();
 

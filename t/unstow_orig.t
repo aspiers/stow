@@ -216,8 +216,8 @@ uncapture_stderr();
 sub check_protected_dirs_skipped {
     for my $dir (qw{stow stow2}) {
         like($stderr,
-            qr/WARNING: skipping protected directory $dir/
-            => "warn when skipping protected directory $dir");
+            qr/WARNING: skipping marked Stow directory $dir/
+            => "warn when skipping marked directory $dir");
     }
     uncapture_stderr();
 }

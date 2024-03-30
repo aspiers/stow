@@ -395,7 +395,7 @@ sub stow_contents {
     # are executed.
     my $path = join_paths($stow_path, $package, $target);
 
-    return if $self->should_skip_target_which_is_stow_dir($target);
+    return if $self->should_skip_target($target);
 
     my $cwd = getcwd();
     my $msg = "Stowing contents of $path (cwd=$cwd)";
@@ -587,15 +587,16 @@ sub stow_node {
 }
 
 #===== METHOD ===============================================================
-# Name      : should_skip_target_which_is_stow_dir()
+# Name      : should_skip_target()
 # Purpose   : determine whether target is a stow directory which should
 #           : not be stowed to or unstowed from
 # Parameters: $target => relative path to symlink target from the current directory
 # Returns   : true iff target is a stow directory
 # Throws    : n/a
-# Comments  : none
+# Comments  : cwd must be the top-level target directory, otherwise
+#           : marked_stow_dir() won't work.
 #============================================================================
-sub should_skip_target_which_is_stow_dir {
+sub should_skip_target {
     my $self = shift;
     my ($target) = @_;
 
@@ -606,22 +607,27 @@ sub should_skip_target_which_is_stow_dir {
     }
 
     if ($self->marked_stow_dir($target)) {
+        warn "WARNING: skipping marked Stow directory $target\n";
+        return 1;
+    }
+
+    if (-e join_paths($target, ".nonstow")) {
         warn "WARNING: skipping protected directory $target\n";
         return 1;
     }
 
-    debug(4, 1, "$target not protected");
+    debug(4, 1, "$target not protected; shouldn't skip");
     return 0;
 }
 
+# cwd must be the top-level target directory, otherwise
+# marked_stow_dir() won't work.
 sub marked_stow_dir {
     my $self = shift;
-    my ($target) = @_;
-    for my $f (".stow", ".nonstow") {
-        if (-e join_paths($target, $f)) {
-            debug(4, 2, "$target contained $f");
-            return 1;
-        }
+    my ($path) = @_;
+    if (-e join_paths($path, ".stow")) {
+        debug(5, 5, "> $path contained .stow");
+        return 1;
     }
     return 0;
 }
@@ -642,7 +648,7 @@ sub unstow_contents_orig {
 
     my $path = join_paths($self->{stow_path}, $package, $target);
 
-    return if $self->should_skip_target_which_is_stow_dir($target);
+    return if $self->should_skip_target($target);
 
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (compat mode, cwd=$cwd, stow dir=$self->{stow_path})";
@@ -762,7 +768,7 @@ sub unstow_contents {
 
     my $path = join_paths($self->{stow_path}, $package, $target);
 
-    return if $self->should_skip_target_which_is_stow_dir($target);
+    return if $self->should_skip_target($target);
 
     my $cwd = getcwd();
     my $msg = "Unstowing from $target (cwd=$cwd, stow dir=$self->{stow_path})";
