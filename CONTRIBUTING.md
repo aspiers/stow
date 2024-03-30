@@ -82,6 +82,9 @@ or to run the whole suite:
 
     prove
 
+However currently there is an issue where this interferes with
+`TEST_VERBOSE`.
+
 Translating Stow
 ----------------
 
