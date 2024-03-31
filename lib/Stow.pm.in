@@ -329,7 +329,7 @@ sub plan_stow {
                 $package,
                 '.',
                 $pkg_path, # source from target
-		0,
+                0,
             );
             debug(2, 0, "Planning stow of package $package... done");
             $self->{action_count}++;
