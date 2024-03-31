@@ -2159,17 +2159,17 @@ sub read_a_link {
     internal_error("read_a_link() passed a non link path: $path\n");
 }
 
-=head2 do_link($oldfile, $newfile)
+=head2 do_link($link_dest, $link_src)
 
 Wrap 'link' operation for later processing
 
 =over 4
 
-=item $oldfile
+=item $link_dest
 
 the existing file to link to
 
-=item $newfile
+=item $link_src
 
 the file to link
 
@@ -2182,17 +2182,17 @@ Cleans up operations that undo previous operations.
 
 sub do_link {
     my $self = shift;
-    my ($oldfile, $newfile) = @_;
+    my ($link_dest, $link_src) = @_;
 
-    if (exists $self->{dir_task_for}{$newfile}) {
-        my $task_ref = $self->{dir_task_for}{$newfile};
+    if (exists $self->{dir_task_for}{$link_src}) {
+        my $task_ref = $self->{dir_task_for}{$link_src};
 
         if ($task_ref->{action} eq 'create') {
             if ($task_ref->{type} eq 'dir') {
                 internal_error(
                     "new link (%s => %s) clashes with planned new directory",
-                    $newfile,
-                    $oldfile,
+                    $link_src,
+                    $link_dest,
                 );
             }
         }
@@ -2204,11 +2204,11 @@ sub do_link {
         }
     }
 
-    if (exists $self->{link_task_for}{$newfile}) {
-        my $task_ref = $self->{link_task_for}{$newfile};
+    if (exists $self->{link_task_for}{$link_src}) {
+        my $task_ref = $self->{link_task_for}{$link_src};
 
         if ($task_ref->{action} eq 'create') {
-            if ($task_ref->{source} ne $oldfile) {
+            if ($task_ref->{source} ne $link_dest) {
                 internal_error(
                     "new link clashes with planned new link: %s => %s",
                     $task_ref->{path},
@@ -2216,16 +2216,16 @@ sub do_link {
                 )
             }
             else {
-                debug(1, 0, "LINK: $newfile => $oldfile (duplicates previous action)");
+                debug(1, 0, "LINK: $link_src => $link_dest (duplicates previous action)");
                 return;
             }
         }
         elsif ($task_ref->{action} eq 'remove') {
-            if ($task_ref->{source} eq $oldfile) {
+            if ($task_ref->{source} eq $link_dest) {
                 # No need to remove a link we are going to recreate
-                debug(1, 0, "LINK: $newfile => $oldfile (reverts previous action)");
-                $self->{link_task_for}{$newfile}->{action} = 'skip';
-                delete $self->{link_task_for}{$newfile};
+                debug(1, 0, "LINK: $link_src => $link_dest (reverts previous action)");
+                $self->{link_task_for}{$link_src}->{action} = 'skip';
+                delete $self->{link_task_for}{$link_src};
                 return;
             }
             # We may need to remove a link to replace it so continue
@@ -2236,15 +2236,15 @@ sub do_link {
     }
 
     # Creating a new link
-    debug(1, 0, "LINK: $newfile => $oldfile");
+    debug(1, 0, "LINK: $link_src => $link_dest");
     my $task = {
         action  => 'create',
         type    => 'link',
-        path    => $newfile,
-        source  => $oldfile,
+        path    => $link_src,
+        source  => $link_dest,
     };
     push @{ $self->{tasks} }, $task;
-    $self->{link_task_for}{$newfile} = $task;
+    $self->{link_task_for}{$link_src} = $task;
 
     return;
 }
