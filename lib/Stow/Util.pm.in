@@ -149,10 +149,20 @@ sub debug {
 # Returns   : concatenation of given paths
 # Throws    : n/a
 # Comments  : Factors out some redundant path elements:
-#           : '//' => '/', and 'a/b/../c' => 'a/c'.  This is needed even
-#           : though b could be a symlink to elsewhere as noted in the
-#           : perldoc for File::Spec->canonpath(), because the way
-#           : join_paths() is used relies on this.
+#           : '//' => '/', and 'a/b/../c' => 'a/c'.  We need this function
+#           : with this behaviour, even though b could be a symlink to
+#           : elsewhere, as noted in the perldoc for File::Spec->canonpath().
+#           : This behaviour is deliberately different to
+#           : Stow::Util::canon_path(), because the way join_paths() is used
+#           : relies on this.  Firstly, there is no guarantee that the paths
+#           : exist, so a filesystem check is inappropriate.
+#           :
+#           : For example, it's used to determine the path from the target
+#           : directory to a symlink destination.  So if a symlink
+#           : path/to/target/a/b/c points to ../../../stow/pkg/a/b/c,
+#           : then joining path/to/target/a/b with ../../../stow/pkg/a/b/c
+#           : yields path/to/stow/pkg/a/b/c, and it's crucial that the
+#           : path/to/stow prefix matches a recognisable stow directory.
 #============================================================================
 sub join_paths {
     my @paths = @_;
