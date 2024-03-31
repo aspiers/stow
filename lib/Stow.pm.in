@@ -1014,14 +1014,17 @@ sub find_stowed_path {
 
 #===== METHOD ================================================================
 # Name      : cleanup_invalid_links()
-# Purpose   : clean up invalid links that may block folding
+# Purpose   : clean up orphaned links that may block folding
 # Parameters: $dir => path to directory to check
 # Returns   : n/a
 # Throws    : no exceptions
-# Comments  : removing files from a stowed package is probably a bad practice
-#           : so this kind of clean up is not _really_ stow's responsibility;
-#           : however, failing to clean up can block tree folding, so we'll do
-#           : it anyway
+# Comments  : This is invoked by unstow_contents().
+#           : We only clean up links which are both orphaned and owned by
+#           : Stow, i.e. they point to a non-existent location within a
+#           : Stow package.  These can block tree folding, and they can
+#           : easily occur when a file in Stow package is renamed or removed,
+#           : so the benefit should outweigh the low risk of actually someone
+#           : wanting to keep an orphaned link to within a Stow package.
 #=============================================================================
 sub cleanup_invalid_links {
     my $self = shift;
