@@ -258,15 +258,50 @@ target directory, @file{/usr/local/stow} is the stow directory,
 @file{/usr/local/stow/perl} is the package directory, and
 @file{bin/perl} within is part of the installation image.
 
+@anchor{symlink}
 @cindex symlink
+@cindex symlink source
+@cindex symlink destination
 @cindex relative symlink
 @cindex absolute symlink
-A @dfn{symlink} is a symbolic link.  A symlink can be @dfn{relative} or
-@dfn{absolute}.  An absolute symlink names a full path; that is, one
-starting from @file{/}.  A relative symlink names a relative path; that
-is, one not starting from @file{/}.  The target of a relative symlink is
-computed starting from the symlink's own directory.  Stow only
-creates relative symlinks.
+A @dfn{symlink} is a symbolic link, i.e. an entry on the filesystem
+whose path is sometimes called the @dfn{symlink source}, which points to
+another location on the filesystem called the @dfn{symlink destination}.
+There is no guarantee that the destination actually exists.
+
+In general, symlinks can be @dfn{relative} or @dfn{absolute}.  A symlink
+is absolute when the destination names a full path; that is, one
+starting from @file{/}.  A symlink is relative when the destination
+names a relative path; that is, one not starting from @file{/}.  The
+destination of a relative symlink is computed starting from the
+symlink's own directory, i.e. the directory containing the symlink
+source.
+
+@quotation Note
+Stow only creates symlinks within the target directory which point to
+locations @emph{outside} the target directory and inside the stow
+directory.
+
+Consequently, we avoid referring to symlink destinations as symlink
+@emph{targets}, since this would result in the word ``target'' having
+two different meanings:
+
+@enumerate
+
+@item
+the target directory, i.e.@: the directory into which Stow targets
+installation, where symlinks are managed by Stow, and
+
+@item
+the destinations of those symlinks.
+
+@end enumerate
+
+If we did not avoid the second meaning of ``target'', then it would lead
+to confusing language, such as describing Stow as installing symlinks
+into the target directory which point to targets @emph{outside} the
+target directory.
+@end quotation
 
 @c ===========================================================================
 @node Invoking Stow, Ignore Lists, Terminology, Top
