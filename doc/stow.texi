@@ -243,6 +243,11 @@ installation image for Perl includes: a @file{bin} directory containing
 containing Texinfo documentation; a @file{lib/perl} directory containing
 Perl libraries; and a @file{man/man1} directory containing man pages.
 
+@quotation Note
+This is a @emph{pre-}installation image which exists even before Stow
+has installed any symlinks into the target directory which point to it.
+@end quotation
+
 @cindex package directory
 @cindex package name
 A @dfn{package directory} is the root of a tree containing the
