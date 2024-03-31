@@ -239,10 +239,10 @@ sub restore_cwd {
 }
 
 sub adjust_dotfile {
-    my ($target) = @_;
+    my ($link_dest) = @_;
 
     my @result = ();
-    for my $part (split m{/+}, $target) {
+    for my $part (split m{/+}, $link_dest) {
         if (($part ne "dot-") && ($part ne "dot-.")) {
             $part =~ s/^dot-/./;
         }

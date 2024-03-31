@@ -953,7 +953,8 @@ sub link_owned_by_package {
 #           :            the target directory, relative to the
 #           :            top-level target directory (which is also
 #           :            expected to be the current directory).
-#           : $ldest =>  where that link points to (needed because link
+#           :
+#           : $link_dest => where that link points to (needed because link
 #           :            might not exist yet due to two-phase approach,
 #           :            so we can't just call readlink()).  If this is
 #           :            owned by Stow, it will be expressed relative to
@@ -964,7 +965,7 @@ sub link_owned_by_package {
 # Returns   : ($path, $stow_path, $package) where $path and $stow_path
 #           : are relative from the top-level target directory.  $path
 #           : is the full relative path to the member of the package
-#           : pointed to by $ldest; $stow_path is the relative path
+#           : pointed to by $link_dest; $stow_path is the relative path
 #           : to the stow directory; and $package is the name of the
 #           : package; or ('', '', '') if link is not owned by stow.
 # Throws    : n/a
@@ -975,9 +976,9 @@ sub link_owned_by_package {
 # ============================================================================
 sub find_stowed_path {
     my $self = shift;
-    my ($target, $ldest) = @_;
+    my ($target, $link_dest) = @_;
 
-    if (substr($ldest, 0, 1) eq '/') {
+    if (substr($link_dest, 0, 1) eq '/') {
         # Symlink points to an absolute path, therefore it cannot be
         # owned by Stow.
         return ('', '', '');
@@ -986,8 +987,8 @@ sub find_stowed_path {
     # Evaluate softlink relative to its target, without relying on
     # what's actually on the filesystem, since the link might not
     # exist yet.
-    debug(4, 2, "find_stowed_path(target=$target; source=$ldest)");
-    my $dest = join_paths(parent($target), $ldest);
+    debug(4, 2, "find_stowed_path(target=$target; source=$link_dest)");
+    my $dest = join_paths(parent($target), $link_dest);
     debug(4, 3, "is symlink destination $dest owned by stow?");
 
     # First check whether the link is owned by the current stow
@@ -1012,24 +1013,24 @@ sub find_stowed_path {
 # ===== METHOD ================================================================
 # Name      : link_dest_within_stow_dir
 # Purpose   : detect whether symlink destination is within current stow dir
-# Parameters: $ldest - destination of the symlink relative
+# Parameters: $link_dest - destination of the symlink relative
 # Returns   : ($package, $path) - package within the current stow dir
 #           : and subpath within that package which the symlink points to
 # =============================================================================
 sub link_dest_within_stow_dir {
     my $self = shift;
-    my ($ldest) = @_;
+    my ($link_dest) = @_;
 
-    debug(4, 4, "common prefix? ldest=$ldest; stow_path=$self->{stow_path}");
+    debug(4, 4, "common prefix? link_dest=$link_dest; stow_path=$self->{stow_path}");
 
-    my $removed = $ldest =~ s,^\Q$self->{stow_path}/,,;
+    my $removed = $link_dest =~ s,^\Q$self->{stow_path}/,,;
     if (! $removed) {
-        debug(4, 3, "no - $ldest not under $self->{stow_path}");
+        debug(4, 3, "no - $link_dest not under $self->{stow_path}");
         return ('', '');
     }
 
-    debug(4, 4, "remaining after removing $self->{stow_path}: $ldest");
-    my @dirs = File::Spec->splitdir($ldest);
+    debug(4, 4, "remaining after removing $self->{stow_path}: $link_dest");
+    my @dirs = File::Spec->splitdir($link_dest);
     my $package = shift @dirs;
     my $path = File::Spec->catdir(@dirs);
     return ($package, $path);
@@ -1127,30 +1128,30 @@ sub cleanup_invalid_links {
 
         # Where is the link pointing?
         # (don't use read_a_link() here)
-        my $ldest = readlink($node_path);
-        if (not $ldest) {
+        my $link_dest = readlink($node_path);
+        if (not $link_dest) {
             error("Could not read link $node_path");
         }
 
-        my $target = join_paths($dir, $ldest);
-        debug(4, 2, "join $dir $ldest");
+        my $target = join_paths($dir, $link_dest);
+        debug(4, 2, "join $dir $link_dest");
         if (-e $target) {
-            debug(4, 2, "Link target $ldest exists at $target; skipping clean up");
+            debug(4, 2, "Link target $link_dest exists at $target; skipping clean up");
             next;
         }
         else {
-            debug(4, 2, "Link target $ldest doesn't exist at $target");
+            debug(4, 2, "Link target $link_dest doesn't exist at $target");
         }
 
         debug(3, 1,
-              "Checking whether valid link $node_path -> $ldest is " .
+              "Checking whether valid link $node_path -> $link_dest is " .
               "owned by stow");
 
-        my $owner = $self->link_owned_by_package($node_path, $ldest);
+        my $owner = $self->link_owned_by_package($node_path, $link_dest);
         if ($owner) {
             # owned by stow
             debug(2, 0, "--- removing link owned by $owner: $node_path => " .
-                  join_paths($dir, $ldest));
+                  join_paths($dir, $link_dest));
             $self->do_unlink($node_path);
         }
     }
