@@ -641,7 +641,10 @@ sub stow_node {
 =head2 should_skip_target($target)
 
 Determine whether target is a stow directory which should
-not be stowed to or unstowed from.
+not be stowed to or unstowed from.  This mechanism protects
+stow directories from being altered by stow, and is a necessary
+safety check because the stow directory could live beneath the
+target directory.
 
 =over 4
 
