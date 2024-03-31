@@ -525,15 +525,15 @@ sub stow_node {
     # Does the target already exist?
     if ($self->is_a_link($target)) {
         # Where is the link pointing?
-        my $existing_source = $self->read_a_link($target);
-        if (not $existing_source) {
+        my $existing_link_dest = $self->read_a_link($target);
+        if (not $existing_link_dest) {
             error("Could not read link: $target");
         }
-        debug(4, 1, "Evaluate existing link: $target => $existing_source");
+        debug(4, 1, "Evaluate existing link: $target => $existing_link_dest");
 
         # Does it point to a node under any stow directory?
         my ($existing_path, $existing_stow_path, $existing_package) =
-            $self->find_stowed_path($target, $existing_source);
+            $self->find_stowed_path($target, $existing_link_dest);
         if (not $existing_path) {
             $self->conflict(
                 'stow',
@@ -545,7 +545,7 @@ sub stow_node {
 
         # Does the existing $target actually point to anything?
         if ($self->is_a_node($existing_path)) {
-            if ($existing_source eq $source) {
+            if ($existing_link_dest eq $source) {
                 debug(2, 0, "--- Skipping $target as it already points to $source");
             }
             elsif ($self->defer($target)) {
@@ -556,7 +556,7 @@ sub stow_node {
                 $self->do_unlink($target);
                 $self->do_link($source, $target);
             }
-            elsif ($self->is_a_dir(join_paths(parent($target), $existing_source)) &&
+            elsif ($self->is_a_dir(join_paths(parent($target), $existing_link_dest)) &&
                    $self->is_a_dir(join_paths(parent($target), $source)))
             {
 
@@ -571,7 +571,7 @@ sub stow_node {
                     $existing_stow_path,
                     $existing_package,
                     $target,
-                    join_paths('..', $existing_source),
+                    join_paths('..', $existing_link_dest),
                     $level + 1,
                 );
                 $self->stow_contents(
@@ -587,7 +587,7 @@ sub stow_node {
                     'stow',
                     $package,
                     "existing target is stowed to a different package: "
-                    . "$target => $existing_source"
+                    . "$target => $existing_link_dest"
                 );
             }
         }
