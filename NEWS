@@ -16,7 +16,7 @@ News file for Stow.
     Extra output resulting from use of the -v / --verbose flag
     now appears in a more logical and understandable way.
 
-*** Minor janitorial tasks
+*** Janitorial tasks
 
     Users are not substantially affected by these changes.
 
@@ -24,7 +24,13 @@ News file for Stow.
 
 ***** Made some small improvements to the documentation
 
-***** Added a CONTRIBUTING.md file
+***** Improve readability of source code
+
+      Quite a few extra details have been added in comments to clarify
+      how the code works.  Some variable names have also been
+      improved.
+
+***** Added a =CONTRIBUTING.md= file
 
 ***** Add a =watch= target to =Makefile=
 
@@ -43,7 +49,11 @@ News file for Stow.
 
       [[https://lars.ingebrigtsen.no/2020/01/06/whatever-happened-to-news-gmane-org/][gmane has been dead for quite a while.]]
 
-***** Add support for source navigation in emacs via [[https://github.com/jacktasia/dumb-jump][dumb-jump]].
+***** Improve support for navigating / editing source via emacs
+
+******* Support source navigation in emacs via [[https://github.com/jacktasia/dumb-jump][dumb-jump]].
+
+******* Configure cperl-mode to match existing coding style.
 
 *** Various maintainer tweaks
 
