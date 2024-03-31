@@ -306,6 +306,24 @@ If we did not avoid the second meaning of ``target'', then it would lead
 to confusing language, such as describing Stow as installing symlinks
 into the target directory which point to targets @emph{outside} the
 target directory.
+
+Similarly, the word ``source'' can have two different meanings in this
+context:
+
+@enumerate
+
+@item
+the installation image, or some of its contents, and
+
+@item
+the location of symlinks (the ``source'' of the link, vs. its
+destination).
+
+@end enumerate
+
+Therefore it should also be avoided, or at least care taken to ensure
+that the meaning is not ambiguous.
+
 @end quotation
 
 @c ===========================================================================
