@@ -22,13 +22,14 @@ News file for Stow.
 
 ***** Added some more information from the web page to the README
 
-***** Made some small improvements to the documentation
+***** Made some improvements to the documentation
 
 ***** Improve readability of source code
 
       Quite a few extra details have been added in comments to clarify
       how the code works.  Some variable names have also been
-      improved.
+      improved.  The comments of many Stow class methods have been
+      converted into Perl POD format.
 
 ***** Added a =CONTRIBUTING.md= file
 
