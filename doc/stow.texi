@@ -222,7 +222,7 @@ to be installed in a particular directory structure --- e.g., with
 A @dfn{target directory} is the root of a tree in which one or more
 packages wish to @emph{appear} to be installed.  @file{/usr/local} is a
 common choice for this, but by no means the only such location.  Another
-common choice is @file{~} (i.e. the user's @code{$HOME} directory) in
+common choice is @file{~} (i.e.@: the user's @code{$HOME} directory) in
 the case where Stow is being used to manage the user's configuration
 (``dotfiles'') and other files in their @code{$HOME}.  The examples in
 this manual will use @file{/usr/local} as the target directory.
@@ -264,7 +264,7 @@ target directory, @file{/usr/local/stow} is the stow directory,
 @cindex symlink destination
 @cindex relative symlink
 @cindex absolute symlink
-A @dfn{symlink} is a symbolic link, i.e. an entry on the filesystem
+A @dfn{symlink} is a symbolic link, i.e.@: an entry on the filesystem
 whose path is sometimes called the @dfn{symlink source}, which points to
 another location on the filesystem called the @dfn{symlink destination}.
 There is no guarantee that the destination actually exists.
@@ -274,7 +274,7 @@ is absolute when the destination names a full path; that is, one
 starting from @file{/}.  A symlink is relative when the destination
 names a relative path; that is, one not starting from @file{/}.  The
 destination of a relative symlink is computed starting from the
-symlink's own directory, i.e. the directory containing the symlink
+symlink's own directory, i.e.@: the directory containing the symlink
 source.
 
 @quotation Note
@@ -421,7 +421,7 @@ refolding (@pxref{tree refolding}).  If a new subdirectory is
 encountered whilst stowing a new package, the subdirectory is created
 within the target, and its contents are symlinked, rather than just
 creating a symlink for the directory.  If removal of symlinks whilst
-unstowing a package causes a subtree to be foldable (i.e. only
+unstowing a package causes a subtree to be foldable (i.e.@: only
 containing symlinks to a single package), that subtree will not be
 removed and replaced with a symlink.
 
