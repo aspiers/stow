@@ -285,12 +285,14 @@ sub plan_unstow {
                 $self->unstow_contents_orig(
                     $package,
                     '.',
+                    $pkg_path,
                 );
             }
             else {
                 $self->unstow_contents(
                     $package,
                     '.',
+                    $pkg_path,
                 );
             }
             debug(2, 0, "Planning unstow of package $package... done");
@@ -327,6 +329,7 @@ sub plan_stow {
                 $package,
                 '.',
                 $pkg_path, # source from target
+		0,
             );
             debug(2, 0, "Planning stow of package $package... done");
             $self->{action_count}++;
@@ -404,7 +407,7 @@ folding/unfolding trees as necessary.
 
 sub stow_contents {
     my $self = shift;
-    my ($stow_path, $package, $target, $source) = @_;
+    my ($stow_path, $package, $target, $source, $level) = @_;
 
     # Calculate the path to the package directory or sub-directory
     # whose contents need to be stowed, relative to the current
@@ -415,7 +418,10 @@ sub stow_contents {
     # but instead it's relative to the target directory or
     # sub-directory where the symlink will be installed when the plans
     # are executed.
-    my $path = join_paths($stow_path, $package, $target);
+
+    # Remove leading $level times .. from $source
+    my $n = 0;
+    my $path = join '/', map { (++$n <= $level) ? ( ) : $_ } (split m{/+}, $source);
 
     return if $self->should_skip_target($target);
 
@@ -453,6 +459,7 @@ sub stow_contents {
             $package,
             $node_target,  # target, potentially adjusted for dot- prefix
             join_paths($source, $node),   # source
+            $level
         );
     }
 }
@@ -494,7 +501,7 @@ folding/unfolding trees as necessary.
 
 sub stow_node {
     my $self = shift;
-    my ($stow_path, $package, $target, $source) = @_;
+    my ($stow_path, $package, $target, $source, $level) = @_;
 
     my $path = join_paths($stow_path, $package, $target);
 
@@ -564,12 +571,14 @@ sub stow_node {
                     $existing_package,
                     $target,
                     join_paths('..', $existing_source),
+                    $level + 1,
                 );
                 $self->stow_contents(
                     $self->{stow_path},
                     $package,
                     $target,
                     join_paths('..', $source),
+                    $level + 1,
                 );
             }
             else {
@@ -596,6 +605,7 @@ sub stow_node {
                 $package,
                 $target,
                 join_paths('..', $source),
+		$level + 1,
             );
         }
         else {
@@ -619,6 +629,7 @@ sub stow_node {
             $package,
             $target,
             join_paths('..', $source),
+	    $level + 1,
         );
     }
     else {
@@ -846,9 +857,7 @@ Here we traverse the source tree, rather than the target tree.
 
 sub unstow_contents {
     my $self = shift;
-    my ($package, $target) = @_;
-
-    my $path = join_paths($self->{stow_path}, $package, $target);
+    my ($package, $target, $path) = @_;
 
     return if $self->should_skip_target($target);
 
@@ -884,7 +893,7 @@ sub unstow_contents {
             $node_target = $adj_node_target;
         }
 
-        $self->unstow_node($package, $node_target);
+        $self->unstow_node($package, $node_target, join_paths($path, $node));
     }
     if (-d $target) {
         $self->cleanup_invalid_links($target);
@@ -913,7 +922,7 @@ C<unstow_node()> and C<unstow_contents()> are mutually recursive.
 
 sub unstow_node {
     my $self = shift;
-    my ($package, $target) = @_;
+    my ($package, $target, $source) = @_;
 
     my $path = join_paths($self->{stow_path}, $package, $target);
 
@@ -987,7 +996,7 @@ sub unstow_node {
     elsif (-e $target) {
         debug(4, 2, "Evaluate existing node: $target");
         if (-d $target) {
-            $self->unstow_contents($package, $target);
+            $self->unstow_contents($package, $target, $source);
 
             # This action may have made the parent directory foldable
             if (my $parent = $self->foldable($target)) {
