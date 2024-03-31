@@ -557,7 +557,8 @@ sub stow_node {
                 $self->do_link($source, $target);
             }
             elsif ($self->is_a_dir(join_paths(parent($target), $existing_source)) &&
-                   $self->is_a_dir(join_paths(parent($target), $source))     ) {
+                   $self->is_a_dir(join_paths(parent($target), $source)))
+            {
 
                 # If the existing link points to a directory,
                 # and the proposed new link points to a directory,
