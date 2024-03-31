@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use English qw(-no_match_vars);
 
 use testutil;
@@ -50,7 +50,7 @@ subtest('nothing to clean in a simple tree' => sub {
     );
 });
 
-subtest('cleanup a bad link in a simple tree' => sub {
+subtest('cleanup an orphaned owned link in a simple tree' => sub {
     plan tests => 3;
 
     make_path('bin2');
@@ -77,6 +77,22 @@ subtest("don't cleanup a bad link not owned by stow" => sub {
 
     $stow = new_Stow();
     $stow->cleanup_invalid_links('bin3');
+    is($stow->get_conflict_count, 0, 'no conflicts cleaning up bad link not owned by stow');
+    is(scalar($stow->get_tasks), 0, 'no tasks cleaning up bad link not owned by stow');
+});
+
+subtest("don't cleanup a valid link in the target not owned by stow" => sub {
+    plan tests => 2;
+
+    make_path('bin4');
+    make_path('../stow/pkg4/bin4');
+    make_file('../stow/pkg4/bin4/file3a');
+    make_link('bin4/file3a', '../../stow/pkg4/bin4/file3a');
+    make_file("unowned");
+    make_link('bin4/file3b', '../unowned');
+
+    $stow = new_Stow();
+    $stow->cleanup_invalid_links('bin4');
     is($stow->get_conflict_count, 0, 'no conflicts cleaning up bad link not owned by stow');
     is(scalar($stow->get_tasks), 0, 'no tasks cleaning up bad link not owned by stow');
 });
