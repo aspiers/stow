@@ -334,16 +334,17 @@ sub plan_stow {
     });
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : within_target_do()
 # Purpose   : execute code within target directory, preserving cwd
 # Parameters: $code => anonymous subroutine to execute within target dir
 # Returns   : n/a
 # Throws    : n/a
-# Comments  : This is done to ensure that the consumer of the Stow interface
-#           : doesn't have to worry about (a) what their cwd is, and
-#           : (b) that their cwd might change.
-#============================================================================
+#
+# This is done to ensure that the consumer of the Stow interface
+# doesn't have to worry about (a) what their cwd is, and (b) that
+# their cwd might change.
+# ============================================================================
 sub within_target_do {
     my $self = shift;
     my ($code) = @_;
@@ -359,7 +360,7 @@ sub within_target_do {
     debug(3, 0, "cwd restored to $cwd");
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : stow_contents()
 # Purpose   : stow the contents of the given directory
 # Parameters: $stow_path => relative path from current (i.e. target) directory
@@ -376,10 +377,11 @@ sub within_target_do {
 #           :            to symlink source
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
-# Comments  : stow_node() and stow_contents() are mutually recursive.
-#           : $source and $target are used for creating the symlink
-#           : $path is used for folding/unfolding trees as necessary
-#============================================================================
+#
+# stow_node() and stow_contents() are mutually recursive.  $source and
+# $target are used for creating the symlink $path is used for
+# folding/unfolding trees as necessary
+# ============================================================================
 sub stow_contents {
     my $self = shift;
     my ($stow_path, $package, $target, $source) = @_;
@@ -435,7 +437,7 @@ sub stow_contents {
     }
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : stow_node()
 # Purpose   : stow the given node
 # Parameters: $stow_path => relative path from current (i.e. target) directory
@@ -447,10 +449,11 @@ sub stow_contents {
 #           : $source => relative path to symlink source from the dir of target
 # Returns   : n/a
 # Throws    : fatal exception if a conflict arises
-# Comments  : stow_node() and stow_contents() are mutually recursive.
-#           : $source and $target are used for creating the symlink
-#           : $path is used for folding/unfolding trees as necessary
-#============================================================================
+#
+# stow_node() and stow_contents() are mutually recursive.  $source and
+# $target are used for creating the symlink $path is used for
+# folding/unfolding trees as necessary
+# ============================================================================
 sub stow_node {
     my $self = shift;
     my ($stow_path, $package, $target, $source) = @_;
@@ -586,16 +589,17 @@ sub stow_node {
     return;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : should_skip_target()
 # Purpose   : determine whether target is a stow directory which should
 #           : not be stowed to or unstowed from
 # Parameters: $target => relative path to symlink target from the current directory
 # Returns   : true iff target is a stow directory
 # Throws    : n/a
-# Comments  : cwd must be the top-level target directory, otherwise
-#           : marked_stow_dir() won't work.
-#============================================================================
+#
+# cwd must be the top-level target directory, otherwise
+# marked_stow_dir() won't work.
+# ============================================================================
 sub should_skip_target {
     my $self = shift;
     my ($target) = @_;
@@ -632,16 +636,17 @@ sub marked_stow_dir {
     return 0;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : unstow_contents_orig()
 # Purpose   : unstow the contents of the given directory
 # Parameters: $package => the package whose contents are being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
-# Comments  : unstow_node_orig() and unstow_contents_orig() are mutually recursive
-#           : Here we traverse the target tree, rather than the source tree.
-#============================================================================
+#
+# unstow_node_orig() and unstow_contents_orig() are mutually recursive.
+# Here we traverse the target tree, rather than the source tree.
+# ============================================================================
 sub unstow_contents_orig {
     my $self = shift;
     my ($package, $target) = @_;
@@ -676,15 +681,16 @@ sub unstow_contents_orig {
     }
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : unstow_node_orig()
 # Purpose   : unstow the given node
 # Parameters: $package => the package containing the node being stowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
-# Comments  : unstow_node() and unstow_contents() are mutually recursive
-#============================================================================
+#
+# unstow_node() and unstow_contents() are mutually recursive.
+# ============================================================================
 sub unstow_node_orig {
     my $self = shift;
     my ($package, $target) = @_;
@@ -752,16 +758,17 @@ sub unstow_node_orig {
     return;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : unstow_contents()
 # Purpose   : unstow the contents of the given directory
 # Parameters: $package => the package whose contents are being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : a fatal error if directory cannot be read
-# Comments  : unstow_node() and unstow_contents() are mutually recursive
-#           : Here we traverse the source tree, rather than the target tree.
-#============================================================================
+#
+# unstow_node() and unstow_contents() are mutually recursive.
+# Here we traverse the source tree, rather than the target tree.
+# ============================================================================
 sub unstow_contents {
     my $self = shift;
     my ($package, $target) = @_;
@@ -809,15 +816,16 @@ sub unstow_contents {
     }
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : unstow_node()
 # Purpose   : unstow the given node
 # Parameters: $package => the package containing the node being unstowed
 #           : $target => relative path to symlink target from the current directory
 # Returns   : n/a
 # Throws    : fatal error if a conflict arises
-# Comments  : unstow_node() and unstow_contents() are mutually recursive
-#============================================================================
+#
+# unstow_node() and unstow_contents() are mutually recursive.
+# ============================================================================
 sub unstow_node {
     my $self = shift;
     my ($package, $target) = @_;
@@ -915,7 +923,7 @@ sub unstow_node {
     return;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : link_owned_by_package()
 # Purpose   : determine whether the given link points to a member of a
 #           : stowed package
@@ -923,8 +931,9 @@ sub unstow_node {
 #           : $source => where that link points to
 # Returns   : the package iff link is owned by stow, otherwise ''
 # Throws    : n/a
-# Comments  : lossy wrapper around find_stowed_path()
-#============================================================================
+#
+# lossy wrapper around find_stowed_path().
+# ============================================================================
 sub link_owned_by_package {
     my $self = shift;
     my ($target, $source) = @_;
@@ -934,7 +943,7 @@ sub link_owned_by_package {
     return $package;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : find_stowed_path()
 # Purpose   : determine whether the given symlink within the target directory
 #           : is a stowed path pointing to a member of a package under the
@@ -959,10 +968,11 @@ sub link_owned_by_package {
 #           : to the stow directory; and $package is the name of the
 #           : package; or ('', '', '') if link is not owned by stow.
 # Throws    : n/a
-# Comments  : cwd must be the top-level target directory, otherwise
-#           : find_containing_marked_stow_dir() won't work.
-#           : Allow for stow dir not being under target dir.
-#============================================================================
+#
+# cwd must be the top-level target directory, otherwise
+# find_containing_marked_stow_dir() won't work.  Allow for stow dir
+# not being under target dir.
+# ============================================================================
 sub find_stowed_path {
     my $self = shift;
     my ($target, $ldest) = @_;
@@ -999,13 +1009,13 @@ sub find_stowed_path {
     return ('', '', '');
 }
 
-#===== METHOD ================================================================
+# ===== METHOD ================================================================
 # Name      : link_dest_within_stow_dir
 # Purpose   : detect whether symlink destination is within current stow dir
 # Parameters: $ldest - destination of the symlink relative
 # Returns   : ($package, $path) - package within the current stow dir
 #           : and subpath within that package which the symlink points to
-#=============================================================================
+# =============================================================================
 sub link_dest_within_stow_dir {
     my $self = shift;
     my ($ldest) = @_;
@@ -1025,7 +1035,7 @@ sub link_dest_within_stow_dir {
     return ($package, $path);
 }
 
-#===== METHOD ================================================================
+# ===== METHOD ================================================================
 # Name      : find_containing_marked_stow_dir
 # Purpose   : detect whether path is within a marked stow directory
 # Parameters: $path => path to directory to check
@@ -1034,9 +1044,10 @@ sub link_dest_within_stow_dir {
 #           : as a Stow directory, and $package is the containing package;
 #           : or ('', '') if no containing directory is marked as a stow
 #           : directory.
-# Comments  : cwd must be the top-level target directory, otherwise
-#           : marked_stow_dir() won't work.
-#=============================================================================
+#
+# cwd must be the top-level target directory, otherwise
+# marked_stow_dir() won't work.
+# =============================================================================
 sub find_containing_marked_stow_dir {
     my $self = shift;
     my ($path) = @_;
@@ -1061,20 +1072,21 @@ sub find_containing_marked_stow_dir {
     return ('', '');
 }
 
-#===== METHOD ================================================================
+# ===== METHOD ================================================================
 # Name      : cleanup_invalid_links()
 # Purpose   : clean up orphaned links that may block folding
 # Parameters: $dir => path to directory to check
 # Returns   : n/a
 # Throws    : no exceptions
-# Comments  : This is invoked by unstow_contents().
-#           : We only clean up links which are both orphaned and owned by
-#           : Stow, i.e. they point to a non-existent location within a
-#           : Stow package.  These can block tree folding, and they can
-#           : easily occur when a file in Stow package is renamed or removed,
-#           : so the benefit should outweigh the low risk of actually someone
-#           : wanting to keep an orphaned link to within a Stow package.
-#=============================================================================
+#
+# This is invoked by unstow_contents().  We only clean up links which
+# are both orphaned and owned by Stow, i.e. they point to a
+# non-existent location within a Stow package.  These can block tree
+# folding, and they can easily occur when a file in Stow package is
+# renamed or removed, so the benefit should outweigh the low risk of
+# actually someone wanting to keep an orphaned link to within a Stow
+# package.
+# =============================================================================
 sub cleanup_invalid_links {
     my $self = shift;
     my ($dir) = @_;
@@ -1146,15 +1158,16 @@ sub cleanup_invalid_links {
 }
 
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : foldable()
 # Purpose   : determine whether a tree can be folded
 # Parameters: $target => path to a directory
 # Returns   : path to the parent dir iff the tree can be safely folded
 # Throws    : n/a
-# Comments  : the path returned is relative to the parent of $target,
-#           : that is, it can be used as the source for a replacement symlink
-#============================================================================
+#
+# The path returned is relative to the parent of $target, i.e. it can
+# be used as the source for a replacement symlink.
+# ============================================================================
 sub foldable {
     my $self = shift;
     my ($target) = @_;
@@ -1216,15 +1229,16 @@ sub foldable {
     }
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : fold_tree()
 # Purpose   : fold the given tree
 # Parameters: $source  => link to the folded tree source
 #           : $target => directory that we will replace with a link to $source
 # Returns   : n/a
 # Throws    : none
-# Comments  : only called iff foldable() is true so we can remove some checks
-#============================================================================
+#
+# Only called iff foldable() is true so we can remove some checks.
+# ============================================================================
 sub fold_tree {
     my $self = shift;
     my ($target, $source) = @_;
@@ -1249,15 +1263,14 @@ sub fold_tree {
 }
 
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : conflict()
 # Purpose   : handle conflicts in stow operations
 # Parameters: $package => the package involved with the conflicting operation
 #           : $message => a description of the conflict
 # Returns   : n/a
 # Throws    : none
-# Comments  : none
-#============================================================================
+# ============================================================================
 sub conflict {
     my $self = shift;
     my ($action, $package, $message) = @_;
@@ -1326,7 +1339,7 @@ sub get_action_count {
     return $self->{action_count};
 }
 
-#===== METHOD ================================================================
+# ===== METHOD ================================================================
 # Name      : ignore
 # Purpose   : determine if the given path matches a regex in our ignore list
 # Parameters: $stow_path => the stow directory containing the package
@@ -1335,8 +1348,7 @@ sub get_action_count {
 #           :               relative to its package directory
 # Returns   : true iff the path should be ignored
 # Throws    : no exceptions
-# Comments  : none
-#=============================================================================
+# =============================================================================
 sub ignore {
     my $self = shift;
     my ($stow_path, $package, $target) = @_;
@@ -1512,14 +1524,13 @@ sub get_default_global_ignore_regexps {
     return $class->get_ignore_regexps_from_fh(\*DATA);
 }
 
-#===== METHOD ================================================================
+# ===== METHOD ================================================================
 # Name      : defer
 # Purpose   : determine if the given path matches a regex in our defer list
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : no exceptions
-# Comments  : none
-#=============================================================================
+# =============================================================================
 sub defer {
     my $self = shift;
     my ($path) = @_;
@@ -1530,14 +1541,13 @@ sub defer {
     return 0;
 }
 
-#===== METHOD ================================================================
+# ===== METHOD ================================================================
 # Name      : override
 # Purpose   : determine if the given path matches a regex in our override list
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : no exceptions
-# Comments  : none
-#=============================================================================
+# =============================================================================
 sub override {
     my $self = shift;
     my ($path) = @_;
@@ -1555,14 +1565,13 @@ sub override {
 #
 ##############################################################################
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : process_tasks()
 # Purpose   : process each task in the tasks list
 # Parameters: none
 # Returns   : n/a
 # Throws    : fatal error if tasks list is corrupted or a task fails
-# Comments  : none
-#============================================================================
+# ============================================================================
 sub process_tasks {
     my $self = shift;
 
@@ -1584,16 +1593,17 @@ sub process_tasks {
     debug(2, 0, "Processing tasks... done");
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : process_task()
 # Purpose   : process a single task
 # Parameters: $task => the task to process
 # Returns   : n/a
 # Throws    : fatal error if task fails
-# Comments  : Must run from within target directory.
-#           : Task involve either creating or deleting dirs and symlinks
-#           : an action is set to 'skip' if it is found to be redundant
-#============================================================================
+#
+# Must run from within target directory.  Task involve either creating
+# or deleting dirs and symlinks an action is set to 'skip' if it is
+# found to be redundant
+# ============================================================================
 sub process_task {
     my $self = shift;
     my ($task) = @_;
@@ -1640,14 +1650,13 @@ sub process_task {
     internal_error("bad task action: $task->{action}");
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : link_task_action()
 # Purpose   : finds the link task action for the given path, if there is one
 # Parameters: $path
 # Returns   : 'remove', 'create', or '' if there is no action
 # Throws    : a fatal exception if an invalid action is found
-# Comments  : none
-#============================================================================
+# ============================================================================
 sub link_task_action {
     my $self = shift;
     my ($path) = @_;
@@ -1665,14 +1674,13 @@ sub link_task_action {
     return $action;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : dir_task_action()
 # Purpose   : finds the dir task action for the given path, if there is one
 # Parameters: $path
 # Returns   : 'remove', 'create', or '' if there is no action
 # Throws    : a fatal exception if an invalid action is found
-# Comments  : none
-#============================================================================
+# ============================================================================
 sub dir_task_action {
     my $self = shift;
     my ($path) = @_;
@@ -1690,15 +1698,14 @@ sub dir_task_action {
     return $action;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : parent_link_scheduled_for_removal()
 # Purpose   : determine whether the given path or any parent thereof
 #           : is a link scheduled for removal
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : none
-# Comments  : none
-#============================================================================
+# ============================================================================
 sub parent_link_scheduled_for_removal {
     my $self = shift;
     my ($path) = @_;
@@ -1718,15 +1725,16 @@ sub parent_link_scheduled_for_removal {
     return 0;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : is_a_link()
 # Purpose   : determine if the given path is a current or planned link
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : none
-# Comments  : returns false if an existing link is scheduled for removal
-#           : and true if a non-existent link is scheduled for creation
-#============================================================================
+#
+# Returns false if an existing link is scheduled for removal and true
+# if a non-existent link is scheduled for creation.
+# ============================================================================
 sub is_a_link {
     my $self = shift;
     my ($path) = @_;
@@ -1754,16 +1762,17 @@ sub is_a_link {
     return 0;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : is_a_dir()
 # Purpose   : determine if the given path is a current or planned directory
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : none
-# Comments  : returns false if an existing directory is scheduled for removal
-#           : and true if a non-existent directory is scheduled for creation
-#           : we also need to be sure we are not just following a link
-#============================================================================
+#
+# Returns false if an existing directory is scheduled for removal and
+# true if a non-existent directory is scheduled for creation.  We also
+# need to be sure we are not just following a link.
+# ============================================================================
 sub is_a_dir {
     my $self = shift;
     my ($path) = @_;
@@ -1789,16 +1798,17 @@ sub is_a_dir {
     return 0;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : is_a_node()
 # Purpose   : determine whether the given path is a current or planned node
 # Parameters: $path
 # Returns   : Boolean
 # Throws    : none
-# Comments  : returns false if an existing node is scheduled for removal
-#           : true if a non-existent node is scheduled for creation
-#           : we also need to be sure we are not just following a link
-#============================================================================
+#
+# Returns false if an existing node is scheduled for removal true if a
+# non-existent node is scheduled for creation.  we also need to be
+# sure we are not just following a link.
+# ============================================================================
 sub is_a_node {
     my $self = shift;
     my ($path) = @_;
@@ -1861,15 +1871,14 @@ sub is_a_node {
     return 0;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : read_a_link()
 # Purpose   : return the source of a current or planned link
 # Parameters: $path => path to the link target
 # Returns   : a string
 # Throws    : fatal exception if the given path is not a current or planned
 #           : link
-# Comments  : none
-#============================================================================
+# ============================================================================
 sub read_a_link {
     my $self = shift;
     my ($path) = @_;
@@ -1894,15 +1903,16 @@ sub read_a_link {
     internal_error("read_a_link() passed a non link path: $path\n");
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : do_link()
 # Purpose   : wrap 'link' operation for later processing
 # Parameters: $oldfile => the existing file to link to
 #           : $newfile => the file to link
 # Returns   : n/a
 # Throws    : error if this clashes with an existing planned operation
-# Comments  : cleans up operations that undo previous operations
-#============================================================================
+#
+# Cleans up operations that undo previous operations.
+# ============================================================================
 sub do_link {
     my $self = shift;
     my ($oldfile, $newfile) = @_;
@@ -1972,14 +1982,15 @@ sub do_link {
     return;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : do_unlink()
 # Purpose   : wrap 'unlink' operation for later processing
 # Parameters: $file => the file to unlink
 # Returns   : n/a
 # Throws    : error if this clashes with an existing planned operation
-# Comments  : will remove an existing planned link
-#============================================================================
+#
+# Will remove an existing planned link.
+# ============================================================================
 sub do_unlink {
     my $self = shift;
     my ($file) = @_;
@@ -2027,16 +2038,18 @@ sub do_unlink {
     return;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : do_mkdir()
 # Purpose   : wrap 'mkdir' operation
 # Parameters: $dir => the directory to remove
 # Returns   : n/a
 # Throws    : fatal exception if operation fails
-# Comments  : outputs a message if 'verbose' option is set
-#           : does not perform operation if 'simulate' option is set
-# Comments  : cleans up operations that undo previous operations
-#============================================================================
+#
+# Outputs a message if 'verbose' option is set.
+# Does not perform operation if 'simulate' option is set.
+#
+# Cleans up operations that undo previous operations.
+# ============================================================================
 sub do_mkdir {
     my $self = shift;
     my ($dir) = @_;
@@ -2090,15 +2103,16 @@ sub do_mkdir {
     return;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : do_rmdir()
 # Purpose   : wrap 'rmdir' operation
 # Parameters: $dir => the directory to remove
 # Returns   : n/a
 # Throws    : fatal exception if operation fails
-# Comments  : outputs a message if 'verbose' option is set
-#           : does not perform operation if 'simulate' option is set
-#============================================================================
+#
+# Outputs a message if 'verbose' option is set.
+# Does not perform operation if 'simulate' option is set.
+# ============================================================================
 sub do_rmdir {
     my $self = shift;
     my ($dir) = @_;
@@ -2144,15 +2158,16 @@ sub do_rmdir {
     return;
 }
 
-#===== METHOD ===============================================================
+# ===== METHOD ===============================================================
 # Name      : do_mv()
 # Purpose   : wrap 'move' operation for later processing
 # Parameters: $src => the file to move
 #           : $dst => the path to move it to
 # Returns   : n/a
 # Throws    : error if this clashes with an existing planned operation
-# Comments  : alters contents of package installation image in stow dir
-#============================================================================
+#
+# Alters contents of package installation image in stow dir.
+# ============================================================================
 sub do_mv {
     my $self = shift;
     my ($src, $dst) = @_;
@@ -2198,14 +2213,13 @@ sub do_mv {
 # FIXME: Ideally these should be in a separate module.
 
 
-#===== PRIVATE SUBROUTINE ===================================================
+# ===== PRIVATE SUBROUTINE ===================================================
 # Name      : internal_error()
 # Purpose   : output internal error message in a consistent form and die
 # Parameters: $message => error message to output
 # Returns   : n/a
 # Throws    : n/a
-# Comments  : none
-#============================================================================
+# ============================================================================
 sub internal_error {
     my ($format, @args) = @_;
     my $error = sprintf($format, @args);
