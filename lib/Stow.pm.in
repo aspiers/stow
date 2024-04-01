@@ -869,15 +869,15 @@ sub unstow_link_node {
 
 sub unstow_valid_link {
     my $self = shift;
-    my ($pkg_path_from_cwd, $target_subpath, $existing_path) = @_;
+    my ($pkg_path_from_cwd, $target_subpath, $existing_pkg_path_from_cwd) = @_;
     # Does link points to the right place?
 
     # Adjust for dotfile if necessary.
     if ($self->{dotfiles}) {
-        $existing_path = adjust_dotfile($existing_path);
+        $existing_pkg_path_from_cwd = adjust_dotfile($existing_pkg_path_from_cwd);
     }
 
-    if ($existing_path eq $pkg_path_from_cwd) {
+    if ($existing_pkg_path_from_cwd eq $pkg_path_from_cwd) {
         $self->do_unlink($target_subpath);
     }
 
