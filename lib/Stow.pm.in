@@ -982,12 +982,13 @@ dangling.
 
 =back
 
-Returns C<($path, $stow_path, $package)> where C<$path> and
-C<$stow_path> are relative from the top-level target directory.
-C<$path> is the full relative path to the member of the package
-pointed to by C<$link_dest>; C<$stow_path> is the relative path to the
-stow directory; and C<$package> is the name of the package; or C<('',
-'', '')> if link is not owned by stow.
+Returns C<($pkg_path_from_cwd, $stow_path, $package)> where
+C<$pkg_path_from_cwd> and C<$stow_path> are relative from the
+top-level target directory.  C<$pkg_path_from_cwd> is the full
+relative path to the member of the package pointed to by
+C<$link_dest>; C<$stow_path> is the relative path to the stow
+directory; and C<$package> is the name of the package; or C<('', '',
+'')> if link is not owned by stow.
 
 cwd must be the top-level target directory, otherwise
 C<find_containing_marked_stow_dir()> won't work.  Allow for stow dir
@@ -1009,25 +1010,25 @@ sub find_stowed_path {
     # what's actually on the filesystem, since the link might not
     # exist yet.
     debug(4, 2, "find_stowed_path(target=$target_subpath; source=$link_dest)");
-    my $dest = join_paths(parent($target_subpath), $link_dest);
-    debug(4, 3, "is symlink destination $dest owned by stow?");
+    my $pkg_path_from_cwd = join_paths(parent($target_subpath), $link_dest);
+    debug(4, 3, "is symlink destination $pkg_path_from_cwd owned by stow?");
 
     # First check whether the link is owned by the current stow
-    # directory, in which case $dest will be a prefix of
+    # directory, in which case $pkg_path_from_cwd will be a prefix of
     # $self->{stow_path}.
-    my ($package, $path) = $self->link_dest_within_stow_dir($dest);
+    my ($package, $pkg_subpath) = $self->link_dest_within_stow_dir($pkg_path_from_cwd);
     if (length $package) {
-        debug(4, 3, "yes - package $package in $self->{stow_path} may contain $path");
-        return ($dest, $self->{stow_path}, $package);
+        debug(4, 3, "yes - package $package in $self->{stow_path} may contain $pkg_subpath");
+        return ($pkg_path_from_cwd, $self->{stow_path}, $package);
     }
 
     # If no .stow file was found, we need to find out whether it's
-    # owned by the current stow directory, in which case $path will be
-    # a prefix of $self->{stow_path}.
-    my ($stow_path, $ext_package) = $self->find_containing_marked_stow_dir($dest);
+    # owned by the current stow directory, in which case
+    # $pkg_path_from_cwd will be a prefix of $self->{stow_path}.
+    my ($stow_path, $ext_package) = $self->find_containing_marked_stow_dir($pkg_path_from_cwd);
     if (length $stow_path) {
-        debug(5, 5, "yes - $stow_path in $dest was marked as a stow dir; package=$ext_package");
-        return ($dest, $stow_path, $ext_package);
+        debug(5, 5, "yes - $stow_path in $pkg_path_from_cwd was marked as a stow dir; package=$ext_package");
+        return ($pkg_path_from_cwd, $stow_path, $ext_package);
     }
 
     return ('', '', '');
