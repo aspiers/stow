@@ -678,9 +678,9 @@ sub should_skip_target {
 # marked_stow_dir() won't work.
 sub marked_stow_dir {
     my $self = shift;
-    my ($path) = @_;
-    if (-e join_paths($path, ".stow")) {
-        debug(5, 5, "> $path contained .stow");
+    my ($dir) = @_;
+    if (-e join_paths($dir, ".stow")) {
+        debug(5, 5, "> $dir contained .stow");
         return 1;
     }
     return 0;
