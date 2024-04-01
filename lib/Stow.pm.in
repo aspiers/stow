@@ -281,20 +281,11 @@ sub plan_unstow {
                 error("The stow directory $self->{stow_path} does not contain package $package");
             }
             debug(2, 0, "Planning unstow of package $package...");
-            if ($self->{compat}) {
-                $self->unstow_contents_orig(
-                    $package,
-                    '.',
-                    $pkg_path,
-                );
-            }
-            else {
-                $self->unstow_contents(
-                    $package,
-                    '.',
-                    $pkg_path,
-                );
-            }
+            $self->unstow_contents(
+                $package,
+                '.',
+                $pkg_path,
+            );
             debug(2, 0, "Planning unstow of package $package... done");
             $self->{action_count}++;
         }
@@ -696,115 +687,6 @@ sub marked_stow_dir {
     return 0;
 }
 
-=head2 unstow_contents_orig($package, $target)
-
-Unstow the contents of the given directory
-
-=over 4
-
-=item $package
-
-The package whose contents are being unstowed.
-
-=item $target
-
-Relative path to symlink target from the current directory.
-
-=back
-
-unstow_node_orig() and unstow_contents_orig() are mutually recursive.
-Here we traverse the target tree, rather than the source tree.
-
-=cut
-
-sub unstow_contents_orig {
-    my $self = shift;
-    my ($package, $target) = @_;
-
-    my $path = join_paths($self->{stow_path}, $package, $target);
-
-    return if $self->should_skip_target($target);
-
-    my $cwd = getcwd();
-    my $msg = "Unstowing from $target (compat mode, cwd=$cwd, stow dir=$self->{stow_path})";
-    $msg =~ s!$ENV{HOME}(/|$)!~$1!g;
-    debug(3, 0, $msg);
-    debug(4, 1, "source path is $path");
-    # In compat mode we traverse the target tree not the source tree,
-    # so we're unstowing the contents of /target/foo, there's no
-    # guarantee that the corresponding /stow/mypkg/foo exists.
-    error("unstow_contents_orig() called with non-directory target: $target")
-        unless -d $target;
-
-    opendir my $DIR, $target
-        or error("cannot read directory: $target ($!)");
-    my @listing = readdir $DIR;
-    closedir $DIR;
-
-    NODE:
-    for my $node (@listing) {
-        next NODE if $node eq '.';
-        next NODE if $node eq '..';
-        my $node_target = join_paths($target, $node);
-        next NODE if $self->ignore($self->{stow_path}, $package, $node_target);
-        $self->unstow_node_orig($package, $node_target);
-    }
-}
-
-=head2 unstow_node_orig($package, $target)
-
-Unstow the given node
-
-=over 4
-
-=item $package
-
-The package containing the node being stowed.
-
-=item $target
-
-Relative path to symlink target from the current directory.
-
-=back
-
-C<unstow_node()> and C<unstow_contents()> are mutually recursive.
-
-=cut
-
-sub unstow_node_orig {
-    my $self = shift;
-    my ($package, $target) = @_;
-
-    my $path = join_paths($self->{stow_path}, $package, $target);
-
-    debug(3, 0, "Unstowing $target (compat mode)");
-    debug(4, 1, "source path is $path");
-
-    # Does the target exist?
-    if ($self->is_a_link($target)) {
-        $self->unstow_link_node($package, $target, $path);
-    }
-    elsif (-d $target) {
-        $self->unstow_contents_orig($package, $target);
-
-        # This action may have made the parent directory foldable
-        if (my $parent = $self->foldable($target)) {
-            $self->fold_tree($target, $parent);
-        }
-    }
-    elsif (-e $target) {
-        $self->conflict(
-            'unstow',
-            $package,
-            "existing target is neither a link nor a directory: $target",
-        );
-    }
-    else {
-        debug(2, 0, "$target did not exist to be unstowed");
-    }
-    return;
-}
-
 =head2 unstow_contents($package, $target)
 
 Unstow the contents of the given directory
@@ -837,17 +719,29 @@ sub unstow_contents {
     $msg =~ s!$ENV{HOME}/!~/!g;
     debug(3, 0, $msg);
     debug(4, 1, "source path is $path");
-    # We traverse the source tree not the target tree, so $path must exist.
-    error("unstow_contents() called with non-directory path: $path")
-        unless -d $path;
-    # When called at the top level, $target should exist.  And
-    # unstow_node() should only call this via mutual recursion if
-    # $target exists.
-    error("unstow_contents() called with invalid target: $target")
-        unless $self->is_a_node($target);
 
-    opendir my $DIR, $path
-        or error("cannot read directory: $path ($!)");
+    if ($self->{compat}) {
+        # In compat mode we traverse the target tree not the source tree,
+        # so we're unstowing the contents of /target/foo, there's no
+        # guarantee that the corresponding /stow/mypkg/foo exists.
+        error("unstow_contents() in compat mode called with non-directory target: $target")
+            unless -d $target;
+    }
+    else {
+        # We traverse the source tree not the target tree, so $path must exist.
+        error("unstow_contents() called with non-directory path: $path")
+            unless -d $path;
+
+        # When called at the top level, $target should exist.  And
+        # unstow_node() should only call this via mutual recursion if
+        # $target exists.
+        error("unstow_contents() called with invalid target: $target")
+            unless $self->is_a_node($target);
+    }
+
+    my $dir = $self->{compat} ? $target : $path;
+    opendir my $DIR, $dir
+        or error("cannot read directory: $dir ($!)");
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -866,7 +760,8 @@ sub unstow_contents {
 
         $self->unstow_node($package, $node_target, join_paths($path, $node));
     }
-    if (-d $target) {
+
+    if (! $self->{compat} && -d $target) {
         $self->cleanup_invalid_links($target);
     }
 }
@@ -904,8 +799,25 @@ sub unstow_node {
     if ($self->is_a_link($target)) {
         $self->unstow_link_node($package, $target, $path);
     }
+    elsif ($self->{compat} && -d $target) {
+        $self->unstow_contents($package, $target, $path);
+
+        # This action may have made the parent directory foldable
+        if (my $parent = $self->foldable($target)) {
+            $self->fold_tree($target, $parent);
+        }
+    }
     elsif (-e $target) {
-        $self->unstow_existing_node($package, $target, $source);
+        if ($self->{compat}) {
+            $self->conflict(
+                'unstow',
+                $package,
+                "existing target is neither a link nor a directory: $target",
+            );
+        }
+        else {
+            $self->unstow_existing_node($package, $target, $source);
+        }
     }
     else {
         debug(2, 1, "$target did not exist to be unstowed");
