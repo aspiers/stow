@@ -101,7 +101,8 @@ subtest("Link to a new dir 'bin4' conflicts with existing non-dir so can't unfol
     $stow->plan_stow('pkg4');
     %conflicts = $stow->get_conflicts();
     is($stow->get_conflict_count, 1);
-    ok($conflicts{stow}{pkg4}[0] =~
+    like(
+        $conflicts{stow}{pkg4}[0],
         qr/existing target is neither a link nor a directory/
         => 'link to new dir bin4 conflicts with existing non-directory'
     );
