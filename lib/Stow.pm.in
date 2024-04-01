@@ -1241,25 +1241,24 @@ sub foldable {
     my $parent = '';
     NODE:
     for my $node (@listing) {
-
         next NODE if $node eq '.';
         next NODE if $node eq '..';
 
-        my $path =  join_paths($target_subdir, $node);
+        my $target_node_path = join_paths($target_subdir, $node);
 
         # Skip nodes scheduled for removal
-        next NODE if not $self->is_a_node($path);
+        next NODE if not $self->is_a_node($target_node_path);
 
         # If it's not a link then we can't fold its parent
-        if (not $self->is_a_link($path)) {
-            debug(3, 3, "Not foldable because $path not a link");
+        if (not $self->is_a_link($target_node_path)) {
+            debug(3, 3, "Not foldable because $target_node_path not a link");
             return '';
         }
 
         # Where is the link pointing?
-        my $source = $self->read_a_link($path);
+        my $source = $self->read_a_link($target_node_path);
         if (not $source) {
-            error("Could not read link $path");
+            error("Could not read link $target_node_path");
         }
         if ($parent eq '') {
             $parent = parent($source)
