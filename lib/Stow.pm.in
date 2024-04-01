@@ -484,8 +484,6 @@ Relative path to symlink source from the dir of target.
 =back
 
 C<stow_node()> and C<stow_contents()> are mutually recursive.
-C<$source> and C<$target_subpath> are used for creating the symlink.
-C<$target_subpath> is used for folding/unfolding trees as necessary.
 
 =cut
 
