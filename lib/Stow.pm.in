@@ -1022,6 +1022,8 @@ sub find_stowed_path {
     }
 
     # If no .stow file was found, we need to find out whether it's
+    # owned by the current stow directory, in which case $path will be
+    # a prefix of $self->{stow_path}.
     my ($stow_path, $ext_package) = $self->find_containing_marked_stow_dir($dest);
     if (length $stow_path) {
         debug(5, 5, "yes - $stow_path in $dest was marked as a stow dir; package=$ext_package");
