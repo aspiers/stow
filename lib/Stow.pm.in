@@ -1043,8 +1043,8 @@ Detect whether symlink destination is within current stow dir
 
 =back
 
-Returns C<($package, $path)> - package within the current stow dir
-and subpath within that package which the symlink points to.
+Returns C<($package, $pkg_subpath)> - package within the current stow
+dir and subpath within that package which the symlink points to.
 
 =cut
 
@@ -1063,8 +1063,8 @@ sub link_dest_within_stow_dir {
     debug(4, 4, "remaining after removing $self->{stow_path}: $link_dest");
     my @dirs = File::Spec->splitdir($link_dest);
     my $package = shift @dirs;
-    my $path = File::Spec->catdir(@dirs);
-    return ($package, $path);
+    my $pkg_subpath = File::Spec->catdir(@dirs);
+    return ($package, $pkg_subpath);
 }
 
 =head2 find_containing_marked_stow_dir($pkg_path_from_cwd)
