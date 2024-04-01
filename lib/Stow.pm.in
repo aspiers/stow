@@ -1205,36 +1205,36 @@ sub cleanup_invalid_links {
 }
 
 
-=head2 foldable($target)
+=head2 foldable($target_subdir)
 
 Determine whether a tree can be folded
 
 =over 4
 
-=item $target
+=item $target_subdir
 
 path to a directory
 
 =back
 
 Returns path to the parent dir iff the tree can be safely folded.  The
-path returned is relative to the parent of $target, i.e. it can be
+path returned is relative to the parent of $target_subdir, i.e. it can be
 used as the source for a replacement symlink.
 
 =cut
 
 sub foldable {
     my $self = shift;
-    my ($target) = @_;
+    my ($target_subdir) = @_;
 
-    debug(3, 2, "Is $target foldable?");
+    debug(3, 2, "Is $target_subdir foldable?");
     if ($self->{'no-folding'}) {
         debug(3, 3, "no because --no-folding enabled");
         return '';
     }
 
-    opendir my $DIR, $target
-        or error(qq{Cannot read directory "$target" ($!)\n});
+    opendir my $DIR, $target_subdir
+        or error(qq{Cannot read directory "$target_subdir" ($!)\n});
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -1245,7 +1245,7 @@ sub foldable {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
 
-        my $path =  join_paths($target, $node);
+        my $path =  join_paths($target_subdir, $node);
 
         # Skip nodes scheduled for removal
         next NODE if not $self->is_a_node($path);
@@ -1267,16 +1267,16 @@ sub foldable {
     }
     return '' if not $parent;
 
-    # If we get here then all nodes inside $target are links, and those links
+    # If we get here then all nodes inside $target_subdir are links, and those links
     # point to nodes inside the same directory.
 
     # chop of leading '..' to get the path to the common parent directory
-    # relative to the parent of our $target
+    # relative to the parent of our $target_subdir
     $parent =~ s{\A\.\./}{};
 
     # If the resulting path is owned by stow, we can fold it
-    if ($self->link_owned_by_package($target, $parent)) {
-        debug(3, 3, "$target is foldable");
+    if ($self->link_owned_by_package($target_subdir, $parent)) {
+        debug(3, 3, "$target_subdir is foldable");
         return $parent;
     }
     else {

@@ -27,7 +27,7 @@ News file for Stow.
 ***** Improve readability of source code
 
       Quite a few extra details have been added in comments to clarify
-      how the code works.  Some variable names have also been
+      how the code works.  Many variable names have also been
       improved.  The comments of many Stow class methods have been
       converted into Perl POD format.
 
