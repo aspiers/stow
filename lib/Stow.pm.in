@@ -1856,7 +1856,7 @@ sub parent_link_scheduled_for_removal {
     my $prefix = '';
     for my $part (split m{/+}, $path) {
         $prefix = join_paths($prefix, $part);
-        debug(4, 2, "parent_link_scheduled_for_removal($path): prefix $prefix");
+        debug(5, 2, "parent_link_scheduled_for_removal($path): prefix $prefix");
         if (exists $self->{link_task_for}{$prefix} and
              $self->{link_task_for}{$prefix}->{action} eq 'remove') {
             debug(4, 2, "parent_link_scheduled_for_removal($path): link scheduled for removal");
