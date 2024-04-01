@@ -99,7 +99,7 @@ appear to be installed in a single directory tree.
 * Multiple Stow Directories::   Further segregating software.
 * Target Maintenance::          Cleaning up mistakes.
 * Resource Files::              Setting default command line options.
-* Compile-time vs Install-time::  Faking out `make install'.
+* Compile-time vs. Install-time::  Faking out `make install'.
 * Bootstrapping::               When stow and perl are not yet stowed.
 * Reporting Bugs::              How, what, where, and when to report.
 * Known Bugs::                  Don't report any of these.
@@ -316,7 +316,7 @@ context:
 the installation image, or some of its contents, and
 
 @item
-the location of symlinks (the ``source'' of the link, vs. its
+the location of symlinks (the ``source'' of the link, vs.@: its
 destination).
 
 @end enumerate
@@ -954,7 +954,7 @@ directory.
 @end table
 
 @c ===========================================================================
-@node Resource Files, Compile-time vs Install-time, Target Maintenance, Top
+@node Resource Files, Compile-time vs. Install-time, Target Maintenance, Top
 @chapter Resource Files
 @cindex resource files
 @cindex configuration files
@@ -1021,8 +1021,8 @@ resource files. This is also true of any package names given in the
 resource file.
 
 @c ===========================================================================
-@node Compile-time vs Install-time, Bootstrapping, Resource Files, Top
-@chapter Compile-time vs Install-time
+@node Compile-time vs. Install-time, Bootstrapping, Resource Files, Top
+@chapter Compile-time vs. Install-time
 
 Software whose installation is managed with Stow needs to be installed
 in one place (the package directory, e.g. @file{/usr/local/stow/perl})
@@ -1104,7 +1104,7 @@ following sections.
 @end menu
 
 @c ---------------------------------------------------------------------------
-@node GNU Emacs, Other FSF Software, Compile-time vs Install-time, Compile-time vs Install-time
+@node GNU Emacs, Other FSF Software, Compile-time vs. Install-time, Compile-time vs. Install-time
 @section GNU Emacs
 
 Although the Free Software Foundation has many enlightened practices
@@ -1137,7 +1137,7 @@ make do-install prefix=/usr/local/stow/emacs
 @end example
 
 @c ---------------------------------------------------------------------------
-@node Other FSF Software, Cygnus Software, GNU Emacs, Compile-time vs Install-time
+@node Other FSF Software, Cygnus Software, GNU Emacs, Compile-time vs. Install-time
 @section Other FSF Software
 
 The Free Software Foundation, the organization behind the GNU project,
@@ -1158,7 +1158,7 @@ and @samp{make install} steps to work correctly without needing to
 ``fool'' the build process.
 
 @c ---------------------------------------------------------------------------
-@node Cygnus Software, Perl and Perl 5 Modules, Other FSF Software, Compile-time vs Install-time
+@node Cygnus Software, Perl and Perl 5 Modules, Other FSF Software, Compile-time vs. Install-time
 @section Cygnus Software
 
 Cygnus is a commercial supplier and supporter of GNU software.  It has
@@ -1187,7 +1187,7 @@ is recompiling files.  Usually it will work just fine; otherwise,
 install manually.
 
 @c ---------------------------------------------------------------------------
-@node Perl and Perl 5 Modules,  , Cygnus Software, Compile-time vs Install-time
+@node Perl and Perl 5 Modules,  , Cygnus Software, Compile-time vs. Install-time
 @section Perl and Perl 5 Modules
 
 Perl 4.036 allows you to specify different locations for installation
@@ -1290,7 +1290,7 @@ find cpan.* \( -name .exists -o -name perllocal.pod \) -print | \
 
 
 @c ---------------------------------------------------------------------------
-@node Bootstrapping, Reporting Bugs, Compile-time vs Install-time, Top
+@node Bootstrapping, Reporting Bugs, Compile-time vs. Install-time, Top
 @chapter Bootstrapping
 
 Suppose you have a stow directory all set up and ready to go:
