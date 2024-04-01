@@ -1299,13 +1299,13 @@ sub foldable {
     }
 }
 
-=head2 fold_tree($target, $pkg_subpath)
+=head2 fold_tree($target_subdir, $pkg_subpath)
 
 Fold the given tree
 
 =over 4
 
-=item $target
+=item $target_subdir
 
 Directory that we will replace with a link to $pkg_subpath.
 
@@ -1321,12 +1321,12 @@ Only called iff foldable() is true so we can remove some checks.
 
 sub fold_tree {
     my $self = shift;
-    my ($target, $pkg_subpath) = @_;
+    my ($target_subdir, $pkg_subpath) = @_;
 
-    debug(3, 0, "--- Folding tree: $target => $pkg_subpath");
+    debug(3, 0, "--- Folding tree: $target_subdir => $pkg_subpath");
 
-    opendir my $DIR, $target
-        or error(qq{Cannot read directory "$target" ($!)\n});
+    opendir my $DIR, $target_subdir
+        or error(qq{Cannot read directory "$target_subdir" ($!)\n});
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -1334,11 +1334,11 @@ sub fold_tree {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        next NODE if not $self->is_a_node(join_paths($target, $node));
-        $self->do_unlink(join_paths($target, $node));
+        next NODE if not $self->is_a_node(join_paths($target_subdir, $node));
+        $self->do_unlink(join_paths($target_subdir, $node));
     }
-    $self->do_rmdir($target);
-    $self->do_link($pkg_subpath, $target);
+    $self->do_rmdir($target_subdir);
+    $self->do_link($pkg_subpath, $target_subdir);
     return;
 }
 
