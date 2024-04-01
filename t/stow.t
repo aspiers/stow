@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 22;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -103,7 +103,7 @@ subtest("Package dir 'bin4' conflicts with existing non-dir so can't unfold", su
     is($stow->get_conflict_count, 1);
     like(
         $conflicts{stow}{pkg4}[0],
-        qr/existing target is neither a link nor a directory/
+        qr!cannot stow ../stow/pkg4/bin4 over existing target bin4 since neither a link nor a directory and --adopt not specified!
         => 'link to new dir bin4 conflicts with existing non-directory'
     );
 });
@@ -111,8 +111,7 @@ subtest("Package dir 'bin4' conflicts with existing non-dir so can't unfold", su
 subtest("Package dir 'bin4a' conflicts with existing non-dir " .
         "so can't unfold even with --adopt", sub {
     plan tests => 2;
-    #my $stow = new_Stow(adopt => 1);
-    my $stow = new_Stow();
+    my $stow = new_Stow(adopt => 1);
 
     make_file('bin4a'); # this is a file but named like a directory
     make_path('../stow/pkg4a/bin4a');
@@ -121,8 +120,9 @@ subtest("Package dir 'bin4a' conflicts with existing non-dir " .
     $stow->plan_stow('pkg4a');
     %conflicts = $stow->get_conflicts();
     is($stow->get_conflict_count, 1);
-    like($conflicts{stow}{pkg4a}[0],
-        qr/existing target is neither a link nor a directory/
+    like(
+        $conflicts{stow}{pkg4a}[0],
+        qr!cannot stow directory ../stow/pkg4a/bin4a over existing non-directory target bin4a!
         => 'link to new dir bin4a conflicts with existing non-directory'
     );
 });
@@ -146,10 +146,38 @@ subtest("Package files 'file4b' and 'bin4b' conflict with existing files", sub {
     %conflicts = $stow->get_conflicts();
     is($stow->get_conflict_count, 2 => 'conflict per file');
     for my $i (0, 1) {
+        my $target = $i ? 'file4b' : 'bin4b/file4b';
         like(
             $conflicts{stow}{pkg4b}[$i],
-            qr/existing target is neither a link nor a directory/
+            qr,cannot stow ../stow/pkg4b/$target over existing target $target since neither a link nor a directory and --adopt not specified,
             => 'link to file4b conflicts with existing non-directory'
+        );
+    }
+});
+
+subtest("Package files 'file4d' conflicts with existing directories", sub {
+    plan tests => 3;
+    my $stow = new_Stow();
+
+    # Populate target
+    make_path('file4d');  # this is a directory but named like a file to create the conflict
+    make_path('bin4d/file4d'); # same here
+
+    # Populate stow package
+    make_path('../stow/pkg4d');
+    make_file('../stow/pkg4d/file4d',       'file4d - version originally in stow package');
+    make_path('../stow/pkg4d/bin4d');
+    make_file('../stow/pkg4d/bin4d/file4d', 'bin4d/file4d - version originally in stow package');
+
+    $stow->plan_stow('pkg4d');
+    %conflicts = $stow->get_conflicts();
+    is($stow->get_conflict_count, 2 => 'conflict per file');
+    for my $i (0, 1) {
+        my $target = $i ? 'file4d' : 'bin4d/file4d';
+        like(
+            $conflicts{stow}{pkg4d}[$i],
+            qr!cannot stow non-directory ../stow/pkg4d/$target over existing directory target $target!
+            => 'link to file4d conflicts with existing non-directory'
         );
     }
 });

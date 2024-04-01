@@ -603,23 +603,45 @@ sub stow_node {
     elsif ($self->is_a_node($target_subpath)) {
         debug(4, 1, "Evaluate existing node: $target_subpath");
         if ($self->is_a_dir($target_subpath)) {
-            $self->stow_contents(
-                $self->{stow_path},
-                $package,
-                $pkg_subpath,
-                $target_subpath,
-            );
+            if (! -d $pkg_path_from_cwd) {
+                # FIXME: why wasn't this ever needed before?
+                $self->conflict(
+                    'stow',
+                    $package,
+                    "cannot stow non-directory $pkg_path_from_cwd over existing directory target $target_subpath"
+                );
+            }
+            else {
+                $self->stow_contents(
+                    $self->{stow_path},
+                    $package,
+                    $pkg_subpath,
+                    $target_subpath,
+                );
+            }
         }
         else {
+            # If we're here, $target_subpath is not a current or
+            # planned directory.
+
             if ($self->{adopt}) {
-                $self->do_mv($target_subpath, $pkg_path_from_cwd);
-                $self->do_link($link_dest, $target_subpath);
+                if (-d $pkg_path_from_cwd) {
+                    $self->conflict(
+                        'stow',
+                        $package,
+                        "cannot stow directory $pkg_path_from_cwd over existing non-directory target $target_subpath"
+                    );
+                }
+                else {
+                    $self->do_mv($target_subpath, $pkg_path_from_cwd);
+                    $self->do_link($link_dest, $target_subpath);
+                }
             }
             else {
                 $self->conflict(
                     'stow',
                     $package,
-                    "existing target is neither a link nor a directory: $target_subpath"
+                    "cannot stow $pkg_path_from_cwd over existing target $target_subpath since neither a link nor a directory and --adopt not specified"
                 );
             }
         }
