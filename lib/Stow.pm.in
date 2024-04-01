@@ -922,7 +922,7 @@ sub unstow_existing_node {
     }
 }
 
-=head2 link_owned_by_package($target_subpath, $source)
+=head2 link_owned_by_package($target_subpath, $link_dest)
 
 Determine whether the given link points to a member of a stowed
 package.
@@ -933,7 +933,7 @@ package.
 
 Path to a symbolic link under current directory.
 
-=item $source
+=item $link_dest
 
 Where that link points to.
 
@@ -947,10 +947,10 @@ Returns the package iff link is owned by stow, otherwise ''.
 
 sub link_owned_by_package {
     my $self = shift;
-    my ($target_subpath, $source) = @_;
+    my ($target_subpath, $link_dest) = @_;
 
     my ($pkg_path_from_cwd, $stow_path, $package) =
-        $self->find_stowed_path($target_subpath, $source);
+        $self->find_stowed_path($target_subpath, $link_dest);
     return $package;
 }
 
