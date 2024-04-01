@@ -839,9 +839,9 @@ sub unstow_link_node {
     }
 
     # Does it point to a node under any stow directory?
-    my ($existing_path, $existing_stow_path, $existing_package) =
+    my ($existing_pkg_path_from_cwd, $existing_stow_path, $existing_package) =
         $self->find_stowed_path($target_subpath, $link_dest);
-    if (not $existing_path) {
+    if (not $existing_pkg_path_from_cwd) {
         if ($self->{compat}) {
             # We're traversing the target tree not the package tree,
             # so we definitely expect to find stuff not owned by stow.
@@ -859,8 +859,8 @@ sub unstow_link_node {
     }
 
     # Does the existing $target_subpath actually point to anything?
-    if (-e $existing_path) {
-        $self->unstow_valid_link($pkg_path_from_cwd, $target_subpath, $existing_path);
+    if (-e $existing_pkg_path_from_cwd) {
+        $self->unstow_valid_link($pkg_path_from_cwd, $target_subpath, $existing_pkg_path_from_cwd);
     }
     else {
         debug(2, 0, "--- removing invalid link into a stow directory: $pkg_path_from_cwd");
