@@ -782,40 +782,7 @@ sub unstow_node_orig {
 
     # Does the target exist?
     if ($self->is_a_link($target)) {
-        debug(4, 1, "Evaluate existing link: $target");
-
-        # Where is the link pointing?
-        my $existing_source = $self->read_a_link($target);
-        if (not $existing_source) {
-            error("Could not read link: $target");
-        }
-
-        # Does it point to a node under any stow directory?
-        my ($existing_path, $existing_stow_path, $existing_package) =
-            $self->find_stowed_path($target, $existing_source);
-        if (not $existing_path) {
-            # We're traversing the target tree not the package tree,
-            # so we definitely expect to find stuff not owned by stow.
-            # Therefore we can't flag a conflict.
-            return; # XXX #
-        }
-
-        # Does the existing $target actually point to anything?
-        if (-e $existing_path) {
-            # Does link point to the right place?
-            if ($existing_path eq $path) {
-                $self->do_unlink($target);
-            }
-            elsif ($self->override($target)) {
-                debug(2, 0, "--- overriding installation of: $target");
-                $self->do_unlink($target);
-            }
-            # else leave it alone
-        }
-        else {
-            debug(2, 0, "--- removing invalid link into a stow directory: $path");
-            $self->do_unlink($target);
-        }
+        $self->unstow_link_node($package, $target, $path);
     }
     elsif (-d $target) {
         $self->unstow_contents_orig($package, $target);
@@ -966,12 +933,20 @@ sub unstow_link_node {
     my ($existing_path, $existing_stow_path, $existing_package) =
         $self->find_stowed_path($target, $existing_source);
     if (not $existing_path) {
-         $self->conflict(
-             'unstow',
-             $package,
-             "existing target is not owned by stow: $target => $existing_source"
-         );
-        return; # XXX #
+        if ($self->{compat}) {
+            # We're traversing the target tree not the package tree,
+            # so we definitely expect to find stuff not owned by stow.
+            # Therefore we can't flag a conflict.
+            return;
+        }
+        else {
+            $self->conflict(
+                'unstow',
+                $package,
+                "existing target is not owned by stow: $target => $existing_source"
+            );
+        }
+        return;
     }
 
     # Does the existing $target actually point to anything?
