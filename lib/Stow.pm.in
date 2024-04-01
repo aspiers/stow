@@ -1213,13 +1213,14 @@ Determine whether a tree can be folded
 
 =item $target_subdir
 
-path to a directory
+Path to the target sub-directory to check for foldability, relative to
+the current directory (the top-level target directory).
 
 =back
 
 Returns path to the parent dir iff the tree can be safely folded.  The
-path returned is relative to the parent of $target_subdir, i.e. it can be
-used as the source for a replacement symlink.
+path returned is relative to the parent of C<$target_subdir>, i.e. it
+can be used as the source for a replacement symlink.
 
 =cut
 
@@ -1238,7 +1239,16 @@ sub foldable {
     my @listing = readdir $DIR;
     closedir $DIR;
 
-    my $parent = '';
+    # We want to see if all the symlinks in $target_subdir point to
+    # files under the same parent subdirectory in the package
+    # (e.g. ../../stow/pkg1/common_dir/file1).  So remember which
+    # parent subdirectory we've already seen, and if we come across a
+    # second one which is different,
+    # (e.g. ../../stow/pkg2/common_dir/file2), then $target_subdir
+    # common_dir which contains file{1,2} cannot be folded to be
+    # a symlink to (say) ../../stow/pkg1/common_dir.
+    my $parent_in_pkg = '';
+
     NODE:
     for my $node (@listing) {
         next NODE if $node eq '.';
@@ -1256,31 +1266,35 @@ sub foldable {
         }
 
         # Where is the link pointing?
-        my $source = $self->read_a_link($target_node_path);
-        if (not $source) {
+        my $link_dest = $self->read_a_link($target_node_path);
+        if (not $link_dest) {
             error("Could not read link $target_node_path");
         }
-        if ($parent eq '') {
-            $parent = parent($source)
+        my $new_parent = parent($link_dest);
+        if ($parent_in_pkg eq '') {
+            $parent_in_pkg = $new_parent;
         }
-        elsif ($parent ne parent($source)) {
-            debug(3, 3, "Not foldable because $parent != parent of $source");
+        elsif ($parent_in_pkg ne $new_parent) {
+            debug(3, 3, "Not foldable because $target_subdir contains links to entries in both $parent_in_pkg and $new_parent");
             return '';
         }
     }
-    return '' if not $parent;
+    if (not $parent_in_pkg) {
+        debug(3, 3, "Not foldable because $target_subdir contains no links");
+        return '';
+    }
 
     # If we get here then all nodes inside $target_subdir are links,
     # and those links point to nodes inside the same directory.
 
     # chop of leading '..' to get the path to the common parent directory
     # relative to the parent of our $target_subdir
-    $parent =~ s{\A\.\./}{};
+    $parent_in_pkg =~ s{\A\.\./}{};
 
     # If the resulting path is owned by stow, we can fold it
-    if ($self->link_owned_by_package($target_subdir, $parent)) {
+    if ($self->link_owned_by_package($target_subdir, $parent_in_pkg)) {
         debug(3, 3, "$target_subdir is foldable");
-        return $parent;
+        return $parent_in_pkg;
     }
     else {
         debug(3, 3, "$target_subdir is not foldable");
