@@ -66,7 +66,7 @@ sub uncapture_stderr {
 }
 
 sub init_test_dirs {
-    -d "t" or die "Was expecting tests to be run from root of repo\n";
+    -d "t" or croak "Was expecting tests to be run from root of repo\n";
 
     # Create a run_from/ subdirectory for tests which want to run
     # from a separate directory outside the Stow directory or
@@ -112,12 +112,12 @@ sub make_link {
 
     if (-l $target) {
         my $old_source = readlink join('/', parent($target), $source) 
-            or die "$target is already a link but could not read link $target/$source";
+            or croak "$target is already a link but could not read link $target/$source";
         if ($old_source ne $source) {
-            die "$target already exists but points elsewhere\n";
+            croak "$target already exists but points elsewhere\n";
         }
     }
-    die "$target already exists and is not a link\n" if -e $target;
+    croak "$target already exists and is not a link\n" if -e $target;
     my $abs_target = File::Spec->rel2abs($target);
     my $target_container = dirname($abs_target);
     my $abs_source = File::Spec->rel2abs($source, $target_container);
@@ -131,7 +131,7 @@ sub make_link {
             unless $invalid;
     }
     symlink $source, $target
-        or die "could not create link $target => $source ($!)\n";
+        or croak "could not create link $target => $source ($!)\n";
 }
 
 #===== SUBROUTINE ===========================================================
@@ -161,11 +161,11 @@ sub make_file {
     my ($path, $contents) = @_;
 
     if (-e $path and ! -f $path) {
-        die "a non-file already exists at $path\n";
+        croak "a non-file already exists at $path\n";
     }
 
     open my $FILE ,'>', $path
-        or die "could not create file: $path ($!)\n";
+        or croak "could not create file: $path ($!)\n";
     print $FILE $contents if defined $contents;
     close $FILE;
 }
@@ -182,9 +182,9 @@ sub make_file {
 sub remove_link {
     my ($path) = @_;
     if (not -l $path) {
-        die qq(remove_link() called with a non-link: $path);
+        croak qq(remove_link() called with a non-link: $path);
     }
-    unlink $path or die "could not remove link: $path ($!)\n";
+    unlink $path or croak "could not remove link: $path ($!)\n";
     return;
 }
 
@@ -199,9 +199,9 @@ sub remove_link {
 sub remove_file {
     my ($path) = @_;
     if (-z $path) {
-        die "file at $path is non-empty\n";
+        croak "file at $path is non-empty\n";
     }
-    unlink $path or die "could not remove empty file: $path ($!)\n";
+    unlink $path or croak "could not remove empty file: $path ($!)\n";
     return;
 }
 
@@ -217,10 +217,10 @@ sub remove_dir {
     my ($dir) = @_;
 
     if (not -d $dir) {
-        die "$dir is not a directory";
+        croak "$dir is not a directory";
     }
 
-    opendir my $DIR, $dir or die "cannot read directory: $dir ($!)\n";
+    opendir my $DIR, $dir or croak "cannot read directory: $dir ($!)\n";
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -231,16 +231,16 @@ sub remove_dir {
 
         my $path = "$dir/$node";
         if (-l $path or (-f $path and -z $path) or $node eq $Stow::LOCAL_IGNORE_FILE) {
-            unlink $path or die "cannot unlink $path ($!)\n";
+            unlink $path or croak "cannot unlink $path ($!)\n";
         }
         elsif (-d "$path") {
             remove_dir($path);
         }
         else {
-            die "$path is not a link, directory, or empty file\n";
+            croak "$path is not a link, directory, or empty file\n";
         }
     }
-    rmdir $dir or die "cannot rmdir $dir ($!)\n";
+    rmdir $dir or croak "cannot rmdir $dir ($!)\n";
 
     return;
 }
@@ -255,7 +255,7 @@ sub remove_dir {
 #============================================================================
 sub cd {
     my ($dir) = @_;
-    chdir $dir or die "Failed to chdir($dir): $!\n";
+    chdir $dir or croak "Failed to chdir($dir): $!\n";
 }
 
 #===== SUBROUTINE ===========================================================
@@ -268,7 +268,7 @@ sub cd {
 #============================================================================
 sub cat_file {
     my ($file) = @_;
-    open F, $file or die "Failed to open($file): $!\n";
+    open F, $file or croak "Failed to open($file): $!\n";
     my $contents = join '', <F>;
     close(F);
     return $contents;
