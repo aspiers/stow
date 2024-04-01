@@ -528,7 +528,7 @@ sub stow_node {
                 $package,
                 "existing target is not owned by stow: $target_subpath"
             );
-            return; # XXX #
+            return;
         }
 
         # Does the existing $target_subpath actually point to anything?
@@ -834,7 +834,7 @@ sub unstow_link_node {
 
     if ($link_dest =~ m{\A/}) {
         warn "Ignoring an absolute symlink: $target_subpath => $link_dest\n";
-        return; # XXX #
+        return;
     }
 
     # Does it point to a node under any stow directory?
@@ -881,7 +881,7 @@ sub unstow_valid_link {
         $self->do_unlink($target_subpath);
     }
 
-    # XXX we quietly ignore links that are stowed to a different
+    # FIXME: we quietly ignore links that are stowed to a different
     # package.
 
     #elsif (defer($target_subpath)) {
