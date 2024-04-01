@@ -1849,14 +1849,14 @@ sub dir_task_action {
     return $action;
 }
 
-=head2 parent_link_scheduled_for_removal($path)
+=head2 parent_link_scheduled_for_removal($target_path)
 
 Determine whether the given path or any parent thereof is a link
 scheduled for removal
 
 =over 4
 
-=item $path
+=item $target_path
 
 =back
 
@@ -1866,30 +1866,30 @@ Returns boolean
 
 sub parent_link_scheduled_for_removal {
     my $self = shift;
-    my ($path) = @_;
+    my ($target_path) = @_;
 
     my $prefix = '';
-    for my $part (split m{/+}, $path) {
+    for my $part (split m{/+}, $target_path) {
         $prefix = join_paths($prefix, $part);
-        debug(5, 4, "| parent_link_scheduled_for_removal($path): prefix $prefix");
+        debug(5, 4, "| parent_link_scheduled_for_removal($target_path): prefix $prefix");
         if (exists $self->{link_task_for}{$prefix} and
              $self->{link_task_for}{$prefix}->{action} eq 'remove') {
-            debug(4, 4, "| parent_link_scheduled_for_removal($path): link scheduled for removal");
+            debug(4, 4, "| parent_link_scheduled_for_removal($target_path): link scheduled for removal");
             return 1;
         }
     }
 
-    debug(4, 4, "| parent_link_scheduled_for_removal($path): returning false");
+    debug(4, 4, "| parent_link_scheduled_for_removal($target_path): returning false");
     return 0;
 }
 
-=head2 is_a_link($path)
+=head2 is_a_link($target_path)
 
 Determine if the given path is a current or planned link.
 
 =over 4
 
-=item $path
+=item $target_path
 
 =back
 
@@ -1900,38 +1900,38 @@ a non-existent link is scheduled for creation.
 
 sub is_a_link {
     my $self = shift;
-    my ($path) = @_;
-    debug(4, 2, "is_a_link($path)");
+    my ($target_path) = @_;
+    debug(4, 2, "is_a_link($target_path)");
 
-    if (my $action = $self->link_task_action($path)) {
+    if (my $action = $self->link_task_action($target_path)) {
         if ($action eq 'remove') {
-            debug(4, 2, "is_a_link($path): returning 0 (remove action found)");
+            debug(4, 2, "is_a_link($target_path): returning 0 (remove action found)");
             return 0;
         }
         elsif ($action eq 'create') {
-            debug(4, 2, "is_a_link($path): returning 1 (create action found)");
+            debug(4, 2, "is_a_link($target_path): returning 1 (create action found)");
             return 1;
         }
     }
 
-    if (-l $path) {
+    if (-l $target_path) {
         # Check if any of its parent are links scheduled for removal
         # (need this for edge case during unfolding)
-        debug(4, 2, "is_a_link($path): is a real link");
-        return $self->parent_link_scheduled_for_removal($path) ? 0 : 1;
+        debug(4, 2, "is_a_link($target_path): is a real link");
+        return $self->parent_link_scheduled_for_removal($target_path) ? 0 : 1;
     }
 
-    debug(4, 2, "is_a_link($path): returning 0");
+    debug(4, 2, "is_a_link($target_path): returning 0");
     return 0;
 }
 
-=head2 is_a_dir($path)
+=head2 is_a_dir($target_path)
 
 Determine if the given path is a current or planned directory
 
 =over 4
 
-=item $path
+=item $target_path
 
 =back
 
@@ -1943,10 +1943,10 @@ need to be sure we are not just following a link.
 
 sub is_a_dir {
     my $self = shift;
-    my ($path) = @_;
-    debug(4, 1, "is_a_dir($path)");
+    my ($target_path) = @_;
+    debug(4, 1, "is_a_dir($target_path)");
 
-    if (my $action = $self->dir_task_action($path)) {
+    if (my $action = $self->dir_task_action($target_path)) {
         if ($action eq 'remove') {
             return 0;
         }
@@ -1955,24 +1955,24 @@ sub is_a_dir {
         }
     }
 
-    return 0 if $self->parent_link_scheduled_for_removal($path);
+    return 0 if $self->parent_link_scheduled_for_removal($target_path);
 
-    if (-d $path) {
-        debug(4, 1, "is_a_dir($path): real dir");
+    if (-d $target_path) {
+        debug(4, 1, "is_a_dir($target_path): real dir");
         return 1;
     }
 
-    debug(4, 1, "is_a_dir($path): returning false");
+    debug(4, 1, "is_a_dir($target_path): returning false");
     return 0;
 }
 
-=head2 is_a_node($path)
+=head2 is_a_node($target_path)
 
 Determine whether the given path is a current or planned node.
 
 =over 4
 
-=item $path
+=item $target_path
 
 =back
 
@@ -1984,19 +1984,19 @@ sure we are not just following a link.
 
 sub is_a_node {
     my $self = shift;
-    my ($path) = @_;
-    debug(4, 4, "| Checking whether $path is a current/planned node");
+    my ($target_path) = @_;
+    debug(4, 4, "| Checking whether $target_path is a current/planned node");
 
-    my $laction = $self->link_task_action($path);
-    my $daction = $self->dir_task_action($path);
+    my $laction = $self->link_task_action($target_path);
+    my $daction = $self->dir_task_action($target_path);
 
     if ($laction eq 'remove') {
         if ($daction eq 'remove') {
-            internal_error("removing link and dir: $path");
+            internal_error("removing link and dir: $target_path");
             return 0;
         }
         elsif ($daction eq 'create') {
-            # Assume that we're unfolding $path, and that the link
+            # Assume that we're unfolding $target_path, and that the link
             # removal action is earlier than the dir creation action
             # in the task queue.  FIXME: is this a safe assumption?
             return 1;
@@ -2007,13 +2007,13 @@ sub is_a_node {
     }
     elsif ($laction eq 'create') {
         if ($daction eq 'remove') {
-            # Assume that we're folding $path, and that the dir
+            # Assume that we're folding $target_path, and that the dir
             # removal action is earlier than the link creation action
             # in the task queue.  FIXME: is this a safe assumption?
             return 1;
         }
         elsif ($daction eq 'create') {
-            internal_error("creating link and dir: $path");
+            internal_error("creating link and dir: $target_path");
             return 1;
         }
         else { # no dir action
@@ -2033,14 +2033,14 @@ sub is_a_node {
         }
     }
 
-    return 0 if $self->parent_link_scheduled_for_removal($path);
+    return 0 if $self->parent_link_scheduled_for_removal($target_path);
 
-    if (-e $path) {
-        debug(4, 3, "| is_a_node($path): really exists");
+    if (-e $target_path) {
+        debug(4, 3, "| is_a_node($target_path): really exists");
         return 1;
     }
 
-    debug(4, 3, "| is_a_node($path): returning false");
+    debug(4, 3, "| is_a_node($target_path): returning false");
     return 0;
 }
 
