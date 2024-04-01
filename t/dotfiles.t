@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 use English qw(-no_match_vars);
 
 use Stow::Util qw(adjust_dotfile);
@@ -32,17 +32,12 @@ init_test_dirs();
 cd("$TEST_DIR/target");
 
 subtest('adjust_dotfile()', sub {
-    plan tests => 9;
+    plan tests => 4;
     my @TESTS = (
         ['file'],
+        ['dot-'],
+        ['dot-.'],
         ['dot-file', '.file'],
-        ['dir1/file'],
-        ['dir1/dir2/file'],
-        ['dir1/dir2/dot-file', 'dir1/dir2/.file'],
-        ['dir1/dot-dir2/file', 'dir1/.dir2/file'],
-        ['dir1/dot-dir2/dot-file', 'dir1/.dir2/.file'],
-        ['dot-dir1/dot-dir2/dot-file', '.dir1/.dir2/.file'],
-        ['dot-dir1/dot-dir2/file', '.dir1/.dir2/file'],
     );
     for my $test (@TESTS) {
         my ($input, $expected) = @$test;

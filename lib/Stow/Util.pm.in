@@ -239,17 +239,9 @@ sub restore_cwd {
 }
 
 sub adjust_dotfile {
-    my ($link_dest) = @_;
-
-    my @result = ();
-    for my $part (split m{/+}, $link_dest) {
-        if (($part ne "dot-") && ($part ne "dot-.")) {
-            $part =~ s/^dot-/./;
-        }
-        push @result, $part;
-    }
-
-    return join '/', @result;
+    my ($pkg_node) = @_;
+    (my $adjusted = $pkg_node) =~ s/^dot-([^.])/.$1/;
+    return $adjusted;
 }
 
 =head1 BUGS
