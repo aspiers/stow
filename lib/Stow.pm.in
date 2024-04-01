@@ -819,7 +819,6 @@ sub unstow_node {
     else {
         debug(2, 1, "$target_subpath did not exist to be unstowed");
     }
-    return;
 }
 
 sub unstow_link_node {
