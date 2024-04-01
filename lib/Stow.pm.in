@@ -800,8 +800,8 @@ sub unstow_node {
         $self->unstow_contents($package, $target_subpath, $pkg_path_from_cwd);
 
         # This action may have made the parent directory foldable
-        if (my $parent = $self->foldable($target_subpath)) {
-            $self->fold_tree($target_subpath, $parent);
+        if (my $parent_in_pkg = $self->foldable($target_subpath)) {
+            $self->fold_tree($target_subpath, $parent_in_pkg);
         }
     }
     elsif (-e $target_subpath) {
@@ -909,8 +909,8 @@ sub unstow_existing_node {
         $self->unstow_contents($package, $target_subpath, $source);
 
         # This action may have made the parent directory foldable
-        if (my $parent = $self->foldable($target_subpath)) {
-            $self->fold_tree($target_subpath, $parent);
+        if (my $parent_in_pkg = $self->foldable($target_subpath)) {
+            $self->fold_tree($target_subpath, $parent_in_pkg);
         }
     }
     else {
