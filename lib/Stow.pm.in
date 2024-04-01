@@ -701,7 +701,7 @@ Relative path to symlink target from the current directory.
 =back
 
 C<unstow_node()> and C<unstow_contents()> are mutually recursive.
-Here we traverse the source tree, rather than the target tree.
+Here we traverse the package tree, rather than the target tree.
 
 =cut
 
