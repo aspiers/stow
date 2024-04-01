@@ -500,12 +500,12 @@ sub stow_node {
 
     # Don't try to stow absolute symlinks (they can't be unstowed)
     if (-l $source) {
-        my $second_source = $self->read_a_link($source);
-        if ($second_source =~ m{\A/}) {
+        my $link_dest = $self->read_a_link($source);
+        if ($link_dest =~ m{\A/}) {
             $self->conflict(
                 'stow',
                 $package,
-                "source is an absolute symlink $source => $second_source"
+                "source is an absolute symlink $source => $link_dest"
             );
             debug(3, 0, "Absolute symlinks cannot be unstowed");
             return;
