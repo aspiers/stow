@@ -938,22 +938,7 @@ sub unstow_node {
         $self->unstow_link_node($package, $target, $path);
     }
     elsif (-e $target) {
-        debug(4, 2, "Evaluate existing node: $target");
-        if (-d $target) {
-            $self->unstow_contents($package, $target, $source);
-
-            # This action may have made the parent directory foldable
-            if (my $parent = $self->foldable($target)) {
-                $self->fold_tree($target, $parent);
-            }
-        }
-        else {
-            $self->conflict(
-                'unstow',
-                $package,
-                "existing target is neither a link nor a directory: $target",
-            );
-        }
+        $self->unstow_existing_node($package, $target, $source);
     }
     else {
         debug(2, 1, "$target did not exist to be unstowed");
@@ -1031,6 +1016,27 @@ sub unstow_valid_link {
     #        . "$target => $existing_source"
     #    );
     #}
+}
+
+sub unstow_existing_node {
+    my $self = shift;
+    my ($package, $target, $source) = @_;
+    debug(4, 2, "Evaluate existing node: $target");
+    if (-d $target) {
+        $self->unstow_contents($package, $target, $source);
+
+        # This action may have made the parent directory foldable
+        if (my $parent = $self->foldable($target)) {
+            $self->fold_tree($target, $parent);
+        }
+    }
+    else {
+        $self->conflict(
+            'unstow',
+            $package,
+            "existing target is neither a link nor a directory: $target",
+          );
+    }
 }
 
 =head2 link_owned_by_package($target, $source)
