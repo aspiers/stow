@@ -935,39 +935,7 @@ sub unstow_node {
 
     # Does the target exist?
     if ($self->is_a_link($target)) {
-        debug(4, 2, "Evaluate existing link: $target");
-
-        # Where is the link pointing?
-        my $existing_source = $self->read_a_link($target);
-        if (not $existing_source) {
-            error("Could not read link: $target");
-        }
-
-        if ($existing_source =~ m{\A/}) {
-            warn "Ignoring an absolute symlink: $target => $existing_source\n";
-            return; # XXX #
-        }
-
-        # Does it point to a node under any stow directory?
-        my ($existing_path, $existing_stow_path, $existing_package) =
-            $self->find_stowed_path($target, $existing_source);
-        if (not $existing_path) {
-             $self->conflict(
-                 'unstow',
-                 $package,
-                 "existing target is not owned by stow: $target => $existing_source"
-             );
-            return; # XXX #
-        }
-
-        # Does the existing $target actually point to anything?
-        if (-e $existing_path) {
-            $self->unstow_valid_link($path, $target, $existing_path);
-        }
-        else {
-            debug(2, 0, "--- removing invalid link into a stow directory: $path");
-            $self->do_unlink($target);
-        }
+        $self->unstow_link_node($package, $target, $path);
     }
     elsif (-e $target) {
         debug(4, 2, "Evaluate existing node: $target");
@@ -991,6 +959,44 @@ sub unstow_node {
         debug(2, 1, "$target did not exist to be unstowed");
     }
     return;
+}
+
+sub unstow_link_node {
+    my $self = shift;
+    my ($package, $target, $path) = @_;
+    debug(4, 2, "Evaluate existing link: $target");
+
+    # Where is the link pointing?
+    my $existing_source = $self->read_a_link($target);
+    if (not $existing_source) {
+        error("Could not read link: $target");
+    }
+
+    if ($existing_source =~ m{\A/}) {
+        warn "Ignoring an absolute symlink: $target => $existing_source\n";
+        return; # XXX #
+    }
+
+    # Does it point to a node under any stow directory?
+    my ($existing_path, $existing_stow_path, $existing_package) =
+        $self->find_stowed_path($target, $existing_source);
+    if (not $existing_path) {
+         $self->conflict(
+             'unstow',
+             $package,
+             "existing target is not owned by stow: $target => $existing_source"
+         );
+        return; # XXX #
+    }
+
+    # Does the existing $target actually point to anything?
+    if (-e $existing_path) {
+        $self->unstow_valid_link($path, $target, $existing_path);
+    }
+    else {
+        debug(2, 0, "--- removing invalid link into a stow directory: $path");
+        $self->do_unlink($target);
+    }
 }
 
 sub unstow_valid_link {
