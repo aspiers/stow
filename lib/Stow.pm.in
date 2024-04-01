@@ -361,7 +361,7 @@ sub within_target_do {
     debug(3, 0, "cwd restored to $cwd");
 }
 
-=head2 stow_contents($stow_path, $package, $target, $source)
+=head2 stow_contents($stow_path, $package, $target_subdir, $source)
 
 Stow the contents of the given directory.
 
@@ -379,7 +379,7 @@ Stow Directories" section of the manual).
 
 The package whose contents are being stowed.
 
-=item $target
+=item $target_subdir
 
 Subpath relative to package directory which needs stowing as a symlink
 at subpath relative to target directory.
@@ -390,15 +390,14 @@ Relative path from the (sub)dir of target to symlink source.
 
 =back
 
-C<stow_node()> and C<stow_contents()> are mutually recursive.  $source
-and $target are used for creating the symlink.  C<$path> is used for
-folding/unfolding trees as necessary.
+C<stow_node()> and C<stow_contents()> are mutually recursive.
+C<$source> and C<$target_subdir> are used for creating the symlink.
 
 =cut
 
 sub stow_contents {
     my $self = shift;
-    my ($stow_path, $package, $target, $source, $level) = @_;
+    my ($stow_path, $package, $target_subdir, $source, $level) = @_;
 
     # Calculate the path to the package directory or sub-directory
     # whose contents need to be stowed, relative to the current
@@ -414,7 +413,7 @@ sub stow_contents {
     my $n = 0;
     my $path = join '/', map { (++$n <= $level) ? ( ) : $_ } (split m{/+}, $source);
 
-    return if $self->should_skip_target($target);
+    return if $self->should_skip_target($target_subdir);
 
     my $cwd = getcwd();
     my $msg = "Stowing contents of $path (cwd=$cwd)";
@@ -424,8 +423,8 @@ sub stow_contents {
 
     error("stow_contents() called with non-directory package path: $path")
         unless -d $path;
-    error("stow_contents() called with non-directory target: $target")
-        unless $self->is_a_node($target);
+    error("stow_contents() called with non-directory target: $target_subdir")
+        unless $self->is_a_node($target_subdir);
 
     opendir my $DIR, $path
         or error("cannot read directory: $path ($!)");
@@ -436,7 +435,7 @@ sub stow_contents {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        my $node_target = join_paths($target, $node);
+        my $node_target = join_paths($target_subdir, $node);
         next NODE if $self->ignore($stow_path, $package, $node_target);
 
         if ($self->{dotfiles}) {
@@ -630,17 +629,17 @@ sub stow_node {
     return;
 }
 
-=head2 should_skip_target($target)
+=head2 should_skip_target($target_subdir)
 
-Determine whether target is a stow directory which should
-not be stowed to or unstowed from.  This mechanism protects
-stow directories from being altered by stow, and is a necessary
-safety check because the stow directory could live beneath the
-target directory.
+Determine whether C<$target_subdir> is a stow directory which should
+not be stowed to or unstowed from.  This mechanism protects stow
+directories from being altered by stow, and is a necessary safety
+check because the stow directory could live beneath the target
+directory.
 
 =over 4
 
-=item $target => relative path to symlink target from the current directory
+=item $target_subdir => relative path to symlink target from the current directory
 
 =back
 
@@ -710,12 +709,12 @@ Here we traverse the source tree, rather than the target tree.
 
 sub unstow_contents {
     my $self = shift;
-    my ($package, $target, $path) = @_;
+    my ($package, $target_subdir, $path) = @_;
 
-    return if $self->should_skip_target($target);
+    return if $self->should_skip_target($target_subdir);
 
     my $cwd = getcwd();
-    my $msg = "Unstowing from $target (cwd=$cwd, stow dir=$self->{stow_path})";
+    my $msg = "Unstowing from $target_subdir (cwd=$cwd, stow dir=$self->{stow_path})";
     $msg =~ s!$ENV{HOME}/!~/!g;
     debug(3, 0, $msg);
     debug(4, 1, "source path is $path");
@@ -724,22 +723,22 @@ sub unstow_contents {
         # In compat mode we traverse the target tree not the source tree,
         # so we're unstowing the contents of /target/foo, there's no
         # guarantee that the corresponding /stow/mypkg/foo exists.
-        error("unstow_contents() in compat mode called with non-directory target: $target")
-            unless -d $target;
+        error("unstow_contents() in compat mode called with non-directory target: $target_subdir")
+            unless -d $target_subdir;
     }
     else {
         # We traverse the source tree not the target tree, so $path must exist.
         error("unstow_contents() called with non-directory path: $path")
             unless -d $path;
 
-        # When called at the top level, $target should exist.  And
+        # When called at the top level, $target_subdir should exist.  And
         # unstow_node() should only call this via mutual recursion if
-        # $target exists.
-        error("unstow_contents() called with invalid target: $target")
-            unless $self->is_a_node($target);
+        # $target_subdir exists.
+        error("unstow_contents() called with invalid target: $target_subdir")
+            unless $self->is_a_node($target_subdir);
     }
 
-    my $dir = $self->{compat} ? $target : $path;
+    my $dir = $self->{compat} ? $target_subdir : $path;
     opendir my $DIR, $dir
         or error("cannot read directory: $dir ($!)");
     my @listing = readdir $DIR;
@@ -749,7 +748,7 @@ sub unstow_contents {
     for my $node (@listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
-        my $node_target = join_paths($target, $node);
+        my $node_target = join_paths($target_subdir, $node);
         next NODE if $self->ignore($self->{stow_path}, $package, $node_target);
 
         if ($self->{dotfiles}) {
@@ -761,12 +760,12 @@ sub unstow_contents {
         $self->unstow_node($package, $node_target, join_paths($path, $node));
     }
 
-    if (! $self->{compat} && -d $target) {
-        $self->cleanup_invalid_links($target);
+    if (! $self->{compat} && -d $target_subdir) {
+        $self->cleanup_invalid_links($target_subdir);
     }
 }
 
-=head2 unstow_node($package, $target)
+=head2 unstow_node($package, $target_subpath)
 
 Unstow the given node.
 
@@ -776,7 +775,7 @@ Unstow the given node.
 
 The package containing the node being unstowed.
 
-=item $target
+=item $target_subpath
 
 Relative path to symlink target from the current directory.
 
@@ -788,62 +787,62 @@ C<unstow_node()> and C<unstow_contents()> are mutually recursive.
 
 sub unstow_node {
     my $self = shift;
-    my ($package, $target, $source) = @_;
+    my ($package, $target_subpath, $source) = @_;
 
-    my $path = join_paths($self->{stow_path}, $package, $target);
+    my $path = join_paths($self->{stow_path}, $package, $target_subpath);
 
     debug(3, 1, "Unstowing $path");
-    debug(4, 2, "target is $target");
+    debug(4, 2, "target is $target_subpath");
 
     # Does the target exist?
-    if ($self->is_a_link($target)) {
-        $self->unstow_link_node($package, $target, $path);
+    if ($self->is_a_link($target_subpath)) {
+        $self->unstow_link_node($package, $target_subpath, $path);
     }
-    elsif ($self->{compat} && -d $target) {
-        $self->unstow_contents($package, $target, $path);
+    elsif ($self->{compat} && -d $target_subpath) {
+        $self->unstow_contents($package, $target_subpath, $path);
 
         # This action may have made the parent directory foldable
-        if (my $parent = $self->foldable($target)) {
-            $self->fold_tree($target, $parent);
+        if (my $parent = $self->foldable($target_subpath)) {
+            $self->fold_tree($target_subpath, $parent);
         }
     }
-    elsif (-e $target) {
+    elsif (-e $target_subpath) {
         if ($self->{compat}) {
             $self->conflict(
                 'unstow',
                 $package,
-                "existing target is neither a link nor a directory: $target",
+                "existing target is neither a link nor a directory: $target_subpath",
             );
         }
         else {
-            $self->unstow_existing_node($package, $target, $source);
+            $self->unstow_existing_node($package, $target_subpath, $source);
         }
     }
     else {
-        debug(2, 1, "$target did not exist to be unstowed");
+        debug(2, 1, "$target_subpath did not exist to be unstowed");
     }
     return;
 }
 
 sub unstow_link_node {
     my $self = shift;
-    my ($package, $target, $path) = @_;
-    debug(4, 2, "Evaluate existing link: $target");
+    my ($package, $target_subpath, $path) = @_;
+    debug(4, 2, "Evaluate existing link: $target_subpath");
 
     # Where is the link pointing?
-    my $existing_source = $self->read_a_link($target);
+    my $existing_source = $self->read_a_link($target_subpath);
     if (not $existing_source) {
-        error("Could not read link: $target");
+        error("Could not read link: $target_subpath");
     }
 
     if ($existing_source =~ m{\A/}) {
-        warn "Ignoring an absolute symlink: $target => $existing_source\n";
+        warn "Ignoring an absolute symlink: $target_subpath => $existing_source\n";
         return; # XXX #
     }
 
     # Does it point to a node under any stow directory?
     my ($existing_path, $existing_stow_path, $existing_package) =
-        $self->find_stowed_path($target, $existing_source);
+        $self->find_stowed_path($target_subpath, $existing_source);
     if (not $existing_path) {
         if ($self->{compat}) {
             # We're traversing the target tree not the package tree,
@@ -855,25 +854,25 @@ sub unstow_link_node {
             $self->conflict(
                 'unstow',
                 $package,
-                "existing target is not owned by stow: $target => $existing_source"
+                "existing target is not owned by stow: $target_subpath => $existing_source"
             );
         }
         return;
     }
 
-    # Does the existing $target actually point to anything?
+    # Does the existing $target_subpath actually point to anything?
     if (-e $existing_path) {
-        $self->unstow_valid_link($path, $target, $existing_path);
+        $self->unstow_valid_link($path, $target_subpath, $existing_path);
     }
     else {
         debug(2, 0, "--- removing invalid link into a stow directory: $path");
-        $self->do_unlink($target);
+        $self->do_unlink($target_subpath);
     }
 }
 
 sub unstow_valid_link {
     my $self = shift;
-    my ($path, $target, $existing_path) = @_;
+    my ($path, $target_subpath, $existing_path) = @_;
     # Does link points to the right place?
 
     # Adjust for dotfile if necessary.
@@ -882,58 +881,58 @@ sub unstow_valid_link {
     }
 
     if ($existing_path eq $path) {
-        $self->do_unlink($target);
+        $self->do_unlink($target_subpath);
     }
 
     # XXX we quietly ignore links that are stowed to a different
     # package.
 
-    #elsif (defer($target)) {
-    #    debug(2, 0, "--- deferring to installation of: $target");
+    #elsif (defer($target_subpath)) {
+    #    debug(2, 0, "--- deferring to installation of: $target_subpath");
     #}
-    #elsif ($self->override($target)) {
-    #    debug(2, 0, "--- overriding installation of: $target");
-    #    $self->do_unlink($target);
+    #elsif ($self->override($target_subpath)) {
+    #    debug(2, 0, "--- overriding installation of: $target_subpath");
+    #    $self->do_unlink($target_subpath);
     #}
     #else {
     #    $self->conflict(
     #        'unstow',
     #        $package,
     #        "existing target is stowed to a different package: "
-    #        . "$target => $existing_source"
+    #        . "$target_subpath => $existing_source"
     #    );
     #}
 }
 
 sub unstow_existing_node {
     my $self = shift;
-    my ($package, $target, $source) = @_;
-    debug(4, 2, "Evaluate existing node: $target");
-    if (-d $target) {
-        $self->unstow_contents($package, $target, $source);
+    my ($package, $target_subpath, $source) = @_;
+    debug(4, 2, "Evaluate existing node: $target_subpath");
+    if (-d $target_subpath) {
+        $self->unstow_contents($package, $target_subpath, $source);
 
         # This action may have made the parent directory foldable
-        if (my $parent = $self->foldable($target)) {
-            $self->fold_tree($target, $parent);
+        if (my $parent = $self->foldable($target_subpath)) {
+            $self->fold_tree($target_subpath, $parent);
         }
     }
     else {
         $self->conflict(
             'unstow',
             $package,
-            "existing target is neither a link nor a directory: $target",
+            "existing target is neither a link nor a directory: $target_subpath",
           );
     }
 }
 
-=head2 link_owned_by_package($target, $source)
+=head2 link_owned_by_package($target_subpath, $source)
 
 Determine whether the given link points to a member of a stowed
 package.
 
 =over 4
 
-=item $target
+=item $target_subpath
 
 Path to a symbolic link under current directory.
 
@@ -951,14 +950,14 @@ Returns the package iff link is owned by stow, otherwise ''.
 
 sub link_owned_by_package {
     my $self = shift;
-    my ($target, $source) = @_;
+    my ($target_subpath, $source) = @_;
 
     my ($path, $stow_path, $package) =
-        $self->find_stowed_path($target, $source);
+        $self->find_stowed_path($target_subpath, $source);
     return $package;
 }
 
-=head2 find_stowed_path($target, $link_dest)
+=head2 find_stowed_path($target_subpath, $link_dest)
 
 Determine whether the given symlink within the target directory is a
 stowed path pointing to a member of a package under the stow dir, and
@@ -966,7 +965,7 @@ if so, obtain a breakdown of information about this stowed path.
 
 =over 4
 
-=item $target
+=item $target_subpath
 
 Path to a symbolic link somewhere under the target directory, relative
 to the top-level target directory (which is also expected to be the
@@ -977,7 +976,7 @@ current directory).
 Where that link points to (needed because link might not exist yet due
 to two-phase approach, so we can't just call C<readlink()>).  If this
 is owned by Stow, it will be expressed relative to (the directory
-containing) C<$target>.  However if it's not, it could of course be
+containing) C<$target_subpath>.  However if it's not, it could of course be
 relative or absolute, point absolutely anywhere, and could even be
 dangling.
 
@@ -998,7 +997,7 @@ not being under target dir.
 
 sub find_stowed_path {
     my $self = shift;
-    my ($target, $link_dest) = @_;
+    my ($target_subpath, $link_dest) = @_;
 
     if (substr($link_dest, 0, 1) eq '/') {
         # Symlink points to an absolute path, therefore it cannot be
@@ -1009,8 +1008,8 @@ sub find_stowed_path {
     # Evaluate softlink relative to its target, without relying on
     # what's actually on the filesystem, since the link might not
     # exist yet.
-    debug(4, 2, "find_stowed_path(target=$target; source=$link_dest)");
-    my $dest = join_paths(parent($target), $link_dest);
+    debug(4, 2, "find_stowed_path(target=$target_subpath; source=$link_dest)");
+    my $dest = join_paths(parent($target_subpath), $link_dest);
     debug(4, 3, "is symlink destination $dest owned by stow?");
 
     # First check whether the link is owned by the current stow
@@ -1177,14 +1176,14 @@ sub cleanup_invalid_links {
             error("Could not read link $node_path");
         }
 
-        my $target = join_paths($dir, $link_dest);
+        my $target_subpath = join_paths($dir, $link_dest);
         debug(4, 2, "join $dir $link_dest");
-        if (-e $target) {
-            debug(4, 2, "Link target $link_dest exists at $target; skipping clean up");
+        if (-e $target_subpath) {
+            debug(4, 2, "Link target $link_dest exists at $target_subpath; skipping clean up");
             next;
         }
         else {
-            debug(4, 2, "Link target $link_dest doesn't exist at $target");
+            debug(4, 2, "Link target $link_dest doesn't exist at $target_subpath");
         }
 
         debug(3, 1,
