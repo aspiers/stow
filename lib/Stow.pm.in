@@ -826,7 +826,7 @@ sub unstow_node {
 
 sub unstow_link_node {
     my $self = shift;
-    my ($package, $target_subpath, $path) = @_;
+    my ($package, $target_subpath, $pkg_path_from_cwd) = @_;
     debug(4, 2, "Evaluate existing link: $target_subpath");
 
     # Where is the link pointing?
@@ -862,17 +862,17 @@ sub unstow_link_node {
 
     # Does the existing $target_subpath actually point to anything?
     if (-e $existing_path) {
-        $self->unstow_valid_link($path, $target_subpath, $existing_path);
+        $self->unstow_valid_link($pkg_path_from_cwd, $target_subpath, $existing_path);
     }
     else {
-        debug(2, 0, "--- removing invalid link into a stow directory: $path");
+        debug(2, 0, "--- removing invalid link into a stow directory: $pkg_path_from_cwd");
         $self->do_unlink($target_subpath);
     }
 }
 
 sub unstow_valid_link {
     my $self = shift;
-    my ($path, $target_subpath, $existing_path) = @_;
+    my ($pkg_path_from_cwd, $target_subpath, $existing_path) = @_;
     # Does link points to the right place?
 
     # Adjust for dotfile if necessary.
@@ -880,7 +880,7 @@ sub unstow_valid_link {
         $existing_path = adjust_dotfile($existing_path);
     }
 
-    if ($existing_path eq $path) {
+    if ($existing_path eq $pkg_path_from_cwd) {
         $self->do_unlink($target_subpath);
     }
 
@@ -952,7 +952,7 @@ sub link_owned_by_package {
     my $self = shift;
     my ($target_subpath, $source) = @_;
 
-    my ($path, $stow_path, $package) =
+    my ($pkg_path_from_cwd, $stow_path, $package) =
         $self->find_stowed_path($target_subpath, $source);
     return $package;
 }
