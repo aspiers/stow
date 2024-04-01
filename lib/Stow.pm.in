@@ -2029,45 +2029,45 @@ sub is_a_node {
     return 0;
 }
 
-=head2 read_a_link($path)
+=head2 read_a_link($link)
 
-Return the source of a current or planned link
+Return the destination of a current or planned link.
 
 =over 4
 
-=item $path
+=item $link
 
-path to the link target
+Path to the link target.
 
 =back
 
-Returns a string.  Throws a fatal exception if the given path is not a
-current or planned link.
+Returns the destination of the given link.  Throws a fatal exception
+if the given path is not a current or planned link.
 
 =cut
 
 sub read_a_link {
     my $self = shift;
-    my ($path) = @_;
+    my ($link) = @_;
 
-    if (my $action = $self->link_task_action($path)) {
-        debug(4, 1, "read_a_link($path): task exists with action $action");
+    if (my $action = $self->link_task_action($link)) {
+        debug(4, 1, "read_a_link($link): task exists with action $action");
 
         if ($action eq 'create') {
-            return $self->{link_task_for}{$path}->{source};
+            return $self->{link_task_for}{$link}->{source};
         }
         elsif ($action eq 'remove') {
             internal_error(
-                "read_a_link() passed a path that is scheduled for removal: $path"
+                "read_a_link() passed a path that is scheduled for removal: $link"
             );
         }
     }
-    elsif (-l $path) {
-        debug(4, 1, "read_a_link($path): real link");
-        my $target = readlink $path or error("Could not read link: $path ($!)");
-        return $target;
+    elsif (-l $link) {
+        debug(4, 1, "read_a_link($link): real link");
+        my $link_dest = readlink $link or error("Could not read link: $link ($!)");
+        return $link_dest;
     }
-    internal_error("read_a_link() passed a non link path: $path\n");
+    internal_error("read_a_link() passed a non-link path: $link\n");
 }
 
 =head2 do_link($link_dest, $link_src)
