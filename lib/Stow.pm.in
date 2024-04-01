@@ -1229,7 +1229,7 @@ sub foldable {
 
     debug(3, 2, "Is $target_subdir foldable?");
     if ($self->{'no-folding'}) {
-        debug(3, 3, "no because --no-folding enabled");
+        debug(3, 3, "Not foldable because --no-folding enabled");
         return '';
     }
 
@@ -1251,7 +1251,10 @@ sub foldable {
         next NODE if not $self->is_a_node($path);
 
         # If it's not a link then we can't fold its parent
-        return '' if not $self->is_a_link($path);
+        if (not $self->is_a_link($path)) {
+            debug(3, 3, "Not foldable because $path not a link");
+            return '';
+        }
 
         # Where is the link pointing?
         my $source = $self->read_a_link($path);
@@ -1262,13 +1265,14 @@ sub foldable {
             $parent = parent($source)
         }
         elsif ($parent ne parent($source)) {
+            debug(3, 3, "Not foldable because $parent != parent of $source");
             return '';
         }
     }
     return '' if not $parent;
 
-    # If we get here then all nodes inside $target_subdir are links, and those links
-    # point to nodes inside the same directory.
+    # If we get here then all nodes inside $target_subdir are links,
+    # and those links point to nodes inside the same directory.
 
     # chop of leading '..' to get the path to the common parent directory
     # relative to the parent of our $target_subdir
@@ -1280,6 +1284,7 @@ sub foldable {
         return $parent;
     }
     else {
+        debug(3, 3, "$target_subdir is not foldable");
         return '';
     }
 }
