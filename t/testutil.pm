@@ -24,7 +24,7 @@ package testutil;
 use strict;
 use warnings;
 
-use Carp qw(croak);
+use Carp qw(confess croak);
 use File::Basename;
 use File::Path qw(make_path remove_tree);
 use File::Spec;
@@ -50,17 +50,21 @@ our $TEST_DIR = 'tmp-testing-trees';
 our $ABS_TEST_DIR = File::Spec->rel2abs('tmp-testing-trees');
 
 sub init_test_dirs {
+    my $test_dir = shift || $TEST_DIR;
+    my $abs_test_dir = File::Spec->rel2abs($test_dir);
+
     # Create a run_from/ subdirectory for tests which want to run
     # from a separate directory outside the Stow directory or
     # target directory.
     for my $dir ("target", "stow", "run_from") {
-        my $path = "$TEST_DIR/$dir";
+        my $path = "$test_dir/$dir";
         -d $path and remove_tree($path);
         make_path($path);
     }
 
     # Don't let user's ~/.stow-global-ignore affect test results
-    $ENV{HOME} = $ABS_TEST_DIR;
+    $ENV{HOME} = $abs_test_dir;
+    return $abs_test_dir;
 }
 
 sub new_Stow {
@@ -70,7 +74,11 @@ sub new_Stow {
     $opts{dir}    ||= '../stow';
     $opts{target} ||= '.';
     $opts{test_mode} = 1;
-    return new Stow(%opts);
+    my $stow = eval { new Stow(%opts) };
+    if ($@) {
+        confess "Error while trying to instantiate new Stow(%opts): $@";
+    }
+    return $stow;
 }
 
 sub new_compat_Stow {

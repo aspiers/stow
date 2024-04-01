@@ -787,17 +787,15 @@ sub unstow_node {
     my $self = shift;
     my ($package, $target_subpath, $source) = @_;
 
-    my $pkg_path_from_cwd = join_paths($self->{stow_path}, $package, $target_subpath);
-
-    debug(3, 1, "Unstowing $pkg_path_from_cwd");
+    debug(3, 1, "Unstowing $source");
     debug(4, 2, "target is $target_subpath");
 
     # Does the target exist?
     if ($self->is_a_link($target_subpath)) {
-        $self->unstow_link_node($package, $target_subpath, $pkg_path_from_cwd);
+        $self->unstow_link_node($package, $target_subpath, $source);
     }
-    elsif ($self->{compat} && -d $target_subpath) {
-        $self->unstow_contents($package, $target_subpath, $pkg_path_from_cwd);
+    elsif (-d $target_subpath) {
+        $self->unstow_contents($package, $target_subpath, $source);
 
         # This action may have made the parent directory foldable
         if (my $parent_in_pkg = $self->foldable($target_subpath)) {
@@ -805,16 +803,7 @@ sub unstow_node {
         }
     }
     elsif (-e $target_subpath) {
-        if ($self->{compat}) {
-            $self->conflict(
-                'unstow',
-                $package,
-                "existing target is neither a link nor a directory: $target_subpath",
-            );
-        }
-        else {
-            $self->unstow_existing_node($package, $target_subpath, $source);
-        }
+        debug(2, 1, "$target_subpath doesn't need to be unstowed");
     }
     else {
         debug(2, 1, "$target_subpath did not exist to be unstowed");
@@ -859,66 +848,16 @@ sub unstow_link_node {
 
     # Does the existing $target_subpath actually point to anything?
     if (-e $existing_pkg_path_from_cwd) {
-        $self->unstow_valid_link($pkg_path_from_cwd, $target_subpath, $existing_pkg_path_from_cwd);
+        if ($existing_pkg_path_from_cwd eq $pkg_path_from_cwd) {
+            $self->do_unlink($target_subpath);
+        }
+        else {
+            debug(5, 3, "Ignoring link $target_subpath => $link_dest");
+        }
     }
     else {
         debug(2, 0, "--- removing invalid link into a stow directory: $pkg_path_from_cwd");
         $self->do_unlink($target_subpath);
-    }
-}
-
-sub unstow_valid_link {
-    my $self = shift;
-    my ($pkg_path_from_cwd, $target_subpath, $existing_pkg_path_from_cwd) = @_;
-    # Does link points to the right place?
-
-    # Adjust for dotfile if necessary.
-    if ($self->{dotfiles}) {
-        $existing_pkg_path_from_cwd = adjust_dotfile($existing_pkg_path_from_cwd);
-    }
-
-    if ($existing_pkg_path_from_cwd eq $pkg_path_from_cwd) {
-        $self->do_unlink($target_subpath);
-    }
-
-    # FIXME: we quietly ignore links that are stowed to a different
-    # package.
-
-    #elsif (defer($target_subpath)) {
-    #    debug(2, 0, "--- deferring to installation of: $target_subpath");
-    #}
-    #elsif ($self->override($target_subpath)) {
-    #    debug(2, 0, "--- overriding installation of: $target_subpath");
-    #    $self->do_unlink($target_subpath);
-    #}
-    #else {
-    #    $self->conflict(
-    #        'unstow',
-    #        $package,
-    #        "existing target is stowed to a different package: "
-    #        . "$target_subpath => $existing_source"
-    #    );
-    #}
-}
-
-sub unstow_existing_node {
-    my $self = shift;
-    my ($package, $target_subpath, $source) = @_;
-    debug(4, 2, "Evaluate existing node: $target_subpath");
-    if (-d $target_subpath) {
-        $self->unstow_contents($package, $target_subpath, $source);
-
-        # This action may have made the parent directory foldable
-        if (my $parent_in_pkg = $self->foldable($target_subpath)) {
-            $self->fold_tree($target_subpath, $parent_in_pkg);
-        }
-    }
-    else {
-        $self->conflict(
-            'unstow',
-            $package,
-            "existing target is neither a link nor a directory: $target_subpath",
-          );
     }
 }
 

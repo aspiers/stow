@@ -51,7 +51,7 @@ DEFAULT_IGNORE_LIST = $(srcdir)/default-ignore-list
 doc_deps = $(info_TEXINFOS) doc/version.texi $(DEFAULT_IGNORE_LIST)
 
 TESTS_DIR = $(srcdir)/t
-TESTS_OUT = tmp-testing-trees
+TESTS_OUT = tmp-testing-trees tmp-testing-trees-compat
 TESTS_ENVIRONMENT = $(PERL) -Ibin -Ilib -I$(TESTS_DIR)
 
 # This is a kind of hack; TESTS needs to be set to ensure that the

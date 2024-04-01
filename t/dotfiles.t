@@ -187,7 +187,7 @@ subtest("simple unstow scenario", sub {
     $stow->plan_unstow('dotfiles');
     $stow->process_tasks();
     is($stow->get_conflict_count, 0);
-    ok(-f '../stow/dotfiles/dot-bar');
+    ok(-f '../stow/dotfiles/dot-bar', 'package file untouched');
     ok(! -e '.bar' => 'unstow a simple dotfile');
 });
 

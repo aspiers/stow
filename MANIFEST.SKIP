@@ -83,7 +83,7 @@
 ^doc/HOWTO-RELEASE$
 
 # Avoid test files
-tmp-testing-trees
+tmp-testing-trees*
 ^.coveralls.yml
 ^.github/workflows/
 ^.travis.yml
