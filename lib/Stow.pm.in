@@ -1067,13 +1067,13 @@ sub link_dest_within_stow_dir {
     return ($package, $path);
 }
 
-=head2 find_containing_marked_stow_dir($path)
+=head2 find_containing_marked_stow_dir($pkg_path_from_cwd)
 
 Detect whether path is within a marked stow directory
 
 =over 4
 
-=item $path => path to directory to check
+=item $pkg_path_from_cwd => path to directory to check
 
 =back
 
@@ -1090,15 +1090,15 @@ C<marked_stow_dir()> won't work.
 
 sub find_containing_marked_stow_dir {
     my $self = shift;
-    my ($path) = @_;
+    my ($pkg_path_from_cwd) = @_;
 
     # Search for .stow files - this allows us to detect links
     # owned by stow directories other than the current one.
-    my @segments = File::Spec->splitdir($path);
+    my @segments = File::Spec->splitdir($pkg_path_from_cwd);
     for my $last_segment (0 .. $#segments) {
-        my $path = join_paths(@segments[0 .. $last_segment]);
-        debug(5, 5, "is $path marked stow dir?");
-        if ($self->marked_stow_dir($path)) {
+        my $pkg_path_from_cwd = join_paths(@segments[0 .. $last_segment]);
+        debug(5, 5, "is $pkg_path_from_cwd marked stow dir?");
+        if ($self->marked_stow_dir($pkg_path_from_cwd)) {
             if ($last_segment == $#segments) {
                 # This should probably never happen.  Even if it did,
                 # there would be no way of calculating $package.
@@ -1106,7 +1106,7 @@ sub find_containing_marked_stow_dir {
             }
 
             my $package = $segments[$last_segment + 1];
-            return ($path, $package);
+            return ($pkg_path_from_cwd, $package);
         }
     }
     return ('', '');
