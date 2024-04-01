@@ -90,7 +90,7 @@ subtest('unfold existing tree', sub {
         => 'target already has 1 stowed package');
 });
 
-subtest("Link to a new dir 'bin4' conflicts with existing non-dir so can't unfold", sub {
+subtest("Package dir 'bin4' conflicts with existing non-dir so can't unfold", sub {
     plan tests => 2;
     my $stow = new_Stow();
 
@@ -108,7 +108,7 @@ subtest("Link to a new dir 'bin4' conflicts with existing non-dir so can't unfol
     );
 });
 
-subtest("Link to a new dir 'bin4a' conflicts with existing non-dir " .
+subtest("Package dir 'bin4a' conflicts with existing non-dir " .
         "so can't unfold even with --adopt", sub {
     plan tests => 2;
     #my $stow = new_Stow(adopt => 1);
@@ -127,18 +127,19 @@ subtest("Link to a new dir 'bin4a' conflicts with existing non-dir " .
     );
 });
 
-subtest("Link to files 'file4b' and 'bin4b' conflict with existing files", sub {
+subtest("Package files 'file4b' and 'bin4b' conflict with existing files", sub {
     plan tests => 3;
     my $stow = new_Stow();
 
     # Populate target
     make_file('file4b',       'file4b - version originally in target');
-    make_path ('bin4b');
+    make_path('bin4b');
     make_file('bin4b/file4b', 'bin4b/file4b - version originally in target');
 
-    # Populate
-    make_path ('../stow/pkg4b/bin4b');
+    # Populate stow package
+    make_path('../stow/pkg4b');
     make_file('../stow/pkg4b/file4b',       'file4b - version originally in stow package');
+    make_path('../stow/pkg4b/bin4b');
     make_file('../stow/pkg4b/bin4b/file4b', 'bin4b/file4b - version originally in stow package');
 
     $stow->plan_stow('pkg4b');
@@ -153,7 +154,7 @@ subtest("Link to files 'file4b' and 'bin4b' conflict with existing files", sub {
     }
 });
 
-subtest("Link to files 'file4b' and 'bin4b' do not conflict with existing", sub {
+subtest("Package files 'file4c' and 'bin4c' can adopt existing versions", sub {
     plan tests => 8;
     my $stow = new_Stow(adopt => 1);
 
@@ -162,9 +163,10 @@ subtest("Link to files 'file4b' and 'bin4b' do not conflict with existing", sub 
     make_path ('bin4c');
     make_file('bin4c/file4c', "bin4c/file4c - version originally in target\n");
 
-    # Populate
-    make_path ('../stow/pkg4c/bin4c');
+    # Populate stow package
+    make_path('../stow/pkg4c');
     make_file('../stow/pkg4c/file4c',       "file4c - version originally in stow package\n");
+    make_path ('../stow/pkg4c/bin4c');
     make_file('../stow/pkg4c/bin4c/file4c', "bin4c/file4c - version originally in stow package\n");
 
     $stow->plan_stow('pkg4c');
