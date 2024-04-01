@@ -789,17 +789,17 @@ sub unstow_node {
     my $self = shift;
     my ($package, $target_subpath, $source) = @_;
 
-    my $path = join_paths($self->{stow_path}, $package, $target_subpath);
+    my $pkg_path_from_cwd = join_paths($self->{stow_path}, $package, $target_subpath);
 
-    debug(3, 1, "Unstowing $path");
+    debug(3, 1, "Unstowing $pkg_path_from_cwd");
     debug(4, 2, "target is $target_subpath");
 
     # Does the target exist?
     if ($self->is_a_link($target_subpath)) {
-        $self->unstow_link_node($package, $target_subpath, $path);
+        $self->unstow_link_node($package, $target_subpath, $pkg_path_from_cwd);
     }
     elsif ($self->{compat} && -d $target_subpath) {
-        $self->unstow_contents($package, $target_subpath, $path);
+        $self->unstow_contents($package, $target_subpath, $pkg_path_from_cwd);
 
         # This action may have made the parent directory foldable
         if (my $parent = $self->foldable($target_subpath)) {
