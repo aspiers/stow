@@ -828,19 +828,19 @@ sub unstow_link_node {
     debug(4, 2, "Evaluate existing link: $target_subpath");
 
     # Where is the link pointing?
-    my $existing_source = $self->read_a_link($target_subpath);
-    if (not $existing_source) {
+    my $link_dest = $self->read_a_link($target_subpath);
+    if (not $link_dest) {
         error("Could not read link: $target_subpath");
     }
 
-    if ($existing_source =~ m{\A/}) {
-        warn "Ignoring an absolute symlink: $target_subpath => $existing_source\n";
+    if ($link_dest =~ m{\A/}) {
+        warn "Ignoring an absolute symlink: $target_subpath => $link_dest\n";
         return; # XXX #
     }
 
     # Does it point to a node under any stow directory?
     my ($existing_path, $existing_stow_path, $existing_package) =
-        $self->find_stowed_path($target_subpath, $existing_source);
+        $self->find_stowed_path($target_subpath, $link_dest);
     if (not $existing_path) {
         if ($self->{compat}) {
             # We're traversing the target tree not the package tree,
@@ -852,7 +852,7 @@ sub unstow_link_node {
             $self->conflict(
                 'unstow',
                 $package,
-                "existing target is not owned by stow: $target_subpath => $existing_source"
+                "existing target is not owned by stow: $target_subpath => $link_dest"
             );
         }
         return;
