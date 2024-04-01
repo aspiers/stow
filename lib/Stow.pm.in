@@ -1299,7 +1299,7 @@ sub foldable {
     }
 }
 
-=head2 fold_tree($target, source)
+=head2 fold_tree($target, $pkg_subpath)
 
 Fold the given tree
 
@@ -1307,9 +1307,9 @@ Fold the given tree
 
 =item $target
 
-directory that we will replace with a link to $source
+Directory that we will replace with a link to $pkg_subpath.
 
-=item $source
+=item $pkg_subpath
 
 link to the folded tree source
 
@@ -1321,9 +1321,9 @@ Only called iff foldable() is true so we can remove some checks.
 
 sub fold_tree {
     my $self = shift;
-    my ($target, $source) = @_;
+    my ($target, $pkg_subpath) = @_;
 
-    debug(3, 0, "--- Folding tree: $target => $source");
+    debug(3, 0, "--- Folding tree: $target => $pkg_subpath");
 
     opendir my $DIR, $target
         or error(qq{Cannot read directory "$target" ($!)\n});
@@ -1338,7 +1338,7 @@ sub fold_tree {
         $self->do_unlink(join_paths($target, $node));
     }
     $self->do_rmdir($target);
-    $self->do_link($source, $target);
+    $self->do_link($pkg_subpath, $target);
     return;
 }
 
