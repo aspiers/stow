@@ -100,28 +100,28 @@ sub new_compat_Stow {
 #===== SUBROUTINE ===========================================================
 # Name      : make_link()
 # Purpose   : safely create a link
-# Parameters: $target => path to the link
-#           : $source => where the new link should point
-#           : $invalid => true iff $source refers to non-existent file
+# Parameters: $link_src => path to the link
+#           : $link_dest => where the new link should point
+#           : $invalid => true iff $link_dest refers to non-existent file
 # Returns   : n/a
 # Throws    : fatal error if the link can not be safely created
 # Comments  : checks for existing nodes
 #============================================================================
 sub make_link {
-    my ($target, $source, $invalid) = @_;
+    my ($link_src, $link_dest, $invalid) = @_;
 
-    if (-l $target) {
-        my $old_source = readlink join('/', parent($target), $source) 
-            or croak "$target is already a link but could not read link $target/$source";
-        if ($old_source ne $source) {
-            croak "$target already exists but points elsewhere\n";
+    if (-l $link_src) {
+        my $old_source = readlink join('/', parent($link_src), $link_dest)
+            or croak "$link_src is already a link but could not read link $link_src/$link_dest";
+        if ($old_source ne $link_dest) {
+            croak "$link_src already exists but points elsewhere\n";
         }
     }
-    croak "$target already exists and is not a link\n" if -e $target;
-    my $abs_target = File::Spec->rel2abs($target);
-    my $target_container = dirname($abs_target);
-    my $abs_source = File::Spec->rel2abs($source, $target_container);
-    #warn "t $target c $target_container as $abs_source";
+    croak "$link_src already exists and is not a link\n" if -e $link_src;
+    my $abs_target = File::Spec->rel2abs($link_src);
+    my $link_src_container = dirname($abs_target);
+    my $abs_source = File::Spec->rel2abs($link_dest, $link_src_container);
+    #warn "t $link_src c $link_src_container as $abs_source";
     if (-e $abs_source) {
         croak "Won't make invalid link pointing to existing $abs_target"
             if $invalid;
@@ -130,8 +130,8 @@ sub make_link {
         croak "Won't make link pointing to non-existent $abs_target"
             unless $invalid;
     }
-    symlink $source, $target
-        or croak "could not create link $target => $source ($!)\n";
+    symlink $link_dest, $link_src
+        or croak "could not create link $link_src => $link_dest ($!)\n";
 }
 
 #===== SUBROUTINE ===========================================================
