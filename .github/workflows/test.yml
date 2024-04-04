@@ -1,0 +1,80 @@
+# This file is part of GNU Stow.
+#
+# GNU Stow is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# GNU Stow is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see https://www.gnu.org/licenses/.
+
+name: Test suite
+
+on:
+  push:
+    branches: [master]
+
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  # call-simple-perl-test:
+  #   uses: perl-actions/github-workflows/.github/workflows/simple-perltester-workflow.yml@main
+  #   with:
+  #     since-perl: 5.14
+
+  test:
+    name: Perl ${{ matrix.perl-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        perl-version:
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+
+    container:
+      # This Docker image should avoid the need to run:
+      #
+      #    cpanm -n Devel::Cover::Report::Coveralls
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+
+    steps:
+      - run: apt-get update && apt-get install -y sudo texinfo texlive
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+#      - uses: awalsh128/cache-apt-pkgs-action@latest
+#        with:
+#          debug: true
+#          packages: texinfo texlive
+#          version: 1.0
+
+      - run: autoreconf --install
+      - name: ./configure && make
+        run: |
+          eval `perl -V:siteprefix`
+          # Note: this will complain Test::Output isn't yet installed:
+          ./configure --prefix=$siteprefix && make
+
+          # but that's OK because we install it here:
+          make cpanm
+
+      #- name: Run tests
+      #  run: make test
+
+      - run: make distcheck
+      - run: perl Build.PL
+      - run: ./Build build
+      - run: cover -test -report coveralls
+      - run: ./Build distcheck
