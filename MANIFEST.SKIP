@@ -84,6 +84,8 @@
 
 # Avoid test files
 tmp-testing-trees
+.coveralls.yml
+.github/workflows/
 .travis.yml
 ^docker/
 ^[a-zA-Z]*-docker.sh
