@@ -489,13 +489,15 @@ doing.  Verbosity levels are from 0 to 5; 0 is the default.  Using
 
 @item -p
 @itemx --compat
-Scan the whole target tree when unstowing.  By default, only
-directories specified in the @dfn{installation image} are scanned
-during an unstow operation.  Scanning the whole tree can be
-prohibitive if your target tree is very large.  This option restores
-the legacy behaviour; however, the @option{--badlinks} option to the
-@command{chkstow} utility may be a better way of ensuring that your
-installation does not have any dangling symlinks (@pxref{Target
+Scan the whole target tree when unstowing.  By default, only directories
+specified in the @dfn{installation image} are scanned during an unstow
+operation.  Previously Stow scanned the whole tree, which can be
+prohibitive if your target tree is very large, but on the other hand has
+the advantage of unstowing previously stowed links which are no longer
+present in the installation image and therefore orphaned.  This option
+restores the legacy behaviour; however, the @option{--badlinks} option
+to the @command{chkstow} utility may be a better way of ensuring that
+your installation does not have any dangling symlinks (@pxref{Target
 Maintenance}).
 
 @item -V
