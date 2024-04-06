@@ -12,6 +12,7 @@ Build.PL
 ChangeLog
 configure
 configure.ac
+CONTRIBUTING.md
 COPYING
 default-ignore-list
 doc/ChangeLog.OLD
@@ -43,6 +44,7 @@ t/find_stowed_path.t
 t/foldable.t
 t/ignore.t
 t/join_paths.t
+t/link_dest_within_stow_dir.t
 t/parent.t
 t/stow.t
 t/rc_options.t
