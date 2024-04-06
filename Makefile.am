@@ -34,9 +34,9 @@ pmstow_DATA = lib/Stow/Util.pm
 
 export TEXI2DVI_BUILD_MODE = clean
 
-doc_deps = $(info_TEXINFOS) doc/version.texi
-
 DEFAULT_IGNORE_LIST = $(srcdir)/default-ignore-list
+
+doc_deps = $(info_TEXINFOS) doc/version.texi $(DEFAULT_IGNORE_LIST)
 
 TESTS_DIR = $(srcdir)/t
 TESTS_OUT = tmp-testing-trees
