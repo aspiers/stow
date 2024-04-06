@@ -125,7 +125,9 @@ subtest("Existing link is not owned by stow", sub {
     #    => q(existing link not owned by stow)
     #);
     ok(-l 'bin5');
-    ok(readlink('bin5') eq '../not-stow'
+    is(
+        readlink('bin5'),
+        '../not-stow'
         => q(existing link not owned by stow)
     );
 });
@@ -145,8 +147,9 @@ subtest("Target already exists, is owned by stow, but points to a different pack
     $stow->plan_unstow('pkg6b');
     is($stow->get_conflict_count, 0);
     ok(-l 'bin6/file6');
-    ok(
-        readlink('bin6/file6') eq '../../stow/pkg6a/bin6/file6'
+    is(
+        readlink('bin6/file6'),
+        '../../stow/pkg6a/bin6/file6'
         => q(ignore existing link that points to a different package)
     );
 });
@@ -169,7 +172,9 @@ subtest("Don't unlink anything under the stow directory", sub {
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg7b');
     is($stow->get_conflict_count, 0);
     ok(-l 'stow/pkg7b');
-    ok(readlink('stow/pkg7b') eq '../stow/pkg7a/stow/pkg7b'
+    is(
+        readlink('stow/pkg7b'),
+        '../stow/pkg7a/stow/pkg7b'
         => q(don't unlink any nodes under the stow directory)
     );
 });
@@ -194,7 +199,9 @@ subtest("Don't unlink any nodes under another stow directory", sub {
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg8a');
     is($stow->get_conflict_count, 0);
     ok(-l 'stow2/pkg8b');
-    ok(readlink('stow2/pkg8b') eq '../stow/pkg8a/stow2/pkg8b'
+    is(
+        readlink('stow2/pkg8b'),
+        '../stow/pkg8a/stow2/pkg8b'
         => q(don't unlink any nodes under another stow directory)
     );
 });
@@ -254,7 +261,9 @@ subtest("deferring to already stowed documentation", sub {
     );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg10c');
     is($stow->get_conflict_count, 0);
-    ok(readlink('man10/man1/file10a.1') eq '../../../stow/pkg10a/man10/man1/file10a.1'
+    is(
+        readlink('man10/man1/file10a.1'),
+        '../../../stow/pkg10a/man10/man1/file10a.1'
         => 'defer to existing documentation files'
     );
 });
@@ -285,8 +294,9 @@ subtest("Unstow an already unstowed package", sub {
         sub { $stow->plan_unstow('pkg12'); }
     );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12');
-    ok(
-        $stow->get_conflict_count == 0
+    is(
+        $stow->get_conflict_count,
+        0
         => 'unstow already unstowed package pkg12'
     );
 });
@@ -302,8 +312,9 @@ subtest("Unstow a never stowed package", sub {
         sub { $stow->plan_unstow('pkg12'); }
     );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 which was never stowed');
-    ok(
-        $stow->get_conflict_count == 0
+    is(
+        $stow->get_conflict_count,
+        0
         => 'unstow never stowed package pkg12'
     );
 });
@@ -318,7 +329,7 @@ subtest("Unstowing when target contains a real file shouldn't be an issue", sub 
     );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 for third time');
     %conflicts = $stow->get_conflicts;
-    ok($stow->get_conflict_count == 1);
+    is($stow->get_conflict_count, 1);
     ok($conflicts{unstow}{pkg12}[0]
             =~ m!existing target is neither a link nor a directory: man12/man1/file12\.1!
         => 'unstow pkg12 for third time'
