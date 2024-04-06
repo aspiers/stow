@@ -33,6 +33,18 @@ pm_DATA = lib/Stow.pm
 pmstow_DATA = lib/Stow/Util.pm
 
 export TEXI2DVI_BUILD_MODE = clean
+AM_MAKEINFOFLAGS = -I $(srcdir)
+
+# We require this -I parameter to ensure that the include of the
+# default ignore list in the manual works correctly, even when the
+# manual is being built via make distcheck from a different directory.
+# Unfortunately this is the only way to do it:
+#
+#   https://lists.gnu.org/archive/html/bug-automake/2008-09/msg00040.html
+#
+# even though it annoyingly produces a warning with the -Wall option
+# to AM_INIT_AUTOMAKE which has to be silenced via -Wno-override.
+TEXI2DVI = texi2dvi $(AM_MAKEINFOFLAGS)
 
 DEFAULT_IGNORE_LIST = $(srcdir)/default-ignore-list
 
