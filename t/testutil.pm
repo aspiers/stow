@@ -50,8 +50,6 @@ our $TEST_DIR = 'tmp-testing-trees';
 our $ABS_TEST_DIR = File::Spec->rel2abs('tmp-testing-trees');
 
 sub init_test_dirs {
-    -d "t" or croak "Was expecting tests to be run from root of repo\n";
-
     # Create a run_from/ subdirectory for tests which want to run
     # from a separate directory outside the Stow directory or
     # target directory.
