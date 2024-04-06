@@ -3,6 +3,7 @@ aclocal.m4
 automake/install-sh
 automake/mdate-sh
 automake/missing
+automake/texinfo.tex
 bin/chkstow
 bin/chkstow.in
 bin/stow
@@ -11,6 +12,7 @@ Build.PL
 ChangeLog
 configure
 configure.ac
+CONTRIBUTING.md
 COPYING
 default-ignore-list
 doc/ChangeLog.OLD
@@ -19,7 +21,6 @@ doc/manual.pdf
 doc/stow.8
 doc/stow.info
 doc/stow.texi
-doc/texinfo.tex
 doc/version.texi
 INSTALL.md
 lib/Stow.pm
@@ -43,6 +44,7 @@ t/find_stowed_path.t
 t/foldable.t
 t/ignore.t
 t/join_paths.t
+t/link_dest_within_stow_dir.t
 t/parent.t
 t/stow.t
 t/rc_options.t

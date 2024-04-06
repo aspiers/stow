@@ -32,6 +32,7 @@ Supporting utility routines for L<Stow>.
 use strict;
 use warnings;
 
+use File::Spec;
 use POSIX qw(getcwd);
 
 use base qw(Exporter);
@@ -93,7 +94,7 @@ sub set_test_mode {
     }
 }
 
-=head2 debug($level, $msg)
+=head2 debug($level[, $indent_level], $msg)
 
 Logs to STDERR based on C<$debug_level> setting.  C<$level> is the
 minimum verbosity level required to output C<$msg>.  All output is to
@@ -125,13 +126,18 @@ overriding, fixing invalid links
 =cut
 
 sub debug {
-    my ($level, $msg) = @_;
+    my $level = shift;
+    my $indent_level;
+    # Maintain backwards-compatibility in case anyone's relying on this.
+    $indent_level = $_[0] =~ /^\d+$/ ? shift : 0;
+    my $msg = shift;
     if ($debug_level >= $level) {
+        my $indent = '    ' x $indent_level;
         if ($test_mode) {
-            print "# $msg\n";
+            print "# $indent$msg\n";
         }
         else {
-            warn "$msg\n";
+            warn "$indent$msg\n";
         }
     }
 }
@@ -142,29 +148,53 @@ sub debug {
 # Parameters: path1, path2, ... => paths
 # Returns   : concatenation of given paths
 # Throws    : n/a
-# Comments  : factors out redundant path elements:
-#           : '//' => '/' and 'a/b/../c' => 'a/c'
+# Comments  : Factors out some redundant path elements:
+#           : '//' => '/', and 'a/b/../c' => 'a/c'.  We need this function
+#           : with this behaviour, even though b could be a symlink to
+#           : elsewhere, as noted in the perldoc for File::Spec->canonpath().
+#           : This behaviour is deliberately different to
+#           : Stow::Util::canon_path(), because the way join_paths() is used
+#           : relies on this.  Firstly, there is no guarantee that the paths
+#           : exist, so a filesystem check is inappropriate.
+#           :
+#           : For example, it's used to determine the path from the target
+#           : directory to a symlink destination.  So if a symlink
+#           : path/to/target/a/b/c points to ../../../stow/pkg/a/b/c,
+#           : then joining path/to/target/a/b with ../../../stow/pkg/a/b/c
+#           : yields path/to/stow/pkg/a/b/c, and it's crucial that the
+#           : path/to/stow prefix matches a recognisable stow directory.
 #============================================================================
 sub join_paths {
     my @paths = @_;
 
-    # weed out empty components and concatenate
-    my $result = join '/', grep {! /\A\z/} @paths;
+    debug(5, 5, "| Joining: @paths");
+    my $result = '';
+    for my $part (@paths) {
+        next if ! length $part;  # probably shouldn't happen?
+        $part = File::Spec->canonpath($part);
 
-    # factor out back references and remove redundant /'s)
-    my @result = ();
-    PART:
-    for my $part (split m{/+}, $result) {
-        next PART if $part eq '.';
-        if (@result && $part eq '..' && $result[-1] ne '..') {
-            pop @result;
+        if (substr($part, 0, 1) eq '/') {
+            $result = $part; # absolute path, so ignore all previous parts
         }
         else {
-            push @result, $part;
+            $result .= '/' if length $result && $result ne '/';
+            $result .= $part;
         }
+        debug(7, 6, "| Join now: $result");
     }
+    debug(6, 5, "| Joined: $result");
 
-    return join '/', @result;
+    # Need this to remove any initial ./
+    $result = File::Spec->canonpath($result);
+
+    # remove foo/..
+    1 while $result =~ s,(^|/)(?!\.\.)[^/]+/\.\.(/|$),$1,;
+    debug(6, 5, "| After .. removal: $result");
+
+    $result = File::Spec->canonpath($result);
+    debug(5, 5, "| Final join: $result");
+
+    return $result;
 }
 
 #===== METHOD ===============================================================
@@ -181,7 +211,7 @@ sub parent {
     my $path = join '/', @_;
     my @elts = split m{/+}, $path;
     pop @elts;
-    return join '/', @elts; 
+    return join '/', @elts;
 }
 
 #===== METHOD ===============================================================
@@ -209,10 +239,10 @@ sub restore_cwd {
 }
 
 sub adjust_dotfile {
-    my ($target) = @_;
+    my ($link_dest) = @_;
 
     my @result = ();
-    for my $part (split m{/+}, $target) {
+    for my $part (split m{/+}, $link_dest) {
         if (($part ne "dot-") && ($part ne "dot-.")) {
             $part =~ s/^dot-/./;
         }
@@ -232,6 +262,5 @@ sub adjust_dotfile {
 
 # Local variables:
 # mode: perl
-# cperl-indent-level: 4
 # end:
 # vim: ft=perl

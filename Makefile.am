@@ -32,23 +32,23 @@ pmstowdir = $(pmdir)/Stow
 pm_DATA = lib/Stow.pm
 pmstow_DATA = lib/Stow/Util.pm
 
-TEXINFO_TEX = doc/texinfo.tex
 export TEXI2DVI_BUILD_MODE = clean
 AM_MAKEINFOFLAGS = -I $(srcdir)
 
 # We require this -I parameter to ensure that the include of the
-# default ignore list in the manual works.  Unfortunately this is
-# the only way to do it:
+# default ignore list in the manual works correctly, even when the
+# manual is being built via make distcheck from a different directory.
+# Unfortunately this is the only way to do it:
 #
-#   http://article.gmane.org/gmane.comp.sysutils.automake.bugs/4334/match=passing+parameters
+#   https://lists.gnu.org/archive/html/bug-automake/2008-09/msg00040.html
 #
 # even though it annoyingly produces a warning with the -Wall option
 # to AM_INIT_AUTOMAKE which has to be silenced via -Wno-override.
 TEXI2DVI = texi2dvi $(AM_MAKEINFOFLAGS)
 
-doc_deps = $(info_TEXINFOS) doc/version.texi
-
 DEFAULT_IGNORE_LIST = $(srcdir)/default-ignore-list
+
+doc_deps = $(info_TEXINFOS) doc/version.texi $(DEFAULT_IGNORE_LIST)
 
 TESTS_DIR = $(srcdir)/t
 TESTS_OUT = tmp-testing-trees
@@ -77,7 +77,7 @@ check_DATA = $(TESTS_OUT)
 # Note that automake's `check' rule cannot be overridden
 # for some weird reason:
 #
-#   http://thread.gmane.org/gmane.comp.sysutils.automake.general/13040/focus=13041
+#   https://lists.gnu.org/archive/html/automake/2011-09/msg00029.html
 #
 # so we override check-TESTS instead which is where the real work is
 # done anyway.  Unfortunately this produces a warning with the -Wall
@@ -95,7 +95,6 @@ EXTRA_DIST = \
 	bin/stow.in bin/chkstow.in lib/Stow.pm.in lib/Stow/Util.pm.in \
 	doc/manual-split \
 	$(TESTS) t/testutil.pm \
-	$(TEXINFO_TEX) \
 	$(DEFAULT_IGNORE_LIST) \
 	$(CPAN_FILES)
 CLEANFILES = $(bin_SCRIPTS) $(pm_DATA) $(pmstow_DATA)
@@ -190,7 +189,7 @@ doc/stow.8: bin/stow.in Makefile.am
 #
 # If it were not for a troublesome dependency on doc/$(am__dirstamp):
 #
-#   http://article.gmane.org/gmane.comp.sysutils.automake.general/13192
+#   https://lists.gnu.org/archive/html/automake/2011-11/msg00107.html
 #
 # we could have achieved this using the built-in rules combined with
 # install-data-hook to rename from stow.pdf to manual.pdf etc. on
@@ -299,3 +298,28 @@ ChangeLog: doc/ChangeLog.OLD
 	else \
 	    echo "Not in a git repository; can't update ChangeLog."; \
 	fi
+
+# Watch for changes, and if any rebuilds are required, also do a
+# make install.
+#
+# If we solved https://github.com/aspiers/stow/issues/84, we could
+# probably ditch this:
+watch:
+	@echo "Watching for changes to program source files ..."
+	@while true; do \
+	    if $(MAKE) 2>&1 | \
+		grep -vE 'make\[[1-9]\]: (Entering|Leaving) directory ' | \
+		grep -v 'Nothing to be done'; \
+	    then \
+		echo; \
+		echo "-----------------------------------------------------"; \
+		echo "make found things to rebuild; doing $(MAKE) install ..."; \
+		echo; \
+		$(MAKE) install; \
+		echo; \
+		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"; \
+		echo; \
+	    fi; \
+	    sleep 1; \
+	done 2>&1 | \
+	grep -vE 'make\[[1-9]\]: (Entering|Leaving) directory '

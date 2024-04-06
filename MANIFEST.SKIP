@@ -89,3 +89,10 @@ tmp-testing-trees
 .travis.yml
 ^docker/
 ^[a-zA-Z]*-docker.sh
+
+# Avoid development config
+.dir-locals.el
+.dumbjump
+
+# Avoid CI
+.github/

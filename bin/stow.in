@@ -849,6 +849,5 @@ sub version {
 
 # Local variables:
 # mode: perl
-# cperl-indent-level: 4
 # end:
 # vim: ft=perl

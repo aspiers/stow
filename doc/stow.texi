@@ -19,13 +19,13 @@ This manual describes GNU Stow version @value{VERSION}
 
 Software and documentation is copyrighted by the following:
 
-@copyright{} 1993, 1994, 1995, 1996 Bob Glickstein <bobg+stow@@zanshin.com>
+@copyright{} 1993, 1994, 1995, 1996 Bob Glickstein @email{bobg+stow@@zanshin.com}
 @*
-@copyright{} 2000, 2001 Guillaume Morin <gmorin@@gnu.org>
+@copyright{} 2000, 2001 Guillaume Morin @email{gmorin@@gnu.org}
 @*
-@copyright{} 2007 Kahlil (Kal) Hodgson <kahlil@@internode.on.net>
+@copyright{} 2007 Kahlil (Kal) Hodgson @email{kahlil@@internode.on.net}
 @*
-@copyright{} 2011 Adam Spiers <stow@@adamspiers.org>
+@copyright{} 2011 Adam Spiers @email{stow@@adamspiers.org}
 
 @quotation
 Permission is granted to make and distribute verbatim copies of this
@@ -99,7 +99,7 @@ appear to be installed in a single directory tree.
 * Multiple Stow Directories::   Further segregating software.
 * Target Maintenance::          Cleaning up mistakes.
 * Resource Files::              Setting default command line options.
-* Compile-time vs Install-time::  Faking out `make install'.
+* Compile-time vs. Install-time::  Faking out `make install'.
 * Bootstrapping::               When stow and perl are not yet stowed.
 * Reporting Bugs::              How, what, where, and when to report.
 * Known Bugs::                  Don't report any of these.
@@ -220,9 +220,12 @@ to be installed in a particular directory structure --- e.g., with
 
 @cindex target directory
 A @dfn{target directory} is the root of a tree in which one or more
-packages wish to @emph{appear} to be installed.  A common, but by no
-means the only such location is @file{/usr/local}.  The examples in this
-manual will use @file{/usr/local} as the target directory.
+packages wish to @emph{appear} to be installed.  @file{/usr/local} is a
+common choice for this, but by no means the only such location.  Another
+common choice is @file{~} (i.e.@: the user's @code{$HOME} directory) in
+the case where Stow is being used to manage the user's configuration
+(``dotfiles'') and other files in their @code{$HOME}.  The examples in
+this manual will use @file{/usr/local} as the target directory.
 
 @cindex stow directory
 A @dfn{stow directory} is the root of a tree containing separate
@@ -240,6 +243,11 @@ installation image for Perl includes: a @file{bin} directory containing
 containing Texinfo documentation; a @file{lib/perl} directory containing
 Perl libraries; and a @file{man/man1} directory containing man pages.
 
+@quotation Note
+This is a @emph{pre-}installation image which exists even before Stow
+has installed any symlinks into the target directory which point to it.
+@end quotation
+
 @cindex package directory
 @cindex package name
 A @dfn{package directory} is the root of a tree containing the
@@ -255,15 +263,68 @@ target directory, @file{/usr/local/stow} is the stow directory,
 @file{/usr/local/stow/perl} is the package directory, and
 @file{bin/perl} within is part of the installation image.
 
+@anchor{symlink}
 @cindex symlink
+@cindex symlink source
+@cindex symlink destination
 @cindex relative symlink
 @cindex absolute symlink
-A @dfn{symlink} is a symbolic link.  A symlink can be @dfn{relative} or
-@dfn{absolute}.  An absolute symlink names a full path; that is, one
-starting from @file{/}.  A relative symlink names a relative path; that
-is, one not starting from @file{/}.  The target of a relative symlink is
-computed starting from the symlink's own directory.  Stow only
-creates relative symlinks.
+A @dfn{symlink} is a symbolic link, i.e.@: an entry on the filesystem
+whose path is sometimes called the @dfn{symlink source}, which points to
+another location on the filesystem called the @dfn{symlink destination}.
+There is no guarantee that the destination actually exists.
+
+In general, symlinks can be @dfn{relative} or @dfn{absolute}.  A symlink
+is absolute when the destination names a full path; that is, one
+starting from @file{/}.  A symlink is relative when the destination
+names a relative path; that is, one not starting from @file{/}.  The
+destination of a relative symlink is computed starting from the
+symlink's own directory, i.e.@: the directory containing the symlink
+source.
+
+@quotation Note
+Stow only creates symlinks within the target directory which point to
+locations @emph{outside} the target directory and inside the stow
+directory.
+
+Consequently, we avoid referring to symlink destinations as symlink
+@emph{targets}, since this would result in the word ``target'' having
+two different meanings:
+
+@enumerate
+
+@item
+the target directory, i.e.@: the directory into which Stow targets
+installation, where symlinks are managed by Stow, and
+
+@item
+the destinations of those symlinks.
+
+@end enumerate
+
+If we did not avoid the second meaning of ``target'', then it would lead
+to confusing language, such as describing Stow as installing symlinks
+into the target directory which point to targets @emph{outside} the
+target directory.
+
+Similarly, the word ``source'' can have two different meanings in this
+context:
+
+@enumerate
+
+@item
+the installation image, or some of its contents, and
+
+@item
+the location of symlinks (the ``source'' of the link, vs.@: its
+destination).
+
+@end enumerate
+
+Therefore it should also be avoided, or at least care taken to ensure
+that the meaning is not ambiguous.
+
+@end quotation
 
 @c ===========================================================================
 @node Invoking Stow, Ignore Lists, Terminology, Top
@@ -383,7 +444,7 @@ refolding (@pxref{tree refolding}).  If a new subdirectory is
 encountered whilst stowing a new package, the subdirectory is created
 within the target, and its contents are symlinked, rather than just
 creating a symlink for the directory.  If removal of symlinks whilst
-unstowing a package causes a subtree to be foldable (i.e. only
+unstowing a package causes a subtree to be foldable (i.e.@: only
 containing symlinks to a single package), that subtree will not be
 removed and replaced with a symlink.
 
@@ -428,13 +489,15 @@ doing.  Verbosity levels are from 0 to 5; 0 is the default.  Using
 
 @item -p
 @itemx --compat
-Scan the whole target tree when unstowing.  By default, only
-directories specified in the @dfn{installation image} are scanned
-during an unstow operation.  Scanning the whole tree can be
-prohibitive if your target tree is very large.  This option restores
-the legacy behaviour; however, the @option{--badlinks} option to the
-@command{chkstow} utility may be a better way of ensuring that your
-installation does not have any dangling symlinks (@pxref{Target
+Scan the whole target tree when unstowing.  By default, only directories
+specified in the @dfn{installation image} are scanned during an unstow
+operation.  Previously Stow scanned the whole tree, which can be
+prohibitive if your target tree is very large, but on the other hand has
+the advantage of unstowing previously stowed links which are no longer
+present in the installation image and therefore orphaned.  This option
+restores the legacy behaviour; however, the @option{--badlinks} option
+to the @command{chkstow} utility may be a better way of ensuring that
+your installation does not have any dangling symlinks (@pxref{Target
 Maintenance}).
 
 @item -V
@@ -813,7 +876,7 @@ This is much faster and cleaner than performing two separate
 invocations of stow, because redundant folding/unfolding operations
 can be factored out.  In addition, all the operations are calculated
 and merged before being executed (@pxref{Deferred Operation}), so the
-amount of of time in which GNU Emacs is unavailable is minimised.
+amount of time in which GNU Emacs is unavailable is minimised.
 
 You can mix and match any number of actions, for example,
 
@@ -893,7 +956,7 @@ directory.
 @end table
 
 @c ===========================================================================
-@node Resource Files, Compile-time vs Install-time, Target Maintenance, Top
+@node Resource Files, Compile-time vs. Install-time, Target Maintenance, Top
 @chapter Resource Files
 @cindex resource files
 @cindex configuration files
@@ -960,8 +1023,8 @@ resource files. This is also true of any package names given in the
 resource file.
 
 @c ===========================================================================
-@node Compile-time vs Install-time, Bootstrapping, Resource Files, Top
-@chapter Compile-time vs Install-time
+@node Compile-time vs. Install-time, Bootstrapping, Resource Files, Top
+@chapter Compile-time vs. Install-time
 
 Software whose installation is managed with Stow needs to be installed
 in one place (the package directory, e.g. @file{/usr/local/stow/perl})
@@ -1043,7 +1106,7 @@ following sections.
 @end menu
 
 @c ---------------------------------------------------------------------------
-@node GNU Emacs, Other FSF Software, Compile-time vs Install-time, Compile-time vs Install-time
+@node GNU Emacs, Other FSF Software, Compile-time vs. Install-time, Compile-time vs. Install-time
 @section GNU Emacs
 
 Although the Free Software Foundation has many enlightened practices
@@ -1076,7 +1139,7 @@ make do-install prefix=/usr/local/stow/emacs
 @end example
 
 @c ---------------------------------------------------------------------------
-@node Other FSF Software, Cygnus Software, GNU Emacs, Compile-time vs Install-time
+@node Other FSF Software, Cygnus Software, GNU Emacs, Compile-time vs. Install-time
 @section Other FSF Software
 
 The Free Software Foundation, the organization behind the GNU project,
@@ -1097,7 +1160,7 @@ and @samp{make install} steps to work correctly without needing to
 ``fool'' the build process.
 
 @c ---------------------------------------------------------------------------
-@node Cygnus Software, Perl and Perl 5 Modules, Other FSF Software, Compile-time vs Install-time
+@node Cygnus Software, Perl and Perl 5 Modules, Other FSF Software, Compile-time vs. Install-time
 @section Cygnus Software
 
 Cygnus is a commercial supplier and supporter of GNU software.  It has
@@ -1126,7 +1189,7 @@ is recompiling files.  Usually it will work just fine; otherwise,
 install manually.
 
 @c ---------------------------------------------------------------------------
-@node Perl and Perl 5 Modules,  , Cygnus Software, Compile-time vs Install-time
+@node Perl and Perl 5 Modules,  , Cygnus Software, Compile-time vs. Install-time
 @section Perl and Perl 5 Modules
 
 Perl 4.036 allows you to specify different locations for installation
@@ -1229,7 +1292,7 @@ find cpan.* \( -name .exists -o -name perllocal.pod \) -print | \
 
 
 @c ---------------------------------------------------------------------------
-@node Bootstrapping, Reporting Bugs, Compile-time vs Install-time, Top
+@node Bootstrapping, Reporting Bugs, Compile-time vs. Install-time, Top
 @chapter Bootstrapping
 
 Suppose you have a stow directory all set up and ready to go:
@@ -1264,9 +1327,32 @@ perl/bin/perl stow/bin/stow -vv *
 @node Reporting Bugs, Known Bugs, Bootstrapping, Top
 @chapter Reporting Bugs
 
-Please send bug reports to the current maintainers by electronic
-mail.  The address to use is @samp{<bug-stow@@gnu.org>}.  Please
-include:
+You can report bugs to the current maintainers in one of three ways:
+
+@enumerate
+@item
+Send e-mail to @email{bug-stow@@gnu.org}.
+
+@item
+File an issue in @uref{https://savannah.gnu.org/bugs/?group=stow,
+the Savannah bug tracker}.
+
+@item
+File an issue in
+@uref{https://github.com/aspiers/stow/issues/, the GitHub project}.
+@end enumerate
+
+While GitHub is arguably the most convenient of these three options, it
+@uref{https://www.gnu.org/software/repo-criteria-evaluation.html#GitHub,
+is not the most ethical or freedom-preserving way to host software
+projects}.  Therefore the GitHub project may be
+@uref{https://github.com/aspiers/stow/issues/43, moved to a more ethical
+hosting service} in the future.
+
+Before reporting a bug, it is recommended to check whether it is already
+known, so please first @pxref{Known Bugs}.
+
+When reporting a new bug, please include:
 
 @itemize @bullet
 @item
@@ -1287,12 +1373,13 @@ the precise command you gave;
 
 @item
 the output from the command (preferably verbose output, obtained by
-adding @samp{--verbose=3} to the Stow command line).
+adding @samp{--verbose=5} to the Stow command line).
 @end itemize
 
 If you are really keen, consider developing a minimal test case and
-creating a new test.  See the @file{t/} directory in the source for
-lots of examples.
+creating a new test.  See the @file{t/} directory in the source for lots
+of examples, and the @file{CONTRIBUTING.md} file for a guide on how to
+contribute.
 
 Before reporting a bug, please read the manual carefully, especially
 @ref{Known Bugs}, to see whether you're encountering
@@ -1303,13 +1390,22 @@ something that doesn't need reporting.
 @node Known Bugs, GNU General Public License, Reporting Bugs, Top
 @chapter Known Bugs
 
-There are no known bugs in Stow version @value{VERSION}!
-If you think you have found one, please @pxref{Reporting Bugs}.
+Known bugs can be found in the following locations:
 
-@c @itemize @bullet
-@c @item
-@c Put known bugs here
-@c @end itemize
+@itemize
+@item
+@uref{https://github.com/aspiers/stow/issues/, the GitHub issue tracker}
+
+@item
+@uref{https://savannah.gnu.org/bugs/?group=stow, the Savannah bug
+tracker}
+
+@item
+the @uref{https://lists.gnu.org/archive/html/bug-stow/, bug-stow list
+archives}
+@end itemize
+
+If you think you have found a new bug, please @pxref{Reporting Bugs}.
 
 @c ===========================================================================
 @node GNU General Public License, Index, Known Bugs, Top

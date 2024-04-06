@@ -60,6 +60,56 @@ You can get the latest information about Stow from the home page:
 
     http://www.gnu.org/software/stow/
 
+Installation
+------------
+
+See [`INSTALL.md`](INSTALL.md) for installation instructions.
+
+Documentation
+-------------
+
+Documentation for Stow is available
+[online](https://www.gnu.org/software/stow/manual/), as is
+[documentation for most GNU
+software](https://www.gnu.org/software/manual/).  Once you have Stow
+installed, you may also find more information about Stow by running
+`info stow` or `man stow`, or by looking at `/usr/share/doc/stow/`,
+`/usr/local/doc/stow/`, or similar directories on your system.  A
+brief summary is available by running `stow --help`.
+
+Mailing lists
+-------------
+
+Stow has the following mailing lists:
+
+-   [help-stow](https://lists.gnu.org/mailman/listinfo/help-stow) is for
+    general user help and discussion.
+-   [stow-devel](https://lists.gnu.org/mailman/listinfo/stow-devel) is
+    used to discuss most aspects of Stow, including development and
+    enhancement requests.
+-   [bug-stow](https://lists.gnu.org/mailman/listinfo/bug-stow) is for
+    bug reports.
+
+Announcements about Stow are posted to
+[info-stow](http://lists.gnu.org/mailman/listinfo/info-stow) and also,
+as with most other GNU software, to
+[info-gnu](http://lists.gnu.org/mailman/listinfo/info-gnu)
+([archive](http://lists.gnu.org/archive/html/info-gnu/)).
+
+Security reports that should not be made immediately public can be
+sent directly to the maintainer.  If there is no response to an urgent
+issue, you can escalate to the general
+[security](http://lists.gnu.org/mailman/listinfo/security) mailing
+list for advice.
+
+The Savannah project also has a [mailing
+lists](https://savannah.gnu.org/mail/?group=stow) page.
+
+Getting involved
+----------------
+
+Please see the [`CONTRIBUTING.md` file](CONTRIBUTING.md).
+
 License
 -------
 
@@ -70,18 +120,6 @@ Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright
 notice and this notice are preserved.  This file is offered as-is,
 without any warranty.
-
-Installation
-------------
-
-See [`INSTALL.md`](INSTALL.md) for installation instructions.
-
-Feedback
---------
-
-Please do send comments, questions, and constructive criticism.  The
-mailing lists and any other communication channels are detailed on the
-above home page.
 
 Brief history and authorship
 ----------------------------

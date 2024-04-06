@@ -28,7 +28,6 @@ use Carp qw(croak);
 use File::Basename;
 use File::Path qw(make_path remove_tree);
 use File::Spec;
-use IO::Scalar;
 use Test::More;
 
 use Stow;
@@ -38,7 +37,6 @@ use base qw(Exporter);
 our @EXPORT = qw(
     $ABS_TEST_DIR
     $TEST_DIR
-    $stderr
     init_test_dirs
     cd
     new_Stow new_compat_Stow
@@ -46,24 +44,10 @@ our @EXPORT = qw(
     remove_dir remove_file remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
-    capture_stderr uncapture_stderr
 );
 
 our $TEST_DIR = 'tmp-testing-trees';
 our $ABS_TEST_DIR = File::Spec->rel2abs('tmp-testing-trees');
-
-our $stderr;
-my $tied_err;
-
-sub capture_stderr {
-    undef $stderr;
-    $tied_err = tie *STDERR, 'IO::Scalar', \$stderr;
-}
-
-sub uncapture_stderr {
-    undef $tied_err;
-    untie *STDERR;
-}
 
 sub init_test_dirs {
     # Create a run_from/ subdirectory for tests which want to run
@@ -81,6 +65,8 @@ sub init_test_dirs {
 
 sub new_Stow {
     my %opts = @_;
+    # These default paths assume that execution will be triggered from
+    # within the target directory.
     $opts{dir}    ||= '../stow';
     $opts{target} ||= '.';
     $opts{test_mode} = 1;
@@ -96,28 +82,28 @@ sub new_compat_Stow {
 #===== SUBROUTINE ===========================================================
 # Name      : make_link()
 # Purpose   : safely create a link
-# Parameters: $target => path to the link
-#           : $source => where the new link should point
-#           : $invalid => true iff $source refers to non-existent file
+# Parameters: $link_src => path to the link
+#           : $link_dest => where the new link should point
+#           : $invalid => true iff $link_dest refers to non-existent file
 # Returns   : n/a
 # Throws    : fatal error if the link can not be safely created
 # Comments  : checks for existing nodes
 #============================================================================
 sub make_link {
-    my ($target, $source, $invalid) = @_;
+    my ($link_src, $link_dest, $invalid) = @_;
 
-    if (-l $target) {
-        my $old_source = readlink join('/', parent($target), $source) 
-            or die "$target is already a link but could not read link $target/$source";
-        if ($old_source ne $source) {
-            die "$target already exists but points elsewhere\n";
+    if (-l $link_src) {
+        my $old_source = readlink join('/', parent($link_src), $link_dest)
+            or croak "$link_src is already a link but could not read link $link_src/$link_dest";
+        if ($old_source ne $link_dest) {
+            croak "$link_src already exists but points elsewhere\n";
         }
     }
-    die "$target already exists and is not a link\n" if -e $target;
-    my $abs_target = File::Spec->rel2abs($target);
-    my $target_container = dirname($abs_target);
-    my $abs_source = File::Spec->rel2abs($source, $target_container);
-    #warn "t $target c $target_container as $abs_source";
+    croak "$link_src already exists and is not a link\n" if -e $link_src;
+    my $abs_target = File::Spec->rel2abs($link_src);
+    my $link_src_container = dirname($abs_target);
+    my $abs_source = File::Spec->rel2abs($link_dest, $link_src_container);
+    #warn "t $link_src c $link_src_container as $abs_source";
     if (-e $abs_source) {
         croak "Won't make invalid link pointing to existing $abs_target"
             if $invalid;
@@ -126,8 +112,8 @@ sub make_link {
         croak "Won't make link pointing to non-existent $abs_target"
             unless $invalid;
     }
-    symlink $source, $target
-        or die "could not create link $target => $source ($!)\n";
+    symlink $link_dest, $link_src
+        or croak "could not create link $link_src => $link_dest ($!)\n";
 }
 
 #===== SUBROUTINE ===========================================================
@@ -157,11 +143,11 @@ sub make_file {
     my ($path, $contents) = @_;
 
     if (-e $path and ! -f $path) {
-        die "a non-file already exists at $path\n";
+        croak "a non-file already exists at $path\n";
     }
 
     open my $FILE ,'>', $path
-        or die "could not create file: $path ($!)\n";
+        or croak "could not create file: $path ($!)\n";
     print $FILE $contents if defined $contents;
     close $FILE;
 }
@@ -178,9 +164,9 @@ sub make_file {
 sub remove_link {
     my ($path) = @_;
     if (not -l $path) {
-        die qq(remove_link() called with a non-link: $path);
+        croak qq(remove_link() called with a non-link: $path);
     }
-    unlink $path or die "could not remove link: $path ($!)\n";
+    unlink $path or croak "could not remove link: $path ($!)\n";
     return;
 }
 
@@ -195,9 +181,9 @@ sub remove_link {
 sub remove_file {
     my ($path) = @_;
     if (-z $path) {
-        die "file at $path is non-empty\n";
+        croak "file at $path is non-empty\n";
     }
-    unlink $path or die "could not remove empty file: $path ($!)\n";
+    unlink $path or croak "could not remove empty file: $path ($!)\n";
     return;
 }
 
@@ -213,10 +199,10 @@ sub remove_dir {
     my ($dir) = @_;
 
     if (not -d $dir) {
-        die "$dir is not a directory";
+        croak "$dir is not a directory";
     }
 
-    opendir my $DIR, $dir or die "cannot read directory: $dir ($!)\n";
+    opendir my $DIR, $dir or croak "cannot read directory: $dir ($!)\n";
     my @listing = readdir $DIR;
     closedir $DIR;
 
@@ -227,16 +213,16 @@ sub remove_dir {
 
         my $path = "$dir/$node";
         if (-l $path or (-f $path and -z $path) or $node eq $Stow::LOCAL_IGNORE_FILE) {
-            unlink $path or die "cannot unlink $path ($!)\n";
+            unlink $path or croak "cannot unlink $path ($!)\n";
         }
         elsif (-d "$path") {
             remove_dir($path);
         }
         else {
-            die "$path is not a link, directory, or empty file\n";
+            croak "$path is not a link, directory, or empty file\n";
         }
     }
-    rmdir $dir or die "cannot rmdir $dir ($!)\n";
+    rmdir $dir or croak "cannot rmdir $dir ($!)\n";
 
     return;
 }
@@ -251,7 +237,7 @@ sub remove_dir {
 #============================================================================
 sub cd {
     my ($dir) = @_;
-    chdir $dir or die "Failed to chdir($dir): $!\n";
+    chdir $dir or croak "Failed to chdir($dir): $!\n";
 }
 
 #===== SUBROUTINE ===========================================================
@@ -264,7 +250,7 @@ sub cd {
 #============================================================================
 sub cat_file {
     my ($file) = @_;
-    open F, $file or die "Failed to open($file): $!\n";
+    open F, $file or croak "Failed to open($file): $!\n";
     my $contents = join '', <F>;
     close(F);
     return $contents;
@@ -309,6 +295,5 @@ sub is_nonexistent_path {
 
 # Local variables:
 # mode: perl
-# cperl-indent-level: 4
 # end:
 # vim: ft=perl

@@ -1,5 +1,66 @@
 News file for Stow.
 
+* Changes in version 2.3.2
+
+*** Eliminated a spurious warning on unstowing
+
+    2.3.1 introduced a benign but annoying warning when unstowing
+    in certain circumstances.  It looked like:
+
+      BUG in find_stowed_path? Absolute/relative mismatch between Stow dir X and path Y
+
+    This was caused by erroneous logic, and has now been fixed.
+
+*** Improved debug output
+
+    Extra output resulting from use of the -v / --verbose flag
+    now appears in a more logical and understandable way.
+
+*** Janitorial tasks
+
+    Users are not substantially affected by these changes.
+
+***** Added some more information from the web page to the README
+
+***** Made some improvements to the documentation
+
+***** Improve readability of source code
+
+      Quite a few extra details have been added in comments to clarify
+      how the code works.  Many variable names have also been
+      improved.  The comments of many Stow class methods have been
+      converted into Perl POD format.
+
+***** Added a =CONTRIBUTING.md= file
+
+***** Add a =watch= target to =Makefile=
+
+      =make watch= provides easy continual pre-processing during
+      development, which reduces the risk of debugging the wrong code.
+
+***** Removed texinfo.tex from the distribution
+
+      This eliminates existing and future bit-rot.
+
+***** Updated aclocal.m4 from 1.15.1 to 1.16.5
+
+      This mostly just updates copyright notices to 2021, and URLs to https.
+
+***** Replace broken gmane links with links to lists.gnu.org
+
+      [[https://lars.ingebrigtsen.no/2020/01/06/whatever-happened-to-news-gmane-org/][gmane has been dead for quite a while.]]
+
+***** Improve support for navigating / editing source via emacs
+
+******* Support source navigation in emacs via [[https://github.com/jacktasia/dumb-jump][dumb-jump]].
+
+******* Configure cperl-mode to match existing coding style.
+
+*** Various maintainer tweaks
+
+    Further improved the release process and its documentation in
+    various minor ways.
+
 * Changes in version 2.3.1
 
 *** Remove dependencies on Hash::Merge and Clone::Choose
@@ -138,6 +199,7 @@ News file for Stow.
         consistency.
 
       - INSTALL.md now also documents how to build directly from git.
+
 *** Fixes for bugs, tests, and other technical debt
 
 ***** Add Docker files for convenient testing across multiple Perl versions
@@ -235,7 +297,7 @@ due to Stow::Util missing $VERSION.
     stow directory path being calculated as
     ../../../usr/home/user/local/stow relative to the target.
 
-    See http://article.gmane.org/gmane.comp.gnu.stow.bugs/8820 for details.
+    See https://lists.gnu.org/archive/html/bug-stow/2013-04/msg00000.html for details.
 
 *** Fix stowing of relative links when --no-folding is used.
 
@@ -276,7 +338,7 @@ due to Stow::Util missing $VERSION.
 
     Thanks to Gabriele Balducci for reporting this problem:
 
-        http://thread.gmane.org/gmane.comp.gnu.stow.general/6676
+        https://lists.gnu.org/archive/html/help-stow/2014-09/msg00000.html
 
 *** Internal code cleanups
 
@@ -586,4 +648,5 @@ due to Stow::Util missing $VERSION.
   org-export-with-toc: nil
   org-export-with-author: nil
   org-toc-odd-levels-only: t
+  org-blank-before-new-entry: ((heading . auto) (plain-list-item . auto))
   End:

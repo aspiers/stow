@@ -19,7 +19,7 @@ AC_INIT([stow], [2.3.2], [bug-stow@gnu.org])
 AC_PREREQ([2.61])
 AC_CONFIG_AUX_DIR([automake])
 # Unfortunately we have to disable warnings for overrides, because we
-# need to override the built-in `check' rule and also the TEXI2DVI
+# need to override the built-in `check-TESTS' rule and also the TEXI2DVI
 # variable.
 AM_INIT_AUTOMAKE([-Wall -Werror -Wno-override dist-bzip2 foreign])
 AC_PROG_INSTALL

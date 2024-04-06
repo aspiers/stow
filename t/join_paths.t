@@ -22,91 +22,40 @@
 use strict;
 use warnings;
 
-use Stow::Util qw(join_paths);
+use Stow::Util qw(join_paths set_debug_level);
 
-use Test::More tests => 14;
+#set_debug_level(4);
 
-is(
-    join_paths('a/b/c', 'd/e/f'),
-    'a/b/c/d/e/f'
-    => 'simple'
+use Test::More tests => 22;
+
+my @TESTS = (
+  [['a/b/c', 'd/e/f'], 'a/b/c/d/e/f' => 'simple'],
+  [['a/b/c', '/d/e/f'], '/d/e/f' => 'relative then absolute'],
+  [['/a/b/c', 'd/e/f'], '/a/b/c/d/e/f' => 'absolute then relative'],
+  [['/a/b/c', '/d/e/f'], '/d/e/f' => 'two absolutes'],
+  [['/a/b/c/', '/d/e/f/'], '/d/e/f' => 'two absolutes with trailing /'],
+  [['///a/b///c//', '/d///////e/f'], '/d/e/f' => "multiple /'s, absolute"],
+  [['///a/b///c//', 'd///////e/f'], '/a/b/c/d/e/f' => "multiple /'s, relative"],
+  [['', 'a/b/c'], 'a/b/c' => 'first empty'],
+  [['a/b/c', ''], 'a/b/c' => 'second empty'],
+  [['/', 'a/b/c'], '/a/b/c' => 'first is /'],
+  [['a/b/c', '/'], '/' => 'second is /'],
+  [['../a1/b1/../c1/', 'a2/../b2/e2'], '../a1/c1/b2/e2' => 'relative with ../'],
+  [['../a1/b1/../c1/', '/a2/../b2/e2'], '/b2/e2' => 'absolute with ../'],
+  [['../a1/../../c1', 'a2/../../'], '../..' => 'lots of ../'],
+  [['./', '../a2'], '../a2' => 'drop any "./"'],
+  [['./a1', '../../a2'], '../a2' => 'drop any "./foo"'],
+  [['a/b/c', '.'], 'a/b/c' => '. on RHS'],
+  [['a/b/c', '.', 'd/e'], 'a/b/c/d/e' => '. in middle'],
+  [['0', 'a/b'], '0/a/b' => '0 at start'],
+  [['/0', 'a/b'], '/0/a/b' => '/0 at start'],
+  [['a/b/c', '0', 'd/e'], 'a/b/c/0/d/e' => '0 in middle'],
+  [['a/b', '0'], 'a/b/0' => '0 at end'],
 );
 
-is(
-    join_paths('/a/b/c', '/d/e/f'),
-    '/a/b/c/d/e/f'
-    => 'leading /'
-);
-
-is(
-    join_paths('/a/b/c/', '/d/e/f/'),
-    '/a/b/c/d/e/f'
-    => 'trailing /'
-);
-
-is(
-    join_paths('///a/b///c//', '/d///////e/f'),
-    '/a/b/c/d/e/f'
-    => 'mltiple /\'s'
-);
-
-is(
-    join_paths('', 'a/b/c'),
-    'a/b/c'
-    => 'first empty'
-);
-
-is(
-    join_paths('a/b/c', ''),
-    'a/b/c'
-    => 'second empty'
-);
-
-is(
-    join_paths('/', 'a/b/c'),
-    '/a/b/c'
-    => 'first is /'
-);
-
-is(
-    join_paths('a/b/c', '/'),
-    'a/b/c'
-    => 'second is /'
-);
-
-is(
-    join_paths('///a/b///c//', '/d///////e/f'),
-    '/a/b/c/d/e/f'
-    => 'multiple /\'s'
-);
-
-
-is(
-    join_paths('../a1/b1/../c1/', '/a2/../b2/e2'),
-    '../a1/c1/b2/e2'
-    => 'simple deref ".."'
-);
-
-is(
-    join_paths('../a1/b1/../c1/d1/e1', '../a2/../b2/c2/d2/../e2'),
-    '../a1/c1/d1/b2/c2/e2'
-    => 'complex deref ".."'
-);
-
-is(
-    join_paths('../a1/../../c1', 'a2/../../'),
-    '../..'
-    => 'too many ".."'
-);
-
-is(
-    join_paths('./a1', '../../a2'),
-    '../a2'
-    => 'drop any "./"'
-);
-
-is(
-    join_paths('a/b/c', '.'),
-    'a/b/c'
-    => '. on RHS'
-);
+for my $test (@TESTS) {
+  my ($inputs, $expected, $scenario) = @$test;
+  my $got = join_paths(@$inputs);
+  my $descr = "$scenario: in=[" . join(', ', map "'$_'", @$inputs) . "] exp=[$expected] got=[$got]";
+  is($got, $expected, $descr);
+}
