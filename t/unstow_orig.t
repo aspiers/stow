@@ -330,8 +330,9 @@ subtest("Unstowing when target contains a real file shouldn't be an issue", sub 
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 for third time');
     %conflicts = $stow->get_conflicts;
     is($stow->get_conflict_count, 1);
-    ok($conflicts{unstow}{pkg12}[0]
-            =~ m!existing target is neither a link nor a directory: man12/man1/file12\.1!
+    like(
+        $conflicts{unstow}{pkg12}[0],
+        qr!existing target is neither a link nor a directory: man12/man1/file12\.1!
         => 'unstow pkg12 for third time'
     );
 });
