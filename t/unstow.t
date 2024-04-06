@@ -183,8 +183,11 @@ make_path('stow/pkg8a/stow2/pkg8b');
 make_file('stow/pkg8a/stow2/pkg8b/file8b');
 make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
 
-capture_stderr();
-$stow->plan_unstow('pkg8a');
+stderr_like(
+    sub { $stow->plan_unstow('pkg8a'); },
+    qr/WARNING: skipping marked Stow directory stow2/
+    => "unstowing from ourself should skip stow"
+);
 is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg8a');
 ok(
     $stow->get_conflict_count == 0 &&
@@ -192,10 +195,6 @@ ok(
     readlink('stow2/pkg8b') eq '../stow/pkg8a/stow2/pkg8b'
     => q(don't unlink any nodes under another stow directory)
 );
-like($stderr,
-     qr/WARNING: skipping marked Stow directory stow2/
-     => "unstowing from ourself should skip stow");
-uncapture_stderr();
 
 #
 # overriding already stowed documentation

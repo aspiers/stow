@@ -372,18 +372,18 @@ subtest("stowing to stow dir should fail", sub {
     make_path('stow/pkg14/stow/pkg15');
     make_file('stow/pkg14/stow/pkg15/node15');
 
-    capture_stderr();
-    $stow->plan_stow('pkg14');
+    stderr_like(
+        sub { $stow->plan_stow('pkg14'); },
+        qr/WARNING: skipping target which was current stow directory stow/,
+        "stowing to stow dir should give warning"
+    );
+
     is($stow->get_tasks, 0, 'no tasks to process');
     is($stow->get_conflict_count, 0);
     ok(
         ! -l 'stow/pkg15'
         => "stowing to stow dir should fail"
     );
-    like($stderr,
-         qr/WARNING: skipping target which was current stow directory stow/
-         => "stowing to stow dir should give warning");
-    uncapture_stderr();
 });
 
 subtest("stow a simple tree minimally when cwd isn't target", sub {

@@ -161,18 +161,17 @@ subtest("Don't unlink anything under the stow directory", sub {
     make_file('stow/pkg7a/stow/pkg7b/file7b');
     make_link('stow/pkg7b', '../stow/pkg7a/stow/pkg7b');
 
-    capture_stderr();
-    $stow->plan_unstow('pkg7b');
+    stderr_like(
+        sub { $stow->plan_unstow('pkg7b'); },
+        qr/WARNING: skipping target which was current stow directory stow/
+        => "warn when unstowing from ourself"
+    );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg7b');
     is($stow->get_conflict_count, 0);
     ok(-l 'stow/pkg7b');
     ok(readlink('stow/pkg7b') eq '../stow/pkg7a/stow/pkg7b'
         => q(don't unlink any nodes under the stow directory)
     );
-    like($stderr,
-         qr/WARNING: skipping target which was current stow directory stow/
-         => "warn when unstowing from ourself");
-    uncapture_stderr();
 });
 
 subtest("Don't unlink any nodes under another stow directory", sub {
@@ -187,28 +186,28 @@ subtest("Don't unlink any nodes under another stow directory", sub {
     make_file('stow/pkg8a/stow2/pkg8b/file8b');
     make_link('stow2/pkg8b', '../stow/pkg8a/stow2/pkg8b');
 
-    capture_stderr();
-    $stow->plan_unstow('pkg8a');
+    stderr_like(
+        sub { $stow->plan_unstow('pkg8a'); },
+         qr/WARNING: skipping target which was current stow directory stow/
+         => "warn when skipping unstowing"
+    );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg8a');
     is($stow->get_conflict_count, 0);
     ok(-l 'stow2/pkg8b');
     ok(readlink('stow2/pkg8b') eq '../stow/pkg8a/stow2/pkg8b'
         => q(don't unlink any nodes under another stow directory)
     );
-    like($stderr,
-         qr/WARNING: skipping target which was current stow directory stow/
-         => "warn when skipping unstowing");
-    uncapture_stderr();
 });
 
 # This will be used by subsequent tests
 sub check_protected_dirs_skipped {
+    my $coderef = shift;
+    my $stderr = stderr_from { $coderef->(); };
     for my $dir (qw{stow stow2}) {
         like($stderr,
              qr/WARNING: skipping marked Stow directory $dir/
              => "warn when skipping marked directory $dir");
     }
-    uncapture_stderr();
 }
 
 subtest("overriding already stowed documentation", sub {
@@ -224,14 +223,14 @@ subtest("overriding already stowed documentation", sub {
 
     make_path('../stow/pkg9b/man9/man1');
     make_file('../stow/pkg9b/man9/man1/file9.1');
-    capture_stderr();
-    $stow->plan_unstow('pkg9b');
+    check_protected_dirs_skipped(
+        sub { $stow->plan_unstow('pkg9b'); }
+    );
     $stow->process_tasks();
     is($stow->get_conflict_count, 0);
     ok(!-l 'man9/man1/file9.1'
         => 'overriding existing documentation files'
     );
-    check_protected_dirs_skipped();
 });
 
 subtest("deferring to already stowed documentation", sub {
@@ -250,14 +249,14 @@ subtest("deferring to already stowed documentation", sub {
 
     make_path('../stow/pkg10c/man10/man1');
     make_file('../stow/pkg10c/man10/man1/file10a.1');
-    capture_stderr();
-    $stow->plan_unstow('pkg10c');
+    check_protected_dirs_skipped(
+        sub { $stow->plan_unstow('pkg10c'); }
+    );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg10c');
     is($stow->get_conflict_count, 0);
     ok(readlink('man10/man1/file10a.1') eq '../../../stow/pkg10a/man10/man1/file10a.1'
         => 'defer to existing documentation files'
     );
-    check_protected_dirs_skipped();
 });
 
 subtest("Ignore temp files", sub {
@@ -271,25 +270,25 @@ subtest("Ignore temp files", sub {
     make_path('man12/man1');
     make_link('man12/man1/file12.1'  => '../../../stow/pkg12/man12/man1/file12.1');
 
-    capture_stderr();
-    $stow->plan_unstow('pkg12');
+    check_protected_dirs_skipped(
+        sub { $stow->plan_unstow('pkg12'); }
+    );
     $stow->process_tasks();
     is($stow->get_conflict_count, 0);
     ok(!-e 'man12/man1/file12.1' => 'ignore temp files');
-    check_protected_dirs_skipped();
 });
 
 subtest("Unstow an already unstowed package", sub {
     plan tests => 4;
     my $stow = new_compat_Stow();
-    capture_stderr();
-    $stow->plan_unstow('pkg12');
+    check_protected_dirs_skipped(
+        sub { $stow->plan_unstow('pkg12'); }
+    );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12');
     ok(
         $stow->get_conflict_count == 0
         => 'unstow already unstowed package pkg12'
     );
-    check_protected_dirs_skipped();
 });
 
 subtest("Unstow a never stowed package", sub {
@@ -299,14 +298,14 @@ subtest("Unstow a never stowed package", sub {
     mkdir("$TEST_DIR/target");
 
     my $stow = new_compat_Stow();
-    capture_stderr();
-    $stow->plan_unstow('pkg12');
+    check_protected_dirs_skipped(
+        sub { $stow->plan_unstow('pkg12'); }
+    );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 which was never stowed');
     ok(
         $stow->get_conflict_count == 0
         => 'unstow never stowed package pkg12'
     );
-    check_protected_dirs_skipped();
 });
 
 subtest("Unstowing when target contains a real file shouldn't be an issue", sub {
@@ -314,8 +313,9 @@ subtest("Unstowing when target contains a real file shouldn't be an issue", sub 
     make_file('man12/man1/file12.1');
 
     my $stow = new_compat_Stow();
-    capture_stderr();
-    $stow->plan_unstow('pkg12');
+    check_protected_dirs_skipped(
+        sub { $stow->plan_unstow('pkg12'); }
+    );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 for third time');
     %conflicts = $stow->get_conflicts;
     ok($stow->get_conflict_count == 1);
@@ -323,7 +323,6 @@ subtest("Unstowing when target contains a real file shouldn't be an issue", sub 
             =~ m!existing target is neither a link nor a directory: man12/man1/file12\.1!
         => 'unstow pkg12 for third time'
     );
-    check_protected_dirs_skipped();
 });
 
 subtest("unstow a simple tree minimally when cwd isn't target", sub {

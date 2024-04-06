@@ -28,7 +28,6 @@ use Carp qw(croak);
 use File::Basename;
 use File::Path qw(make_path remove_tree);
 use File::Spec;
-use IO::Scalar;
 use Test::More;
 
 use Stow;
@@ -38,7 +37,6 @@ use base qw(Exporter);
 our @EXPORT = qw(
     $ABS_TEST_DIR
     $TEST_DIR
-    $stderr
     init_test_dirs
     cd
     new_Stow new_compat_Stow
@@ -46,24 +44,10 @@ our @EXPORT = qw(
     remove_dir remove_file remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
-    capture_stderr uncapture_stderr
 );
 
 our $TEST_DIR = 'tmp-testing-trees';
 our $ABS_TEST_DIR = File::Spec->rel2abs('tmp-testing-trees');
-
-our $stderr;
-my $tied_err;
-
-sub capture_stderr {
-    undef $stderr;
-    $tied_err = tie *STDERR, 'IO::Scalar', \$stderr;
-}
-
-sub uncapture_stderr {
-    undef $tied_err;
-    untie *STDERR;
-}
 
 sub init_test_dirs {
     -d "t" or croak "Was expecting tests to be run from root of repo\n";
