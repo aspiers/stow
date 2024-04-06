@@ -432,7 +432,7 @@ sub stow_contents {
     closedir $DIR;
 
     NODE:
-    for my $node (@listing) {
+    for my $node (sort @listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
         my $node_target = join_paths($target_subdir, $node);
@@ -743,7 +743,7 @@ sub unstow_contents {
     closedir $DIR;
 
     NODE:
-    for my $node (@listing) {
+    for my $node (sort @listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
         my $node_target = join_paths($target_subdir, $node);
@@ -1148,7 +1148,7 @@ sub cleanup_invalid_links {
     closedir $DIR;
 
     NODE:
-    for my $node (@listing) {
+    for my $node (sort @listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
 
@@ -1247,7 +1247,7 @@ sub foldable {
     my $parent_in_pkg = '';
 
     NODE:
-    for my $node (@listing) {
+    for my $node (sort @listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
 
@@ -1331,7 +1331,7 @@ sub fold_tree {
     closedir $DIR;
 
     NODE:
-    for my $node (@listing) {
+    for my $node (sort @listing) {
         next NODE if $node eq '.';
         next NODE if $node eq '..';
         next NODE if not $self->is_a_node(join_paths($target_subdir, $node));
