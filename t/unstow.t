@@ -24,7 +24,7 @@ use warnings;
 
 use File::Spec qw(make_path);
 use POSIX qw(getcwd);
-use Test::More tests => 49;
+use Test::More tests => 35;
 use Test::Output;
 use English qw(-no_match_vars);
 
@@ -465,12 +465,6 @@ subtests("unstow a simple tree minimally with absolute stow AND target dirs when
     );
 });
 
-#
-# unstow a tree with no-folding enabled -
-# no refolding should take place
-#
-cd("$TEST_DIR/target");
-
 sub create_and_stow_pkg {
     my ($id, $pkg) = @_;
 
@@ -527,25 +521,28 @@ sub create_and_stow_pkg {
               "../../$stow_pkg/$id-shared2/subdir/file-$pkg");
 }
 
-foreach my $pkg (qw{a b}) {
-    create_and_stow_pkg('no-folding', $pkg);
-}
+subtest("unstow a tree with no-folding enabled - no refolding should take place", sub {
+    cd("$TEST_DIR/target");
+    plan tests => 15;
 
-my $stow = new_Stow('no-folding' => 1);
-$stow->plan_unstow('no-folding-b');
-is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
-use Data::Dumper;
-#warn Dumper($stow->get_tasks);
+    foreach my $pkg (qw{a b}) {
+        create_and_stow_pkg('no-folding', $pkg);
+    }
 
-$stow->process_tasks();
+    my $stow = new_Stow('no-folding' => 1);
+    $stow->plan_unstow('no-folding-b');
+    is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
 
-is_nonexistent_path('no-folding-b-only-folded');
-is_nonexistent_path('no-folding-b-only-folded2');
-is_nonexistent_path('no-folding-b-only-unfolded/file-b');
-is_nonexistent_path('no-folding-b-only-unfolded2/subdir/file-b');
-is_dir_not_symlink('no-folding-shared');
-is_dir_not_symlink('no-folding-shared2');
-is_dir_not_symlink('no-folding-shared2/subdir');
+    $stow->process_tasks();
+
+    is_nonexistent_path('no-folding-b-only-folded');
+    is_nonexistent_path('no-folding-b-only-folded2');
+    is_nonexistent_path('no-folding-b-only-unfolded/file-b');
+    is_nonexistent_path('no-folding-b-only-unfolded2/subdir/file-b');
+    is_dir_not_symlink('no-folding-shared');
+    is_dir_not_symlink('no-folding-shared2');
+    is_dir_not_symlink('no-folding-shared2/subdir');
+});
 
 # subtests("Test cleaning up subdirs with --paranoid option", sub {
 # TODO
