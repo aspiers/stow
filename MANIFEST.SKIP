@@ -84,15 +84,12 @@
 
 # Avoid test files
 tmp-testing-trees
-.coveralls.yml
-.github/workflows/
-.travis.yml
+^.coveralls.yml
+^.github/workflows/
+^.travis.yml
 ^docker/
 ^[a-zA-Z]*-docker.sh
 
 # Avoid development config
-.dir-locals.el
-.dumbjump
-
-# Avoid CI
-.github/
+^.dir-locals.el
+^.dumbjump
