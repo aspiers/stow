@@ -21,11 +21,10 @@ Release procedure
 
     version=$( tools/get-version ) && echo $version
 
-- Ensure NEWS contains the latest changes, and that any new
-  contributors have been added to THANKS.  If necessary, commit
+- Ensure NEWS contains the latest changes.  If necessary, commit
   any additions:
 
-    git commit -m "Prepare NEWS and THANKS for $version release"
+    git commit -m "Prepare NEWS for $version release"
 
 - Check CPAN distribution will work via Module::Build:
 

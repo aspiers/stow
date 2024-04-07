@@ -1,6 +1,13 @@
 News file for Stow.
 
-* Changes in version 2.3.2
+* Changes in version 2.4.0
+
+*** --dotfiles now works with directories
+
+    A long-standing bug preventing the --dotfiles option from working
+    correctly with directories has been fixed.
+
+    It should also works in combination with the --compat option.
 
 *** Eliminated a spurious warning on unstowing
 
@@ -10,6 +17,14 @@ News file for Stow.
       BUG in find_stowed_path? Absolute/relative mismatch between Stow dir X and path Y
 
     This was caused by erroneous logic, and has now been fixed.
+
+*** Unstowing logic has been improved in other cases
+
+    Several other improvements have been made internally to the
+    unstowing logic.  These changes should all be either invisible
+    (except for changes to debug output) or improvements, but if you
+    encounter any unexpected behaviour, please report it as directed
+    in the manual.
 
 *** Improved debug output
 
