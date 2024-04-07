@@ -91,11 +91,16 @@ Release procedure
     git push github master
     git push --tags github
 
-- Upload the new release to ftp.gnu.org.  This is easiest using gnupload:
+- Upload the new release to ftp.gnu.org.  This is easiest using gnupload.
+  First ensure you have ncftp installed, since gnupload requires this.
+  Then do:
 
     - git clone git://git.savannah.gnu.org/gnulib.git
     - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
-    - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.*
+    - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.{gz,bz2}
+
+  See https://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
+  for more details on the upload procedure.
 
 - Regenerate the documentation for the website:
 
