@@ -22,10 +22,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 use English qw(-no_match_vars);
 
-use Stow::Util qw(adjust_dotfile);
+use Stow::Util qw(adjust_dotfile unadjust_dotfile);
 use testutil;
 
 init_test_dirs();
@@ -43,6 +43,21 @@ subtest('adjust_dotfile()', sub {
         my ($input, $expected) = @$test;
         $expected ||= $input;
         is(adjust_dotfile($input), $expected);
+    }
+});
+
+subtest('unadjust_dotfile()', sub {
+    plan tests => 4;
+    my @TESTS = (
+        ['file'],
+        ['.'],
+        ['..'],
+        ['.file', 'dot-file'],
+    );
+    for my $test (@TESTS) {
+        my ($input, $expected) = @$test;
+        $expected ||= $input;
+        is(unadjust_dotfile($input), $expected);
     }
 });
 
@@ -182,7 +197,7 @@ subtest("unstow .bar from dot-bar", sub {
     $stow->process_tasks();
     is($stow->get_conflict_count, 0);
     ok(-f '../stow/dotfiles/dot-bar', 'package file untouched');
-    ok(! -e '.bar' => 'unstow a simple dotfile');
+    ok(! -e '.bar' => '.bar was unstowed');
 });
 
 subtest("unstow dot-emacs.d/init.el when .emacs.d/init.el in target", sub {
@@ -198,6 +213,23 @@ subtest("unstow dot-emacs.d/init.el when .emacs.d/init.el in target", sub {
     $stow->process_tasks();
     is($stow->get_conflict_count, 0);
     ok(-f '../stow/dotfiles/dot-emacs.d/init.el');
-    ok(! -e '.emacs.d/init.el');
-    ok(-d '.emacs.d/' => 'unstow dotfile dir when dir already exists');
+    ok(! -e '.emacs.d/init.el', '.emacs.d/init.el unstowed');
+    ok(-d '.emacs.d/' => '.emacs.d left behind');
+});
+
+subtest("unstow dot-emacs.d/init.el in --compat mode", sub {
+    plan tests => 4;
+    $stow = new_compat_Stow(dir => '../stow', dotfiles => 1);
+
+    make_path('../stow/dotfiles/dot-emacs.d');
+    make_file('../stow/dotfiles/dot-emacs.d/init.el');
+    make_path('.emacs.d');
+    make_link('.emacs.d/init.el', '../../stow/dotfiles/dot-emacs.d/init.el');
+
+    $stow->plan_unstow('dotfiles');
+    $stow->process_tasks();
+    is($stow->get_conflict_count, 0);
+    ok(-f '../stow/dotfiles/dot-emacs.d/init.el');
+    ok(! -e '.emacs.d/init.el', '.emacs.d/init.el unstowed');
+    ok(-d '.emacs.d/' => '.emacs.d left behind');
 });

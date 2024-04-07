@@ -56,7 +56,8 @@ use File::Spec;
 use POSIX qw(getcwd);
 
 use Stow::Util qw(set_debug_level debug error set_test_mode
-                  join_paths restore_cwd canon_path parent adjust_dotfile);
+                  join_paths restore_cwd canon_path parent
+                  adjust_dotfile unadjust_dotfile);
 
 our $ProgramName = 'stow';
 our $VERSION = '@VERSION@';
@@ -801,12 +802,24 @@ sub unstow_contents {
         my $target_node = $node;
 
         if ($self->{dotfiles}) {
-            # $node is in the package tree, so adjust any dot-*
-            # files for the target.
-            my $adjusted = adjust_dotfile($node);
-            if ($adjusted ne $node) {
-                debug(4, 1, "Adjusting: $node => $adjusted");
-                $target_node = $adjusted;
+            if ($self->{compat}) {
+                # $node is in the target tree, so we need to reverse
+                # adjust any .* files in case they came from a dot-*
+                # file.
+                my $adjusted = unadjust_dotfile($node);
+                if ($adjusted ne $node) {
+                    debug(4, 1, "Reverse adjusting: $node => $adjusted");
+                    $package_node = $adjusted;
+                }
+            }
+            else {
+                # $node is in the package tree, so adjust any dot-*
+                # files for the target.
+                my $adjusted = adjust_dotfile($node);
+                if ($adjusted ne $node) {
+                    debug(4, 1, "Adjusting: $node => $adjusted");
+                    $target_node = $adjusted;
+                }
             }
         }
         my $package_node_path = join_paths($pkg_subdir, $package_node);
