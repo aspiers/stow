@@ -128,8 +128,14 @@ Release procedure
         stow "GNU Stow manual"
 
     cd $stow_web_repo
+    # Check for any added/removed files, then add/remove as necessary
+    cvs -nq update
+    cvs add ...
+    cvs remove ...
+
     # Check that the changes look OK
     cvs diff
+
     # Then commit
     cvs commit -m "Update manual to v$version"
 
