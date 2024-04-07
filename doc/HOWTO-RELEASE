@@ -96,8 +96,12 @@ Release procedure
   Then do:
 
     - git clone git://git.savannah.gnu.org/gnulib.git
+
     - Copy gnulib/build-aux/gnupload to somewhere on your $PATH
-    - Run gnupload --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.{gz,bz2}
+
+    - Run gnupload --dry-run --to ftp.gnu.org:stow --symlink-regex stow-7.8.9.tar.{gz,bz2}
+
+    - Check that everything looks good, then re-run without the --dry-run option.
 
   See https://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
   for more details on the upload procedure.
