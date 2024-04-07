@@ -85,6 +85,11 @@ or to run the whole suite:
 However currently there is an issue where this interferes with
 `TEST_VERBOSE`.
 
+If you want to create test files for experimentation, it is
+recommended to put them in a subdirectory called `playground/` since
+this will be automatically ignored by git and the build process,
+avoiding any undesirable complications.
+
 Translating Stow
 ----------------
 

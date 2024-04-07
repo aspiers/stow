@@ -38,7 +38,8 @@ use POSIX qw(getcwd);
 use base qw(Exporter);
 our @EXPORT_OK = qw(
     error debug set_debug_level set_test_mode
-    join_paths parent canon_path restore_cwd adjust_dotfile
+    join_paths parent canon_path restore_cwd
+    adjust_dotfile unadjust_dotfile
 );
 
 our $ProgramName = 'stow';
@@ -239,17 +240,17 @@ sub restore_cwd {
 }
 
 sub adjust_dotfile {
-    my ($link_dest) = @_;
+    my ($pkg_node) = @_;
+    (my $adjusted = $pkg_node) =~ s/^dot-([^.])/.$1/;
+    return $adjusted;
+}
 
-    my @result = ();
-    for my $part (split m{/+}, $link_dest) {
-        if (($part ne "dot-") && ($part ne "dot-.")) {
-            $part =~ s/^dot-/./;
-        }
-        push @result, $part;
-    }
-
-    return join '/', @result;
+# Needed when unstowing with --compat and --dotfiles
+sub unadjust_dotfile {
+    my ($target_node) = @_;
+    return $target_node if $target_node =~ /^\.\.?$/;
+    (my $adjusted = $target_node) =~ s/^\./dot-/;
+    return $adjusted;
 }
 
 =head1 BUGS

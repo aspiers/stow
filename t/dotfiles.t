@@ -22,27 +22,22 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 12;
 use English qw(-no_match_vars);
 
-use Stow::Util qw(adjust_dotfile);
+use Stow::Util qw(adjust_dotfile unadjust_dotfile);
 use testutil;
 
 init_test_dirs();
 cd("$TEST_DIR/target");
 
 subtest('adjust_dotfile()', sub {
-    plan tests => 9;
+    plan tests => 4;
     my @TESTS = (
         ['file'],
+        ['dot-'],
+        ['dot-.'],
         ['dot-file', '.file'],
-        ['dir1/file'],
-        ['dir1/dir2/file'],
-        ['dir1/dir2/dot-file', 'dir1/dir2/.file'],
-        ['dir1/dot-dir2/file', 'dir1/.dir2/file'],
-        ['dir1/dot-dir2/dot-file', 'dir1/.dir2/.file'],
-        ['dot-dir1/dot-dir2/dot-file', '.dir1/.dir2/.file'],
-        ['dot-dir1/dot-dir2/file', '.dir1/.dir2/file'],
     );
     for my $test (@TESTS) {
         my ($input, $expected) = @$test;
@@ -51,9 +46,24 @@ subtest('adjust_dotfile()', sub {
     }
 });
 
+subtest('unadjust_dotfile()', sub {
+    plan tests => 4;
+    my @TESTS = (
+        ['file'],
+        ['.'],
+        ['..'],
+        ['.file', 'dot-file'],
+    );
+    for my $test (@TESTS) {
+        my ($input, $expected) = @$test;
+        $expected ||= $input;
+        is(unadjust_dotfile($input), $expected);
+    }
+});
+
 my $stow;
 
-subtest("stow a dotfile marked with 'dot' prefix", sub {
+subtest("stow dot-foo as .foo", sub {
     plan tests => 1;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
     make_path('../stow/dotfiles');
@@ -68,7 +78,7 @@ subtest("stow a dotfile marked with 'dot' prefix", sub {
     );
 });
 
-subtest("ensure that turning off dotfile processing links files as usual", sub {
+subtest("stow dot-foo as dot-foo without --dotfile enabled", sub {
     plan tests => 1;
     $stow = new_Stow(dir => '../stow', dotfiles => 0);
     make_path('../stow/dotfiles');
@@ -81,10 +91,9 @@ subtest("ensure that turning off dotfile processing links files as usual", sub {
         '../stow/dotfiles/dot-foo',
         => 'unprocessed dotfile'
     );
-
 });
 
-subtest("stow folder marked with 'dot' prefix", sub {
+subtest("stow dot-emacs dir as .emacs", sub {
     plan tests => 1;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
@@ -96,11 +105,11 @@ subtest("stow folder marked with 'dot' prefix", sub {
     is(
         readlink('.emacs'),
         '../stow/dotfiles/dot-emacs',
-        => 'processed dotfile folder'
+        => 'processed dotfile dir'
     );
 });
 
-subtest("process folder marked with 'dot' prefix when directory exists is target", sub {
+subtest("stow dir marked with 'dot' prefix when directory exists in target", sub {
     plan tests => 1;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
@@ -113,11 +122,11 @@ subtest("process folder marked with 'dot' prefix when directory exists is target
     is(
         readlink('.emacs.d/init.el'),
         '../../stow/dotfiles/dot-emacs.d/init.el',
-        => 'processed dotfile folder when folder exists (1 level)'
+        => 'processed dotfile dir when dir exists (1 level)'
     );
 });
 
-subtest("process folder marked with 'dot' prefix when directory exists is target (2 levels)", sub {
+subtest("stow dir marked with 'dot' prefix when directory exists in target (2 levels)", sub {
     plan tests => 1;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
@@ -130,11 +139,11 @@ subtest("process folder marked with 'dot' prefix when directory exists is target
     is(
         readlink('.emacs.d/.emacs.d'),
         '../../stow/dotfiles/dot-emacs.d/dot-emacs.d',
-        => 'processed dotfile folder exists (2 levels)'
+        => 'processed dotfile dir exists (2 levels)'
     );
 });
 
-subtest("process folder marked with 'dot' prefix when directory exists is target", sub {
+subtest("stow dir marked with 'dot' prefix when directory exists in target", sub {
     plan tests => 1;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
@@ -147,7 +156,7 @@ subtest("process folder marked with 'dot' prefix when directory exists is target
     is(
         readlink('./.one/.two/three'),
         '../../../stow/dotfiles/dot-one/dot-two/three',
-        => 'processed dotfile 2 folder exists (2 levels)'
+        => 'processed dotfile 2 dir exists (2 levels)'
     );
 
 });
@@ -176,7 +185,7 @@ subtest("dot-. should not have that part expanded.", sub {
     );
 });
 
-subtest("simple unstow scenario", sub {
+subtest("unstow .bar from dot-bar", sub {
     plan tests => 3;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
@@ -187,11 +196,11 @@ subtest("simple unstow scenario", sub {
     $stow->plan_unstow('dotfiles');
     $stow->process_tasks();
     is($stow->get_conflict_count, 0);
-    ok(-f '../stow/dotfiles/dot-bar');
-    ok(! -e '.bar' => 'unstow a simple dotfile');
+    ok(-f '../stow/dotfiles/dot-bar', 'package file untouched');
+    ok(! -e '.bar' => '.bar was unstowed');
 });
 
-subtest("unstow process folder marked with 'dot' prefix when directory exists is target", sub {
+subtest("unstow dot-emacs.d/init.el when .emacs.d/init.el in target", sub {
     plan tests => 4;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
 
@@ -204,6 +213,23 @@ subtest("unstow process folder marked with 'dot' prefix when directory exists is
     $stow->process_tasks();
     is($stow->get_conflict_count, 0);
     ok(-f '../stow/dotfiles/dot-emacs.d/init.el');
-    ok(! -e '.emacs.d/init.el');
-    ok(-d '.emacs.d/' => 'unstow dotfile folder when folder already exists');
+    ok(! -e '.emacs.d/init.el', '.emacs.d/init.el unstowed');
+    ok(-d '.emacs.d/' => '.emacs.d left behind');
+});
+
+subtest("unstow dot-emacs.d/init.el in --compat mode", sub {
+    plan tests => 4;
+    $stow = new_compat_Stow(dir => '../stow', dotfiles => 1);
+
+    make_path('../stow/dotfiles/dot-emacs.d');
+    make_file('../stow/dotfiles/dot-emacs.d/init.el');
+    make_path('.emacs.d');
+    make_link('.emacs.d/init.el', '../../stow/dotfiles/dot-emacs.d/init.el');
+
+    $stow->plan_unstow('dotfiles');
+    $stow->process_tasks();
+    is($stow->get_conflict_count, 0);
+    ok(-f '../stow/dotfiles/dot-emacs.d/init.el');
+    ok(! -e '.emacs.d/init.el', '.emacs.d/init.el unstowed');
+    ok(-d '.emacs.d/' => '.emacs.d left behind');
 });

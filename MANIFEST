@@ -50,7 +50,6 @@ t/stow.t
 t/rc_options.t
 t/testutil.pm
 t/unstow.t
-t/unstow_orig.t
 tools/get-version
 THANKS
 TODO

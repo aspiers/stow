@@ -22,21 +22,86 @@
 use strict;
 use warnings;
 
-use Test::More tests => 32;
+use File::Spec qw(make_path);
+use POSIX qw(getcwd);
+use Test::More tests => 35;
 use Test::Output;
 use English qw(-no_match_vars);
 
 use testutil;
 use Stow::Util qw(canon_path);
 
-init_test_dirs();
-cd("$TEST_DIR/target");
+my $repo = getcwd();
 
-# Note that each of the following tests use a distinct set of files
+init_test_dirs($TEST_DIR);
 
-subtest("unstow a simple tree minimally", sub {
+our $COMPAT_TEST_DIR = "${TEST_DIR}-compat";
+our $COMPAT_ABS_TEST_DIR = init_test_dirs($COMPAT_TEST_DIR);
+
+sub init_stow2 {
+    make_path('stow2'); # make our alternate stow dir a subdir of target
+    make_file('stow2/.stow');
+}
+
+sub create_unowned_files {
+    # Make things harder for Stow to figure out, by adding
+    # a bunch of alien files unrelated to Stow.
+    my @UNOWNED_DIRS = ('unowned-dir', '.unowned-dir', 'dot-unowned-dir');
+    for my $dir ('.', @UNOWNED_DIRS) {
+        for my $subdir ('.', @UNOWNED_DIRS) {
+            make_path("$dir/$subdir");
+            make_file("$dir/$subdir/unowned");
+            make_file("$dir/$subdir/.unowned");
+            make_file("$dir/$subdir/dot-unowned");
+        }
+    }
+}
+
+# Run a subtest twice, with compat off then on, in parallel test trees.
+#
+# Params: $name[, $setup], $test_code
+#
+# $setup is an optional ref to an options hash to pass into the new
+# Stow() constructor, or a ref to a sub which performs setup before
+# the constructor gets called and then returns that options hash.
+sub subtests {
+    my $name = shift;
+    my $setup = @_ == 2 ? shift : {};
+    my $code = shift;
+
+    $ENV{HOME} = $ABS_TEST_DIR;
+    cd($repo);
+    cd("$TEST_DIR/target");
+    create_unowned_files();
+    # cd first to allow setup to cd somewhere else.
+    my $opts = ref($setup) eq 'HASH' ? $setup : $setup->($TEST_DIR);
+    subtest($name, sub {
+        make_path($opts->{dir}) if $opts->{dir};
+        my $stow = new_Stow(%$opts);
+        $code->($stow, $TEST_DIR);
+    });
+
+    $ENV{HOME} = $COMPAT_ABS_TEST_DIR;
+    cd($repo);
+    cd("$COMPAT_TEST_DIR/target");
+    create_unowned_files();
+    # cd first to allow setup to cd somewhere else.
+    $opts = ref $setup eq 'HASH' ? $setup : $setup->($COMPAT_TEST_DIR);
+    subtest("$name (compat mode)", sub {
+        make_path($opts->{dir}) if $opts->{dir};
+        my $stow = new_compat_Stow(%$opts);
+        $code->($stow, $COMPAT_TEST_DIR);
+    });
+}
+
+sub plan_tests {
+    my ($stow, $count) = @_;
+    plan tests => $stow->{compat} ? $count + 2 : $count;
+}
+
+subtests("unstow a simple tree minimally", sub {
+    my ($stow) = @_;
     plan tests => 3;
-    my $stow = new_Stow();
 
     make_path('../stow/pkg1/bin1');
     make_file('../stow/pkg1/bin1/file1');
@@ -44,14 +109,14 @@ subtest("unstow a simple tree minimally", sub {
 
     $stow->plan_unstow('pkg1');
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(-f '../stow/pkg1/bin1/file1');
     ok(! -e 'bin1' => 'unstow a simple tree');
 });
 
-subtest("unstow a simple tree from an existing directory", sub {
+subtests("unstow a simple tree from an existing directory", sub {
+    my ($stow) = @_;
     plan tests => 3;
-    my $stow = new_Stow();
 
     make_path('lib2');
     make_path('../stow/pkg2/lib2');
@@ -59,16 +124,16 @@ subtest("unstow a simple tree from an existing directory", sub {
     make_link('lib2/file2', '../../stow/pkg2/lib2/file2');
     $stow->plan_unstow('pkg2');
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(-f '../stow/pkg2/lib2/file2');
     ok(-d 'lib2'
         => 'unstow simple tree from a pre-existing directory'
     );
 });
 
-subtest("fold tree after unstowing", sub {
+subtests("fold tree after unstowing", sub {
+    my ($stow) = @_;
     plan tests => 3;
-    my $stow = new_Stow();
 
     make_path('bin3');
 
@@ -81,16 +146,16 @@ subtest("fold tree after unstowing", sub {
     make_link('bin3/file3b' => '../../stow/pkg3b/bin3/file3b'); # emulate stow
     $stow->plan_unstow('pkg3b');
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(-l 'bin3');
     is(readlink('bin3'), '../stow/pkg3a/bin3'
         => 'fold tree after unstowing'
     );
 });
 
-subtest("existing link is owned by stow but is invalid so it gets removed anyway", sub {
+subtests("existing link is owned by stow but is invalid so it gets removed anyway", sub {
+    my ($stow) = @_;
     plan tests => 2;
-    my $stow = new_Stow();
 
     make_path('bin4');
     make_path('../stow/pkg4/bin4');
@@ -99,31 +164,28 @@ subtest("existing link is owned by stow but is invalid so it gets removed anyway
 
     $stow->plan_unstow('pkg4');
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(! -e 'bin4/file4'
         => q(remove invalid link owned by stow)
     );
 });
 
-subtest("Existing link is not owned by stow", sub {
-    plan tests => 1;
-    my $stow = new_Stow();
+subtests("Existing invalid link is not owned by stow", sub {
+    my ($stow) = @_;
+    plan tests => 3;
 
     make_path('../stow/pkg5/bin5');
     make_invalid_link('bin5', '../not-stow');
 
     $stow->plan_unstow('pkg5');
-    my %conflicts = $stow->get_conflicts;
-    like(
-        $conflicts{unstow}{pkg5}[-1],
-        qr(existing target is not owned by stow)
-        => q(existing link not owned by stow)
-    );
+    is($stow->get_conflict_count, 0, 'conflict count');
+    ok(-l 'bin5', 'invalid link not removed');
+    is(readlink('bin5'), '../not-stow' => "invalid link not changed");
 });
 
-subtest("Target already exists, is owned by stow, but points to a different package", sub {
+subtests("Target already exists, is owned by stow, but points to a different package", sub {
+    my ($stow) = @_;
     plan tests => 3;
-    my $stow = new_Stow();
 
     make_path('bin6');
     make_path('../stow/pkg6a/bin6');
@@ -134,7 +196,7 @@ subtest("Target already exists, is owned by stow, but points to a different pack
     make_file('../stow/pkg6b/bin6/file6');
 
     $stow->plan_unstow('pkg6b');
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(-l 'bin6/file6');
     is(
         readlink('bin6/file6'),
@@ -143,19 +205,29 @@ subtest("Target already exists, is owned by stow, but points to a different pack
     );
 });
 
-subtest("Don't unlink anything under the stow directory", sub {
-    plan tests => 4;
-    make_path('stow'); # make out stow dir a subdir of target
-    my $stow = new_Stow(dir => 'stow');
+subtests("Don't unlink anything under the stow directory",
+         sub {
+             make_path('stow');
+             return { dir => 'stow' };
+             # target dir defaults to parent of stow, which is target directory
+         },
+         sub {
+    plan tests => 5;
+    my ($stow) = @_;
 
-    # emulate stowing into ourself (bizarre corner case or accident)
+    # Emulate stowing into ourself (bizarre corner case or accident):
     make_path('stow/pkg7a/stow/pkg7b');
     make_file('stow/pkg7a/stow/pkg7b/file7b');
+    # Make a package be a link to a package of the same name inside another package.
     make_link('stow/pkg7b', '../stow/pkg7a/stow/pkg7b');
 
-    $stow->plan_unstow('pkg7b');
+    stderr_like(
+        sub { $stow->plan_unstow('pkg7b'); },
+        $stow->{compat} ? qr/WARNING: skipping target which was current stow directory stow/ : qr//
+        => "warn when unstowing from ourself"
+    );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg7b');
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(-l 'stow/pkg7b');
     is(
         readlink('stow/pkg7b'),
@@ -164,13 +236,16 @@ subtest("Don't unlink anything under the stow directory", sub {
     );
 });
 
-subtest("Don't unlink any nodes under another stow directory", sub {
+subtests("Don't unlink any nodes under another stow directory",
+         sub {
+             make_path('stow');
+             return { dir => 'stow' };
+         },
+         sub {
+    my ($stow) = @_;
     plan tests => 5;
-    my $stow = new_Stow(dir => 'stow');
 
-    make_path('stow2'); # make our alternate stow dir a subdir of target
-    make_file('stow2/.stow');
-
+    init_stow2();
     # emulate stowing into ourself (bizarre corner case or accident)
     make_path('stow/pkg8a/stow2/pkg8b');
     make_file('stow/pkg8a/stow2/pkg8b/file8b');
@@ -179,10 +254,10 @@ subtest("Don't unlink any nodes under another stow directory", sub {
     stderr_like(
         sub { $stow->plan_unstow('pkg8a'); },
         qr/WARNING: skipping marked Stow directory stow2/
-        => "unstowing from ourself should skip stow"
+        => "warn when skipping unstowing"
     );
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg8a');
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(-l 'stow2/pkg8b');
     is(
         readlink('stow2/pkg8b'),
@@ -191,11 +266,24 @@ subtest("Don't unlink any nodes under another stow directory", sub {
     );
 });
 
-subtest("overriding already stowed documentation", sub {
-    plan tests => 2;
-    my $stow = new_Stow(override => ['man9', 'info9']);
-    make_file('stow/.stow');
+# This will be used by subsequent tests
+sub check_protected_dirs_skipped {
+    my ($stderr) = @_;
+    for my $dir (qw{stow stow2}) {
+        like($stderr,
+             qr/WARNING: skipping marked Stow directory $dir/
+             => "warn when skipping marked directory $dir");
+    }
+}
 
+subtests("overriding already stowed documentation",
+         {override => ['man9', 'info9']},
+         sub {
+    my ($stow) = @_;
+    plan_tests($stow, 2);
+
+    make_file('stow/.stow');
+    init_stow2();
     make_path('../stow/pkg9a/man9/man1');
     make_file('../stow/pkg9a/man9/man1/file9.1');
     make_path('man9/man1');
@@ -203,18 +291,22 @@ subtest("overriding already stowed documentation", sub {
 
     make_path('../stow/pkg9b/man9/man1');
     make_file('../stow/pkg9b/man9/man1/file9.1');
-    $stow->plan_unstow('pkg9b');
+    my $stderr = stderr_from { $stow->plan_unstow('pkg9b') };
+    check_protected_dirs_skipped($stderr) if $stow->{compat};
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     ok(!-l 'man9/man1/file9.1'
         => 'overriding existing documentation files'
     );
 });
 
-subtest("deferring to already stowed documentation", sub {
-    plan tests => 3;
-    my $stow = new_Stow(defer => ['man10', 'info10']);
+subtests("deferring to already stowed documentation",
+         {defer => ['man10', 'info10']},
+         sub {
+    my ($stow) = @_;
+    plan_tests($stow, 3);
 
+    init_stow2();
     make_path('../stow/pkg10a/man10/man1');
     make_file('../stow/pkg10a/man10/man1/file10a.1');
     make_path('man10/man1');
@@ -225,12 +317,12 @@ subtest("deferring to already stowed documentation", sub {
     make_file('../stow/pkg10b/man10/man1/file10b.1');
     make_link('man10/man1/file10b.1'  => '../../../stow/pkg10b/man10/man1/file10b.1');
 
-
     make_path('../stow/pkg10c/man10/man1');
     make_file('../stow/pkg10c/man10/man1/file10a.1');
-    $stow->plan_unstow('pkg10c');
+    my $stderr = stderr_from { $stow->plan_unstow('pkg10c') };
+    check_protected_dirs_skipped($stderr) if $stow->{compat};
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg10c');
-    is($stow->get_conflict_count, 0);
+    is($stow->get_conflict_count, 0, 'conflict count');
     is(
         readlink('man10/man1/file10a.1'),
         '../../../stow/pkg10a/man10/man1/file10a.1'
@@ -238,10 +330,13 @@ subtest("deferring to already stowed documentation", sub {
     );
 });
 
-subtest("Ignore temp files", sub {
-    plan tests => 2;
-    my $stow = new_Stow(ignore => ['~', '\.#.*']);
+subtests("Ignore temp files",
+         {ignore => ['~', '\.#.*']},
+         sub {
+    my ($stow) = @_;
+    plan_tests($stow, 2);
 
+    init_stow2();
     make_path('../stow/pkg12/man12/man1');
     make_file('../stow/pkg12/man12/man1/file12.1');
     make_file('../stow/pkg12/man12/man1/file12.1~');
@@ -249,190 +344,206 @@ subtest("Ignore temp files", sub {
     make_path('man12/man1');
     make_link('man12/man1/file12.1'  => '../../../stow/pkg12/man12/man1/file12.1');
 
-    $stow->plan_unstow('pkg12');
+    my $stderr = stderr_from { $stow->plan_unstow('pkg12') };
+    check_protected_dirs_skipped($stderr) if $stow->{compat};
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
-    ok(!-e 'man12/man1/file12.1' => 'ignore temp files');
+    is($stow->get_conflict_count, 0, 'conflict count');
+    ok(! -e 'man12/man1/file12.1' => 'man12/man1/file12.1 was unstowed');
 });
 
-subtest("Unstow an already unstowed package", sub {
-    plan tests => 2;
-    my $stow = new_Stow();
-    $stow->plan_unstow('pkg12');
+subtests("Unstow an already unstowed package", sub {
+    my ($stow) = @_;
+    plan_tests($stow, 2);
+
+    my $stderr = stderr_from { $stow->plan_unstow('pkg12') };
+    check_protected_dirs_skipped($stderr) if $stow->{compat};
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12');
-    is(
-        $stow->get_conflict_count, 0
-        => 'unstow already unstowed package pkg12'
-    );
+    is($stow->get_conflict_count, 0, 'conflict count');
 });
 
-subtest("Unstow a never stowed package", sub {
+subtests("Unstow a never stowed package", sub {
+    my ($stow) = @_;
     plan tests => 2;
 
-    eval { remove_dir("$TEST_DIR/target"); };
-    mkdir("$TEST_DIR/target");
+    eval { remove_dir($stow->{target}); };
+    mkdir($stow->{target});
 
-    my $stow = new_Stow();
     $stow->plan_unstow('pkg12');
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 which was never stowed');
-    is(
-        $stow->get_conflict_count,
-        0
-        => 'unstow never stowed package pkg12'
-    );
+    is($stow->get_conflict_count, 0, 'conflict count');
 });
 
-subtest("Unstowing when target contains a real file shouldn't be an issue", sub {
-    plan tests => 3;
+subtests("Unstowing when target contains real files shouldn't be an issue", sub {
+    my ($stow) = @_;
+    plan tests => 4;
+
+    # Test both a file which do / don't overlap with the package
+    make_path('man12/man1');
+    make_file('man12/man1/alien');
     make_file('man12/man1/file12.1');
 
-    my $stow = new_Stow();
     $stow->plan_unstow('pkg12');
     is($stow->get_tasks, 0, 'no tasks to process when unstowing pkg12 for third time');
-    my %conflicts = $stow->get_conflicts;
-    is($stow->get_conflict_count, 1);
-    like(
-        $conflicts{unstow}{pkg12}[0],
-        qr!existing target is neither a link nor a directory: man12/man1/file12\.1!
-        => 'unstow pkg12 for third time'
-    );
+    is($stow->get_conflict_count, 0, 'conflict count');
+    ok(-f 'man12/man1/alien', 'alien untouched');
+    ok(-f 'man12/man1/file12.1', 'file overlapping with pkg untouched');
 });
 
-subtest("unstow a simple tree minimally when cwd isn't target", sub {
+subtests("unstow a simple tree minimally when cwd isn't target",
+         sub {
+             my $test_dir = shift;
+             cd($repo);
+             return {
+                 dir => "$test_dir/stow",
+                 target => "$test_dir/target"
+             }
+         },
+         sub {
+    my ($stow, $test_dir) = @_;
     plan tests => 3;
-    cd('../..');
-    my $stow = new_Stow(dir => "$TEST_DIR/stow", target => "$TEST_DIR/target");
 
-    make_path("$TEST_DIR/stow/pkg13/bin13");
-    make_file("$TEST_DIR/stow/pkg13/bin13/file13");
-    make_link("$TEST_DIR/target/bin13", '../stow/pkg13/bin13');
+    make_path("$test_dir/stow/pkg13/bin13");
+    make_file("$test_dir/stow/pkg13/bin13/file13");
+    make_link("$test_dir/target/bin13", '../stow/pkg13/bin13');
 
     $stow->plan_unstow('pkg13');
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
-    ok(-f "$TEST_DIR/stow/pkg13/bin13/file13");
-    ok(! -e "$TEST_DIR/target/bin13" => 'unstow a simple tree');
+    is($stow->get_conflict_count, 0, 'conflict count');
+    ok(-f "$test_dir/stow/pkg13/bin13/file13", 'package file untouched');
+    ok(! -e "$test_dir/target/bin13" => 'bin13/ unstowed');
 });
 
-subtest("unstow a simple tree minimally with absolute stow dir when cwd isn't target", sub {
+subtests("unstow a simple tree minimally with absolute stow dir when cwd isn't target",
+         sub {
+             my $test_dir = shift;
+             cd($repo);
+             return {
+                 dir => canon_path("$test_dir/stow"),
+                 target => "$test_dir/target"
+             };
+         },
+         sub {
     plan tests => 3;
-    my $stow = new_Stow(dir    => canon_path("$TEST_DIR/stow"),
-                        target => "$TEST_DIR/target");
+    my ($stow, $test_dir) = @_;
 
-    make_path("$TEST_DIR/stow/pkg14/bin14");
-    make_file("$TEST_DIR/stow/pkg14/bin14/file14");
-    make_link("$TEST_DIR/target/bin14", '../stow/pkg14/bin14');
+    make_path("$test_dir/stow/pkg14/bin14");
+    make_file("$test_dir/stow/pkg14/bin14/file14");
+    make_link("$test_dir/target/bin14", '../stow/pkg14/bin14');
 
     $stow->plan_unstow('pkg14');
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
-    ok(-f "$TEST_DIR/stow/pkg14/bin14/file14");
-    ok(! -e "$TEST_DIR/target/bin14"
+    is($stow->get_conflict_count, 0, 'conflict count');
+    ok(-f "$test_dir/stow/pkg14/bin14/file14");
+    ok(! -e "$test_dir/target/bin14"
         => 'unstow a simple tree with absolute stow dir'
     );
 });
 
-subtest("unstow a simple tree minimally with absolute stow AND target dirs when cwd isn't target", sub {
+subtests("unstow a simple tree minimally with absolute stow AND target dirs when cwd isn't target",
+         sub {
+             my $test_dir = shift;
+             cd($repo);
+             return {
+                 dir => canon_path("$test_dir/stow"),
+                 target => canon_path("$test_dir/target")
+             };
+         },
+         sub {
+    my ($stow, $test_dir) = @_;
     plan tests => 3;
-    my $stow = new_Stow(dir    => canon_path("$TEST_DIR/stow"),
-                        target => canon_path("$TEST_DIR/target"));
 
-    make_path("$TEST_DIR/stow/pkg15/bin15");
-    make_file("$TEST_DIR/stow/pkg15/bin15/file15");
-    make_link("$TEST_DIR/target/bin15", '../stow/pkg15/bin15');
+    make_path("$test_dir/stow/pkg15/bin15");
+    make_file("$test_dir/stow/pkg15/bin15/file15");
+    make_link("$test_dir/target/bin15", '../stow/pkg15/bin15');
 
     $stow->plan_unstow('pkg15');
     $stow->process_tasks();
-    is($stow->get_conflict_count, 0);
-    ok(-f "$TEST_DIR/stow/pkg15/bin15/file15");
-    ok(! -e "$TEST_DIR/target/bin15"
+    is($stow->get_conflict_count, 0, 'conflict count');
+    ok(-f "$test_dir/stow/pkg15/bin15/file15");
+    ok(! -e "$test_dir/target/bin15"
         => 'unstow a simple tree with absolute stow and target dirs'
     );
 });
-
-#
-# unstow a tree with no-folding enabled -
-# no refolding should take place
-#
-cd("$TEST_DIR/target");
 
 sub create_and_stow_pkg {
     my ($id, $pkg) = @_;
 
     my $stow_pkg = "../stow/$id-$pkg";
-    make_path ($stow_pkg);
+    make_path($stow_pkg);
     make_file("$stow_pkg/$id-file-$pkg");
 
     # create a shallow hierarchy specific to this package and stow
     # via folding
-    make_path ("$stow_pkg/$id-$pkg-only-folded");
+    make_path("$stow_pkg/$id-$pkg-only-folded");
     make_file("$stow_pkg/$id-$pkg-only-folded/file-$pkg");
     make_link("$id-$pkg-only-folded", "$stow_pkg/$id-$pkg-only-folded");
 
     # create a deeper hierarchy specific to this package and stow
     # via folding
-    make_path ("$stow_pkg/$id-$pkg-only-folded2/subdir");
+    make_path("$stow_pkg/$id-$pkg-only-folded2/subdir");
     make_file("$stow_pkg/$id-$pkg-only-folded2/subdir/file-$pkg");
     make_link("$id-$pkg-only-folded2",
               "$stow_pkg/$id-$pkg-only-folded2");
 
     # create a shallow hierarchy specific to this package and stow
     # without folding
-    make_path ("$stow_pkg/$id-$pkg-only-unfolded");
+    make_path("$stow_pkg/$id-$pkg-only-unfolded");
     make_file("$stow_pkg/$id-$pkg-only-unfolded/file-$pkg");
-    make_path ("$id-$pkg-only-unfolded");
+    make_path("$id-$pkg-only-unfolded");
     make_link("$id-$pkg-only-unfolded/file-$pkg",
               "../$stow_pkg/$id-$pkg-only-unfolded/file-$pkg");
 
     # create a deeper hierarchy specific to this package and stow
     # without folding
-    make_path ("$stow_pkg/$id-$pkg-only-unfolded2/subdir");
+    make_path("$stow_pkg/$id-$pkg-only-unfolded2/subdir");
     make_file("$stow_pkg/$id-$pkg-only-unfolded2/subdir/file-$pkg");
-    make_path ("$id-$pkg-only-unfolded2/subdir");
+    make_path("$id-$pkg-only-unfolded2/subdir");
     make_link("$id-$pkg-only-unfolded2/subdir/file-$pkg",
               "../../$stow_pkg/$id-$pkg-only-unfolded2/subdir/file-$pkg");
 
     # create a shallow shared hierarchy which this package uses, and stow
     # its contents without folding
-    make_path ("$stow_pkg/$id-shared");
+    make_path("$stow_pkg/$id-shared");
     make_file("$stow_pkg/$id-shared/file-$pkg");
-    make_path ("$id-shared");
+    make_path("$id-shared");
     make_link("$id-shared/file-$pkg",
               "../$stow_pkg/$id-shared/file-$pkg");
 
     # create a deeper shared hierarchy which this package uses, and stow
     # its contents without folding
-    make_path ("$stow_pkg/$id-shared2/subdir");
+    make_path("$stow_pkg/$id-shared2/subdir");
     make_file("$stow_pkg/$id-shared2/file-$pkg");
     make_file("$stow_pkg/$id-shared2/subdir/file-$pkg");
-    make_path ("$id-shared2/subdir");
+    make_path("$id-shared2/subdir");
     make_link("$id-shared2/file-$pkg",
               "../$stow_pkg/$id-shared2/file-$pkg");
     make_link("$id-shared2/subdir/file-$pkg",
               "../../$stow_pkg/$id-shared2/subdir/file-$pkg");
 }
 
-foreach my $pkg (qw{a b}) {
-    create_and_stow_pkg('no-folding', $pkg);
-}
+subtest("unstow a tree with no-folding enabled - no refolding should take place", sub {
+    cd("$TEST_DIR/target");
+    plan tests => 15;
 
-my $stow = new_Stow('no-folding' => 1);
-$stow->plan_unstow('no-folding-b');
-is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
-use Data::Dumper;
-#warn Dumper($stow->get_tasks);
+    foreach my $pkg (qw{a b}) {
+        create_and_stow_pkg('no-folding', $pkg);
+    }
 
-$stow->process_tasks();
+    my $stow = new_Stow('no-folding' => 1);
+    $stow->plan_unstow('no-folding-b');
+    is_deeply([ $stow->get_conflicts ], [] => 'no conflicts with --no-folding');
 
-is_nonexistent_path('no-folding-b-only-folded');
-is_nonexistent_path('no-folding-b-only-folded2');
-is_nonexistent_path('no-folding-b-only-unfolded/file-b');
-is_nonexistent_path('no-folding-b-only-unfolded2/subdir/file-b');
-is_dir_not_symlink('no-folding-shared');
-is_dir_not_symlink('no-folding-shared2');
-is_dir_not_symlink('no-folding-shared2/subdir');
+    $stow->process_tasks();
 
+    is_nonexistent_path('no-folding-b-only-folded');
+    is_nonexistent_path('no-folding-b-only-folded2');
+    is_nonexistent_path('no-folding-b-only-unfolded/file-b');
+    is_nonexistent_path('no-folding-b-only-unfolded2/subdir/file-b');
+    is_dir_not_symlink('no-folding-shared');
+    is_dir_not_symlink('no-folding-shared2');
+    is_dir_not_symlink('no-folding-shared2/subdir');
+});
 
-# Todo
-#
-# Test cleaning up subdirs with --paranoid option
+# subtests("Test cleaning up subdirs with --paranoid option", sub {
+# TODO
+# });

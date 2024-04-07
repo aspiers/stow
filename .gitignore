@@ -9,7 +9,8 @@
 /bin/stow
 /doc/stow.info
 /doc/version.texi
-tmp-testing-trees/
+/playground/
+tmp-testing-trees*/
 _build/
 autom4te.cache/
 blib/

@@ -83,16 +83,14 @@
 ^doc/HOWTO-RELEASE$
 
 # Avoid test files
-tmp-testing-trees
-.coveralls.yml
-.github/workflows/
-.travis.yml
+tmp-testing-trees*
+^.coveralls.yml
+^.github/workflows/
+^.travis.yml
 ^docker/
 ^[a-zA-Z]*-docker.sh
+^playground/
 
 # Avoid development config
-.dir-locals.el
-.dumbjump
-
-# Avoid CI
-.github/
+^.dir-locals.el
+^.dumbjump
