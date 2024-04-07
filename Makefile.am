@@ -87,6 +87,10 @@ check-TESTS:
 	dir=$(TESTS_DIR); \
 	$(TESTS_ENVIRONMENT) -MTest::Harness -e 'runtests(@ARGV)' "$${dir#./}"/*.t
 
+coverage:
+	PERL5OPT=-MDevel::Cover $(MAKE) check-TESTS
+	cover
+
 $(TESTS_OUT):
 	mkdir -p $@
 

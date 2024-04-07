@@ -90,6 +90,18 @@ recommended to put them in a subdirectory called `playground/` since
 this will be automatically ignored by git and the build process,
 avoiding any undesirable complications.
 
+Test coverage
+~~~~~~~~~~~~~
+
+To view test coverage reports, first ensure that
+[`Devel::Cover`](https://metacpan.org/dist/Devel-Cover) is installed.
+Then type `make coverage`.  The last lines of the output should
+include something like:
+
+    HTML output written to /home/user/path/to/stow/cover_db/coverage.html
+
+which you can open in a web browser to view the report.
+
 Translating Stow
 ----------------
 
