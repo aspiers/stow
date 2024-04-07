@@ -174,7 +174,7 @@ Release procedure
         version=$( tools/get-version ) && echo $version
 
     - In order to update META.yml and META.json, repeat the same
-      procedure listed above, starting at "make distclean" and
+      procedure listed above, starting at "make maintainer-clean" and
       finishing after "./Build distmeta".
 
     - Check META.yml and META.json now have the new versions.
