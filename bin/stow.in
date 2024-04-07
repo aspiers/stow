@@ -474,7 +474,6 @@ sub main {
     my ($options, $pkgs_to_unstow, $pkgs_to_stow) = process_options();
 
     my $stow = new Stow(%$options);
-    # current dir is now the target directory
 
     $stow->plan_unstow(@$pkgs_to_unstow);
     $stow->plan_stow  (@$pkgs_to_stow);
