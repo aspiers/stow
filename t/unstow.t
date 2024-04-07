@@ -43,6 +43,20 @@ sub init_stow2 {
     make_file('stow2/.stow');
 }
 
+sub create_unowned_files {
+    # Make things harder for Stow to figure out, by adding
+    # a bunch of alien files unrelated to Stow.
+    my @UNOWNED_DIRS = ('unowned-dir', '.unowned-dir', 'dot-unowned-dir');
+    for my $dir ('.', @UNOWNED_DIRS) {
+        for my $subdir ('.', @UNOWNED_DIRS) {
+            make_path("$dir/$subdir");
+            make_file("$dir/$subdir/unowned");
+            make_file("$dir/$subdir/.unowned");
+            make_file("$dir/$subdir/dot-unowned");
+        }
+    }
+}
+
 # Run a subtest twice, with compat off then on, in parallel test trees.
 #
 # Params: $name[, $setup], $test_code
@@ -58,6 +72,7 @@ sub subtests {
     $ENV{HOME} = $ABS_TEST_DIR;
     cd($repo);
     cd("$TEST_DIR/target");
+    create_unowned_files();
     # cd first to allow setup to cd somewhere else.
     my $opts = ref($setup) eq 'HASH' ? $setup : $setup->($TEST_DIR);
     subtest($name, sub {
@@ -69,6 +84,7 @@ sub subtests {
     $ENV{HOME} = $COMPAT_ABS_TEST_DIR;
     cd($repo);
     cd("$COMPAT_TEST_DIR/target");
+    create_unowned_files();
     # cd first to allow setup to cd somewhere else.
     $opts = ref $setup eq 'HASH' ? $setup : $setup->($COMPAT_TEST_DIR);
     subtest("$name (compat mode)", sub {
