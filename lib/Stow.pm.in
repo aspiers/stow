@@ -2078,7 +2078,7 @@ sub read_a_link {
         }
     }
     elsif (-l $link) {
-        debug(4, 2, "read_a_link($link): real link");
+        debug(4, 2, "read_a_link($link): is a real link");
         my $link_dest = readlink $link or error("Could not read link: $link ($!)");
         return $link_dest;
     }
