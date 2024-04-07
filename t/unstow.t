@@ -154,46 +154,17 @@ subtests("existing link is owned by stow but is invalid so it gets removed anywa
     );
 });
 
-subtest("Existing link is not owned by stow", sub {
-    plan tests => 2;
-    $ENV{HOME} = $ABS_TEST_DIR;
-    cd($repo);
-    cd("$TEST_DIR/target");
-    my $stow = new_Stow();
+subtests("Existing invalid link is not owned by stow", sub {
+    my ($stow) = @_;
+    plan tests => 3;
 
     make_path('../stow/pkg5/bin5');
     make_invalid_link('bin5', '../not-stow');
 
     $stow->plan_unstow('pkg5');
-    is($stow->get_conflict_count, 1, 'conflict count');
-    my %conflicts = $stow->get_conflicts();
-    is_deeply(
-        \%conflicts,
-        {
-            'unstow' => {
-                'pkg5' => [
-                    'existing target is not owned by stow: bin5 => ../not-stow'
-                ]
-            }
-        }
-        => "existing link not owned by stow"
-    );
-});
-
-subtest("Existing link is not owned by stow (compat mode)", sub {
-    plan tests => 2;
-    $ENV{HOME} = $COMPAT_ABS_TEST_DIR;
-    cd($repo);
-    cd("$COMPAT_TEST_DIR/target");
-    my $stow = new_compat_Stow();
-
-    make_path('../stow/pkg5/bin5');
-    make_invalid_link('bin5', '../not-stow');
-
-    $stow->plan_unstow('pkg5');
-    # Unlike the non-compat test above, this doesn't cause any conflicts.
-    ok(-l 'bin5');
-    is(readlink('bin5'), '../not-stow' => "existing link not owned by stow");
+    is($stow->get_conflict_count, 0, 'conflict count');
+    ok(-l 'bin5', 'invalid link not removed');
+    is(readlink('bin5'), '../not-stow' => "invalid link not changed");
 });
 
 subtests("Target already exists, is owned by stow, but points to a different package", sub {

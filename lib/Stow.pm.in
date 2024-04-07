@@ -830,19 +830,10 @@ sub unstow_link_node {
     my ($existing_pkg_path_from_cwd, $existing_stow_path, $existing_package) =
         $self->find_stowed_path($target_subpath, $link_dest);
     if (not $existing_pkg_path_from_cwd) {
-        if ($self->{compat}) {
-            # We're traversing the target tree not the package tree,
-            # so we definitely expect to find stuff not owned by stow.
-            # Therefore we can't flag a conflict.
-            return;
-        }
-        else {
-            $self->conflict(
-                'unstow',
-                $package,
-                "existing target is not owned by stow: $target_subpath => $link_dest"
-            );
-        }
+        # The user is unstowing the package, so they don't want links to it.
+        # Therefore we should allow them to have a link pointing elsewhere
+        # which would conflict with the package if they were stowing it.
+        debug(5, 3, "Ignoring unowned link $target_subpath => $link_dest");
         return;
     }
 
