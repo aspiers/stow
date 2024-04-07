@@ -475,52 +475,52 @@ sub create_and_stow_pkg {
     my ($id, $pkg) = @_;
 
     my $stow_pkg = "../stow/$id-$pkg";
-    make_path ($stow_pkg);
+    make_path($stow_pkg);
     make_file("$stow_pkg/$id-file-$pkg");
 
     # create a shallow hierarchy specific to this package and stow
     # via folding
-    make_path ("$stow_pkg/$id-$pkg-only-folded");
+    make_path("$stow_pkg/$id-$pkg-only-folded");
     make_file("$stow_pkg/$id-$pkg-only-folded/file-$pkg");
     make_link("$id-$pkg-only-folded", "$stow_pkg/$id-$pkg-only-folded");
 
     # create a deeper hierarchy specific to this package and stow
     # via folding
-    make_path ("$stow_pkg/$id-$pkg-only-folded2/subdir");
+    make_path("$stow_pkg/$id-$pkg-only-folded2/subdir");
     make_file("$stow_pkg/$id-$pkg-only-folded2/subdir/file-$pkg");
     make_link("$id-$pkg-only-folded2",
               "$stow_pkg/$id-$pkg-only-folded2");
 
     # create a shallow hierarchy specific to this package and stow
     # without folding
-    make_path ("$stow_pkg/$id-$pkg-only-unfolded");
+    make_path("$stow_pkg/$id-$pkg-only-unfolded");
     make_file("$stow_pkg/$id-$pkg-only-unfolded/file-$pkg");
-    make_path ("$id-$pkg-only-unfolded");
+    make_path("$id-$pkg-only-unfolded");
     make_link("$id-$pkg-only-unfolded/file-$pkg",
               "../$stow_pkg/$id-$pkg-only-unfolded/file-$pkg");
 
     # create a deeper hierarchy specific to this package and stow
     # without folding
-    make_path ("$stow_pkg/$id-$pkg-only-unfolded2/subdir");
+    make_path("$stow_pkg/$id-$pkg-only-unfolded2/subdir");
     make_file("$stow_pkg/$id-$pkg-only-unfolded2/subdir/file-$pkg");
-    make_path ("$id-$pkg-only-unfolded2/subdir");
+    make_path("$id-$pkg-only-unfolded2/subdir");
     make_link("$id-$pkg-only-unfolded2/subdir/file-$pkg",
               "../../$stow_pkg/$id-$pkg-only-unfolded2/subdir/file-$pkg");
 
     # create a shallow shared hierarchy which this package uses, and stow
     # its contents without folding
-    make_path ("$stow_pkg/$id-shared");
+    make_path("$stow_pkg/$id-shared");
     make_file("$stow_pkg/$id-shared/file-$pkg");
-    make_path ("$id-shared");
+    make_path("$id-shared");
     make_link("$id-shared/file-$pkg",
               "../$stow_pkg/$id-shared/file-$pkg");
 
     # create a deeper shared hierarchy which this package uses, and stow
     # its contents without folding
-    make_path ("$stow_pkg/$id-shared2/subdir");
+    make_path("$stow_pkg/$id-shared2/subdir");
     make_file("$stow_pkg/$id-shared2/file-$pkg");
     make_file("$stow_pkg/$id-shared2/subdir/file-$pkg");
-    make_path ("$id-shared2/subdir");
+    make_path("$id-shared2/subdir");
     make_link("$id-shared2/file-$pkg",
               "../$stow_pkg/$id-shared2/file-$pkg");
     make_link("$id-shared2/subdir/file-$pkg",
