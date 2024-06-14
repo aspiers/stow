@@ -1016,7 +1016,11 @@ For options that take a file path, environment variables and the tilde
 character (@command{~}) are expanded. An environment variable can be
 given in either the @command{$VAR} or @command{$@{VAR@}} form. To
 prevent expansion, escape the @command{$} or @command{~} with a
-backslash.
+backslash.  Since these values are first subject to standard shell
+quoting rules, if you want special characters such as @command{\b} or
+@command{$} to be treated as regular expression assertions then they
+will need extra escaping, i.e. @command{\\b} and @command{\\\$}
+respectively.
 
 The options @command{-D}, @command{-S}, and @command{-R} are ignored in
 resource files. This is also true of any package names given in the

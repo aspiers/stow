@@ -56,7 +56,7 @@ sub init_test_dirs {
     # Create a run_from/ subdirectory for tests which want to run
     # from a separate directory outside the Stow directory or
     # target directory.
-    for my $dir ("target", "stow", "run_from") {
+    for my $dir ("target", "stow", "run_from", "stow directory") {
         my $path = "$test_dir/$dir";
         -d $path and remove_tree($path);
         make_path($path);
