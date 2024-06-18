@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 34;
+use Test::More tests => 35;
 
 use testutil;
 
@@ -102,7 +102,7 @@ HERE
 
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
 is($options->{target},  "../target", "--target from \$HOME/.stowrc");
-is($options->{dir}, "../stow", "-d from \$HOME/.stowrc");
+is($options->{dir}, "../stow", "-d ../stow from \$HOME/.stowrc");
 
 #
 # Test ~/.stowrc file with one absolute option per line.
@@ -117,7 +117,20 @@ HERE
 is($options->{target},  "$ABS_TEST_DIR/target"
    => "--target from \$HOME/.stowrc");
 is($options->{dir}, "$ABS_TEST_DIR/stow"
-   => "-d from \$HOME/.stowrc");
+   => "-d $ABS_TEST_DIR/stow from \$HOME/.stowrc");
+
+#
+# Test ~/.stowrc file with with options with paths containing spaces.
+#
+local @ARGV = ('dummy');
+make_file($HOME_RC_FILE, <<HERE);
+    -d "$ABS_TEST_DIR/stow directory"
+    --target "$ABS_TEST_DIR/target"
+HERE
+
+($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+is($options->{dir},  "$ABS_TEST_DIR/stow directory",
+   => "-d from \$HOME/.stowrc with spaces");
 
 #
 # Test that some but not all options ~/.stowrc file are overridden by
@@ -140,7 +153,7 @@ is($options->{target},  "$ABS_TEST_DIR/target"
    => "--target overridden by \$PWD/.stowrc");
 is($options->{dir}, "$ABS_TEST_DIR/stow"
    => "-d overridden \$PWD/.stowrc");
-is_deeply($options->{defer}, [qr(\Ainfo), qr(\Aman)],
+is_deeply($options->{defer}, [qr{\A(info)}, qr{\A(man)}],
           'defer man and info');
 unlink($CWD_RC_FILE) or die "Failed to unlink $CWD_RC_FILE";
 
@@ -166,7 +179,7 @@ make_file($HOME_RC_FILE, <<HERE);
     --defer=info
 HERE
 ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
-is_deeply($options->{defer}, [qr(\Ainfo), qr(\Aman)],
+is_deeply($options->{defer}, [qr{\A(info)}, qr{\A(man)}],
           'defer man and info');
 
 # ======== Filepath Expansion Tests ========
@@ -215,26 +228,32 @@ is(expand_tilde('/path/~/here'), '/path/~/here', 'middle ~ not expanded');
 is(expand_tilde('\~/path'), '~/path', 'escaped tilde');
 
 #
-# Test that environment variable expansion is applied.
+# Test that environment variable expansion is applied unless quoted.
+# Include examples from the manual
 #
 make_file($HOME_RC_FILE, <<'HERE');
 --dir=$HOME/stow
---target=$HOME/stow
---ignore=\$HOME
---defer=\$HOME
---override=\$HOME
+--target="$HOME/dir with space in/file with space in"
+--ignore=\\$FOO\\$
+--defer="foo\\b.*bar"
+--defer="\\.jpg\$"
+--override=\\.png\$
+--override=bin|man
+--ignore='perllocal\.pod'
+--ignore='\.packlist'
+--ignore='\.bs'
 HERE
 ($options, $pkgs_to_delete, $pkgs_to_stow) = get_config_file_options();
 is($options->{dir}, "$ABS_TEST_DIR/stow",
-    "apply environment expansion on \$HOME/.stowrc --dir");
-is($options->{target}, "$ABS_TEST_DIR/stow",
-    "apply environment expansion on \$HOME/.stowrc --target");
-is_deeply($options->{ignore}, [qr(\$HOME\z)],
-    "environment expansion not applied on --ignore");
-is_deeply($options->{defer}, [qr(\A\$HOME)],
-    "environment expansion not applied on --defer");
-is_deeply($options->{override}, [qr(\A\$HOME)],
-    "environment expansion not applied on --override");
+    "apply environment expansion on --dir");
+is($options->{target}, "$ABS_TEST_DIR/dir with space in/file with space in",
+    "apply environment expansion on --target");
+is_deeply($options->{ignore}, [qr{(\$FOO\$)\z}, qr{(perllocal\.pod)\z}, qr{(\.packlist)\z}, qr{(\.bs)\z}],
+    'environment expansion not applied on --ignore but backslash removed');
+is_deeply($options->{defer}, [qr{\A(foo\b.*bar)}, qr{\A(\.jpg$)}],
+    'environment expansion not applied on --defer but backslash removed');
+is_deeply($options->{override}, [qr{\A(\.png$)}, qr{\A(bin|man)}],
+    'environment expansion not applied on --override but backslash removed');
 
 #
 # Test that tilde expansion is applied in correct places.
@@ -251,11 +270,11 @@ is($options->{dir}, "$ABS_TEST_DIR/stow",
     "apply tilde expansion on \$HOME/.stowrc --dir");
 is($options->{target}, "$ABS_TEST_DIR/stow",
     "apply tilde expansion on \$HOME/.stowrc --target");
-is_deeply($options->{ignore}, [qr(~/stow\z)],
+is_deeply($options->{ignore}, [qr{(~/stow)\z}],
     "tilde expansion not applied on --ignore");
-is_deeply($options->{defer}, [qr(\A~/stow)],
+is_deeply($options->{defer}, [qr{\A(~/stow)}],
     "tilde expansion not applied on --defer");
-is_deeply($options->{override}, [qr(\A~/stow)],
+is_deeply($options->{override}, [qr{\A(~/stow)}],
     "tilde expansion not applied on --override");
 
 #
@@ -263,4 +282,3 @@ is_deeply($options->{override}, [qr(\A~/stow)],
 #
 unlink $HOME_RC_FILE or die "Unable to clean up $HOME_RC_FILE.\n";
 remove_dir($ABS_TEST_DIR);
-

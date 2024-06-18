@@ -460,6 +460,7 @@ require 5.006_001;
 use POSIX qw(getcwd);
 use Getopt::Long qw(GetOptionsFromArray);
 use Scalar::Util qw(reftype);
+use Text::ParseWords qw(shellwords);
 
 @USE_LIB_PMDIR@
 use Stow;
@@ -581,19 +582,19 @@ sub parse_options {
         'ignore=s' =>
         sub {
             my $regex = $_[1];
-            push @{$options{ignore}}, qr($regex\z);
+            push @{$options{ignore}}, qr{($regex)\z};
         },
 
         'override=s' =>
         sub {
             my $regex = $_[1];
-            push @{$options{override}}, qr(\A$regex);
+            push @{$options{override}}, qr{\A($regex)};
         },
 
         'defer=s' =>
         sub {
             my $regex = $_[1];
-            push @{$options{defer}}, qr(\A$regex);
+            push @{$options{defer}}, qr{\A($regex)};
         },
 
         # a little craziness so we can do different actions on the same line:
@@ -683,7 +684,7 @@ sub get_config_file_options {
                 or die "Could not open $file for reading\n";
             while (my $line = <$FILE>){
                 chomp $line;
-                push @defaults, split " ", $line;
+                push @defaults, shellwords($line);
             }
             close $FILE or die "Could not close open file: $file\n";
         }
