@@ -41,7 +41,7 @@ our @EXPORT = qw(
     cd
     new_Stow new_compat_Stow
     make_path make_link make_invalid_link make_file
-    setup_global_ignore
+    setup_global_ignore setup_package_ignore
     remove_dir remove_file remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
@@ -166,6 +166,13 @@ sub setup_global_ignore {
     my $global_ignore_file = join_paths($ENV{HOME}, $Stow::GLOBAL_IGNORE_FILE);
     make_file($global_ignore_file, $contents);
     return $global_ignore_file;
+}
+
+sub setup_package_ignore {
+    my ($package_path, $contents) = @_;
+    my $package_ignore_file = join_paths($package_path, $Stow::LOCAL_IGNORE_FILE);
+    make_file($package_ignore_file, $contents);
+    return $package_ignore_file;
 }
 
 #===== SUBROUTINE ===========================================================

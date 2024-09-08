@@ -124,10 +124,9 @@ sub setup_package_local_list {
     my ($stow_path, $package, $list) = @_;
     my $package_path = join_paths($stow_path, $package);
     make_path($package_path);
-    my $local_ignore = join_paths($package_path, $Stow::LOCAL_IGNORE_FILE);
-    make_file($local_ignore, $list);
-    $stow->invalidate_memoized_regexp($local_ignore);
-    return $local_ignore;
+    my $package_ignore = setup_package_ignore($package_path, $list);
+    $stow->invalidate_memoized_regexp($package_ignore);
+    return $package_ignore;
 }
 
 sub main {
