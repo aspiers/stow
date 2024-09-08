@@ -112,7 +112,7 @@ sub test_user_global_list {
 sub setup_user_global_list {
     # Now test with global ignore list in home directory
     $ENV{HOME} = tempdir();
-    make_file(join_paths($ENV{HOME}, $Stow::GLOBAL_IGNORE_FILE), <<EOF);
+    setup_global_ignore(<<EOF);
 exact
 .+substring.+ # here's a comment
 .+\.extension

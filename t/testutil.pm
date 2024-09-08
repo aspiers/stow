@@ -31,7 +31,7 @@ use File::Spec;
 use Test::More;
 
 use Stow;
-use Stow::Util qw(parent canon_path);
+use Stow::Util qw(parent canon_path join_paths);
 
 use base qw(Exporter);
 our @EXPORT = qw(
@@ -41,6 +41,7 @@ our @EXPORT = qw(
     cd
     new_Stow new_compat_Stow
     make_path make_link make_invalid_link make_file
+    setup_global_ignore
     remove_dir remove_file remove_link
     cat_file
     is_link is_dir_not_symlink is_nonexistent_path
@@ -158,6 +159,13 @@ sub make_file {
         or croak "could not create file: $path ($!)\n";
     print $FILE $contents if defined $contents;
     close $FILE;
+}
+
+sub setup_global_ignore {
+    my ($contents) = @_;
+    my $global_ignore_file = join_paths($ENV{HOME}, $Stow::GLOBAL_IGNORE_FILE);
+    make_file($global_ignore_file, $contents);
+    return $global_ignore_file;
 }
 
 #===== SUBROUTINE ===========================================================
