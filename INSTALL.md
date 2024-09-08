@@ -71,9 +71,15 @@ The steps in building Stow are:
 
     to avoid a superfluous `use lib` line in your stow executable.
 
-3.  Type `perl Build.PL`.
+3.  If you have LaTeX and texinfo installed and want to build a PDF
+    version of the manual, type:
 
-4.  Type `./Build install` to install the various files.  As noted
+        make pdf
+
+4.  Type `perl Build.PL`.  If you skipped step 3 and see a warning
+    about `manual.pdf` being missing, you can safely ignore it.
+
+5.  Type `./Build install` to install the various files.  As noted
     above, this installs fewer files than the Autotools installation.
 
 Basic Installation via Autotools
@@ -105,13 +111,10 @@ The steps in building Stow are:
     line into the generated stow script to ensure that it can always
     locate the Perl modules without needing to manually set `PERL5LIB`.
 
-4.  You can remove the generated files from the source code directory
-    by typing `make clean`.  To also remove the files that `configure`
-    created (so you can compile the package for a different computer),
-    type `make distclean`.  There is also a `make maintainer-clean`
-    target, but that is intended mainly for stow's developers.  If you
-    use it, you may have to get all sorts of other programs in order
-    to regenerate files that came with the distribution.
+4.  If you have LaTeX and texinfo installed and want to build a PDF
+    version of the manual, type:
+
+        make pdf
 
 Installation Names
 ------------------
@@ -192,6 +195,17 @@ operates.
      script, and exit.
 
 `configure` also accepts some other, not widely useful, options.
+
+Cleaning up build files
+-----------------------
+
+You can remove the generated files from the source code directory by
+typing `make clean`.  To also remove the files that `configure`
+created (so you can compile the package for a different computer),
+type `make distclean`.  There is also a `make maintainer-clean`
+target, but that is intended mainly for stow's developers.  If you use
+it, you may have to get all sorts of other programs in order to
+regenerate files that came with the distribution.
 
 License for this file
 ---------------------
