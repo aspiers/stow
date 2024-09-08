@@ -22,7 +22,7 @@ PDF = doc/manual.pdf
 HTML = doc/manual-single.html
 dist_doc_DATA = \
 	README.md INSTALL.md \
-	$(PDF) $(HTML) doc/version.texi \
+	$(HTML) doc/version.texi \
 	ChangeLog doc/ChangeLog.OLD
 
 # automake magic to define where *_DATA files get installed:
@@ -97,7 +97,7 @@ $(TESTS_OUT):
 CPAN_FILES = MANIFEST MANIFEST.SKIP Build.PL META.yml META.json
 EXTRA_DIST = \
 	bin/stow.in bin/chkstow.in lib/Stow.pm.in lib/Stow/Util.pm.in \
-	doc/manual-split \
+	$(PDF) doc/manual-split \
 	$(TESTS) t/testutil.pm \
 	$(DEFAULT_IGNORE_LIST) \
 	$(CPAN_FILES)
@@ -236,6 +236,8 @@ $(HTML): $(doc_deps)
 	$(MAKEINFOHTML) $(AM_MAKEINFOHTMLFLAGS) $(MAKEINFOFLAGS) -I doc -I $(srcdir)/doc \
 		-c USE_TITLEPAGE_FOR_TITLE=1 --no-split -o $@ \
 		`test -f 'doc/stow.texi' || echo '$(srcdir)/'`doc/stow.texi
+
+pdf: $(PDF)
 
 $(PDF): $(doc_deps)
 	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \

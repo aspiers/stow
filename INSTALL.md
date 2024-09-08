@@ -71,9 +71,15 @@ The steps in building Stow are:
 
     to avoid a superfluous `use lib` line in your stow executable.
 
-3.  Type `perl Build.PL`.
+3.  If you have LaTeX and texinfo installed and want to build a PDF
+    version of the manual, type:
 
-4.  Type `./Build install` to install the various files.  As noted
+        make pdf
+
+4.  Type `perl Build.PL`.  If you skipped step 3 and see a warning
+    about `manual.pdf` being missing, you can safely ignore it.
+
+5.  Type `./Build install` to install the various files.  As noted
     above, this installs fewer files than the Autotools installation.
 
 Basic Installation via Autotools
@@ -105,6 +111,10 @@ The steps in building Stow are:
     line into the generated stow script to ensure that it can always
     locate the Perl modules without needing to manually set `PERL5LIB`.
 
+4.  If you have LaTeX and texinfo installed and want to build a PDF
+    version of the manual, type:
+
+        make pdf
 
 Installation Names
 ------------------

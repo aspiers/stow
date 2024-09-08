@@ -38,6 +38,7 @@ Release procedure
         eval `perl -V:siteprefix`
         automake --add-missing
         ./configure --prefix=$siteprefix && make
+        make pdf
 
       (N.B. the CPAN distribution will contain these files, whereas
       the GNU distribution will not.)

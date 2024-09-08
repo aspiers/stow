@@ -19,6 +19,15 @@ News file for Stow.
     --target="$HOME/dir with space in/file with space in"
     --ignore=\\$FOO\\$
 
+*** Make dependency on LaTeX optional
+
+    Previously, the installation instructions always built a PDF
+    version of the manual, which required having LaTeX installed.
+    However LaTeX is a large program which can be awkward to install,
+    so this has now been made optional, and by default the PDF manual
+    is not part of the build.  It can still be built via =make pdf=,
+    and this is documented.
+
 *** Fix Docker builds.
 
     Fix the return error 100 that was happening when trying to run
