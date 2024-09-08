@@ -437,6 +437,13 @@ option, Stow will create symlinks from @file{.bashrc} to
 @file{stow/dot-emacs.d/init.el}. Any other files, whose name does not
 begin with @samp{dot-}, will be processed as usual.
 
+Note that when this option is enabled, any package file or directory
+prefixed with @samp{dot-} is assumed to be named deliberately to be
+stowed with a @samp{.} prefix, and therefore will only be ignored if
+there is an entry in the ignore list (@xref{Ignore Lists}) which matches
+this prefix.  So for example, by default @file{dot-gitignore} would not
+be ignored even though @samp{\.gitignore} is in the default ignore list.
+
 @item --no-folding
 
 This disables any further tree folding (@pxref{tree folding}) or

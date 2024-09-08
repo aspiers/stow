@@ -9,6 +9,18 @@ News file for Stow.
     which reintroduced this warning when running Stow on Perl >= 5.40.0.
     This has now been fixed.
 
+*** =--dotfiles= option now works correctly with ignore lists
+
+    If the =--dotfiles= option was enabled, files in the package such
+    as =dot-gitignore= would be translated to =.gitignore= prior to
+    stowing, and consequently ignored by the default ignore list.
+    However any file named =dot-*= in a package is obviously intended
+    to be stowed as a dot file, so should not be ignored.
+
+    To fix this, Stow now ignores based on the name in the package,
+    not the potentially translated name used for stowing, and
+    similarly for unstowing.
+
 *** Use shell-like parsing for =.stowrc= arguments
 
     If a file path or regex in =.stowrc= has a space, the option
