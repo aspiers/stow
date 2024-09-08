@@ -54,7 +54,7 @@ Release procedure
 
     - Check META.yml and META.json have the new version number.
       They already should if the final step of this document was
-      carried out after the previous release was publised, but
+      carried out after the previous release was published, but
       if not:
 
         git commit -m "Bump version to $version"
