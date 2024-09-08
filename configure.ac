@@ -15,7 +15,7 @@ dnl along with this program. If not, see https://www.gnu.org/licenses/.
 
 dnl Process this file with Autoconf to produce configure dnl
 
-AC_INIT([stow], [2.4.1], [bug-stow@gnu.org])
+AC_INIT([stow], [2.4.2], [bug-stow@gnu.org])
 AC_PREREQ([2.61])
 AC_CONFIG_AUX_DIR([automake])
 # Unfortunately we have to disable warnings for overrides, because we
