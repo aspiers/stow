@@ -1,5 +1,14 @@
 News file for Stow.
 
+* Changes in version 2.4.1
+
+*** Fix precedence warning with Perl 5.40.
+
+    Perl 5.40.0 extended the scope of the "Possible precedence issue
+    with control flow operator" warnings to include ternary operators,
+    which reintroduced this warning when running Stow on Perl >= 5.40.0.
+    This has now been fixed.
+
 * Changes in version 2.4.0
 
 *** --dotfiles now works with directories
