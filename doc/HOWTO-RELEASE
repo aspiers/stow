@@ -57,6 +57,7 @@ Release procedure
       carried out after the previous release was published, but
       if not:
 
+        git add configure.ac META.{yml,json}
         git commit -m "Bump version to $version"
 
 - Ensure all changes are committed to git.
