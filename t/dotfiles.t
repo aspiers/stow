@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 14;
 use English qw(-no_match_vars);
 
 use Stow::Util qw(adjust_dotfile unadjust_dotfile);
@@ -185,6 +185,21 @@ subtest("dot-. should not have that part expanded.", sub {
     );
 });
 
+subtest("when stowing, dot-gitignore is not ignored by default", sub {
+    plan tests => 1;
+    $stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+    make_file('../stow/dotfiles/dot-gitignore');
+
+    $stow->plan_stow('dotfiles');
+    $stow->process_tasks();
+    is(
+        readlink('.gitignore'),
+        '../stow/dotfiles/dot-gitignore',
+        => "dot-gitignore shouldn't have been ignored"
+    );
+});
+
 subtest("unstow .bar from dot-bar", sub {
     plan tests => 3;
     $stow = new_Stow(dir => '../stow', dotfiles => 1);
@@ -232,4 +247,20 @@ subtest("unstow dot-emacs.d/init.el in --compat mode", sub {
     ok(-f '../stow/dotfiles/dot-emacs.d/init.el');
     ok(! -e '.emacs.d/init.el', '.emacs.d/init.el unstowed');
     ok(-d '.emacs.d/' => '.emacs.d left behind');
+});
+
+subtest("when unstowing, dot-gitignore is not ignored by default", sub {
+    plan tests => 1;
+    $stow = new_Stow(dir => '../stow', dotfiles => 1);
+
+    system('pwd');
+    make_file('../stow/dotfiles/dot-gitignore');
+    -e '.gitignore' or make_link('.gitignore', '../stow/dotfiles/dot-gitignore');
+
+    $stow->plan_unstow('dotfiles');
+    $stow->process_tasks();
+    ok(
+        ! -e ('.gitignore')
+        => "dot-gitignore shouldn't have been ignored"
+    );
 });
