@@ -25,9 +25,9 @@ apt-get install -y --force-yes -q \
     cpanminus \
     gawk \
     git \
-	libssl-dev \
+    libssl-dev \
     make \
-	patch \
+    patch \
     perlbrew \
     texinfo \
     texlive \
