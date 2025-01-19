@@ -44,15 +44,6 @@ directory](http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-y
 especially when [coupled with version control
 systems](http://lists.gnu.org/archive/html/info-stow/2011-12/msg00000.html).
 
-Stow was inspired by Carnegie Mellon's Depot program, but is
-substantially simpler and safer.  Whereas Depot required database files
-to keep things in sync, Stow stores no extra state between runs, so
-there's no danger (as there was in Depot) of mangling directories when
-file hierarchies don't match the database.  Also unlike Depot, Stow will
-never delete any files, directories, or links that appear in a Stow
-directory (e.g., `/usr/local/stow/emacs`), so it's always possible
-to rebuild the target tree (e.g., `/usr/local`).
-
 Stow is implemented as a combination of a Perl script providing a CLI
 interface, and a backend Perl module which does most of the work.
 
@@ -124,16 +115,18 @@ without any warranty.
 Brief history and authorship
 ----------------------------
 
-Stow was inspired by Carnegie Mellon's "Depot" program, but is
-substantially simpler.  Whereas Depot requires database files to keep
-things in sync, Stow stores no extra state between runs, so there's no
-danger (as there is in Depot) of mangling directories when file
-hierarchies don't match the database.  Also unlike Depot, Stow will
-never delete any files, directories, or links that appear in a Stow
-directory (e.g., `/usr/local/stow/emacs`), so it's always possible to
-rebuild the target tree (e.g., `/usr/local`).
+Stow was inspired by [Carnegie Mellon's "Depot" program][depot], but
+is substantially simpler.  Whereas Depot requires database files to
+keep things in sync, Stow stores no extra state between runs, so
+there's no danger (as there is in Depot) of mangling directories when
+file hierarchies don't match the database.  Also unlike Depot, Stow
+will never delete any files, directories, or links that appear in a
+Stow directory (e.g., `/usr/local/stow/emacs`), so it's always
+possible to rebuild the target tree (e.g., `/usr/local`).
 
 For a high-level overview of the contributions of the main developers
 over the years, see [the `AUTHORS` file](AUTHORS).
 
 For a more detailed history, please see the `ChangeLog` file.
+
+[depot]: https://directory.fsf.org/wiki/Depot
