@@ -1,6 +1,6 @@
 #!@PERL@
 
-# GNU Stow - manage farms of symbolic links
+# GNU Stow - organize dotfiles and configuration files
 # Copyright (C) 1993, 1994, 1995, 1996 by Bob Glickstein
 # Copyright (C) 2000, 2001 Guillaume Morin
 # Copyright (C) 2007 Kahlil Hodgson
@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-stow - manage farms of symbolic links
+stow - organize dotfiles and configuration files
 
 =head1 SYNOPSIS
 
@@ -35,30 +35,27 @@ This manual page describes GNU Stow @VERSION@.  This is not the
 definitive documentation for Stow; for that, see the accompanying info
 manual, e.g. by typing C<info stow>.
 
-Stow is a symlink farm manager which takes distinct sets of software
-and/or data located in separate directories on the filesystem, and
-makes them all appear to be installed in a single directory tree.
+Stow is primarily used for managing dotfiles and configuration files
+in the user's home directory, especially when coupled with version
+control systems such as git. By organizing application configuration
+in separate directories (e.g. F<~/dotfiles/vim>, F<~/dotfiles/zsh>),
+Stow uses symlink tree mirroring to make them appear installed in
+their expected locations (F<~/.vimrc>, F<~/.zshrc>, etc.).
 
 Originally Stow was born to address the need to administer, upgrade,
 install, and remove files in independent software packages without
 confusing them with other files sharing the same file system space.
-For instance, many years ago it used to be common to compile programs
-such as Perl and Emacs from source.  By using Stow, F</usr/local/bin>
-could contain symlinks to files within F</usr/local/stow/emacs/bin>,
-F</usr/local/stow/perl/bin> etc., and likewise recursively for any
-other subdirectories such as F<.../share>, F<.../man>, and so on.
+For instance, it used to be common to compile programs such as Perl
+and Emacs from source and install them in F</usr/local>. By using
+Stow, F</usr/local/bin> could contain symlinks to files within
+F</usr/local/stow/emacs/bin>, F</usr/local/stow/perl/bin> etc.,
+and likewise recursively for any other subdirectories.
 
-While this is useful for keeping track of system-wide and per-user
-installations of software built from source, in more recent times
-software packages are often managed by more sophisticated package
-management software such as rpm, dpkg, and Nix / GNU Guix, or
-language-native package managers such as Ruby's gem, Python's pip,
-Javascript's npm, and so on.
-
-However Stow is still used not only for software package management,
-but also for other purposes, such as facilitating a more controlled
-approach to management of configuration files in the user's home
-directory, especially when coupled with version control systems.
+While modern software packages are typically managed by more
+sophisticated package management software such as rpm, dpkg, and
+Nix / GNU Guix, or language-native package managers such as Ruby's
+gem, Python's pip, Javascript's npm, and so on, Stow can still be
+used for managing directory-based software installations if needed.
 
 Stow was inspired by Carnegie Mellon's Depot program, but is
 substantially simpler and safer. Whereas Depot required database files

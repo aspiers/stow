@@ -15,7 +15,7 @@
 
 @copying
 This manual describes GNU Stow version @value{VERSION}
-(@value{UPDATED}), a program for managing farms of symbolic links.
+(@value{UPDATED}), a program for organizing dotfiles and configuration files.
 
 Software and documentation is copyrighted by the following:
 
@@ -61,7 +61,7 @@ approved by the Free Software Foundation.
 @c ===========================================================================
 @titlepage
 @title Stow @value{VERSION}
-@subtitle Managing the installation of software packages
+@subtitle Organize your dotfiles and configuration files
 @author Bob Glickstein, Zanshin Software, Inc.
 @author Kahlil Hodgson, RMIT University, Australia.
 @author Guillaume Morin
@@ -82,9 +82,9 @@ approved by the Free Software Foundation.
 @top
 
 This manual describes GNU Stow @value{VERSION} (@value{UPDATED}), a
-symlink farm manager which takes distinct sets of software and/or data
-located in separate directories on the filesystem, and makes them
-appear to be installed in a single directory tree.
+dotfile organizer which keeps your configuration files in separate
+directories, then uses symlink tree mirroring to make them appear
+installed in your home directory (or any target directory).
 @end ifnottex
 
 @menu
@@ -129,51 +129,56 @@ Advice on changing compilation and installation parameters
 @node Introduction, Terminology, Top, Top
 @chapter Introduction
 
-GNU Stow is a symlink farm manager which takes distinct sets of
-software and/or data located in separate directories on the
-filesystem, and makes them all appear to be installed in a single
-directory tree.
+GNU Stow allows you to keep dotfiles and configuration files in separate
+directories, and then use symlink tree mirroring to make them appear
+installed in your home directory (or any target directory).
+
+This is particularly useful when those separate directories are tracked
+via a version control system such as @command{git}.@footnote{@uref{http://lists.gnu.org/archive/html/info-stow/2011-12/msg00000.html}}
+
+For example, you might organize your configuration files like this:
+
+@example
+~/dotfiles/vim/.vimrc
+~/dotfiles/vim/.vim/
+~/dotfiles/zsh/.zshrc
+~/dotfiles/zsh/.zshenv
+~/dotfiles/git/.gitconfig
+@end example
+
+@noindent
+By running @command{stow} from @file{~/dotfiles}, these files are
+symlinked to appear in your home directory at @file{~/.vimrc},
+@file{~/.vim/}, @file{~/.zshrc}, and so on.  Each application's
+configuration stays neatly organized in its own directory, making it
+easy to track with version control, yet the files appear exactly where
+the applications expect them.
+
+The approach used by Stow is to mirror each package's directory tree
+using symbolic links.  The structure of each private tree reflects the
+desired structure in the target directory (typically the home
+directory).  Stow creates symlinks that make it appear as though the
+files are installed directly in the target tree, while administration
+can be performed in each package's private tree in isolation from other
+packages.
 
 Originally Stow was born to address the need to administer, upgrade,
 install, and remove files in independent software packages without
 confusing them with other files sharing the same file system space.
 For instance, many years ago it used to be common to compile programs
 such as Perl and Emacs from source and install them in
-@file{/usr/local}.  When one does so, one winds up with the following
-files@footnote{As of Perl 4.036 and Emacs 19.22.  These are now
-ancient releases but the example still holds valid.} in
-@file{/usr/local/man/man1}:
+@file{/usr/local}.  When one does so, one winds up with files from
+multiple packages mixed together in directories like
+@file{/usr/local/man/man1}.
 
-@example
-a2p.1
-ctags.1
-emacs.1
-etags.1
-h2ph.1
-perl.1
-s2p.1
-@end example
+By using Stow with a stow directory like @file{/usr/local/stow},
+@file{/usr/local/bin} could contain symlinks to files within
+@file{/usr/local/stow/emacs/bin}, @file{/usr/local/stow/perl/bin},
+etc., keeping each package separate while making them appear installed
+in @file{/usr/local}.
 
-@noindent
-Now suppose it's time to uninstall Perl.  Which man pages
-get removed?  Obviously @file{perl.1} is one of them, but it should not
-be the administrator's responsibility to memorize the ownership of
-individual files by separate packages.
-
-The approach used by Stow is to install each package into its own
-tree, then use symbolic links to make it appear as though the files are
-installed in the common tree.  Administration can be performed in the
-package's private tree in isolation from clutter from other packages.
-Stow can then be used to update the symbolic links.  The structure
-of each private tree should reflect the desired structure in the common
-tree; i.e. (in the typical case) there should be a @file{bin} directory
-containing executables, a @file{man/man1} directory containing section 1
-man pages, and so on.
-
-While this is useful for keeping track of system-wide and per-user
-installations of software built from source, in more recent times
-software packages are often managed by more sophisticated package
-management software such as
+However these days software on modern systems is typically managed by
+more sophisticated package management software such as
 @uref{https://en.wikipedia.org/wiki/Rpm_(software), @command{rpm}},
 @uref{https://en.wikipedia.org/wiki/Dpkg, @command{dpkg}}, and
 @uref{https://en.wikipedia.org/wiki/Nix_package_manager, Nix} /
@@ -184,12 +189,14 @@ language-native package managers such as
 @command{pip}}, @uref{https://en.wikipedia.org/wiki/Npm_(software),
 Javascript's @command{npm}}, and so on.
 
-However Stow is still used not only for software package management,
-but also for other purposes, such as facilitating a more controlled
-approach to management of configuration files in the user's home
+So today Stow is primarily used for managing dotfiles and configuration
+files in the user's home
 directory@footnote{@uref{http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html}},
-especially when coupled with version control
-systems@footnote{@uref{http://lists.gnu.org/archive/html/info-stow/2011-12/msg00000.html}}.
+especially when coupled with a version control system such as
+@command{git}.
+
+But Stow can still be used for managing directory-based software
+installations if needed.
 
 Stow was inspired by Carnegie Mellon's Depot program, but is
 substantially simpler and safer.  Whereas Depot required database

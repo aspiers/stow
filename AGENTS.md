@@ -5,11 +5,17 @@ code in this repository.
 
 ## Overview
 
-GNU Stow is a symlink farm manager written in Perl. It manages the
-installation of software packages by creating symlinks from a target
-directory (e.g., `/usr/local`) to package directories within a stow
-directory (e.g., `/usr/local/stow/package`). This allows multiple
-packages to coexist without file conflicts.
+GNU Stow is a dotfile organizer written in Perl. It keeps your
+configuration files in separate directories, then uses symlink tree
+mirroring to make them appear installed in your home directory (or any
+target directory).
+
+Stow is primarily used for managing dotfiles and configuration files
+(e.g. organizing `~/dotfiles/vim` and `~/dotfiles/zsh` with symlinks
+for `~/.vimrc`, `~/.zshrc`, etc.), but can also manage software
+package installations by creating symlinks from a target directory
+(e.g. `/usr/local`) to package directories within a stow directory
+(e.g. `/usr/local/stow/package`).
 
 The codebase consists of:
 
@@ -24,6 +30,7 @@ The codebase consists of:
 `Makefile` before execution.**
 
 Before testing any code changes:
+
 1. Modify the `.in` files (NOT the generated files)
 2. Run `make` to regenerate the preprocessed versions
 3. Then test your changes
