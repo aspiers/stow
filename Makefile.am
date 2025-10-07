@@ -130,15 +130,15 @@ calc_use_lib_pmdir = \
 
 check_pmdir = \
 	echo; \
-	echo "\# Perl modules will be installed to $(pmdir)"; \
-	echo "\# "; \
+	echo "Perl modules will be installed to $(pmdir)"; \
+	echo; \
 	if $(pmdir_in_INC); then \
-	    echo "\# This is in $(PERL)'s built-in @INC, so everything"; \
-	    echo "\# should work fine with no extra effort."; \
+	    echo "This is in $(PERL)'s built-in @INC, so everything"; \
+	    echo "should work fine with no extra effort."; \
 	else \
-	    echo "\# This is not in $(PERL)'s built-in @INC, so the"; \
-	    echo "\# front-end scripts will have an appropriate \"use lib\""; \
-	    echo "\# line inserted to compensate."; \
+	    echo "This is not in $(PERL)'s built-in @INC, so the"; \
+	    echo "front-end scripts will have an appropriate \"use lib\""; \
+	    echo "line inserted to compensate."; \
 	fi; \
 	echo
 

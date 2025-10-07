@@ -92,5 +92,12 @@ tmp-testing-trees*
 ^playground/
 
 # Avoid development config
+^\.editorconfig
 ^.dir-locals.el
 ^.dumbjump
+
+# Avoid AI agent config
+^AGENTS.md
+^CLAUDE.md
+^GEMINI.md
+^\.claude/
