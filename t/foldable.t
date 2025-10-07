@@ -32,51 +32,49 @@ cd("$TEST_DIR/target");
 
 my $stow = new_Stow(dir => '../stow');
 
-# Note that each of the following tests use a distinct set of files
+subtest('can fold a simple tree', sub {
+    plan tests => 1;
 
-#
-# can fold a simple tree
-#
+    make_path('../stow/pkg1/bin1');
+    make_file('../stow/pkg1/bin1/file1');
+    make_path('bin1');
+    make_link('bin1/file1','../../stow/pkg1/bin1/file1');
 
-make_path('../stow/pkg1/bin1');
-make_file('../stow/pkg1/bin1/file1');
-make_path('bin1');
-make_link('bin1/file1','../../stow/pkg1/bin1/file1');
+    is( $stow->foldable('bin1'), '../stow/pkg1/bin1' => q(can fold a simple tree) );
+});
 
-is( $stow->foldable('bin1'), '../stow/pkg1/bin1' => q(can fold a simple tree) );
+subtest("can't fold an empty directory", sub {
+    plan tests => 1;
 
-#
-# can't fold an empty directory 
-# 
+    make_path('../stow/pkg2/bin2');
+    make_file('../stow/pkg2/bin2/file2');
+    make_path('bin2');
 
-make_path('../stow/pkg2/bin2');
-make_file('../stow/pkg2/bin2/file2');
-make_path('bin2');
+    is( $stow->foldable('bin2'), '' => q(can't fold an empty directory) );
+});
 
-is( $stow->foldable('bin2'), '' => q(can't fold an empty directory) );
+subtest("can't fold if dir contains a non-link", sub {
+    plan tests => 1;
 
-#
-# can't fold if dir contains a non-link
-#
+    make_path('../stow/pkg3/bin3');
+    make_file('../stow/pkg3/bin3/file3');
+    make_path('bin3');
+    make_link('bin3/file3','../../stow/pkg3/bin3/file3');
+    make_file('bin3/non-link');
 
-make_path('../stow/pkg3/bin3');
-make_file('../stow/pkg3/bin3/file3');
-make_path('bin3');
-make_link('bin3/file3','../../stow/pkg3/bin3/file3');
-make_file('bin3/non-link');
+    is( $stow->foldable('bin3'), '' => q(can't fold a dir containing non-links) );
+});
 
-is( $stow->foldable('bin3'), '' => q(can't fold a dir containing non-links) );
+subtest("can't fold if links point to different directories", sub {
+    plan tests => 1;
 
-#
-# can't fold if links point to different directories
-#
+    make_path('bin4');
+    make_path('../stow/pkg4a/bin4');
+    make_file('../stow/pkg4a/bin4/file4a');
+    make_link('bin4/file4a','../../stow/pkg4a/bin4/file4a');
+    make_path('../stow/pkg4b/bin4');
+    make_file('../stow/pkg4b/bin4/file4b');
+    make_link('bin4/file4b','../../stow/pkg4b/bin4/file4b');
 
-make_path('bin4');
-make_path('../stow/pkg4a/bin4');
-make_file('../stow/pkg4a/bin4/file4a');
-make_link('bin4/file4a','../../stow/pkg4a/bin4/file4a');
-make_path('../stow/pkg4b/bin4');
-make_file('../stow/pkg4b/bin4/file4b');
-make_link('bin4/file4b','../../stow/pkg4b/bin4/file4b');
-
-is( $stow->foldable('bin4'), '' => q(can't fold if links point to different dirs) );
+    is( $stow->foldable('bin4'), '' => q(can't fold if links point to different dirs) );
+});
