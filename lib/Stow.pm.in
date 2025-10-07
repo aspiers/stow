@@ -19,7 +19,7 @@ package Stow;
 
 =head1 NAME
 
-Stow - manage farms of symbolic links
+Stow - organize dotfiles and configuration files
 
 =head1 SYNOPSIS
 
@@ -33,11 +33,16 @@ Stow - manage farms of symbolic links
 
 =head1 DESCRIPTION
 
-This is the backend Perl module for GNU Stow, a program for managing
-the installation of software packages, keeping them separate
-(C</usr/local/stow/emacs> vs. C</usr/local/stow/perl>, for example)
-while making them appear to be installed in the same place
-(C</usr/local>).
+This is the backend Perl module for GNU Stow, a program for organizing
+dotfiles and configuration files by keeping them in separate directories
+while using symlink tree mirroring to make them appear installed in
+your home directory (or any target directory).
+
+Stow is primarily used for managing dotfiles (e.g. organizing
+C<~/dotfiles/vim> and C<~/dotfiles/zsh> while symlinking them into
+C<~/.vimrc>, C<~/.zshrc>, etc.), but can also manage software package
+installations (e.g. keeping C</usr/local/stow/emacs> and
+C</usr/local/stow/perl> separate while symlinking into C</usr/local>).
 
 Stow doesn't store an extra state between runs, so there's no danger
 of mangling directories when file hierarchies don't match the

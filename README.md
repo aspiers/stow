@@ -8,10 +8,9 @@ This README describes GNU Stow.  This is not the definitive
 documentation for Stow; for that, see the [info
 manual](https://www.gnu.org/software/stow/manual/).
 
-Stow is a symlink farm manager program which takes distinct sets
-of software and/or data located in separate directories on the
-filesystem, and makes them all appear to be installed in a single
-directory tree.
+Stow is a dotfile organizer which keeps your configuration files
+in separate directories, then uses symlink tree mirroring to make
+them appear installed in your home directory (or any target directory).
 
 Originally Stow was born to address the need to administer, upgrade,
 install, and remove files in independent software packages without
@@ -37,12 +36,13 @@ package managers such as Ruby's
 Javascript's [`npm`](https://en.wikipedia.org/wiki/Npm_(software)),
 and so on.
 
-However Stow is still used not only for software package management,
-but also for other purposes, such as facilitating [a more controlled
-approach to management of configuration files in the user's home
+Today, Stow is primarily used for [managing configuration files
+(dotfiles) in the user's home
 directory](http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html),
 especially when [coupled with version control
-systems](http://lists.gnu.org/archive/html/info-stow/2011-12/msg00000.html).
+systems](http://lists.gnu.org/archive/html/info-stow/2011-12/msg00000.html)
+such as git.  However, it can also still be used for managing software
+package installations as originally intended.
 
 Stow is implemented as a combination of a Perl script providing a CLI
 interface, and a backend Perl module which does most of the work.
