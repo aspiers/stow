@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__list_issues",
+      "mcp__github__get_issue",
+      "mcp__github__get_issue_comments",
+      "WebFetch(domain:unix.stackexchange.com)",
+      "Bash(autoreconf:*)",
+      "Bash(automake:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(make:*)",
+      "Bash(./configure)"
+    ],
+    "deny": []
+  }
+}
