@@ -92,5 +92,6 @@ tmp-testing-trees*
 ^playground/
 
 # Avoid development config
+^\.editorconfig
 ^.dir-locals.el
 ^.dumbjump
