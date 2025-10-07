@@ -59,24 +59,24 @@ subtest('setup fake packages', sub {
 });
 
 subtest('stow perl into an empty target', sub {
-    plan tests => 1;
+    plan tests => 9;
 
     $stow = new_Stow(dir => 'stow');
     $stow->plan_stow('perl');
     $stow->process_tasks();
-    ok(
-        $stow->get_conflict_count == 0 &&
-        -l 'bin' && -l 'info' && -l 'lib' && -l 'man' &&
-        readlink('bin')  eq 'stow/perl/bin' &&
-        readlink('info') eq 'stow/perl/info' &&
-        readlink('lib')  eq 'stow/perl/lib' &&
-        readlink('man')  eq 'stow/perl/man'
-        => 'stow perl into an empty target' 
-    );
+    is($stow->get_conflict_count, 0, 'no conflicts');
+    ok(-l 'bin', 'bin is a symlink');
+    ok(-l 'info', 'info is a symlink');
+    ok(-l 'lib', 'lib is a symlink');
+    ok(-l 'man', 'man is a symlink');
+    is(readlink('bin'), 'stow/perl/bin', 'bin points to stow/perl/bin');
+    is(readlink('info'), 'stow/perl/info', 'info points to stow/perl/info');
+    is(readlink('lib'), 'stow/perl/lib', 'lib points to stow/perl/lib');
+    is(readlink('man'), 'stow/perl/man', 'man points to stow/perl/man');
 });
 
 subtest('stow perl into a non-empty target', sub {
-    plan tests => 1;
+    plan tests => 15;
 
     # clean up previous stow
     remove_link('bin');
@@ -91,22 +91,25 @@ subtest('stow perl into a non-empty target', sub {
     $stow = new_Stow(dir => 'stow');
     $stow->plan_stow('perl');
     $stow->process_tasks();
-    ok(
-        $stow->get_conflict_count == 0 &&
-        -d 'bin' && -d 'lib' && -d 'man' && -d 'man/man1' &&
-        -l 'info' && -l 'bin/perl' && -l 'bin/a2p' && 
-        -l 'lib/perl' && -l 'man/man1/perl.1' &&
-        readlink('info')     eq 'stow/perl/info' &&
-        readlink('bin/perl') eq '../stow/perl/bin/perl' &&
-        readlink('bin/a2p')  eq '../stow/perl/bin/a2p' &&
-        readlink('lib/perl') eq '../stow/perl/lib/perl' &&
-        readlink('man/man1/perl.1')  eq '../../stow/perl/man/man1/perl.1'
-        => 'stow perl into a non-empty target' 
-    ); 
+    is($stow->get_conflict_count, 0, 'no conflicts');
+    ok(-d 'bin', 'bin is a directory');
+    ok(-d 'lib', 'lib is a directory');
+    ok(-d 'man', 'man is a directory');
+    ok(-d 'man/man1', 'man/man1 is a directory');
+    ok(-l 'info', 'info is a symlink');
+    ok(-l 'bin/perl', 'bin/perl is a symlink');
+    ok(-l 'bin/a2p', 'bin/a2p is a symlink');
+    ok(-l 'lib/perl', 'lib/perl is a symlink');
+    ok(-l 'man/man1/perl.1', 'man/man1/perl.1 is a symlink');
+    is(readlink('info'), 'stow/perl/info', 'info points to stow/perl/info');
+    is(readlink('bin/perl'), '../stow/perl/bin/perl', 'bin/perl points correctly');
+    is(readlink('bin/a2p'), '../stow/perl/bin/a2p', 'bin/a2p points correctly');
+    is(readlink('lib/perl'), '../stow/perl/lib/perl', 'lib/perl points correctly');
+    is(readlink('man/man1/perl.1'), '../../stow/perl/man/man1/perl.1', 'man/man1/perl.1 points correctly');
 });
 
 subtest('install perl into empty target and then install emacs', sub {
-    plan tests => 2;
+    plan tests => 25;
 
     # clean up previous stow
     remove_link('info');
@@ -118,48 +121,41 @@ subtest('install perl into empty target and then install emacs', sub {
     $stow->plan_stow('perl', 'emacs');
     $stow->process_tasks();
     is($stow->get_conflict_count, 0, 'no conflicts');
-    ok(
-        -d 'bin'        && 
-        -l 'bin/perl'   && 
-        -l 'bin/emacs'  && 
-        -l 'bin/a2p'    && 
-        -l 'bin/etags'  && 
-        readlink('bin/perl')    eq '../stow/perl/bin/perl'      &&
-        readlink('bin/a2p')     eq '../stow/perl/bin/a2p'       &&
-        readlink('bin/emacs')   eq '../stow/emacs/bin/emacs'    &&
-        readlink('bin/etags')   eq '../stow/emacs/bin/etags'    &&
-        
-        -d 'info'       && 
-        -l 'info/perl'  && 
-        -l 'info/emacs' && 
-        readlink('info/perl')   eq '../stow/perl/info/perl'     &&
-        readlink('info/emacs')  eq '../stow/emacs/info/emacs'   &&
-
-        -d 'man'                && 
-        -d 'man/man1'           &&
-        -l 'man/man1/perl.1'    &&
-        -l 'man/man1/emacs.1'   &&
-        readlink('man/man1/perl.1')  eq '../../stow/perl/man/man1/perl.1'   &&
-        readlink('man/man1/emacs.1') eq '../../stow/emacs/man/man1/emacs.1' &&
-
-        -l 'lib'        && 
-        -l 'libexec'    &&
-        readlink('lib')     eq 'stow/perl/lib'      &&
-        readlink('libexec') eq 'stow/emacs/libexec' &&
-        1
-        => 'stow perl into an empty target, then stow emacs' 
-    );
+    ok(-d 'bin', 'bin is a directory');
+    ok(-l 'bin/perl', 'bin/perl is a symlink');
+    ok(-l 'bin/emacs', 'bin/emacs is a symlink');
+    ok(-l 'bin/a2p', 'bin/a2p is a symlink');
+    ok(-l 'bin/etags', 'bin/etags is a symlink');
+    is(readlink('bin/perl'), '../stow/perl/bin/perl', 'bin/perl points correctly');
+    is(readlink('bin/a2p'), '../stow/perl/bin/a2p', 'bin/a2p points correctly');
+    is(readlink('bin/emacs'), '../stow/emacs/bin/emacs', 'bin/emacs points correctly');
+    is(readlink('bin/etags'), '../stow/emacs/bin/etags', 'bin/etags points correctly');
+    ok(-d 'info', 'info is a directory');
+    ok(-l 'info/perl', 'info/perl is a symlink');
+    ok(-l 'info/emacs', 'info/emacs is a symlink');
+    is(readlink('info/perl'), '../stow/perl/info/perl', 'info/perl points correctly');
+    is(readlink('info/emacs'), '../stow/emacs/info/emacs', 'info/emacs points correctly');
+    ok(-d 'man', 'man is a directory');
+    ok(-d 'man/man1', 'man/man1 is a directory');
+    ok(-l 'man/man1/perl.1', 'man/man1/perl.1 is a symlink');
+    ok(-l 'man/man1/emacs.1', 'man/man1/emacs.1 is a symlink');
+    is(readlink('man/man1/perl.1'), '../../stow/perl/man/man1/perl.1', 'man/man1/perl.1 points correctly');
+    is(readlink('man/man1/emacs.1'), '../../stow/emacs/man/man1/emacs.1', 'man/man1/emacs.1 points correctly');
+    ok(-l 'lib', 'lib is a symlink');
+    ok(-l 'libexec', 'libexec is a symlink');
+    is(readlink('lib'), 'stow/perl/lib', 'lib points correctly');
+    is(readlink('libexec'), 'stow/emacs/libexec', 'libexec points correctly');
 });
 
 subtest('bug fixes', sub {
     plan tests => 6;
 
     #
-    # BUG 1: 
+    # BUG 1:
     # 1. stowing a package with an empty directory
     # 2. stow another package with the same directory but non empty
     # 3. unstow the second package
-    # Q. the original empty directory should remain 
+    # Q. the original empty directory should remain
     # behaviour is the same as if the empty directory had nothing to do with stow
     #
 
