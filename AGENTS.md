@@ -12,7 +12,7 @@ target directory).
 
 Stow is primarily used for managing dotfiles and configuration files
 (e.g. organizing `~/dotfiles/vim` and `~/dotfiles/zsh` with symlinks
-for `~/.vimrc`, `~/.zshrc`, etc.), but can also manage software
+at `~/.vimrc`, `~/.zshrc`, etc.), but can also manage software
 package installations by creating symlinks from a target directory
 (e.g. `/usr/local`) to package directories within a stow directory
 (e.g. `/usr/local/stow/package`).
