@@ -22,7 +22,6 @@
 use strict;
 use warnings;
 
-use File::Spec qw(make_path);
 use POSIX qw(getcwd);
 use Test::More tests => 35;
 use Test::Output;
