@@ -540,6 +540,10 @@ sub process_options {
         }
     }
 
+    if ($options{simulate} && !exists $options{verbose}) {
+        $options{verbose} = 1;
+    }
+
     # Run checks on the merged options.
     sanitize_path_options(\%options);
     check_packages($pkgs_to_unstow, $pkgs_to_stow);

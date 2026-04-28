@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use testutil;
 
@@ -116,6 +116,25 @@ subtest('no expansion of environment variables', sub {
     my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
     is($options->{target}, "$TEST_DIR/".'$HOME', 'no expansion');
     remove_dir("$TEST_DIR/".'$HOME');
+});
+
+subtest('simulate defaults verbosity unless explicitly set', sub {
+    plan tests => 2;
+
+    local @ARGV = (
+        '--simulate',
+        'dummy'
+    );
+    my ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+    is($options->{verbose}, 1, 'simulate defaults verbosity to 1');
+
+    local @ARGV = (
+        '--simulate',
+        '--verbose=0',
+        'dummy'
+    );
+    ($options, $pkgs_to_delete, $pkgs_to_stow) = process_options();
+    is($options->{verbose}, 0, 'explicit verbosity overrides simulate default');
 });
 
 # vim:ft=perl
