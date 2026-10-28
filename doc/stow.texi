@@ -869,6 +869,18 @@ Prior to version 2.0, if a conflict was discovered, the stow or unstow
 operation could be aborted mid-flow, leaving the target tree in an
 inconsistent state.
 
+The two-phase algorithm does not make filesystem changes transactional.
+If Stow is forcibly terminated, or the system loses power, while a folded
+tree is being split open, the target may be left only partly updated.  For
+example, Stow removes the folded directory symlink before creating the
+real directory and its links, so an interruption can make files from
+packages that were already stowed unreachable through the target.  The
+files in the stow directories are not removed.  Stow does not keep a
+transaction log, so inspect the affected target and stow each package that
+contributed to the split-open tree again, using the same stow and target
+directories, to restore its links.  This interruption risk is separate
+from conflicts detected during the initial scan.
+
 @c ===========================================================================
 @node Mixing Operations, Multiple Stow Directories, Conflicts, Top
 @chapter Mixing Operations
