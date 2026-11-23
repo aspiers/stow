@@ -630,16 +630,21 @@ sub sanitize_path_options {
         $options->{dir} = length $ENV{STOW_DIR} ? $ENV{STOW_DIR} : getcwd();
     }
 
-    usage("--dir value '$options->{dir}' is not a valid directory")
-        unless -d $options->{dir};
+    check_dir_option('dir', $options->{dir});
 
     if (exists $options->{target}) {
-        usage("--target value '$options->{target}' is not a valid directory")
-            unless -d $options->{target};
+        check_dir_option('target', $options->{target});
     }
     else {
         $options->{target} = parent($options->{dir}) || '.';
     }
+}
+
+sub check_dir_option {
+    my ($option, $dir) = @_;
+
+    error("--$option value '$dir' does not exist") unless -e $dir;
+    error("--$option value '$dir' is not a directory") unless -d $dir;
 }
 
 sub check_packages {

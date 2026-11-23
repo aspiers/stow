@@ -23,11 +23,11 @@ use strict;
 use warnings;
 
 use File::Basename;
-use Test::More tests => 3;
+use Test::More tests => 6;
 
 use testutil;
 
-#init_test_dirs();
+init_test_dirs();
 
 # Since here we're doing black-box testing on the stow executable,
 # this looks like it should be robust:
@@ -65,5 +65,36 @@ is($?, 0, "--help should return 0 exit code");
 my $err = `$STOW --foo 2>&1`;
 is($? >> 8, 1, "unrecognised option should return 1 exit code");
 like($err, qr/^Unknown option: foo$/m, "unrecognised option should be listed");
+
+subtest('--target which does not exist', sub {
+    plan tests => 3;
+
+    my $out = `$STOW -d $TEST_DIR/stow -t $TEST_DIR/nonexistent pkg 2>&1`;
+    isnt($?, 0, "should return non-zero exit code");
+    like($out, qr/--target value '$TEST_DIR\/nonexistent' does not exist$/m,
+         "should say that the target does not exist");
+    unlike($out, qr/SYNOPSIS/, "should not print usage");
+});
+
+subtest('--target which is not a directory', sub {
+    plan tests => 3;
+
+    make_file("$TEST_DIR/target/file");
+    my $out = `$STOW -d $TEST_DIR/stow -t $TEST_DIR/target/file pkg 2>&1`;
+    isnt($?, 0, "should return non-zero exit code");
+    like($out, qr/--target value '$TEST_DIR\/target\/file' is not a directory$/m,
+         "should say that the target is not a directory");
+    unlike($out, qr/SYNOPSIS/, "should not print usage");
+});
+
+subtest('--dir which does not exist', sub {
+    plan tests => 3;
+
+    my $out = `$STOW -d $TEST_DIR/nonexistent pkg 2>&1`;
+    isnt($?, 0, "should return non-zero exit code");
+    like($out, qr/--dir value '$TEST_DIR\/nonexistent' does not exist$/m,
+         "should say that the stow directory does not exist");
+    unlike($out, qr/SYNOPSIS/, "should not print usage");
+});
 
 # vim:ft=perl
